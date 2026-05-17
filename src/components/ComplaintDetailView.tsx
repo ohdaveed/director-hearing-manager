@@ -239,7 +239,7 @@ export default function ComplaintDetailView({
               className="flex items-center gap-1 text-xs text-primary hover:underline">
               <ExternalLink className="w-3 h-3" /> SF PIM
             </a>
-            {canEditStatus && !rpEditing && detail?.locationRecordId && (
+            {canEditStatus && !rpEditing && detail?.location && (
               <button onClick={() => setRpEditing(true)}
                 className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors">
                 <Pencil className="w-3 h-3" /> Edit
@@ -250,7 +250,7 @@ export default function ComplaintDetailView({
       />
       <div className="p-5">
         {/* No location linked — show search field */}
-        {!detail?.locationRecordId && (
+        {!detail?.location && (
           <div className="space-y-3">
             <div className="flex items-center gap-2 text-xs font-medium text-warning bg-warning/10 border border-warning/30 rounded-md px-3 py-2">
               <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
@@ -273,13 +273,13 @@ export default function ComplaintDetailView({
                 </div>
                 {locationResults.length > 0 && (
                   <div className="border border-border rounded-lg bg-card overflow-hidden">
-                    {locationResults.slice(0, 6).map(loc => (
+                    {locationResults.slice(0, 6).map((loc: any) => (
                       <div key={loc.id} className="px-3 py-2.5 flex items-center justify-between border-b border-border last:border-b-0 hover:bg-muted/40 transition-colors">
                         <div className="min-w-0 flex-1">
                           <p className="text-sm font-medium text-foreground truncate">{loc.address}</p>
                           <p className="text-xs text-muted-foreground">
-                            {loc.locationId && `ID: ${loc.locationId}`}
-                            {loc.facilityType && ` · ${loc.facilityType}`}
+                            {loc.location_id && `ID: ${loc.location_id}`}
+                            {loc.facility_type && ` · ${loc.facility_type}`}
                           </p>
                         </div>
                         <Button
@@ -287,7 +287,7 @@ export default function ComplaintDetailView({
                           variant="outline"
                           className="ml-3 shrink-0 h-7 text-xs gap-1"
                           onClick={() => handleLinkLocation(loc.id)}
-                          disabled={!!linkingLocationId}
+                          disabled={linkLocationMutation.isPending}
                         >
                           {linkingLocationId === loc.id
                             ? <Loader2 className="w-3 h-3 animate-spin" />
@@ -307,7 +307,7 @@ export default function ComplaintDetailView({
         )}
 
         {/* Location linked, view mode */}
-        {detail?.locationRecordId && !rpEditing && (
+        {detail?.location && !rpEditing && (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {rpName || rpAddress || rpPhone || rpEmail ? (
               <>
@@ -328,7 +328,7 @@ export default function ComplaintDetailView({
         )}
 
         {/* Edit form */}
-        {detail?.locationRecordId && rpEditing && (
+        {detail?.location && rpEditing && (
           <div className="space-y-3">
             <p className="text-xs text-muted-foreground mb-3">
               Enter owner info from{' '}
@@ -354,8 +354,8 @@ export default function ComplaintDetailView({
               </div>
             </div>
             <div className="flex items-center gap-2 pt-1">
-              <Button onClick={handleSaveResponsibleParty} disabled={rpSaving} size="sm" className="gap-1.5">
-                {rpSaving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
+              <Button onClick={handleSaveResponsibleParty} disabled={updateLocationMutation.isPending} size="sm" className="gap-1.5">
+                {updateLocationMutation.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
                 Save
               </Button>
               <Button variant="ghost" size="sm" onClick={() => setRpEditing(false)}>Cancel</Button>
@@ -381,31 +381,31 @@ export default function ComplaintDetailView({
         count={detail.inspections.length}
       />
       <div className="divide-y divide-border">
-        {detail.inspections.map(ins => (
+        {detail.inspections.map((ins: any) => (
           <div key={ins.id} className="px-5 py-3.5 flex items-center justify-between gap-3">
             <div className="min-w-0">
               <div className="flex items-center gap-2 mb-0.5 flex-wrap">
                 <span className="text-sm font-medium text-foreground">
-                  {ins.inspectionDate ? new Date(ins.inspectionDate + 'T00:00:00').toLocaleDateString() : 'No date'}
+                  {ins.inspection_date ? new Date(ins.inspection_date + 'T00:00:00').toLocaleDateString() : 'No date'}
                 </span>
-                {ins.inspectionType && <span className="text-xs text-muted-foreground">{ins.inspectionType}</span>}
+                {ins.inspection_type && <span className="text-xs text-muted-foreground">{ins.inspection_type}</span>}
               </div>
               <div className="flex items-center gap-2 flex-wrap">
                 {ins.inspector && <span className="text-xs text-muted-foreground">{ins.inspector}</span>}
-                {(ins.violationCount ?? 0) > 0 && (
+                {(ins.violation_count ?? 0) > 0 && (
                   <span className="text-xs bg-destructive/10 text-destructive px-1.5 py-0.5 rounded font-medium">
-                    {ins.violationCount} violation{ins.violationCount !== 1 ? 's' : ''}
+                    {ins.violation_count} violation{ins.violation_count !== 1 ? 's' : ''}
                   </span>
                 )}
               </div>
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
-              {ins.inspectionRating === 'Satisfactory' && (
+              {ins.inspection_rating === 'Satisfactory' && (
                 <span className="flex items-center gap-1 text-xs font-semibold text-success bg-success/10 px-2 py-0.5 rounded-full">
                   <CheckCircle2 className="w-3 h-3" /> Sat.
                 </span>
               )}
-              {ins.inspectionRating === 'Unsatisfactory' && (
+              {ins.inspection_rating === 'Unsatisfactory' && (
                 <span className="flex items-center gap-1 text-xs font-semibold text-destructive bg-destructive/10 px-2 py-0.5 rounded-full">
                   <XCircle className="w-3 h-3" /> Unsat.
                 </span>
@@ -485,33 +485,33 @@ export default function ComplaintDetailView({
             <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-                  {complaint.complaintId && (
+                  {complaint.complaintid && (
                     <span className="text-xs font-mono font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded">
-                      #{complaint.complaintId}
+                      #{complaint.complaintid}
                     </span>
                   )}
-                  {complaint.category && complaint.category.map(cat => (
+                  {complaint.category && complaint.category.map((cat: string) => (
                     <span key={cat} className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded-full">{cat}</span>
                   ))}
                 </div>
                 <div className="flex items-center gap-2 flex-wrap">
                   <h2 className="text-lg font-bold text-foreground leading-snug">{complaint.address}</h2>
-                  {detail?.locationRecordId && (
+                  {detail?.location && (
                     <button
                       type="button"
-                      onClick={() => { if (detail?.locationRecordId) navigate(`/locations/${detail.locationRecordId}`); }}
+                      onClick={() => { if (detail?.location) navigate(`/locations/${detail.location}`); }}
                       className="flex items-center gap-1 text-xs text-primary hover:underline font-medium"
                     >
                       <ExternalLink className="w-3 h-3" /> View Location
                     </button>
                   )}
                 </div>
-                {detail?.complaint.description && (
-                  <DescriptionText text={sanitizeText(detail.complaint.description)} />
+                {detail?.description && (
+                  <DescriptionText text={sanitizeText(detail.description)} />
                 )}
-                {viewMode !== 'inspector' && complaint.assignedTo && (
+                {viewMode !== 'inspector' && complaint.assigned_to && (
                   <p className="text-xs text-muted-foreground mt-1">
-                    Assigned: {complaint.assignedTo.replace(' (DPH)', '')}
+                    Assigned: {complaint.assigned_to.replace(' (DPH)', '')}
                   </p>
                 )}
               </div>
@@ -528,7 +528,7 @@ export default function ComplaintDetailView({
               <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${statusBadgeCls}`}>
                 {currentStatus || '—'}
               </span>
-              {updatingStatus && <Loader2 className="w-3 h-3 animate-spin text-muted-foreground" />}
+              {updateStatusMutation.isPending && <Loader2 className="w-3 h-3 animate-spin text-muted-foreground" />}
             </div>
           </div>
 
@@ -544,14 +544,14 @@ export default function ComplaintDetailView({
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <InfoRow icon={<Calendar className="w-3.5 h-3.5" />} label="Date Entered"
-                  value={detail.complaint.dateEntered ? new Date(detail.complaint.dateEntered + 'T00:00:00').toLocaleDateString() : undefined} />
+                  value={detail.date_entered ? new Date(detail.date_entered + 'T00:00:00').toLocaleDateString() : undefined} />
                 <InfoRow icon={<AlertCircle className="w-3.5 h-3.5" />} label="Reinspection Due"
-                  value={detail.complaint.reinspectionDueOnAfter ? new Date(detail.complaint.reinspectionDueOnAfter + 'T00:00:00').toLocaleDateString() : undefined} />
+                  value={detail.reinspection_due_on_after ? new Date(detail.reinspection_due_on_after + 'T00:00:00').toLocaleDateString() : undefined} />
                 <InfoRow icon={<Calendar className="w-3.5 h-3.5" />} label="Last Report Sent"
-                  value={detail.complaint.dateLastReportSent ? new Date(detail.complaint.dateLastReportSent + 'T00:00:00').toLocaleDateString() : undefined} />
-                <InfoRow icon={<User className="w-3.5 h-3.5" />} label="Complainant" value={detail.complaint.complainantName} />
-                <InfoRow icon={<Phone className="w-3.5 h-3.5" />} label="Phone" value={detail.complaint.complainantPhone} />
-                <InfoRow icon={<Mail className="w-3.5 h-3.5" />} label="Email" value={detail.complaint.complainantEmail} />
+                  value={detail.date_last_report_sent ? new Date(detail.date_last_report_sent + 'T00:00:00').toLocaleDateString() : undefined} />
+                <InfoRow icon={<User className="w-3.5 h-3.5" />} label="Complainant" value={detail.complainant_name} />
+                <InfoRow icon={<Phone className="w-3.5 h-3.5" />} label="Phone" value={detail.complainant_phone} />
+                <InfoRow icon={<Mail className="w-3.5 h-3.5" />} label="Email" value={detail.complainant_email} />
               </div>
             </div>
           )}
