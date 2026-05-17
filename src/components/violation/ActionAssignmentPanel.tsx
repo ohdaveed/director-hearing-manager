@@ -127,9 +127,7 @@ export default function ActionAssignmentPanel({
       >
         <span
           className={`mt-0.5 shrink-0 transition-colors ${
-            checked
-              ? "text-primary"
-              : "text-border group-hover:text-muted-foreground"
+            checked ? "text-primary" : "text-muted-foreground"
           }`}
         >
           {checked ? (
@@ -257,7 +255,7 @@ export default function ActionAssignmentPanel({
               )}
               {showDivider && (
                 <div className="px-3.5 py-1.5 bg-muted/40 border-y border-border/60">
-                  <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+                  <span className="text-[10px] font-semibold uppercase tracking-widest text-foreground/70">
                     Remaining actions
                   </span>
                 </div>

@@ -644,7 +644,7 @@ export default function InspectionFormPage({ inspectorName }: Props) {
 
   if (complaintLoading) {
     return (
-      <div className="container mx-auto px-3 sm:px-6 py-6 max-w-5xl">
+      <div className="container mx-auto px-3 sm:px-6 py-6 max-w-7xl">
         <div className="flex items-start justify-between mb-6">
           <div className="space-y-2">
             <Skeleton className="h-4 w-32" />
@@ -682,7 +682,7 @@ export default function InspectionFormPage({ inspectorName }: Props) {
   const violationCount = form.violations.filter((v) => v.violationKey).length;
 
   return (
-    <div className="container mx-auto px-3 sm:px-6 py-6 max-w-5xl">
+    <div className="container mx-auto px-3 sm:px-6 py-6 max-w-7xl">
       <div className="flex items-start justify-between mb-6">
         <div>
           <button
@@ -922,54 +922,56 @@ export default function InspectionFormPage({ inspectorName }: Props) {
         </Button>
       </CollapsibleSection>
 
-      <CollapsibleSection
-        title="Observations & Summary"
-        open={openSections.observations}
-        onToggle={() => toggleSection("observations")}
-      >
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-              Global Observations
-            </label>
-            <div className="flex items-center gap-2">
-              <Input
-                placeholder="Add a global observation…"
-                value={globalObsInput}
-                onChange={(e) => setGlobalObsInput(e.target.value)}
+      <div className="lg:grid lg:grid-cols-2 lg:gap-4 lg:items-start">
+        <CollapsibleSection
+          title="Observations & Summary"
+          open={openSections.observations}
+          onToggle={() => toggleSection("observations")}
+        >
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                Global Observations
+              </label>
+              <div className="flex items-center gap-2">
+                <Input
+                  placeholder="Add a global observation…"
+                  value={globalObsInput}
+                  onChange={(e) => setGlobalObsInput(e.target.value)}
+                />
+                <Button type="button" variant="outline" onClick={addGlobalObs}>
+                  Add
+                </Button>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                Summary / Observations
+              </label>
+              <Textarea
+                placeholder="Describe key findings..."
+                value={form.summary}
+                onChange={(e) => setField("summary", e.target.value)}
+                className="min-h-[120px]"
               />
-              <Button type="button" variant="outline" onClick={addGlobalObs}>
-                Add
-              </Button>
             </div>
           </div>
-          <div className="space-y-2">
-            <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-              Summary / Observations
-            </label>
-            <Textarea
-              placeholder="Describe key findings..."
-              value={form.summary}
-              onChange={(e) => setField("summary", e.target.value)}
-              className="min-h-[120px]"
-            />
-          </div>
-        </div>
-      </CollapsibleSection>
+        </CollapsibleSection>
 
-      <CollapsibleSection
-        title="Photos"
-        icon={<Camera className="w-4 h-4" />}
-        open={openSections.photos}
-        onToggle={() => toggleSection("photos")}
-      >
-        <PhotoUploadSection
-          complaintId={form.complaintid}
-          inspector={inspectorName}
-          photos={photos}
-          onPhotosChange={setPhotos}
-        />
-      </CollapsibleSection>
+        <CollapsibleSection
+          title="Photos"
+          icon={<Camera className="w-4 h-4" />}
+          open={openSections.photos}
+          onToggle={() => toggleSection("photos")}
+        >
+          <PhotoUploadSection
+            complaintId={form.complaintid}
+            inspector={inspectorName}
+            photos={photos}
+            onPhotosChange={setPhotos}
+          />
+        </CollapsibleSection>
+      </div>
 
       <CollapsibleSection
         title="Hearing Preparation"

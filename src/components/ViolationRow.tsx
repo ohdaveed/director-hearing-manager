@@ -389,7 +389,7 @@ export default function ViolationRow({
 
   const statusStyle = (s: (typeof STATUSES)[number]) => {
     if (s !== currentStatus)
-      return "bg-background text-muted-foreground hover:bg-muted";
+      return "bg-background text-foreground/70 hover:bg-muted";
     if (s === "Violation") return "bg-destructive text-destructive-foreground";
     if (s === "Abated") return "bg-primary text-primary-foreground";
     return "bg-muted text-foreground font-semibold border-b border-border";
@@ -510,7 +510,7 @@ export default function ViolationRow({
                             {active ? (
                               <CheckCircle2 className="w-3 h-3 shrink-0" />
                             ) : (
-                              <Circle className="w-3 h-3 shrink-0 opacity-40" />
+                              <Circle className="w-3 h-3 shrink-0 text-muted-foreground" />
                             )}
                             {obs.text}
                             {!active && count > 0 && (
