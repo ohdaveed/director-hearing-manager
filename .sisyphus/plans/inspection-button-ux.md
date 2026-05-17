@@ -67,10 +67,9 @@ Make the "Start Inspection" action intuitive, discoverable, and seamless.
 
 ### Definition of Done
 
-- [ ] Button visible and prominent in upper-right of complaint header
-- [ ] Button disabled with tooltip when location not linked
-- [ ] Button disabled with tooltip when no inspector assigned
-- [ ] Clicking navigates to inspection form with address pre-filled
+- [x] Button visible and prominent in upper-right of complaint header (Fitts's Law)
+- [x] Button ALWAYS enabled (user removed conditional disabled state)
+- [x] Clicking navigates to inspection form with address pre-filled (Jakob's Law)
 
 ---
 
@@ -120,7 +119,7 @@ Max Concurrent: 1
 
 ## TODOs
 
-- [ ] 1. **Implement UX improvements in ComplaintDetailView.tsx** — `visual-engineering`
+- [x] 1. **Implement UX improvements in ComplaintDetailView.tsx** — `visual-engineering` [COMPLETED - user removed conditional disabled state, only button prominence + context preservation implemented]
 
   **What to do**:
   1. **Button Position** (lines 903-918):

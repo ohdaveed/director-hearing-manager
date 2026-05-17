@@ -874,25 +874,27 @@ export default function ComplaintDetailView({
       {/* Two-column grid on desktop */}
       <div className="grid gap-4 lg:grid-cols-12 items-start">
         <div className="space-y-4 lg:col-span-8">
-          {/* Header card */}
-          <div className="bg-card border border-border rounded-xl p-5 shadow-sm">
+          <div className="bg-card border-primary/30 rounded-xl p-5 shadow-lg">
             <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
               <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                <div className="flex items-center gap-2 mb-2 flex-wrap">
                   {complaint.complaintid && (
-                    <span className="text-xs font-mono font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded">
+                    <span className="text-xs font-mono font-bold text-primary bg-primary/10 px-2 py-0.5 rounded">
                       #{complaint.complaintid}
                     </span>
                   )}
-                  {complaint.category &&
-                    complaint.category.map((cat: string) => (
-                      <span
-                        key={cat}
-                        className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded-full"
-                      >
-                        {cat}
-                      </span>
-                    ))}
+                  {complaint.category && complaint.category.length > 0 && (
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      {complaint.category.map((cat: string) => (
+                        <span
+                          key={cat}
+                          className="text-xs font-semibold px-2.5 py-1 rounded-full bg-primary/15 text-primary border border-primary/20"
+                        >
+                          {cat}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
                 <div className="flex items-center gap-2 flex-wrap">
                   <h2 className="text-lg font-bold text-foreground leading-snug">
@@ -911,6 +913,11 @@ export default function ComplaintDetailView({
               {canStartInspection && (
                 <Button
                   onClick={handleStartInspection}
+                  title={
+                    hasDraft
+                      ? "Resume your draft inspection for this complaint"
+                      : "Start a new inspection for this complaint"
+                  }
                   className="gap-2 flex-shrink-0 h-11 px-6 text-base font-semibold shadow-md"
                 >
                   {hasDraft ? (
@@ -949,8 +956,8 @@ export default function ComplaintDetailView({
             </div>
           ) : (
             detail && (
-              <div className="bg-card border border-border rounded-xl p-5 shadow-sm">
-                <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-4 pb-3 border-b border-border/60">
+              <div className="bg-card border border-border/60 rounded-xl p-5 shadow-sm">
+                <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-4 pb-3 border-b border-border/40">
                   Complaint Info
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

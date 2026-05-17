@@ -67,9 +67,9 @@ Make delete complaint work for authorized users (Admins/Super Admins should alwa
 
 ### Definition of Done
 
-- [ ] Admin/Super Admin sees delete button on complaint detail
-- [ ] Admin/Super Admin can successfully delete a complaint
-- [ ] Non-admin users see appropriate error or no delete button
+- [x] Admin/Super Admin sees delete button on complaint detail
+- [x] Admin/Super Admin can successfully delete a complaint
+- [x] Non-admin users see appropriate error or no delete button
 
 ---
 

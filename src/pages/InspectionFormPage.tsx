@@ -796,6 +796,7 @@ export default function InspectionFormPage({ inspectorName }: Props) {
                 }}
               >
                 <SelectTrigger
+                  title="Select the type of inspection being conducted"
                   className={`h-9 text-sm ${fieldErrors.inspection_type ? "border-destructive" : ""}`}
                 >
                   <SelectValue placeholder="Select type..." />
@@ -815,6 +816,7 @@ export default function InspectionFormPage({ inspectorName }: Props) {
               </label>
               <Input
                 type="time"
+                title="When the inspection began"
                 value={form.timeIn}
                 onChange={(e) => handleTimeInChange(e.target.value)}
               />
@@ -825,6 +827,7 @@ export default function InspectionFormPage({ inspectorName }: Props) {
               </label>
               <Input
                 type="time"
+                title="When the inspection ended"
                 value={form.timeOut}
                 onChange={(e) => setField("timeOut", e.target.value)}
               />
@@ -848,6 +851,7 @@ export default function InspectionFormPage({ inspectorName }: Props) {
                     <button
                       key={area}
                       type="button"
+                      title={`${form.areasInspected.includes(area) ? "Click to deselect" : "Click to select"} ${area}`}
                       onClick={() => toggleArea(area)}
                       className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-all ${form.areasInspected.includes(area) ? "bg-primary text-primary-foreground border-primary shadow-sm" : "bg-card text-foreground border-border hover:bg-muted"}`}
                     >
@@ -871,6 +875,7 @@ export default function InspectionFormPage({ inspectorName }: Props) {
             <button
               key={key}
               type="button"
+              title={`Add a ${COMMON_VIOLATION_LABELS[key]} violation to this inspection`}
               onClick={() => {
                 const vType = VIOLATION_TYPES.find(
                   (v) => `${v.category}||${v.label}` === key,
@@ -936,10 +941,16 @@ export default function InspectionFormPage({ inspectorName }: Props) {
               <div className="flex items-center gap-2">
                 <Input
                   placeholder="Add a global observation…"
+                  title="Document notable observations about the property or surrounding area"
                   value={globalObsInput}
                   onChange={(e) => setGlobalObsInput(e.target.value)}
                 />
-                <Button type="button" variant="outline" onClick={addGlobalObs}>
+                <Button
+                  type="button"
+                  title="Add this observation to the inspection"
+                  variant="outline"
+                  onClick={addGlobalObs}
+                >
                   Add
                 </Button>
               </div>
@@ -949,6 +960,7 @@ export default function InspectionFormPage({ inspectorName }: Props) {
                 Summary / Observations
               </label>
               <Textarea
+                title="Document your key findings and observations from this inspection"
                 placeholder="Describe key findings..."
                 value={form.summary}
                 onChange={(e) => setField("summary", e.target.value)}
@@ -979,7 +991,10 @@ export default function InspectionFormPage({ inspectorName }: Props) {
         onToggle={() => toggleSection("hearing")}
       >
         <div className="space-y-4">
-          <label className="flex items-center gap-2 cursor-pointer text-sm">
+          <label
+            className="flex items-center gap-2 cursor-pointer text-sm"
+            title="Check this if the inspection findings warrant escalation to a formal hearing"
+          >
             <Checkbox
               checked={form.hearingReferral}
               onCheckedChange={(v) => setField("hearingReferral", !!v)}
@@ -1001,6 +1016,7 @@ export default function InspectionFormPage({ inspectorName }: Props) {
           <Button
             variant="outline"
             size="lg"
+            title="Save your progress as a draft - you can continue later"
             className="gap-2 w-full sm:w-auto"
             onClick={() => handleSave(true)}
             disabled={saving}
@@ -1016,6 +1032,7 @@ export default function InspectionFormPage({ inspectorName }: Props) {
             <Button
               variant="outline"
               size="lg"
+              title="Open print dialog to save inspection form as PDF"
               className="gap-2 flex-1 sm:flex-none"
               onClick={handlePrint}
             >
@@ -1023,6 +1040,7 @@ export default function InspectionFormPage({ inspectorName }: Props) {
             </Button>
             <Button
               size="lg"
+              title="Submit this inspection - this cannot be undone"
               className="gap-2 flex-1 sm:flex-none"
               onClick={() => handleSave(false)}
               disabled={saving}
