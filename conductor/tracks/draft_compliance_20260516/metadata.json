@@ -1,0 +1,8 @@
+{
+  "track_id": "draft_compliance_20260516",
+  "type": "feature",
+  "status": "new",
+  "created_at": "2026-05-16T21:30:00Z",
+  "updated_at": "2026-05-16T21:30:00Z",
+  "description": "the user can uploaded a draft directors hearing packet and the app will modify it to fall into compliance with SOP"
+}
