@@ -1,9 +1,8 @@
 import { MapPin, User, Calendar } from 'lucide-react';
 import { formatDate } from '@/utils/formatDate';
-import { GetChronologyForPacketOutputType } from 'zite-endpoints-sdk';
 
-type PacketMeta = NonNullable<GetChronologyForPacketOutputType['packetMeta']>;
-type LocationMeta = NonNullable<GetChronologyForPacketOutputType['locationMeta']>;
+type PacketMeta = any;
+type LocationMeta = any;
 
 interface Props {
   packetMeta?: PacketMeta;
@@ -22,8 +21,8 @@ export default function ChronologyContextHeader({ packetMeta, locationMeta }: Pr
   ].filter(Boolean).join(' · ');
 
   const hearingLine = [
-    packetMeta?.caseNumber && `Case ${packetMeta.caseNumber}`,
-    packetMeta?.programCode && `Program ${packetMeta.programCode}`,
+    packetMeta?.case_number && `Case ${packetMeta.case_number}`,
+    packetMeta?.program_code && `Program ${packetMeta.program_code}`,
   ].filter(Boolean).join(' · ');
 
   return (
@@ -55,8 +54,8 @@ export default function ChronologyContextHeader({ packetMeta, locationMeta }: Pr
             <Calendar className="w-2.5 h-2.5" /> Hearing Schedule
           </p>
           <p className="text-foreground font-medium">
-            {packetMeta?.hearingDate
-              ? `${formatDate(packetMeta.hearingDate)}${packetMeta.hearingTime ? ` · ${packetMeta.hearingTime}` : ''}`
+            {packetMeta?.hearing_date
+              ? `${formatDate(packetMeta.hearing_date)}${packetMeta.hearingTime ? ` · ${packetMeta.hearingTime}` : ''}`
               : '—'}
           </p>
           <p className="text-muted-foreground text-[10px] mt-0.5">{hearingLine || '—'}</p>

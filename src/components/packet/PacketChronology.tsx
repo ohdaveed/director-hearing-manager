@@ -11,17 +11,16 @@
  */
 
 import type { CSSProperties } from 'react';
-import { GetHearingPacketDataOutputType } from 'zite-endpoints-sdk';
 import { formatDateShort } from '@/utils/formatDate';
 import { STATIC_BLOCKS, LAYOUT_TOKENS } from '../../config/documentTemplates';
 import { SignatureBlock, type ParsedSignature } from './SignatureBlock';
 
 type Props = {
-  chronology: GetHearingPacketDataOutputType['chronology'];
-  complaint: GetHearingPacketDataOutputType['complaint'];
-  packet: GetHearingPacketDataOutputType['packet'];
-  location?: GetHearingPacketDataOutputType['location'];
-  inspector?: GetHearingPacketDataOutputType['inspector'];
+  chronology: any;
+  complaint: any;
+  packet: any;
+  location?: any;
+  inspector?: any;
   inspectorSig?: ParsedSignature | null;
   managerSig?: ParsedSignature | null;
 };
@@ -50,7 +49,7 @@ function parseFrozenSnapshot(snapshot: string): SnapshotRow[] {
   });
 }
 
-function ChronologyTable({ entries, showBy }: { entries: GetHearingPacketDataOutputType['chronology']; showBy: boolean }) {
+function ChronologyTable({ entries, showBy }: { entries: any[]; showBy: boolean }) {
   return (
     <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '9.5pt' }}>
       <thead>
@@ -148,9 +147,9 @@ function HearingOrderProposal({ address, adminFee, recommendedText }: { address:
 
 export function PacketChronology({ chronology, complaint, packet, location, inspector, inspectorSig, managerSig }: Props) {
   const frozenSnapshot = packet.chronologySnapshot;
-  const publicEntries = chronology.filter(c => c.visibility !== 'Internal');
+  const publicEntries = chronology.filter((c: any) => c.visibility !== 'Internal');
 
-  const pages: typeof publicEntries[] = [];
+  const pages: any[][] = [];
   if (!frozenSnapshot) {
     for (let i = 0; i < Math.max(publicEntries.length, 1); i += ROWS_PER_PAGE) {
       pages.push(publicEntries.slice(i, i + ROWS_PER_PAGE));
@@ -160,8 +159,8 @@ export function PacketChronology({ chronology, complaint, packet, location, insp
   const address = complaint?.address ?? location?.address ?? '—';
   const today = new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' });
 
-  const hearingDateFmt = packet.hearingDate
-    ? new Date(packet.hearingDate + 'T00:00:00').toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: '2-digit' })
+  const hearingDateFmt = packet.hearing_date
+    ? new Date(packet.hearing_date + 'T00:00:00').toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: '2-digit' })
     : '';
 
   // ── Header component ───────────────────────────────────────────────────────
@@ -204,11 +203,11 @@ export function PacketChronology({ chronology, complaint, packet, location, insp
             </td>
             <td style={{ border: '1px solid black', padding: '3px 6px', textAlign: 'left' }}>
               <span style={{ fontSize: '7.5pt', display: 'block', color: '#555' }}>Program Code</span>
-              {packet.programCode ?? ''}
+              {packet.program_code ?? ''}
             </td>
             <td colSpan={2} style={{ border: '1px solid black', padding: '3px 6px', textAlign: 'left' }}>
               <span style={{ fontSize: '7.5pt', display: 'block', color: '#555' }}>Case Number</span>
-              {packet.caseNumber ?? complaint?.complaintId ?? '—'}
+              {packet.case_number ?? complaint?.complaintid ?? '—'}
             </td>
           </tr>
         </tbody>

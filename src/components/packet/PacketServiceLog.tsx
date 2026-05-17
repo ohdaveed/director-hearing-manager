@@ -5,17 +5,17 @@
  * Renders one page per service log entry; blank form if no entries exist.
  */
 
-import { GetHearingPacketDataOutputType } from 'zite-endpoints-sdk';
+
 import { SFDPHReportHeader } from './SFDPHReportHeader';
 import { fmtDate, PrintCheckbox, SFDPHReportFooter } from './printUtils';
 
-type ServiceEntry = GetHearingPacketDataOutputType['serviceLog'][0];
+type ServiceEntry = any['serviceLog'][0];
 type Props = {
-  serviceLog: GetHearingPacketDataOutputType['serviceLog'];
-  complaint: GetHearingPacketDataOutputType['complaint'];
-  location: GetHearingPacketDataOutputType['location'];
-  packet: GetHearingPacketDataOutputType['packet'];
-  inspector?: GetHearingPacketDataOutputType['inspector'];
+  serviceLog: any['serviceLog'];
+  complaint: any['complaint'];
+  location: any['location'];
+  packet: any['packet'];
+  inspector?: any['inspector'];
 };
 
 function BlankLine({ width = 220, value = '' }: { width?: number; value?: string }) {

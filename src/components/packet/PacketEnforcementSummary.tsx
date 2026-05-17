@@ -6,17 +6,16 @@
  */
 
 import type { CSSProperties } from 'react';
-import { GetHearingPacketDataOutputType } from 'zite-endpoints-sdk';
 import { SFDPHReportHeader } from './SFDPHReportHeader';
 import { PrintCheckbox, SFDPHReportFooter } from './printUtils';
 import { SignatureBlock, type ParsedSignature } from './SignatureBlock';
 
 type Props = {
-  packet: GetHearingPacketDataOutputType['packet'];
-  complaint: GetHearingPacketDataOutputType['complaint'];
-  location: GetHearingPacketDataOutputType['location'];
-  inspections: GetHearingPacketDataOutputType['inspections'];
-  inspector?: GetHearingPacketDataOutputType['inspector'];
+  packet: any;
+  complaint: any;
+  location: any;
+  inspections: any;
+  inspector?: any;
   inspectorSig?: ParsedSignature | null;
   managerSig?: ParsedSignature | null;
 };
@@ -72,23 +71,23 @@ function isActionChecked(key: string, proposed: string[]): boolean {
 }
 
 export function PacketEnforcementSummary({ packet, complaint, location, inspections, inspector, inspectorSig, managerSig }: Props) {
-  const flags = parseFlags(packet.enforcementFlags, packet.proposedActions ?? []);
-  const proposed = packet.proposedActions ?? [];
+  const flags = parseFlags(packet.enforcementFlags, packet.proposed_actions ?? []);
+  const proposed = packet.proposed_actions ?? [];
 
   const address = complaint?.address ?? location?.address ?? '—';
   const today = new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' });
 
-  const hearingDateFmt = packet.hearingDate
-    ? new Date(packet.hearingDate + 'T00:00:00').toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: '2-digit' })
+  const hearingDateFmt = packet.hearing_date
+    ? new Date(packet.hearing_date + 'T00:00:00').toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: '2-digit' })
     : '';
 
   // Collect unique violations across all inspections
   const violationMap = new Map<string, string>();
   for (const insp of inspections) {
     for (const v of insp.violations) {
-      const key = v.violationCode || v.violationLabel || '';
+      const key = v.violationCode || v.violation_label || '';
       if (key && !violationMap.has(key)) {
-        violationMap.set(key, v.violationLabel ?? '');
+        violationMap.set(key, v.violation_label ?? '');
       }
     }
   }
@@ -184,11 +183,11 @@ export function PacketEnforcementSummary({ packet, complaint, location, inspecti
               </td>
               <td style={{ ...CELL, width: '12%' }}>
                 <span style={LABEL}>Program Code</span>
-                {packet.programCode ?? ''}
+                {packet.program_code ?? ''}
               </td>
               <td style={{ ...CELL, width: '13%' }}>
                 <span style={LABEL}>Case Number</span>
-                {packet.caseNumber ?? ''}
+                {packet.case_number ?? ''}
               </td>
             </tr>
           </tbody>
@@ -374,7 +373,7 @@ export function PacketEnforcementSummary({ packet, complaint, location, inspecti
                 </td>
                 <td style={CELL}>
                   <span style={LABEL}>Program Code / Case Number</span>
-                  {packet.programCode ?? ''}{packet.caseNumber ? ` / ${packet.caseNumber}` : ''}
+                  {packet.program_code ?? ''}{packet.case_number ? ` / ${packet.case_number}` : ''}
                 </td>
               </tr>
             </tbody>

@@ -9,17 +9,17 @@
  * globalPhotoOffset allows sequential photo numbering across multiple inspections.
  */
 
-import { GetHearingPacketDataOutputType } from 'zite-endpoints-sdk';
+
 import { formatDateShort } from '@/utils/formatDate';
 
-type Photo = GetHearingPacketDataOutputType['allPhotos'][0];
-type Inspection = GetHearingPacketDataOutputType['inspections'][0];
+type Photo = any['allPhotos'][0];
+type Inspection = any;
 
 type Props = {
   inspection: Inspection;
   index: number;
-  complaint: GetHearingPacketDataOutputType['complaint'];
-  packet: GetHearingPacketDataOutputType['packet'];
+  complaint: any['complaint'];
+  packet: any['packet'];
   globalPhotoOffset: number;
   exhibitLetter?: string;
   allPhotosForInspection?: Photo[];
@@ -56,7 +56,7 @@ function ExhibitPhotoPage({
             {exhibitLetter ? `Exhibit ${exhibitLetter} — ` : ''}Inspection Photo #{photoNumber}
           </p>
           <p style={{ fontSize: '8.5pt', color: '#555', margin: 0 }}>
-            {fmt(inspection.inspectionDate)} | Inspector: {inspection.inspector ?? '—'} | Case: {packet.caseNumber ?? '—'}
+            {fmt(inspection.inspection_date)} | Inspector: {inspection.inspector ?? '—'} | Case: {packet.case_number ?? '—'}
           </p>
         </div>
         {exhibitLetter && (
@@ -90,7 +90,7 @@ function ExhibitPhotoPage({
               <strong>Date / Time:</strong>{' '}
               {photo.uploadedAt
                 ? new Date(photo.uploadedAt).toLocaleString('en-US', { month: '2-digit', day: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' })
-                : fmt(inspection.inspectionDate)}
+                : fmt(inspection.inspection_date)}
             </td>
             <td style={{ border: '1px solid black', padding: '4px 6px', width: '50%' }}>
               <strong>Inspector:</strong> {inspection.inspector ?? '—'}
@@ -183,8 +183,8 @@ export function PacketPhotoAppendix({
                 )}
               </div>
               <p className="text-xs text-gray-600">
-                {fmt(inspection.inspectionDate)} | Inspector: {inspection.inspector ?? '—'} |
-                Case: {packet.caseNumber ?? '—'} | Complaint: {complaint?.complaintId ?? '—'}
+                {fmt(inspection.inspection_date)} | Inspector: {inspection.inspector ?? '—'} |
+                Case: {packet.case_number ?? '—'} | Complaint: {complaint?.complaintId ?? '—'}
               </p>
             </div>
 

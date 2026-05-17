@@ -4,16 +4,16 @@
  * Pixel-perfect reproduction of the official SFDPH "Notice of Hearing" form.
  */
 
-import { GetHearingPacketDataOutputType } from 'zite-endpoints-sdk';
+
 import { SFDPHReportHeader } from './SFDPHReportHeader';
 import { fmtDate, PrintCheckbox, SFDPHReportFooter } from './printUtils';
 
 type Props = {
-  packet: GetHearingPacketDataOutputType['packet'];
-  complaint: GetHearingPacketDataOutputType['complaint'];
-  location: GetHearingPacketDataOutputType['location'];
-  inspector: GetHearingPacketDataOutputType['inspector'];
-  inspections: GetHearingPacketDataOutputType['inspections'];
+  packet: any['packet'];
+  complaint: any['complaint'];
+  location: any['location'];
+  inspector: any['inspector'];
+  inspections: any['inspections'];
 };
 
 function FieldLine({ label, value, rightLabel, rightValue }: {
@@ -81,7 +81,7 @@ export function PacketNoticeOfHearing({ packet, complaint, location, inspector, 
     inspections.flatMap(i => i.violations.map(v => v.violationCode).filter(Boolean))
   )];
 
-  const hearingDateTime = [fmtDate(packet.hearingDate), packet.hearingTime].filter(Boolean).join(', ');
+  const hearingDateTime = [fmtDate(packet.hearing_date), packet.hearingTime].filter(Boolean).join(', ');
 
   return (
     <div className="packet-page print-page-break" style={{ fontFamily: 'Times New Roman, serif', fontSize: '11pt', lineHeight: 1.5 }}>

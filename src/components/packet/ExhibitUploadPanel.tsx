@@ -4,14 +4,13 @@ import {
   uploadExhibit,
   deleteExhibit,
   updateChronologyEntry,
-  GetChronologyForPacketOutputType,
 } from 'zite-endpoints-sdk';
 import { CloudUpload, Loader2, AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
 import ExhibitCard from './ExhibitCard';
 
-type ExhibitType = GetChronologyForPacketOutputType['exhibits'][0];
-type EntryType = GetChronologyForPacketOutputType['chronology'][0];
+type ExhibitType = any;
+type EntryType = any;
 
 function entryLetter(idx: number) {
   return idx < 26 ? String.fromCharCode(65 + idx) : `(${idx + 1})`;
@@ -257,7 +256,7 @@ export default function ExhibitUploadPanel({
           <ExhibitCard
             key={ex.id}
             letter={entryLetter(idx)}
-            fileName={ex.exhibitLabel ?? ex.description ?? 'Untitled'}
+            fileName={ex.exhibit_label ?? ex.description ?? 'Untitled'}
             category={ex.category}
             pageCount={ex.pageCount ?? 1}
             pageRange={pageRanges[ex.id] || '???'}

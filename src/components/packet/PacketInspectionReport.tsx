@@ -6,16 +6,16 @@
  * header info, violations table, and inspector notes.
  */
 
-import { GetHearingPacketDataOutputType } from 'zite-endpoints-sdk';
+
 import { formatDateShort } from '@/utils/formatDate';
 
-type Inspection = GetHearingPacketDataOutputType['inspections'][0];
+type Inspection = any;
 type Props = {
   inspection: Inspection;
   index: number;
-  complaint: GetHearingPacketDataOutputType['complaint'];
-  location: GetHearingPacketDataOutputType['location'];
-  packet: GetHearingPacketDataOutputType['packet'];
+  complaint: any['complaint'];
+  location: any['location'];
+  packet: any['packet'];
   exhibitLetter?: string;
 };
 
@@ -44,7 +44,7 @@ export function PacketInspectionReport({ inspection, index, complaint, location,
             Inspection Report #{index + 1}
           </h2>
           <p className="text-xs text-gray-600">
-            Case: {packet.caseNumber ?? '—'} | Complaint: {complaint?.complaintId ?? '—'}
+            Case: {packet.case_number ?? '—'} | Complaint: {complaint?.complaintId ?? '—'}
           </p>
         </div>
         {exhibitLetter && (
@@ -60,8 +60,8 @@ export function PacketInspectionReport({ inspection, index, complaint, location,
       <div className="border border-black p-3 mb-4 grid grid-cols-2 gap-x-4">
         <Row label="Facility Address" value={inspection.facilityAddress ?? complaint?.address ?? location?.address} />
         <Row label="DBA" value={inspection.dba ?? location?.dba} />
-        <Row label="Inspection Date" value={fmt(inspection.inspectionDate)} />
-        <Row label="Inspection Type" value={inspection.inspectionType} />
+        <Row label="Inspection Date" value={fmt(inspection.inspection_date)} />
+        <Row label="Inspection Type" value={inspection.inspection_type} />
         <Row label="Inspector" value={inspection.inspector} />
         <Row label="Time In / Out" value={inspection.timeIn ? `${inspection.timeIn} — ${inspection.timeOut ?? ''}` : undefined} />
         <Row label="Access Granted By" value={inspection.accessGrantedBy} />

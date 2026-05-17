@@ -1,6 +1,6 @@
 import { useRef, useEffect, useState } from 'react';
-import { useAuth } from 'zite-auth-sdk';
-import { GetHearingPacketDataOutputType, savePacketSignatures } from 'zite-endpoints-sdk';
+import { useAuth } from '@/context/AuthContext';
+import { packetService } from '@/services/packetService';
 import { Button } from '@/components/ui/button';
 import { Printer, X, AlertTriangle, CheckCircle2, PenLine, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -16,7 +16,7 @@ import { PacketServiceLog } from './packet/PacketServiceLog';
 import { tryParseSignature, type ParsedSignature } from './packet/SignatureBlock';
 
 type Props = {
-  data: GetHearingPacketDataOutputType;
+  data: any; // Properly type later
   onClose: () => void;
 };
 
@@ -46,8 +46,8 @@ export default function HearingPacketPreview({ data, onClose }: Props) {
 
   // Initialize signatures from saved packet data, or auto-fill from user profile
   useEffect(() => {
-    const savedInspector = tryParseSignature(packet.inspectorSignature);
-    const savedManager = tryParseSignature(packet.managerSignature);
+    const savedInspector = tryParseSignature(packet.inspector_signature);
+    const savedManager = tryParseSignature(packet.manager_signature);
 
     setManagerSig(savedManager);
 
@@ -61,9 +61,8 @@ export default function HearingPacketPreview({ data, onClose }: Props) {
       };
       setInspectorSig(autoSig);
       // Persist to packet record silently
-      savePacketSignatures({
-        packetId: packet.id,
-        inspectorSignature: JSON.stringify(autoSig),
+      packetService.update(packet.id, {
+        inspector_signature: JSON.stringify(autoSig),
       }).catch(() => { /* silent */ });
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -81,9 +80,8 @@ export default function HearingPacketPreview({ data, onClose }: Props) {
     };
     setManagerSig(sig);
     try {
-      await savePacketSignatures({
-        packetId: packet.id,
-        managerSignature: JSON.stringify(sig),
+      await packetService.update(packet.id, {
+        manager_signature: JSON.stringify(sig),
       });
     } catch { /* ignore */ } finally {
       setSigSaving(false);
@@ -93,7 +91,7 @@ export default function HearingPacketPreview({ data, onClose }: Props) {
   const handleClearManagerSig = async () => {
     setManagerSig(null);
     try {
-      await savePacketSignatures({ packetId: packet.id, managerSignature: '' });
+      await packetService.update(packet.id, { manager_signature: '' });
     } catch { /* ignore */ }
   };
 
@@ -114,14 +112,14 @@ export default function HearingPacketPreview({ data, onClose }: Props) {
   // Assign exhibit letters A, B, C... to inspections in chronological order
   const inspectionExhibitLetters = inspections.map((_, idx) => String.fromCharCode(65 + idx));
 
-  const selectedPhotoIds: string[] = packet.selectedPhotoIds ?? [];
+  const selectedPhotoIds: string[] = packet.selected_photo_ids ?? [];
 
-  const allPhotosPerInspection = inspections.map((insp, idx) => {
-    const nextDate = inspections[idx + 1]?.inspectionDate;
-    return data.allPhotos.filter(p => {
-      if (!p.uploadedAt || !insp.inspectionDate) return idx === 0;
-      const pDate = p.uploadedAt.slice(0, 10);
-      return pDate >= insp.inspectionDate && (!nextDate || pDate < nextDate);
+  const allPhotosPerInspection = inspections.map((insp: any, idx: number) => {
+    const nextDate = inspections[idx + 1]?.inspection_date;
+    return (data.allPhotos || []).filter((p: any) => {
+      if (!p.uploaded_at || !insp.inspection_date) return idx === 0;
+      const pDate = p.uploaded_at.slice(0, 10);
+      return pDate >= insp.inspection_date && (!nextDate || pDate < nextDate);
     });
   });
 
@@ -132,7 +130,7 @@ export default function HearingPacketPreview({ data, onClose }: Props) {
     return offset;
   });
 
-  const totalPhotos = data.allPhotos.length;
+  const totalPhotos = (data.allPhotos || []).length;
 
   return (
     <div className="fixed inset-0 z-50 bg-black/60 overflow-auto print:bg-transparent print:static">
@@ -199,8 +197,8 @@ export default function HearingPacketPreview({ data, onClose }: Props) {
           <div>
             <h2 className="text-sm font-bold text-foreground">Director's Hearing Packet</h2>
             <p className="text-xs text-muted-foreground">
-              {complaint?.complaintId ? `#${complaint.complaintId} — ` : ''}{complaint?.address ?? ''}
-              {packet.caseNumber ? ` | Case ${packet.caseNumber}` : ''}
+              {complaint?.complaintid ? `#${complaint.complaintid} — ` : ''}{complaint?.address ?? ''}
+              {packet.case_number ? ` | Case ${packet.case_number}` : ''}
             </p>
           </div>
         </div>

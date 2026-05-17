@@ -5,7 +5,6 @@
  * permit decisions, nuisance conditions, and the signature block.
  */
 
-import { GetHearingPacketDataOutputType } from 'zite-endpoints-sdk';
 import { formatDateBlank } from '@/utils/formatDate';
 
 export type HearingOrderData = {
@@ -22,10 +21,10 @@ export type HearingOrderData = {
 };
 
 type Props = {
-  packet: GetHearingPacketDataOutputType['packet'];
-  complaint: GetHearingPacketDataOutputType['complaint'];
-  location: GetHearingPacketDataOutputType['location'];
-  inspections: GetHearingPacketDataOutputType['inspections'];
+  packet: any;
+  complaint: any;
+  location: any;
+  inspections: any;
   orderData: HearingOrderData;
 };
 
@@ -38,13 +37,13 @@ const UNDERLINE: React.CSSProperties = { borderBottom: '1px solid black', minHei
 
 export function PacketHearingOrder({ packet, complaint, location, inspections, orderData }: Props) {
   const codeSections = [...new Set(
-    inspections.flatMap(i => i.violations.map(v => v.violationCode).filter(Boolean))
+    inspections.flatMap((i: any) => i.violations.map((v: any) => v.violationCode).filter(Boolean))
   )];
 
   const rpName = complaint?.hearingRpName || location?.ownerName || '';
   const rpAddr = complaint?.hearingRpAddress || location?.ownerAddress || '';
 
-  const orderDate = orderData.orderDate || complaint?.hearingOrderDate || packet.hearingDate || '';
+  const orderDate = orderData.orderDate || complaint?.hearingOrderDate || packet.hearing_date || '';
 
   return (
     <div className="packet-page print-page-break" style={{ fontFamily: 'Times New Roman, serif', fontSize: '11pt', lineHeight: 1.5 }}>
@@ -57,17 +56,17 @@ export function PacketHearingOrder({ packet, complaint, location, inspections, o
           Director's Hearing Order
         </h2>
         <p style={{ fontSize: '10pt', color: '#444' }}>
-          {complaint?.assignedProgram ?? packet.programCode ?? 'Environmental Health'} Program &nbsp;|&nbsp;
-          Case No.: {packet.caseNumber ?? '_______________'}
+          {complaint?.assignedProgram ?? packet.program_code ?? 'Environmental Health'} Program &nbsp;|&nbsp;
+          Case No.: {packet.case_number ?? '_______________'}
         </p>
       </div>
 
       {/* Case identifiers */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px 24px', marginBottom: '16px' }}>
-        <div><span style={LABEL as React.CSSProperties}>Hearing Date: </span>{fmt(packet.hearingDate)}</div>
+        <div><span style={LABEL as React.CSSProperties}>Hearing Date: </span>{fmt(packet.hearing_date)}</div>
         <div><span style={LABEL as React.CSSProperties}>Order Date: </span>{fmt(orderDate)}</div>
-        <div><span style={LABEL as React.CSSProperties}>Complaint ID: </span>{complaint?.complaintId ?? '___'}</div>
-        <div><span style={LABEL as React.CSSProperties}>Program Code: </span>{packet.programCode ?? '___'}</div>
+        <div><span style={LABEL as React.CSSProperties}>Complaint ID: </span>{complaint?.complaintid ?? '___'}</div>
+        <div><span style={LABEL as React.CSSProperties}>Program Code: </span>{packet.program_code ?? '___'}</div>
       </div>
 
       {/* Property / Parties */}
@@ -166,7 +165,7 @@ export function PacketHearingOrder({ packet, complaint, location, inspections, o
           </table>
         ) : codeSections.length > 0 ? (
           <div>
-            {codeSections.map((cs, i) => (
+            {codeSections.map((cs: any, i: number) => (
               <div key={i} style={{ display: 'flex', gap: '16px', borderBottom: '1px solid #ddd', padding: '5px 0' }}>
                 <span style={{ fontFamily: 'monospace', width: '140px', flexShrink: 0 }}>{cs}</span>
                 <span style={{ borderBottom: '1px solid black', flex: 1 }} />

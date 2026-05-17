@@ -5,13 +5,12 @@
  * with their labels, dates, types, and descriptions.
  */
 
-import { GetHearingPacketDataOutputType } from 'zite-endpoints-sdk';
 import { formatDateShort } from '@/utils/formatDate';
 
 type Props = {
-  exhibits: GetHearingPacketDataOutputType['exhibits'];
-  packet: GetHearingPacketDataOutputType['packet'];
-  complaint: GetHearingPacketDataOutputType['complaint'];
+  exhibits: any;
+  packet: any;
+  complaint: any;
 };
 
 /** MM/DD/YYYY format; empty string fallback (cell stays blank, not "—") */
@@ -34,10 +33,10 @@ export function PacketExhibitList({ exhibits, packet, complaint }: Props) {
           Exhibit List — Director's Hearing Packet
         </h2>
         <p style={{ fontSize: '10pt', color: '#444' }}>
-          Case No.: {packet.caseNumber ?? '_______________'} &nbsp;|&nbsp; {complaint?.address ?? ''}
+          Case No.: {packet.case_number ?? '_______________'} &nbsp;|&nbsp; {complaint?.address ?? ''}
         </p>
-        {complaint?.complaintId && (
-          <p style={{ fontSize: '10pt', color: '#444' }}>Complaint ID: {complaint.complaintId}</p>
+        {complaint?.complaintid && (
+          <p style={{ fontSize: '10pt', color: '#444' }}>Complaint ID: {complaint.complaintid}</p>
         )}
       </div>
 
@@ -52,7 +51,7 @@ export function PacketExhibitList({ exhibits, packet, complaint }: Props) {
           </tr>
         </thead>
         <tbody>
-          {exhibits.map((ex, idx) => (
+          {exhibits.map((ex: any, idx: number) => (
             <tr key={ex.id} style={{ borderBottom: '1px solid #ccc', verticalAlign: 'top' }}>
               <td style={{ padding: '6px 8px', fontWeight: 'bold', fontSize: '11pt' }}>
                 Exhibit {ex.exhibitLetter ?? String.fromCharCode(65 + idx)}
@@ -64,7 +63,7 @@ export function PacketExhibitList({ exhibits, packet, complaint }: Props) {
                 {ex.exhibitType ?? ex.category ?? ''}
               </td>
               <td style={{ padding: '6px 8px', fontSize: '10pt' }}>
-                <p style={{ margin: 0 }}>{ex.description || ex.caption || ex.exhibitLabel || '—'}</p>
+                <p style={{ margin: 0 }}>{ex.description || ex.caption || ex.exhibit_label || '—'}</p>
               </td>
               <td style={{ padding: '6px 8px', fontSize: '10pt', color: '#777' }}>
                 {/* Page ref populated after packet finalized */}

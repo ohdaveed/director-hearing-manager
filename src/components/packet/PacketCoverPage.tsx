@@ -11,7 +11,6 @@
  * source via COVER_PAGE_VARIABLE_SLOTS.
  */
 
-import { GetHearingPacketDataOutputType } from 'zite-endpoints-sdk';
 import { SFDPHReportHeader } from './SFDPHReportHeader';
 import {
   STATIC_BLOCKS,
@@ -20,9 +19,9 @@ import {
 } from '../../config/documentTemplates';
 
 type Props = {
-  packet: GetHearingPacketDataOutputType['packet'];
-  complaint: GetHearingPacketDataOutputType['complaint'];
-  location: GetHearingPacketDataOutputType['location'];
+  packet: any;
+  complaint: any;
+  location: any;
 };
 
 /**
@@ -31,17 +30,17 @@ type Props = {
  */
 function resolveVariable(
   key: string,
-  packet: Props['packet'],
-  complaint: Props['complaint'],
-  location: Props['location'],
+  packet: any,
+  complaint: any,
+  location: any,
 ): string {
   switch (key) {
     case 'caseNumber':
-      return packet.caseNumber ?? '—';
+      return packet.case_number ?? '—';
     case 'propertyAddress':
       return complaint?.address ?? location?.address ?? '—';
     case 'programCode':
-      return packet.programCode ?? '';
+      return packet.program_code ?? '';
     default:
       return '';
   }

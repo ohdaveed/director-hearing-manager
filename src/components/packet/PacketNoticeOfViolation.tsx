@@ -17,17 +17,17 @@
  *               (correctiveAction, dueDate, responsibleParty)
  */
 
-import { GetHearingPacketDataOutputType } from 'zite-endpoints-sdk';
+
 import { SFDPHReportHeader } from './SFDPHReportHeader';
 import { fmtDate, SFDPHReportFooter } from './printUtils';
 import { STATIC_BLOCKS, LAYOUT_TOKENS } from '../../config/documentTemplates';
 
 type Props = {
-  packet: GetHearingPacketDataOutputType['packet'];
-  complaint: GetHearingPacketDataOutputType['complaint'];
-  location: GetHearingPacketDataOutputType['location'];
-  inspections: GetHearingPacketDataOutputType['inspections'];
-  inspector?: GetHearingPacketDataOutputType['inspector'];
+  packet: any['packet'];
+  complaint: any['complaint'];
+  location: any['location'];
+  inspections: any['inspections'];
+  inspector?: any['inspector'];
 };
 
 /** Parse Block and Lot from a "Block/Lot" string like "2842/008" or "2842 008" */
@@ -272,7 +272,7 @@ export function PacketNoticeOfViolation({ packet, complaint, location, inspectio
           <p style={{ margin: '0 0 1px' }}>phone: {C.investigatorDefaultPhone}</p>
           {/* Variable: Complaints.complaintId (locked, read-only) */}
           {complaint?.complaintId && (
-            <p style={{ margin: '0 0 1px' }}>Complaint ID: {complaint.complaintId}</p>
+            <p style={{ margin: '0 0 1px' }}>Complaint ID: {complaint.complaintid}</p>
           )}
           {/* Variable: Locations.id — last 12 chars uppercase (locked, read-only) */}
           {location?.id && (
