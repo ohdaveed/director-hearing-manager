@@ -1,6 +1,6 @@
 import { supabase } from "@/lib/supabase";
+import { normalizeAddressQuery } from "@/utils/normalizeAddressQuery";
 
-/** Column selections to avoid SELECT * */
 export const LOCATION_LIST_COLUMNS = `
   id, address, location_id, owner_name, owner_address,
   owner_phone, owner_email, facility_type, dba,
@@ -17,10 +17,13 @@ export const LOCATION_FULL_COLUMNS = `
 
 export const locationService = {
   async search(query: string) {
+    const normalized = normalizeAddressQuery(query);
+    if (!normalized) return [];
+
     const { data, error } = await supabase
       .from("locations")
       .select(LOCATION_LIST_COLUMNS)
-      .or(`address.ilike.%${query}%,location_id.ilike.%${query}%`)
+      .or(`address.ilike.%${normalized}%,location_id.ilike.%${normalized}%`)
       .is("deleted_at", null)
       .limit(20);
 

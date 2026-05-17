@@ -36,8 +36,11 @@ import {
   Pencil,
   Search,
   Link2,
+  MapPin,
+  PlusCircle,
 } from "lucide-react";
 import ComplaintChronologyPanel from "./ComplaintChronologyPanel";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import {
   ACTIVE_STATUSES,
   CLOSURE_STATUSES,
@@ -158,6 +161,7 @@ export default function ComplaintDetailView({
   const [linkingLocationId, setLinkingLocationId] = useState<string | null>(
     null,
   );
+  const [optimisticallyLinked, setOptimisticallyLinked] = useState(false);
 
   const { data: detail, isLoading: loading } = useQuery({
     queryKey: ["complaint", complaint.id],
@@ -205,11 +209,19 @@ export default function ComplaintDetailView({
   const linkLocationMutation = useMutation({
     mutationFn: (locationId: string) =>
       complaintService.update(complaint.id, { location_id: locationId }),
+    onMutate: () => {
+      setOptimisticallyLinked(true);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["complaint", complaint.id] });
+      queryClient.invalidateQueries({ queryKey: ["complaints"] });
       setLocationSearch("");
       setLocationResults([]);
       toast.success("Location linked");
+    },
+    onError: () => {
+      setOptimisticallyLinked(false);
+      toast.error("Failed to link location — please retry");
     },
   });
 
@@ -223,7 +235,8 @@ export default function ComplaintDetailView({
       const r = await locationService.search(q);
       setLocationResults(r);
     } catch {
-      /* no-op */
+      toast.error("Location search failed — please retry");
+      setLocationResults([]);
     } finally {
       setLocationSearching(false);
     }
@@ -310,47 +323,53 @@ export default function ComplaintDetailView({
     </Select>
   );
 
-  // ── Responsible Party section ──────────────────────────────────────────────
+  // ── Location section (visual proximity: warning + search in same card) ──────
 
-  const responsiblePartyContent = (
+  const locationLinked = !!complaint.locationid || optimisticallyLinked;
+
+  const locationSectionContent = (
     <div className="bg-card border border-border rounded-xl overflow-hidden shadow-sm">
       <SectionHeader
-        icon={<Home className="w-4 h-4" />}
-        title="Responsible Party"
+        icon={<MapPin className="w-4 h-4" />}
+        title="Location"
         right={
-          <div className="flex items-center gap-3">
-            <a
-              href="https://sfplanninggis.org/pim/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1 text-xs text-primary hover:underline"
-            >
-              <ExternalLink className="w-3 h-3" /> SF PIM
-            </a>
-            {canEditStatus && !rpEditing && complaint.locationid && (
-              <button
-                onClick={() => setRpEditing(true)}
-                className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+          complaint.locationid && (
+            <div className="flex items-center gap-3">
+              <a
+                href="https://sfplanninggis.org/pim/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1 text-xs text-primary hover:underline"
               >
-                <Pencil className="w-3 h-3" /> Edit
+                <ExternalLink className="w-3 h-3" /> SF PIM
+              </a>
+              <button
+                type="button"
+                onClick={async () => {
+                  if (complaint.locationid) {
+                    const loc = await locationService.findByLocationId(
+                      complaint.locationid,
+                    );
+                    if (loc) navigate(`/locations/${loc.id}`);
+                  }
+                }}
+                className="flex items-center gap-1 text-xs text-primary hover:underline font-medium"
+              >
+                <ExternalLink className="w-3 h-3" /> View Location
               </button>
-            )}
-          </div>
+            </div>
+          )
         }
       />
       <div className="p-5">
-        {/* No location linked — show search field */}
-        {!complaint.locationid && (
-          <div className="space-y-3">
+        {!locationLinked && (
+          <div className="space-y-3 print:hidden">
             <div className="flex items-center gap-2 text-xs font-medium text-warning bg-warning/10 border border-warning/30 rounded-md px-3 py-2">
               <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
               No location linked — required before assigning an inspector
             </div>
             {canEditStatus && (
               <div className="space-y-2">
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                  Search and link a location
-                </p>
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
                   <Input
@@ -366,6 +385,26 @@ export default function ComplaintDetailView({
                     <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 animate-spin text-muted-foreground" />
                   )}
                 </div>
+
+                {/* Skeleton loading state during search */}
+                {locationSearching && (
+                  <div className="border border-border rounded-lg bg-card overflow-hidden">
+                    {[1, 2, 3].map((i) => (
+                      <div
+                        key={i}
+                        className="px-3 py-2.5 flex items-center justify-between border-b border-border last:border-b-0"
+                      >
+                        <div className="space-y-1.5 flex-1">
+                          <Skeleton className="h-3.5 w-3/5" />
+                          <Skeleton className="h-3 w-2/5" />
+                        </div>
+                        <Skeleton className="h-7 w-14 ml-3" />
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Search results */}
                 {locationResults.length > 0 && (
                   <div className="border border-border rounded-lg bg-card overflow-hidden">
                     {locationResults.slice(0, 6).map((loc: any) => (
@@ -400,20 +439,96 @@ export default function ComplaintDetailView({
                     ))}
                   </div>
                 )}
+
+                {/* Empty state with fallback actions */}
                 {locationSearch.length >= 2 &&
                   !locationSearching &&
                   locationResults.length === 0 && (
-                    <p className="text-xs text-muted-foreground italic">
-                      No locations found for &ldquo;{locationSearch}&rdquo;
-                    </p>
+                    <div className="space-y-2">
+                      <p className="text-xs text-muted-foreground italic">
+                        No locations found for &ldquo;{locationSearch}&rdquo;
+                      </p>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-7 text-xs gap-1"
+                          onClick={() =>
+                            navigate("/complaints/new", {
+                              state: { prefilledAddress: locationSearch },
+                            })
+                          }
+                        >
+                          <PlusCircle className="w-3 h-3" /> Create New Location
+                        </Button>
+                        <a
+                          href="https://sfplanninggis.org/pim/"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-1 text-xs text-primary hover:underline"
+                        >
+                          <ExternalLink className="w-3 h-3" /> Verify via SF PIM
+                        </a>
+                      </div>
+                    </div>
                   )}
               </div>
             )}
           </div>
         )}
 
+        {/* Location linked confirmation */}
+        {locationLinked && (
+          <div className="flex items-center gap-2 text-xs font-medium text-success bg-success/10 border border-success/30 rounded-md px-3 py-2">
+            <CheckCircle2 className="w-3.5 h-3.5 flex-shrink-0" />
+            Location linked
+            {optimisticallyLinked && (
+              <Loader2 className="w-3 h-3 animate-spin ml-1" />
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
+  // ── Responsible Party section ──────────────────────────────────────────────
+
+  const responsiblePartyContent = (
+    <div className="bg-card border border-border rounded-xl overflow-hidden shadow-sm">
+      <SectionHeader
+        icon={<Home className="w-4 h-4" />}
+        title="Responsible Party"
+        right={
+          <div className="flex items-center gap-3">
+            <a
+              href="https://sfplanninggis.org/pim/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1 text-xs text-primary hover:underline"
+            >
+              <ExternalLink className="w-3 h-3" /> SF PIM
+            </a>
+            {canEditStatus && !rpEditing && locationLinked && (
+              <button
+                onClick={() => setRpEditing(true)}
+                className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <Pencil className="w-3 h-3" /> Edit
+              </button>
+            )}
+          </div>
+        }
+      />
+      <div className="p-5">
+        {/* Location not linked — prompt to link first */}
+        {!locationLinked && (
+          <p className="text-xs text-muted-foreground italic">
+            Link a location above to view and edit responsible party info.
+          </p>
+        )}
+
         {/* Location linked, view mode */}
-        {detail && !rpEditing && !!complaint.locationid && (
+        {detail && !rpEditing && locationLinked && (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {rpName || rpAddress || rpPhone || rpEmail ? (
               <>
@@ -455,7 +570,7 @@ export default function ComplaintDetailView({
         )}
 
         {/* Edit form */}
-        {detail && rpEditing && !!complaint.locationid && (
+        {detail && rpEditing && locationLinked && (
           <div className="space-y-3">
             <p className="text-xs text-muted-foreground mb-3">
               Enter owner info from{" "}
@@ -640,7 +755,7 @@ export default function ComplaintDetailView({
 
   const actionsCard =
     canEditStatus || actionsSlot ? (
-      <div className="bg-card border border-border rounded-xl overflow-hidden shadow-sm">
+      <div className="bg-card border border-border rounded-xl overflow-hidden shadow-sm print:hidden">
         <div className="px-5 py-3 bg-muted/40 border-b border-border">
           <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
             Actions
@@ -719,22 +834,6 @@ export default function ComplaintDetailView({
                   <h2 className="text-lg font-bold text-foreground leading-snug">
                     {complaint.address}
                   </h2>
-                  {complaint.locationid && (
-                    <button
-                      type="button"
-                      onClick={async () => {
-                        if (complaint.locationid) {
-                          const loc = await locationService.findByLocationId(
-                            complaint.locationid,
-                          );
-                          if (loc) navigate(`/locations/${loc.id}`);
-                        }
-                      }}
-                      className="flex items-center gap-1 text-xs text-primary hover:underline font-medium"
-                    >
-                      <ExternalLink className="w-3 h-3" /> View Location
-                    </button>
-                  )}
                 </div>
                 {detail?.description && (
                   <DescriptionText text={sanitizeText(detail.description)} />
@@ -852,18 +951,29 @@ export default function ComplaintDetailView({
               <Skeleton className="h-4 w-2/5" />
             </div>
           ) : (
-            responsiblePartyContent
+            <ErrorBoundary title="Responsible Party Error">
+              {responsiblePartyContent}
+            </ErrorBoundary>
           )}
 
+          {/* Location */}
+          <ErrorBoundary title="Location Error">
+            {locationSectionContent}
+          </ErrorBoundary>
+
           {/* Inspection History */}
-          {inspectionHistory}
+          <ErrorBoundary title="Inspection History Error">
+            {inspectionHistory}
+          </ErrorBoundary>
 
           {/* Case Chronology — mobile only (stacks below inspection history) */}
           <div className="lg:hidden">
-            <ComplaintChronologyPanel
-              chronology={detail?.chronology ?? []}
-              loading={loading}
-            />
+            <ErrorBoundary title="Chronology Error">
+              <ComplaintChronologyPanel
+                chronology={detail?.chronology ?? []}
+                loading={loading}
+              />
+            </ErrorBoundary>
           </div>
         </div>
 
@@ -871,17 +981,19 @@ export default function ComplaintDetailView({
         <div className="hidden lg:block lg:col-span-5">
           <div className="sticky top-[110px] space-y-4">
             {actionsCard}
-            <ComplaintChronologyPanel
-              chronology={detail?.chronology ?? []}
-              loading={loading}
-            />
+            <ErrorBoundary title="Chronology Error">
+              <ComplaintChronologyPanel
+                chronology={detail?.chronology ?? []}
+                loading={loading}
+              />
+            </ErrorBoundary>
           </div>
         </div>
       </div>
 
       {/* ── Mobile floating Actions bar ────────────────────── */}
       {(canEditStatus || actionsSlot) && (
-        <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-card/95 backdrop-blur-sm border-t border-border shadow-2xl">
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-card/95 backdrop-blur-sm border-t border-border shadow-2xl print:hidden">
           <div className="container mx-auto px-4 py-3 max-w-[1300px]">
             <div className="flex items-center gap-3">
               <p className="text-xs font-medium text-muted-foreground shrink-0">
