@@ -4,10 +4,10 @@
 - [x] Task: Create UI for uploading draft packets (.pdf, .docx). [77c1831]
     - [x] Task: Write failing tests for upload component rendering and file acceptance. [77c1831]
     - [x] Task: Implement `DraftUploadPanel.tsx` to handle file selection. [77c1831]
-- [ ] Task: Implement Word Document (.docx) parsing service.
-    - [ ] Task: Write failing tests for extracting text from .docx files.
-    - [ ] Task: Install necessary library (e.g., `mammoth` or `pdf-parse` equivalent for word) and implement `wordService.ts`.
-- [ ] Task: Integrate upload UI with parsing services (`pdfService`, `wordService`).
+- [x] Task: Implement Word Document (.docx) parsing service. [229ea69]
+    - [x] Task: Write failing tests for extracting text from .docx files. [229ea69]
+    - [x] Task: Install necessary library (e.g., `mammoth` or `pdf-parse` equivalent for word) and implement `wordService.ts`. [229ea69]
+- [~] Task: Integrate upload UI with parsing services (`pdfService`, `wordService`).
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Document Upload and Parsing' (Protocol in workflow.md)
 
 ## Phase 2: AI Compliance Engine
