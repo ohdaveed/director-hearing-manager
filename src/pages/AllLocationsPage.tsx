@@ -7,7 +7,7 @@
  */
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { searchLocations, SearchLocationsOutputType } from 'zite-endpoints-sdk';
+import { locationService } from '@/services/locationService';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useDebouncedCallback } from 'use-debounce';
@@ -16,9 +16,7 @@ import {
   ChevronRight, X, AlertCircle,
 } from 'lucide-react';
 
-type Location = SearchLocationsOutputType['locations'][0];
-
-
+type Location = any; // Properly type later
 
 function LocationCard({ loc, onClick }: { loc: Location; onClick: () => void }) {
   return (
@@ -38,37 +36,37 @@ function LocationCard({ loc, onClick }: { loc: Location; onClick: () => void }) 
 
         {/* Meta row */}
         <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground pl-6">
-          {loc.locationId && (
+          {loc.location_id && (
             <span className="flex items-center gap-1 font-mono bg-muted px-2 py-0.5 rounded text-foreground">
               <Hash className="w-3 h-3" />
-              {loc.locationId}
+              {loc.location_id}
             </span>
           )}
-          {loc.facilityType && (
+          {loc.facility_type && (
             <span className="flex items-center gap-1">
               <Building2 className="w-3 h-3" />
-              {loc.facilityType}
+              {loc.facility_type}
             </span>
           )}
-          {loc.ownerName && (
+          {loc.owner_name && (
             <span className="flex items-center gap-1">
               <User className="w-3 h-3" />
-              {loc.ownerName}
+              {loc.owner_name}
             </span>
           )}
-          {loc.ownerPhone && (
+          {loc.owner_phone && (
             <span className="flex items-center gap-1">
               <Phone className="w-3 h-3" />
-              {loc.ownerPhone}
+              {loc.owner_phone}
             </span>
           )}
         </div>
 
         {/* Units / rooms */}
-        {(loc.numberOfUnits || loc.numberOfRooms) && (
+        {(loc.number_of_units || loc.number_of_rooms) && (
           <div className="flex gap-3 text-xs text-muted-foreground pl-6">
-            {loc.numberOfUnits && <span>{loc.numberOfUnits} units</span>}
-            {loc.numberOfRooms && <span>{loc.numberOfRooms} rooms</span>}
+            {loc.number_of_units && <span>{loc.number_of_units} units</span>}
+            {loc.number_of_rooms && <span>{loc.number_of_rooms} rooms</span>}
           </div>
         )}
       </div>
@@ -106,8 +104,8 @@ export default function AllLocationsPage() {
     setSearched(true);
     setError(false);
     try {
-      const res = await searchLocations({ query: q.trim() });
-      setResults(res.locations);
+      const res = await locationService.search(q.trim());
+      setResults(res);
     } catch {
       setError(true);
       setResults([]);
