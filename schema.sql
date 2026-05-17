@@ -65,7 +65,7 @@ CREATE TABLE inspection_photos (
 );
 
 CREATE TABLE complaints (
-  record_id uuid primary key default gen_random_uuid(),
+  id uuid primary key default gen_random_uuid(),
   date_entered date,
   address text,
   complaintid text,

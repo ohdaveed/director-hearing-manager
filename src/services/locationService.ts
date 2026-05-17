@@ -18,7 +18,7 @@ export const locationService = {
       .select(`
         *,
         inspections (*),
-        arrizon_open_complaint_inspections_list_1 (*)
+        complaints (*)
       `)
       .eq('id', id)
       .single()
@@ -27,7 +27,7 @@ export const locationService = {
     return {
       location: data,
       inspections: data.inspections || [],
-      complaints: data.arrizon_open_complaint_inspections_list_1 || []
+      complaints: data.complaints || []
     }
   },
 

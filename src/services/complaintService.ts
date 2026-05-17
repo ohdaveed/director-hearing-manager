@@ -4,7 +4,7 @@ import type { Complaint } from '@/types/complaint'
 export const complaintService = {
   async getAll(filters: { assignedTo?: string } = {}) {
     let query = supabase
-      .from('arrizon_open_complaint_inspections_list_1')
+      .from('complaints')
       .select('*')
       .order('date_entered', { ascending: false })
     
@@ -19,7 +19,7 @@ export const complaintService = {
 
   async getById(id: string) {
     const { data, error } = await supabase
-      .from('arrizon_open_complaint_inspections_list_1')
+      .from('complaints')
       .select(`
         *,
         inspections (*,
@@ -27,9 +27,10 @@ export const complaintService = {
           inspection_photos (*)
         ),
         chronology (*),
-        hearing_packets (*)
+        hearing_packets (*),
+        locations (*)
       `)
-      .eq('id', id)
+      .eq('record_id', id)
       .single()
     
     if (error) throw error
@@ -38,7 +39,7 @@ export const complaintService = {
 
   async create(complaint: Partial<Complaint>) {
     const { data, error } = await supabase
-      .from('arrizon_open_complaint_inspections_list_1')
+      .from('complaints')
       .insert([complaint])
       .select()
       .single()
@@ -49,9 +50,9 @@ export const complaintService = {
 
   async update(id: string, updates: Partial<Complaint>) {
     const { data, error } = await supabase
-      .from('arrizon_open_complaint_inspections_list_1')
+      .from('complaints')
       .update(updates)
-      .eq('id', id)
+      .eq('record_id', id)
       .select()
       .single()
     

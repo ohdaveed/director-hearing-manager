@@ -6,7 +6,7 @@ export const packetService = {
       .from('hearing_packets')
       .select(`
         *,
-        arrizon_open_complaint_inspections_list_1 (address, complaint_id, hearing_status)
+        complaints (address, complaintid, hearing_status)
       `)
       .order('hearing_date', { ascending: true })
 
@@ -24,9 +24,9 @@ export const packetService = {
     // Map to the expected frontend format
     return data.map(p => ({
       ...p,
-      address: p.arrizon_open_complaint_inspections_list_1?.address,
-      complaintId: p.arrizon_open_complaint_inspections_list_1?.complaint_id,
-      hearingStatus: p.arrizon_open_complaint_inspections_list_1?.hearing_status
+      address: p.complaints?.address,
+      complaintId: p.complaints?.complaintid,
+      hearingStatus: p.complaints?.hearing_status
     }))
   },
 
@@ -35,7 +35,7 @@ export const packetService = {
       .from('hearing_packets')
       .select(`
         *,
-        complaint:arrizon_open_complaint_inspections_list_1 (
+        complaint:complaints (
           *,
           inspections (*,
             violations (*),
@@ -65,7 +65,7 @@ export const packetService = {
   async create(complaintId: string) {
     const { data, error } = await supabase
       .from('hearing_packets')
-      .insert([{ complaint_id: complaintId, packet_status: 'Not Started' }])
+      .insert([{ complaint: complaintId, packet_status: 'Not Started' }])
       .select()
       .single()
     
