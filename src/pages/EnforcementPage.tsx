@@ -25,7 +25,7 @@ export default function EnforcementPage() {
     <div className="min-h-screen bg-background">
       {/* Sub-tab bar */}
       <div className="border-b border-border bg-card/95 backdrop-blur-sm">
-        <div className="container mx-auto px-4 sm:px-6 max-w-[1300px]">
+        <div className="container mx-auto px-4 sm:px-6 max-w-7xl">
           <div className="flex items-center gap-1">
             <button
               type="button"

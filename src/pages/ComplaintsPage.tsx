@@ -204,7 +204,7 @@ export default function ComplaintsPage() {
       {/* Mine / All scope toggle — Inspector and Super Admin only */}
       {showMineToggle && (
         <div className="border-b border-border/60 bg-card/80 backdrop-blur-sm">
-          <div className="container mx-auto px-4 sm:px-6 max-w-[1300px] py-2 flex items-center gap-3">
+          <div className="container mx-auto px-4 sm:px-6 max-w-7xl py-2 flex items-center gap-3">
             <div className="flex items-center bg-muted/60 border border-border rounded-lg p-0.5 gap-0.5">
               <button
                 type="button"
@@ -256,7 +256,7 @@ export default function ComplaintsPage() {
         actions={actionButtons}
       />
 
-      <div className="container mx-auto px-4 sm:px-6 py-5 max-w-[1300px]">
+      <div className="container mx-auto px-4 sm:px-6 py-5 max-w-7xl">
         {!isLoading && complaints.length > 0 && scope === "all" && (
           <ComplaintSummaryCards complaints={complaints} />
         )}

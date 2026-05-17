@@ -865,8 +865,7 @@ export default function ComplaintDetailView({
     <div className="w-full">
       {/* Two-column grid on desktop */}
       <div className="grid gap-4 lg:grid-cols-12 items-start">
-        {/* ── LEFT COLUMN (60%) ─────────────────────────────── */}
-        <div className="space-y-4 lg:col-span-7">
+        <div className="space-y-4 lg:col-span-8">
           {/* Header card */}
           <div className="bg-card border border-border rounded-xl p-5 shadow-sm">
             <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
@@ -1036,7 +1035,7 @@ export default function ComplaintDetailView({
 
         {/* ── RIGHT COLUMN (40%) — sticky on desktop ────────── */}
         <div className="hidden lg:block lg:col-span-5">
-          <div className="sticky top-[110px] space-y-4">
+          <div className="sticky top-20 space-y-4">
             {actionsCard}
             <ErrorBoundary title="Chronology Error">
               <ComplaintChronologyPanel
@@ -1051,7 +1050,7 @@ export default function ComplaintDetailView({
       {/* ── Mobile floating Actions bar ────────────────────── */}
       {(canEditStatus || actionsSlot) && (
         <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-card/95 backdrop-blur-sm border-t border-border shadow-2xl print:hidden">
-          <div className="container mx-auto px-4 py-3 max-w-[1300px]">
+          <div className="container mx-auto px-4 py-3 max-w-7xl">
             <div className="flex items-center gap-3">
               <p className="text-xs font-medium text-muted-foreground shrink-0">
                 Status
