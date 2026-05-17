@@ -10,17 +10,17 @@
  */
 export type ComplaintSummary = {
   id: string;
-  complaintId?: string;
+  complaintid?: string;
   address?: string;
   description?: string;
   status?: string;
   category?: string[];
-  reinspectionDueOnAfter?: string;
+  reinspection_due_on_after?: string;
   draftInspectionId?: string;
   locationRecordId?: string;
-  locationId?: string;
-  hearingStatus?: string;
-  hearingDate?: string;
-  assignedTo?: string;
-  dateEntered?: string;
+  locationid?: string;
+  hearing_status?: string;
+  hearing_date?: string;
+  assigned_to?: string;
+  date_entered?: string;
 };

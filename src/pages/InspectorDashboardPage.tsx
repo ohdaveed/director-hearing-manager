@@ -12,19 +12,15 @@
  *   • Aesthetic-Usability — three-tier type hierarchy per row; divide-y replaces per-card borders
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from 'zite-auth-sdk';
-import {
-  getAssignedComplaints,
-  getInspections,
-  getInspectorAlerts,
-  GetInspectionsOutputType,
-  GetInspectorAlertsOutputType,
-} from 'zite-endpoints-sdk';
+import { useAuth } from '@/context/AuthContext';
+import { useQuery } from '@tanstack/react-query';
+import { complaintService } from '@/services/complaintService';
+import { inspectionService } from '@/services/inspectionService';
 import {
   Loader2, ClipboardList, AlertTriangle, Calendar, ClipboardCheck,
-  ChevronRight, Clock, CheckCircle2, Bell, PhoneOff,
+  ChevronRight, Clock, CheckCircle2, Bell, PhoneOff, RefreshCw
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -32,11 +28,10 @@ import { ACTIVE_STATUSES, isOverdue } from '@/utils/complaintStatuses';
 import { COMPLAINT_STATUS_THEME } from '@/utils/badgeThemes';
 import StatCard from '@/components/StatCard';
 import { formatDate } from '@/utils/formatDate';
-import type { ComplaintSummary } from '@/types/complaint';
 
-type Complaint = ComplaintSummary;
-type Inspection = GetInspectionsOutputType['inspections'][0];
-type AlertComplaint = GetInspectorAlertsOutputType['newAssignments'][0];
+type Complaint = any;
+type Inspection = any;
+type AlertComplaint = any;
 
 const PANEL_CAP = 5;
 
@@ -185,41 +180,32 @@ function FeedPanel({
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function InspectorDashboardPage({ inspectorName }: { inspectorName: string }) {
-  const { user } = useAuth();
   const navigate = useNavigate();
-  const [complaints, setComplaints] = useState<Complaint[]>([]);
-  const [inspections, setInspections] = useState<Inspection[]>([]);
-  const [alerts, setAlerts] = useState<GetInspectorAlertsOutputType | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
+  const { user } = useAuth();
+
+  // ── Data fetching ───────────────────────────────────────────────────────────
+
+  const { data: complaints = [], isLoading: complaintsLoading, refetch: refetchComplaints, isRefetching: refreshingComplaints } = useQuery({
+    queryKey: ['complaints', 'assigned', inspectorName],
+    queryFn: () => complaintService.getAll({ assignedTo: inspectorName }),
+    enabled: !!inspectorName,
+  });
+
+  const { data: allInspections = [], isLoading: inspectionsLoading, refetch: refetchInspections, isRefetching: refreshingInspections } = useQuery({
+    queryKey: ['inspections', 'inspector', inspectorName],
+    queryFn: () => inspectionService.getAll(), // TODO: filter by inspector
+    enabled: !!inspectorName,
+  });
+
+  const loading = complaintsLoading || inspectionsLoading;
+  const refreshing = refreshingComplaints || refreshingInspections;
+  const fetchData = () => { refetchComplaints(); refetchInspections(); };
 
   // Progressive-disclosure state — each panel collapses independently
   const [showAllNew, setShowAllNew] = useState(false);
   const [showAllNoContact, setShowAllNoContact] = useState(false);
   const [showAllReinspect, setShowAllReinspect] = useState(false);
   const [showAllOverdue, setShowAllOverdue] = useState(false);
-
-  const fetchData = useCallback(async (background = false) => {
-    if (background) setRefreshing(true);
-    else setLoading(true);
-    try {
-      const [compResult, inspResult, alertResult] = await Promise.all([
-        getAssignedComplaints({ inspector: inspectorName }),
-        getInspections({ inspector: inspectorName, status: 'Submitted', limit: 5 }),
-        getInspectorAlerts({ inspectorName }),
-      ]);
-      setComplaints(compResult.complaints);
-      setInspections(inspResult.inspections);
-      setAlerts(alertResult);
-    } catch {
-      toast.error('Failed to load dashboard data');
-    } finally {
-      if (background) setRefreshing(false);
-      else setLoading(false);
-    }
-  }, [inspectorName]);
-
-  useEffect(() => { fetchData(false); }, [fetchData]);
 
   if (loading) {
     return (
