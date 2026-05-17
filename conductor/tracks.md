@@ -9,5 +9,5 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-- [ ] **Track: the user can uploaded a draft directors hearing packet and the app will modify it to fall into compliance with SOP**
+- [~] **Track: the user can uploaded a draft directors hearing packet and the app will modify it to fall into compliance with SOP**
   *Link: [./tracks/draft_compliance_20260516/](./tracks/draft_compliance_20260516/)*

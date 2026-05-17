@@ -1,11 +1,19 @@
 import { supabase } from '@/lib/supabase';
 import { aiService } from './aiService';
 import { pdfService } from './pdfService';
+import { wordService } from './wordService';
 
 export const importService = {
-  async importFromPdf({ packetId, file }: { packetId: string, file: File }) {
-    // 1. Extract text from PDF
-    const text = await pdfService.extractText(file);
+  async importDraftPacket({ packetId, file }: { packetId: string, file: File }) {
+    let text = '';
+    // 1. Extract text based on file type
+    if (file.name.toLowerCase().endsWith('.pdf')) {
+      text = await pdfService.extractText(file);
+    } else if (file.name.toLowerCase().endsWith('.docx')) {
+      text = await wordService.extractText(file);
+    } else {
+      throw new Error('Unsupported file format');
+    }
 
     // 2. Extract violations via AI
     const extractedViolations = await aiService.extractViolations(text);
@@ -26,7 +34,7 @@ export const importService = {
         complaint: packet.complaint,
         entry_date: new Date().toISOString().split('T')[0],
         entry_type: 'Inspection',
-        summary: `Imported from PDF: ${file.name}. ${extractedViolations.length} violations found.`,
+        summary: `Imported from draft: ${file.name}. ${extractedViolations.length} violations found.`,
         violations_observed: JSON.stringify(extractedViolations)
       }])
       .select()
