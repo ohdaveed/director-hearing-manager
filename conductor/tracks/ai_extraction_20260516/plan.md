@@ -1,9 +1,9 @@
 # Plan: Enhance AI Extraction for Automated Violation Chronology
 
-## Phase 1: Research and Baselining
+## Phase 1: Research and Baselining [checkpoint: 74f61d1]
 - [x] Task: Audit current AI extraction logic and identify common failure points in PDF parsing. (Logic is currently missing/mocked in UI via zite-endpoints-sdk; Anthropic SDK installed but unused)
 - [x] Task: Gather a dataset of "edge case" inspection reports for testing. (Created mock_reports.json)
-- [~] Task: Conductor - User Manual Verification 'Phase 1: Research and Baselining' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 1: Research and Baselining' (Protocol in workflow.md) [74f61d1]
 
 ## Phase 2: Refinement of Extraction Engine
 - [ ] Task: Update Anthropic API prompt templates to improve structure and accuracy of returned JSON.
