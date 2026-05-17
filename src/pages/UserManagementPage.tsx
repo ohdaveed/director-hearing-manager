@@ -1,12 +1,13 @@
-import { useEffect, useState } from 'react';
-import { getPublicUsers, updateUserRole, GetPublicUsersOutputType } from 'zite-endpoints-sdk';
+import { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { userService } from '@/services/userService';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Users2, ShieldCheck } from 'lucide-react';
 import { toast } from 'sonner';
 
-type User = GetPublicUsersOutputType['users'][0];
+type User = any; // Properly type later
 
 const ROLE_COLORS: Record<string, string> = {
   'Super Admin': 'bg-warning/15 text-warning border-warning/30',
@@ -18,33 +19,35 @@ const ROLE_COLORS: Record<string, string> = {
 const ROLES = ['Admin', 'Inspector', 'Program Manager', 'Super Admin'] as const;
 
 export default function UserManagementPage() {
-  const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [updating, setUpdating] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+  const { data: users = [], isLoading: loading } = useQuery({
+    queryKey: ['users'],
+    queryFn: () => userService.getAll(),
+  });
 
-  useEffect(() => {
-    getPublicUsers({}).then(res => {
-      setUsers(res.users);
-      setLoading(false);
-    }).catch(() => setLoading(false));
-  }, []);
+  const [updatingId, setUpdatingId] = useState<string | null>(null);
 
-  const handleRoleChange = async (userId: string, role: typeof ROLES[number]) => {
-    setUpdating(userId);
-    try {
-      await updateUserRole({ userId, role });
-      setUsers(prev => prev.map(u => u.id === userId ? { ...u, role } : u));
+  const updateRoleMutation = useMutation({
+    mutationFn: ({ userId, role }: { userId: string, role: string }) => 
+      userService.updateRole(userId, role),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['users'] });
       toast.success('Role updated successfully');
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : '';
+    },
+    onError: (err: any) => {
+      const msg = err.message || '';
       if (msg.toLowerCase().includes('forbidden') || msg.toLowerCase().includes('super admin')) {
         toast.error('Permission denied — only Super Admins can assign roles.');
       } else {
-        toast.error(`Failed to update role${msg ? `: ${msg}` : ''}`);
+        toast.error('Failed to update role');
       }
-    } finally {
-      setUpdating(null);
-    }
+    },
+    onSettled: () => setUpdatingId(null)
+  });
+
+  const handleRoleChange = async (userId: string, role: typeof ROLES[number]) => {
+    setUpdatingId(userId);
+    updateRoleMutation.mutate({ userId, role });
   };
 
   return (
@@ -108,7 +111,7 @@ export default function UserManagementPage() {
                 <Select
                   value={user.role ?? ''}
                   onValueChange={v => handleRoleChange(user.id, v as typeof ROLES[number])}
-                  disabled={updating === user.id}
+                  disabled={updatingId === user.id}
                 >
                   <SelectTrigger className="h-9 w-36 text-xs">
                     <SelectValue placeholder="Assign role..." />
