@@ -109,4 +109,19 @@ export const complaintService = {
     if (error) throw error;
     return data;
   },
+
+  async softDelete(id: string) {
+    const { data, error } = await supabase
+      .from("complaints")
+      .update({
+        deleted_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", id)
+      .select(COMPLAINT_LIST_COLUMNS)
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
 };

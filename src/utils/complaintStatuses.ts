@@ -34,6 +34,8 @@ export const CLOSURE_STATUSES = [
   "Closed — Compliant",
   "Closed — No Violation",
   "Closed — Unfounded",
+  "Withdrawn",
+  "Referred to Outside Agency",
 ] as const;
 
 /** All valid complaint statuses in workflow order (active first, then closures). */
@@ -63,6 +65,8 @@ export const STATUS_DESCRIPTIONS: Record<string, string> = {
   "Closed — Compliant": "All violations abated ✓",
   "Closed — No Violation": "Inspected — no violations found",
   "Closed — Unfounded": "Could not verify or complaint withdrawn",
+  Withdrawn: "Complainant withdrew the complaint",
+  "Referred to Outside Agency": "Referred to another agency for action",
 };
 
 // ── Hearing status ────────────────────────────────────────────────────────────

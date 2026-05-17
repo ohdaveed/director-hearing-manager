@@ -24,6 +24,8 @@ export const COMPLAINT_STATUS_THEME: Record<ComplaintStatus, string> = {
   "Closed — Compliant": "bg-success/10 text-success",
   "Closed — No Violation": "bg-muted text-muted-foreground",
   "Closed — Unfounded": "bg-muted text-muted-foreground",
+  Withdrawn: "bg-muted text-muted-foreground",
+  "Referred to Outside Agency": "bg-muted text-muted-foreground",
 
   // Tier 2 — Active / in-progress states
   "Contact Pending": "bg-primary/10 text-primary",

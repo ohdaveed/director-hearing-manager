@@ -15,6 +15,17 @@ import {
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import {
   Loader2,
@@ -38,6 +49,7 @@ import {
   Link2,
   MapPin,
   PlusCircle,
+  Trash2,
 } from "lucide-react";
 import ComplaintChronologyPanel from "./ComplaintChronologyPanel";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
@@ -222,6 +234,18 @@ export default function ComplaintDetailView({
     onError: () => {
       setOptimisticallyLinked(false);
       toast.error("Failed to link location — please retry");
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: () => complaintService.softDelete(complaint.id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["complaints"] });
+      toast.success("Complaint deleted");
+      navigate("/complaints");
+    },
+    onError: () => {
+      toast.error("Failed to delete complaint");
     },
   });
 
@@ -798,6 +822,39 @@ export default function ComplaintDetailView({
               {actionsSlot}
             </div>
           )}
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                variant="destructive"
+                size="sm"
+                className="gap-2 w-full mt-4 border-t border-border pt-4"
+              >
+                <Trash2 className="w-4 h-4" />
+                Delete Complaint
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Delete this complaint?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This will permanently remove the complaint. This action cannot
+                  be undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={() => deleteMutation.mutate()}
+                  disabled={deleteMutation.isPending}
+                >
+                  {deleteMutation.isPending ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : null}
+                  Delete
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </div>
     ) : null;
