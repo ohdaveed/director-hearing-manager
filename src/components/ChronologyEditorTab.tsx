@@ -8,14 +8,7 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
-import {
-  getChronologyForPacket,
-  addChronologyEntry,
-  updateChronologyEntry,
-  deleteChronologyEntry,
-  reorderChronology,
-  any,
-} from 'zite-endpoints-sdk';
+import { chronoService } from '@/services/chronoService';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -226,7 +219,7 @@ export default function ChronologyEditorTab({ packetId }: { packetId: string }) 
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await getChronologyForPacket({ packetId });
+      const data = await chronoService.getChronologyForPacket({ packetId });
       setEntries(data.chronology);
       setExhibits(data.exhibits);
       setComplaintId(data.complaintid ?? undefined);
@@ -252,7 +245,7 @@ export default function ChronologyEditorTab({ packetId }: { packetId: string }) 
     if (!complaintId) return;
     setSavingId('new');
     try {
-      await addChronologyEntry({
+      await chronoService.addChronologyEntry({
         complaintId,
         entryDate: form.entryDate,
         entryType: form.entryType,
@@ -273,7 +266,7 @@ export default function ChronologyEditorTab({ packetId }: { packetId: string }) 
   const handleUpdate = async (id: string, form: FormState) => {
     setSavingId(id);
     try {
-      await updateChronologyEntry({
+      await chronoService.updateChronologyEntry({
         entryId: id,
         entryDate: form.entryDate,
         entryType: form.entryType,
@@ -294,7 +287,7 @@ export default function ChronologyEditorTab({ packetId }: { packetId: string }) 
   const handleDelete = async (id: string) => {
     setDeletingId(id);
     try {
-      await deleteChronologyEntry({ entryId: id });
+      await chronoService.deleteChronologyEntry({ entryId: id });
       await load();
       toast.success('Entry deleted');
     } catch {
@@ -313,7 +306,7 @@ export default function ChronologyEditorTab({ packetId }: { packetId: string }) 
     setEntries(newSorted.map((e, i) => ({ ...e, chronologyOrder: i + 1, exhibitRefs: entryLetter(i) })));
     setReordering(true);
     try {
-      await reorderChronology({ complaintId, orderedIds: newSorted.map(e => e.id) });
+      await chronoService.reorderChronology({ complaintId, orderedIds: newSorted.map(e => e.id) });
     } catch {
       toast.error('Failed to reorder');
       await load();

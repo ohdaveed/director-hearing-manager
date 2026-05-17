@@ -21,16 +21,13 @@ import {
 } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
-import {
-  listInspectionsForImport,
-  importInspectionHistory,
-  ListInspectionsForImportOutputType,
-} from 'zite-endpoints-sdk';
+import { importService } from '@/services/importService';
 import { formatDateShort } from '@/utils/formatDate';
 import {
   ClipboardCheck,
@@ -46,7 +43,7 @@ import {
   XCircle,
 } from 'lucide-react';
 
-type Inspection = ListInspectionsForImportOutputType['inspections'][0];
+type Inspection = any; // Simplify for now, or extract from importService return type
 
 // ── Progress stage definitions ─────────────────────────────────────────────
 
@@ -340,11 +337,11 @@ export default function InspectionImportWizard({
     if (!open) return;
     setLoading(true);
     try {
-      const data = await listInspectionsForImport({ packetId });
+      const data = await importService.listInspectionsForImport({ packetId });
       setInspections(data.inspections);
       // Pre-select all un-imported inspections
       const preSelected = new Set(
-        data.inspections.filter(i => !i.alreadyImported).map(i => i.id),
+        data.inspections.filter((i: any) => !i.alreadyImported).map((i: any) => i.id),
       );
       setSelected(preSelected);
     } catch {
@@ -397,7 +394,7 @@ export default function InspectionImportWizard({
     startProgressAnim();
 
     try {
-      const result = await importInspectionHistory({
+      const result = await importService.importInspectionHistory({
         packetId,
         inspectionIds: Array.from(selected),
       });
@@ -456,8 +453,28 @@ export default function InspectionImportWizard({
               </SheetTitle>
               <p className="text-xs text-muted-foreground leading-relaxed">
                 Select inspections to auto-generate chronology entries, SFHC
-                citations, and exhibit records.
+                citations, and exhibit records. Or upload a PDF report for AI extraction.
               </p>
+              <div className="pt-2">
+                <Input 
+                  type="file" 
+                  accept=".pdf" 
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      toast.promise(importService.importFromPdf({ packetId, file }), {
+                        loading: 'Analyzing PDF with AI...',
+                        success: (data) => {
+                          onImportComplete();
+                          return `Successfully extracted ${data.violationsFound} violations.`;
+                        },
+                        error: 'Failed to parse PDF.'
+                      });
+                    }
+                  }}
+                  className="h-8 text-[11px]"
+                />
+              </div>
             </div>
           </div>
         </SheetHeader>

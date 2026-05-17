@@ -1,10 +1,7 @@
 import { useState, useRef, useCallback } from 'react';
 
-import {
-  uploadExhibit,
-  deleteExhibit,
-  updateChronologyEntry,
-} from 'zite-endpoints-sdk';
+import { exhibitService } from '@/services/exhibitService';
+import { chronoService } from '@/services/chronoService';
 import { CloudUpload, Loader2, AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
 import ExhibitCard from './ExhibitCard';
@@ -68,7 +65,7 @@ export default function ExhibitUploadPanel({
     if (!ALLOWED_EXTS.includes(ext)) return { success: false };
     try {
       const { fileUrl } = await uploadFile({ data: file, filename: file.name });
-      const result = await uploadExhibit({ complaintId, fileUrl, fileName: file.name });
+      const result = await exhibitService.uploadExhibit({ complaintId, fileUrl, fileName: file.name });
       return { success: true, exhibit: result.exhibit as ExhibitType };
     } catch {
       return { success: false };
@@ -133,7 +130,7 @@ export default function ExhibitUploadPanel({
   const handleDelete = async (exhibitId: string) => {
     setDeletingId(exhibitId);
     try {
-      await deleteExhibit({ exhibitId });
+      await exhibitService.deleteExhibit({ exhibitId });
       onExhibitsChange(exhibits.filter(ex => ex.id !== exhibitId));
       toast.success('Exhibit removed');
     } catch {
@@ -147,7 +144,7 @@ export default function ExhibitUploadPanel({
     const pageRange = pageRanges[exhibitId];
     if (!pageRange) return;
     try {
-      await updateChronologyEntry({ entryId, attachmentPageRef: pageRange });
+      await chronoService.updateChronologyEntry({ entryId, attachmentPageRef: pageRange });
       onEntryPageRefUpdated();
       toast.success('Page range linked to chronology row');
     } catch {
