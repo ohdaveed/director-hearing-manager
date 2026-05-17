@@ -4,25 +4,42 @@ import tailwindcss from "@tailwindcss/vite";
 export default defineConfig({
   plugins: [tailwindcss()],
   css: {
-    // ❌ Remove or avoid: transformer: 'lightningcss'
-    // Pure LightningCSS transformer will choke on Tailwind v4 syntax
-
-    //  Keep this for minification (it runs AFTER Tailwind compiles)
     minify: "lightningcss",
   },
   build: {
-    chunkSizeWarningLimit: 600, // Optional: slightly raise the warning threshold
+    chunkSizeWarningLimit: 600,
     rollupOptions: {
       output: {
-        // Automatically splits node_modules into their own chunks
         manualChunks(id) {
           if (id.includes("node_modules")) {
-            // Returns the name of the package to group them logically
-            return id
-              .toString()
-              .split("node_modules/")[1]
-              .split("/")[0]
-              .toString();
+            // Isolate ultra-heavy PDF and document processing engines
+            if (
+              id.includes("pdfjs-dist") ||
+              id.includes("@react-pdf") ||
+              id.includes("mammoth") ||
+              id.includes("jspdf") ||
+              id.includes("html2canvas")
+            ) {
+              return "document-core";
+            }
+
+            // Isolate LLM and AI Cloud SDKs
+            if (
+              id.includes("openai") ||
+              id.includes("anthropic") ||
+              id.includes("generative-ai") ||
+              id.includes("vertexai")
+            ) {
+              return "ai-core";
+            }
+
+            // Isolate charting data libraries
+            if (id.includes("recharts") || id.includes("d3")) {
+              return "charts-core";
+            }
+
+            // Standard framework and lightweight utilities (react, lucide, radix, etc.)
+            return "framework-vendor";
           }
         },
       },

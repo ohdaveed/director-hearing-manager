@@ -1,12 +1,67 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Geist+Mono:wght@300;400;500;600;700&family=Dancing+Script:wght@500;700&family=Great+Vibes&family=Pinyon+Script&family=Pacifico&display=swap");
+
+@import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/noto-sans";
 @import "@fontsource-variable/playfair-display";
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@theme {
+  /* Explicitly map your custom variables to make classes like border-border valid */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  --color-sidebar-background: var(--sidebar-background);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+  --font-heading: var(--font-heading);
+}
 
 @layer base {
   :root {
@@ -109,6 +164,7 @@
       rgb(var(--shadow-rgb) / calc(var(--shadow-opacity) * 2.5));
     --sidebar: oklch(0.986 0.002 67.8);
   }
+
   .dark {
     --background: oklch(0.147 0.004 49.3);
     --foreground: oklch(0.986 0.002 67.8);
@@ -142,33 +198,27 @@
     --sidebar-border: oklch(1 0 0 / 10%);
     --sidebar-ring: oklch(0.547 0.021 43.1);
   }
+
   .theme {
     --font-sans: "Noto Sans Variable", sans-serif;
     --font-heading: "Playfair Display Variable", serif;
   }
-  * {
-    @apply border-border;
-    outline-color: color-mix(in oklch, var(--ring) 50%, transparent);
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
+
   html {
     @apply font-sans;
   }
-}
 
-@layer base {
   * {
     @apply border-border;
     outline-color: color-mix(in oklch, var(--ring) 50%, transparent);
   }
+
   body {
     @apply bg-background text-foreground font-sans antialiased;
     background-image: radial-gradient(
       ellipse at 50% 0%,
       color-mix(in oklch, var(--primary) 6%, transparent) 0%,
-      transparent 60%
+      transparent 60
     );
   }
 }
@@ -198,7 +248,7 @@
   border-radius: 2px;
 }
 
-/* Feed panel scroll container — 6px muted-thumb scrollbar */
+/* Feed panel scroll container */
 .feed-scroll {
   scrollbar-width: thin;
   scrollbar-color: var(--muted) transparent;

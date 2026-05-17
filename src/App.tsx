@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { AuthProvider, useAuth, Role } from "@/context/AuthContext";
 import {
   BrowserRouter,
@@ -10,22 +10,31 @@ import {
   useParams,
   Link,
 } from "react-router-dom";
-import ProfilePage from "@/pages/ProfilePage";
-import ComplaintsPage from "@/pages/ComplaintsPage";
-import ComplaintEntryPage from "@/pages/ComplaintEntryPage";
-import InspectionFormPage from "@/pages/InspectionFormPage";
-import InspectionHistoryPage from "@/pages/InspectionHistoryPage";
-import EnforcementPage from "@/pages/EnforcementPage";
-import HearingPacketsPage from "@/pages/HearingPacketsPage";
-import DraftPacketAnalysisPage from "@/pages/DraftPacketAnalysisPage";
-import DashboardPage from "@/pages/DashboardPage";
-import InspectorDashboardPage from "@/pages/InspectorDashboardPage";
-import LocationPage from "@/pages/LocationPage";
-import AllLocationsPage from "@/pages/AllLocationsPage";
-import ImportComplaintsPage from "@/pages/ImportComplaintsPage";
-import UserManagementPage from "@/pages/UserManagementPage";
+
+// Keep auth and core dashboards static for instant initial loading
 import LoginPage from "@/pages/LoginPage";
 import SignUpPage from "@/pages/SignUpPage";
+import DashboardPage from "@/pages/DashboardPage";
+import InspectorDashboardPage from "@/pages/InspectorDashboardPage";
+
+// Lazy-load heavier functional modules to split the vendor bundle
+const ProfilePage = lazy(() => import("@/pages/ProfilePage"));
+const ComplaintsPage = lazy(() => import("@/pages/ComplaintsPage"));
+const ComplaintEntryPage = lazy(() => import("@/pages/ComplaintEntryPage"));
+const InspectionFormPage = lazy(() => import("@/pages/InspectionFormPage"));
+const InspectionHistoryPage = lazy(
+  () => import("@/pages/InspectionHistoryPage"),
+);
+const EnforcementPage = lazy(() => import("@/pages/EnforcementPage"));
+const HearingPacketsPage = lazy(() => import("@/pages/HearingPacketsPage"));
+const DraftPacketAnalysisPage = lazy(
+  () => import("@/pages/DraftPacketAnalysisPage"),
+);
+const LocationPage = lazy(() => import("@/pages/LocationPage"));
+const AllLocationsPage = lazy(() => import("@/pages/AllLocationsPage"));
+const ImportComplaintsPage = lazy(() => import("@/pages/ImportComplaintsPage"));
+const UserManagementPage = lazy(() => import("@/pages/UserManagementPage"));
+
 import { Toaster } from "@/components/ui/sonner";
 import {
   ClipboardList,
@@ -118,7 +127,6 @@ function AppShell() {
   const activeRole = (impersonatedRole ?? realRole) as Role | undefined;
   const [rolePickerOpen, setRolePickerOpen] = useState(false);
 
-  // Role guard: redirect to /dashboard if activeRole isn't allowed for the current path
   useEffect(() => {
     const currentNav = ALL_NAV.find((n) =>
       location.pathname.startsWith(n.path),
@@ -221,7 +229,6 @@ function AppShell() {
 
         {/* User section */}
         <div className="flex items-center gap-2.5 shrink-0">
-          {/* Clickable profile link */}
           <Link
             to="/profile"
             className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-muted/60 transition-colors"
@@ -245,7 +252,6 @@ function AppShell() {
             </div>
           </Link>
 
-          {/* Role preview picker (Super Admin only) */}
           {isSuperAdmin ? (
             <div className="relative">
               <button
@@ -333,149 +339,170 @@ function AppShell() {
       <Toaster />
 
       <main>
-        <Routes>
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        {/* Suspense fallback component handles smooth async viewport parsing */}
+        <Suspense
+          fallback={
+            <div className="flex flex-col items-center justify-center min-h-[calc(100vh-57px)] text-muted-foreground bg-background">
+              <Loader2 className="w-6 h-6 animate-spin text-primary" />
+            </div>
+          }
+        >
+          <Routes>
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
-          {/* Dashboard */}
-          <Route
-            path="/dashboard"
-            element={
-              activeRole === "Inspector" ? (
-                <InspectorDashboardPage inspectorName={inspectorName} />
-              ) : (
-                <DashboardPage role={activeRole} />
-              )
-            }
-          />
+            {/* Dashboard */}
+            <Route
+              path="/dashboard"
+              element={
+                activeRole === "Inspector" ? (
+                  <InspectorDashboardPage inspectorName={inspectorName} />
+                ) : (
+                  <DashboardPage role={activeRole} />
+                )
+              }
+            />
 
-          {/* Complaints — unified list + new/import sub-routes */}
-          <Route
-            path="/complaints/new"
-            element={
-              <ComplaintEntryPage
-                inspectorName={
-                  activeRole === "Inspector" ? inspectorName : undefined
-                }
-                onSuccess={
-                  activeRole === "Inspector"
-                    ? () => navigate("/complaints")
-                    : undefined
-                }
-              />
-            }
-          />
-          <Route path="/complaints/import" element={<ImportComplaintsPage />} />
-          <Route path="/complaints/:id" element={<ComplaintsPage />} />
-          <Route path="/complaints" element={<ComplaintsPage />} />
+            {/* Complaints */}
+            <Route
+              path="/complaints/new"
+              element={
+                <ComplaintEntryPage
+                  inspectorName={
+                    activeRole === "Inspector" ? inspectorName : undefined
+                  }
+                  onSuccess={
+                    activeRole === "Inspector"
+                      ? () => navigate("/complaints")
+                      : undefined
+                  }
+                />
+              }
+            />
+            <Route
+              path="/complaints/import"
+              element={<ImportComplaintsPage />}
+            />
+            <Route path="/complaints/:id" element={<ComplaintsPage />} />
+            <Route path="/complaints" element={<ComplaintsPage />} />
 
-          {/* Inspections — history list + form sub-routes */}
-          <Route
-            path="/inspections/new"
-            element={<InspectionFormPage inspectorName={inspectorName} />}
-          />
-          <Route
-            path="/inspections/:complaintId"
-            element={<InspectionFormPage inspectorName={inspectorName} />}
-          />
-          <Route path="/inspections" element={<InspectionHistoryPage />} />
+            {/* Inspections */}
+            <Route
+              path="/inspections/new"
+              element={<InspectionFormPage inspectorName={inspectorName} />}
+            />
+            <Route
+              path="/inspections/:complaintId"
+              element={<InspectionFormPage inspectorName={inspectorName} />}
+            />
+            <Route path="/inspections" element={<InspectionHistoryPage />} />
 
-          {/* Enforcement — PM + Super Admin only */}
-          <Route
-            path="/enforcement/hearings/:id"
-            element={<EnforcementPage />}
-          />
-          <Route path="/enforcement/hearings" element={<EnforcementPage />} />
-          <Route path="/enforcement" element={<EnforcementPage />} />
+            {/* Enforcement */}
+            <Route
+              path="/enforcement/hearings/:id"
+              element={<EnforcementPage />}
+            />
+            <Route path="/enforcement/hearings" element={<EnforcementPage />} />
+            <Route path="/enforcement" element={<EnforcementPage />} />
 
-          {/* Director's Hearings — visible to all roles, scoped for Inspectors */}
-          <Route
-            path="/hearings/:id"
-            element={
-              <HearingPacketsPage
-                userScopedFilter={activeRole === "Inspector"}
-                inspectorName={
-                  activeRole === "Inspector" ? inspectorName : undefined
-                }
-                baseRoute="/hearings"
-              />
-            }
-          />
-          <Route
-            path="/hearings"
-            element={
-              <HearingPacketsPage
-                userScopedFilter={activeRole === "Inspector"}
-                inspectorName={
-                  activeRole === "Inspector" ? inspectorName : undefined
-                }
-                baseRoute="/hearings"
-              />
-            }
-          />
+            {/* Director's Hearings */}
+            <Route
+              path="/hearings/:id"
+              element={
+                <HearingPacketsPage
+                  userScopedFilter={activeRole === "Inspector"}
+                  inspectorName={
+                    activeRole === "Inspector" ? inspectorName : undefined
+                  }
+                  baseRoute="/hearings"
+                />
+              }
+            />
+            <Route
+              path="/hearings"
+              element={
+                <HearingPacketsPage
+                  userScopedFilter={activeRole === "Inspector"}
+                  inspectorName={
+                    activeRole === "Inspector" ? inspectorName : undefined
+                  }
+                  baseRoute="/hearings"
+                />
+              }
+            />
 
-          {/* Draft Packet Analysis */}
-          <Route path="/draft-analysis" element={<DraftPacketAnalysisPage />} />
+            {/* Draft Packet Analysis */}
+            <Route
+              path="/draft-analysis"
+              element={<DraftPacketAnalysisPage />}
+            />
 
-          {/* Locations */}
-          <Route path="/all-locations" element={<AllLocationsPage />} />
-          <Route
-            path="/locations/:locationRecordId"
-            element={<LocationPage />}
-          />
+            {/* Locations */}
+            <Route path="/all-locations" element={<AllLocationsPage />} />
+            <Route
+              path="/locations/:locationRecordId"
+              element={<LocationPage />}
+            />
 
-          {/* User management — accessible via direct URL, not in nav */}
-          <Route path="/user-management" element={<UserManagementPage />} />
+            {/* User management */}
+            <Route path="/user-management" element={<UserManagementPage />} />
 
-          {/* My Profile — signature setup and account info */}
-          <Route path="/profile" element={<ProfilePage />} />
+            {/* My Profile */}
+            <Route path="/profile" element={<ProfilePage />} />
 
-          {/* ── Redirects from old paths ──────────────────────────────── */}
-          <Route
-            path="/my-complaints"
-            element={<Navigate to="/complaints" replace />}
-          />
-          <Route path="/my-complaints/:id" element={<ComplaintIdRedirect />} />
-          <Route
-            path="/all-complaints"
-            element={<Navigate to="/complaints" replace />}
-          />
-          <Route path="/all-complaints/:id" element={<ComplaintIdRedirect />} />
-          <Route
-            path="/new-complaint"
-            element={<Navigate to="/complaints/new" replace />}
-          />
-          <Route
-            path="/import-complaints"
-            element={<Navigate to="/complaints/import" replace />}
-          />
-          <Route
-            path="/inspection-form"
-            element={<Navigate to="/inspections/new" replace />}
-          />
-          <Route
-            path="/inspection/:complaintId"
-            element={<InspectionComplaintRedirect />}
-          />
-          <Route
-            path="/inspection-history"
-            element={<Navigate to="/inspections" replace />}
-          />
-          <Route
-            path="/escalation-queue"
-            element={<Navigate to="/enforcement" replace />}
-          />
-          <Route
-            path="/hearing-packets"
-            element={<Navigate to="/enforcement/hearings" replace />}
-          />
-          <Route
-            path="/hearing-packets/:id"
-            element={<HearingPacketIdRedirect />}
-          />
+            {/* Redirects from old paths */}
+            <Route
+              path="/my-complaints"
+              element={<Navigate to="/complaints" replace />}
+            />
+            <Route
+              path="/my-complaints/:id"
+              element={<ComplaintIdRedirect />}
+            />
+            <Route
+              path="/all-complaints"
+              element={<Navigate to="/complaints" replace />}
+            />
+            <Route
+              path="/all-complaints/:id"
+              element={<ComplaintIdRedirect />}
+            />
+            <Route
+              path="/new-complaint"
+              element={<Navigate to="/complaints/new" replace />}
+            />
+            <Route
+              path="/import-complaints"
+              element={<Navigate to="/complaints/import" replace />}
+            />
+            <Route
+              path="/inspection-form"
+              element={<Navigate to="/inspections/new" replace />}
+            />
+            <Route
+              path="/inspection/:complaintId"
+              element={<InspectionComplaintRedirect />}
+            />
+            <Route
+              path="/inspection-history"
+              element={<Navigate to="/inspections" replace />}
+            />
+            <Route
+              path="/escalation-queue"
+              element={<Navigate to="/enforcement" replace />}
+            />
+            <Route
+              path="/hearing-packets"
+              element={<Navigate to="/enforcement/hearings" replace />}
+            />
+            <Route
+              path="/hearing-packets/:id"
+              element={<HearingPacketIdRedirect />}
+            />
 
-          {/* Catch-all */}
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
-        </Routes>
+            {/* Catch-all */}
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          </Routes>
+        </Suspense>
       </main>
     </div>
   );
