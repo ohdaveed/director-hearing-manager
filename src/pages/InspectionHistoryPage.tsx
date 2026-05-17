@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getInspections, GetInspectionsOutputType } from 'zite-endpoints-sdk';
+import { useQuery } from '@tanstack/react-query';
+import { inspectionService } from '@/services/inspectionService';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
@@ -9,7 +10,7 @@ import { Search, CheckCircle2, XCircle, Clock, FileText, ChevronRight, X, Clipbo
 import InspectionDetailPanel from '@/components/InspectionDetailPanel';
 import { INSPECTORS } from '@/utils/inspectors';
 
-type Inspection = GetInspectionsOutputType['inspections'][0];
+type Inspection = any; // Properly type later
 
 function RatingBadge({ rating }: { rating?: string }) {
   if (rating === 'Satisfactory') return (
@@ -83,8 +84,6 @@ function LoadingSkeleton() {
 
 export default function InspectionHistoryPage() {
   const navigate = useNavigate();
-  const [inspections, setInspections] = useState<Inspection[]>([]);
-  const [loading, setLoading] = useState(true);
   const [addressSearch, setAddressSearch] = useState('');
   const [filterInspector, setFilterInspector] = useState('');
   const [filterRating, setFilterRating] = useState('');
@@ -92,26 +91,20 @@ export default function InspectionHistoryPage() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [showFilters, setShowFilters] = useState(false);
 
-  const fetchInspections = async () => {
-    setLoading(true);
-    try {
-      const result = await getInspections({
-        inspector: filterInspector || undefined,
-        rating: filterRating || undefined,
-        status: filterStatus || undefined,
-        addressSearch: addressSearch || undefined,
-      });
-      setInspections(result.inspections);
-    } catch { } finally {
-      setLoading(false);
-    }
-  };
+  const { data: inspections = [], isLoading: loading, refetch } = useQuery({
+    queryKey: ['inspections', filterInspector, filterRating, filterStatus],
+    queryFn: () => inspectionService.getAll(), // TODO: filter in service or client
+  });
 
-  useEffect(() => { fetchInspections(); }, [filterInspector, filterRating, filterStatus]); // eslint-disable-line
-
-  const filtered = addressSearch
-    ? inspections.filter(i => i.facilityAddress?.toLowerCase().includes(addressSearch.toLowerCase()))
-    : inspections;
+  const filtered = useMemo(() => {
+    return inspections.filter((i: any) => {
+      if (addressSearch && !i.facility_address?.toLowerCase().includes(addressSearch.toLowerCase())) return false;
+      if (filterInspector && i.inspector !== filterInspector) return false;
+      if (filterRating && i.inspection_rating !== filterRating) return false;
+      if (filterStatus && i.status !== filterStatus) return false;
+      return true;
+    });
+  }, [inspections, addressSearch, filterInspector, filterRating, filterStatus]);
 
   const hasFilters = filterInspector || filterRating || filterStatus || addressSearch;
   const activeFilterCount = [filterInspector, filterRating, filterStatus, addressSearch].filter(Boolean).length;
@@ -129,7 +122,7 @@ export default function InspectionHistoryPage() {
           <p className="text-sm text-muted-foreground mt-0.5">Submitted and draft inspection reports</p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={fetchInspections} disabled={loading} className="h-8 text-xs gap-1.5">
+          <Button variant="outline" size="sm" onClick={() => refetch()} disabled={loading} className="h-8 text-xs gap-1.5">
             {loading && <Loader2 className="w-3 h-3 animate-spin" />}
             Refresh
           </Button>
@@ -275,22 +268,22 @@ export default function InspectionHistoryPage() {
                     <div className="md:hidden px-4 py-3.5 min-h-[44px]">
                       <div className="flex items-start justify-between gap-2 mb-2">
                         <div className="min-w-0">
-                          <p className="text-sm font-semibold text-foreground truncate">{insp.facilityAddress || '—'}</p>
-                          {insp.complaintId && <p className="text-xs text-muted-foreground font-mono">#{insp.complaintId}</p>}
+                          <p className="text-sm font-semibold text-foreground truncate">{insp.facility_address || '—'}</p>
+                          {insp.complaintid && <p className="text-xs text-muted-foreground font-mono">#{insp.complaintid}</p>}
                         </div>
                         <ChevronRight className={`w-4 h-4 text-muted-foreground flex-shrink-0 mt-0.5 transition-transform ${selectedId === insp.id ? 'rotate-90' : ''}`} />
                       </div>
                       <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                        {insp.inspectionDate && <span>{new Date(insp.inspectionDate).toLocaleDateString()}</span>}
+                        {insp.inspection_date && <span>{new Date(insp.inspection_date).toLocaleDateString()}</span>}
                         {insp.inspector && <span>· {insp.inspector}</span>}
-                        {insp.inspectionType && <span>· {insp.inspectionType}</span>}
+                        {insp.inspection_type && <span>· {insp.inspection_type}</span>}
                       </div>
                       <div className="flex flex-wrap items-center gap-2 mt-2">
-                        <RatingBadge rating={insp.inspectionRating} />
+                        <RatingBadge rating={insp.inspection_rating} />
                         <StatusBadge status={insp.status} />
-                        {(insp.violationCount ?? 0) > 0 && (
+                        {(insp.violation_count ?? 0) > 0 && (
                           <span className="bg-destructive/10 text-destructive text-xs font-semibold px-2 py-0.5 rounded-full">
-                            {insp.violationCount} violation{insp.violationCount !== 1 ? 's' : ''}
+                            {insp.violation_count} violation{insp.violation_count !== 1 ? 's' : ''}
                           </span>
                         )}
                       </div>
@@ -299,20 +292,20 @@ export default function InspectionHistoryPage() {
                     {/* Desktop grid row — 7 divs summing to exactly 12 cols */}
                     <div className="hidden md:grid grid-cols-12 px-4 py-3 items-center gap-1">
                       <div className="col-span-2 text-xs text-muted-foreground tabular-nums">
-                        {insp.inspectionDate ? new Date(insp.inspectionDate).toLocaleDateString() : '—'}
+                        {insp.inspection_date ? new Date(insp.inspection_date).toLocaleDateString() : '—'}
                       </div>
                       <div className="col-span-3 min-w-0">
-                        <p className="text-sm font-medium text-foreground truncate">{insp.facilityAddress || '—'}</p>
-                        {insp.complaintId && <p className="text-xs text-muted-foreground font-mono">#{insp.complaintId}</p>}
+                        <p className="text-sm font-medium text-foreground truncate">{insp.facility_address || '—'}</p>
+                        {insp.complaintid && <p className="text-xs text-muted-foreground font-mono">#{insp.complaintid}</p>}
                       </div>
                       <div className="col-span-2 text-xs text-foreground truncate">{insp.inspector || '—'}</div>
-                      <div className="col-span-2 text-xs text-muted-foreground truncate">{insp.inspectionType || '—'}</div>
+                      <div className="col-span-2 text-xs text-muted-foreground truncate">{insp.inspection_type || '—'}</div>
                       <div className="col-span-1">
-                        <RatingBadge rating={insp.inspectionRating} />
+                        <RatingBadge rating={insp.inspection_rating} />
                       </div>
                       <div className="col-span-1 text-xs text-center">
-                        {(insp.violationCount ?? 0) > 0
-                          ? <span className="bg-destructive/10 text-destructive font-bold px-2 py-0.5 rounded-full tabular-nums">{insp.violationCount}</span>
+                        {(insp.violation_count ?? 0) > 0
+                          ? <span className="bg-destructive/10 text-destructive font-bold px-2 py-0.5 rounded-full tabular-nums">{insp.violation_count}</span>
                           : <span className="text-muted-foreground/50">—</span>}
                       </div>
                       {/* Status — col-span-1 only (chevron removed, total stays 12) */}
