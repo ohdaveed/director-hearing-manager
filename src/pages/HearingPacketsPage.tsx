@@ -1,13 +1,8 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useAuth } from 'zite-auth-sdk';
-import {
-  getHearingPackets,
-  updateHearingPacket,
-  getHearingPacketData,
-  GetHearingPacketsOutputType,
-  GetHearingPacketDataOutputType,
-} from 'zite-endpoints-sdk';
+import { useAuth } from '@/context/AuthContext';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { packetService } from '@/services/packetService';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -30,7 +25,7 @@ import AttachmentsEvidenceTab from '@/components/AttachmentsEvidenceTab';
 import ChronologyEditorTab from '@/components/ChronologyEditorTab';
 import { Skeleton } from '@/components/ui/skeleton';
 
-type Packet = GetHearingPacketsOutputType['packets'][0];
+type Packet = any; // Properly type later
 
 interface StatusHistoryEntry {
   timestamp: string;
@@ -234,37 +229,65 @@ function NoticeOfHearingPrint({ data, onClose }: { data: GetHearingPacketDataOut
 }
 
 // ── PacketDetail panel ────────────────────────────────────────────────────────
-function PacketDetail({ packet, packetDataCache, onCacheUpdate, onClose, onUpdated, userRole }: {
-  packet: Packet;
-  packetDataCache: PacketDataCache;
-  onCacheUpdate: (id: string, data: GetHearingPacketDataOutputType) => void;
+function PacketDetail({ packetId, onClose, userRole }: {
+  packetId: string;
   onClose: () => void;
-  onUpdated: (p: Packet) => void;
   userRole?: string;
 }) {
-  const [status, setStatus] = useState(packet.packetStatus ?? 'Not Started');
-  const [notes, setNotes] = useState(packet.notes ?? '');
-  const [caseNumber, setCaseNumber] = useState(packet.caseNumber ?? '');
-  const [programCode, setProgramCode] = useState(packet.programCode ?? '');
-  const [hearingTime, setHearingTime] = useState(packet.hearingTime ?? '');
-  const [hearingLocation, setHearingLocation] = useState(packet.hearingLocation ?? '');
-  const [proposedActions, setProposedActions] = useState<string[]>(packet.proposedActions ?? []);
-  const [adminFee, setAdminFee] = useState(packet.adminFee ?? '');
-  const [enforcementFlags, setEnforcementFlags] = useState<EnforcementFlags>(() => {
-    if (packet.enforcementFlags) {
-      try { return JSON.parse(packet.enforcementFlags); } catch { /* ignore */ }
-    }
-    return { nuisanceAbatement: false, costRecovery: false, appealHealthPermit: false, appealNonPermitted: false };
+  const queryClient = useQueryClient();
+  const { data: detail, isLoading: loading } = useQuery({
+    queryKey: ['packet', packetId],
+    queryFn: () => packetService.getById(packetId),
   });
-  const [checklistCompletion, setChecklistCompletion] = useState<ChecklistCompletion>(() => {
-    if (packet.checklistData) {
-      try { return JSON.parse(packet.checklistData); } catch { /* ignore */ }
-    }
-    return {};
+
+  const packet = detail?.packet;
+
+  const [status, setStatus] = useState('');
+  const [notes, setNotes] = useState('');
+  const [caseNumber, setCaseNumber] = useState('');
+  const [programCode, setProgramCode] = useState('');
+  const [hearingTime, setHearingTime] = useState('');
+  const [hearingLocation, setHearingLocation] = useState('');
+  const [proposedActions, setProposedActions] = useState<string[]>([]);
+  const [adminFee, setAdminFee] = useState('');
+  const [enforcementFlags, setEnforcementFlags] = useState<EnforcementFlags>({
+    nuisanceAbatement: false, costRecovery: false, appealHealthPermit: false, appealNonPermitted: false
   });
+  const [checklistCompletion, setChecklistCompletion] = useState<ChecklistCompletion>({});
+
+  useEffect(() => {
+    if (packet) {
+      setStatus(packet.packet_status ?? 'Not Started');
+      setNotes(packet.notes ?? '');
+      setCaseNumber(packet.case_number ?? '');
+      setProgramCode(packet.program_code ?? '');
+      setHearingTime(packet.hearing_time ?? '');
+      setHearingLocation(packet.hearing_location ?? '');
+      setProposedActions(packet.proposed_actions ?? []);
+      setAdminFee(packet.admin_fee ?? '');
+      if (packet.enforcement_flags) {
+        try { setEnforcementFlags(JSON.parse(packet.enforcement_flags)); } catch { /* ignore */ }
+      }
+      if (packet.checklist_data) {
+        try { setChecklistCompletion(JSON.parse(packet.checklist_data)); } catch { /* ignore */ }
+      }
+    }
+  }, [packet]);
+
+  const updateMutation = useMutation({
+    mutationFn: (updates: any) => packetService.update(packetId, updates),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['packet', packetId] });
+      queryClient.invalidateQueries({ queryKey: ['packets'] });
+      toast.success('Packet updated');
+    },
+    onError: () => {
+      toast.error('Failed to update packet');
+    }
+  });
+
   const [saving, setSaving] = useState(false);
   const [sendingToReview, setSendingToReview] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [compilationStage, setCompilationStage] = useState<string | null>(null);
   const [showReturnForm, setShowReturnForm] = useState(false);
   const [returnNotes, setReturnNotes] = useState('');
@@ -272,28 +295,10 @@ function PacketDetail({ packet, packetDataCache, onCacheUpdate, onClose, onUpdat
   const [historyOpen, setHistoryOpen] = useState(false);
 
   const isManagerRole = userRole ? MANAGER_ROLES.includes(userRole) : false;
-  const hasRevisionNotes = !!(packet.revisionNotes && packet.revisionNotes.trim());
+  const hasRevisionNotes = !!(packet?.revision_notes && packet.revision_notes.trim());
   const [showFullPacket, setShowFullPacket] = useState(false);
   const [showNOH, setShowNOH] = useState(false);
   const [activeTab, setActiveTab] = useState('packet');
-
-  useEffect(() => {
-    setStatus(packet.packetStatus ?? 'Not Started');
-    setNotes(packet.notes ?? '');
-    setCaseNumber(packet.caseNumber ?? '');
-    setProgramCode(packet.programCode ?? '');
-    setHearingTime(packet.hearingTime ?? '');
-    setHearingLocation(packet.hearingLocation ?? '');
-    setProposedActions(packet.proposedActions ?? []);
-    setAdminFee(packet.adminFee ?? '');
-    if (packet.enforcementFlags) {
-      try { setEnforcementFlags(JSON.parse(packet.enforcementFlags)); } catch { /* ignore */ }
-    }
-    if (packet.checklistData) {
-      try { setChecklistCompletion(JSON.parse(packet.checklistData)); } catch { /* ignore */ }
-    }
-    setActiveTab('packet');
-  }, [packet.id]);
 
   const toggleAction = (val: string) => {
     setProposedActions(prev => prev.includes(val) ? prev.filter(a => a !== val) : [...prev, val]);
@@ -303,139 +308,57 @@ function PacketDetail({ packet, packetDataCache, onCacheUpdate, onClose, onUpdat
     setEnforcementFlags(prev => ({ ...prev, [key]: !prev[key] }));
   };
 
-  const ensureLoaded = async (): Promise<GetHearingPacketDataOutputType | null> => {
-    if (packetDataCache[packet.id]) return packetDataCache[packet.id];
-    setLoading(true);
-    try {
-      const data = await getHearingPacketData({ packetId: packet.id });
-      onCacheUpdate(packet.id, data);
-      return data;
-    } catch {
-      toast.error('Failed to load packet data');
-      return null;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleShowNOH = async () => {
-    const data = await ensureLoaded();
-    if (data) setShowNOH(true);
-  };
-
-  const handleTabChange = async (tab: string) => {
+  const handleTabChange = (tab: string) => {
     setActiveTab(tab);
-    if ((tab === 'notice' || tab === 'order' || tab === 'evidence') && !packetDataCache[packet.id]) {
-      await ensureLoaded();
-    }
   };
 
   const handleChecklistToggle = useCallback(async (milestoneId: number) => {
     const newCompletion = { ...checklistCompletion, [milestoneId]: !checklistCompletion[milestoneId] };
     setChecklistCompletion(newCompletion);
-    try {
-      await updateHearingPacket({ packetId: packet.id, checklistData: JSON.stringify(newCompletion) });
-    } catch {
-      toast.error('Failed to save checklist');
-    }
-  }, [checklistCompletion, packet.id]);
+    updateMutation.mutate({ checklist_data: JSON.stringify(newCompletion) });
+  }, [checklistCompletion, packetId, updateMutation]);
 
   const handleSave = async () => {
-    setSaving(true);
-    try {
-      await updateHearingPacket({
-        packetId: packet.id,
-        packetStatus: status,
-        notes,
-        caseNumber,
-        programCode: programCode || undefined,
-        proposedActions,
-        hearingTime,
-        hearingLocation,
-        adminFee,
-        enforcementFlags: JSON.stringify(enforcementFlags),
-      });
-      onUpdated({
-        ...packet,
-        packetStatus: status,
-        notes,
-        caseNumber,
-        programCode,
-        hearingTime,
-        hearingLocation,
-        proposedActions,
-        adminFee,
-        enforcementFlags: JSON.stringify(enforcementFlags),
-      });
-      toast.success('Packet updated');
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Failed to update packet';
-      toast.error(msg);
-    } finally {
-      setSaving(false);
-    }
+    updateMutation.mutate({
+      packet_status: status,
+      notes,
+      case_number: caseNumber,
+      program_code: programCode || null,
+      proposed_actions: proposedActions,
+      hearing_time: hearingTime,
+      hearing_location: hearingLocation,
+      admin_fee: adminFee,
+      enforcement_flags: JSON.stringify(enforcementFlags),
+    });
   };
 
   const handleSendToReview = async () => {
-    setSendingToReview(true);
-    try {
-      await updateHearingPacket({ packetId: packet.id, packetStatus: 'Under Review' });
-      setStatus('Under Review');
-      onUpdated({ ...packet, packetStatus: 'Under Review', revisionNotes: '' });
-      toast.success('Packet sent to review — supervisor notified');
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Failed to update status';
-      toast.error(msg);
-    } finally {
-      setSendingToReview(false);
-    }
+    updateMutation.mutate({ packet_status: 'Under Review' });
   };
 
   const handleReturnForRevision = async () => {
     if (!returnNotes.trim()) return;
-    setReturningForRevision(true);
-    try {
-      await updateHearingPacket({
-        packetId: packet.id,
-        returnForRevision: true,
-        revisionNotes: returnNotes.trim(),
-      });
-      const updatedPacket = {
-        ...packet,
-        packetStatus: 'In Progress',
-        revisionNotes: returnNotes.trim(),
-      };
-      setStatus('In Progress');
-      onUpdated(updatedPacket);
-      setShowReturnForm(false);
-      setReturnNotes('');
-      toast.success('Packet returned for revision');
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Failed to return packet';
-      toast.error(msg);
-    } finally {
-      setReturningForRevision(false);
-    }
+    updateMutation.mutate({
+      packet_status: 'In Progress',
+      revision_notes: returnNotes.trim(),
+    });
+    setShowReturnForm(false);
+    setReturnNotes('');
   };
 
   // Compilation stage handler for Full Packet
   const handleShowFullPacketWithStages = async () => {
-    setCompilationStage('Loading complaint data…');
-    const t = setTimeout(() => setCompilationStage('Fetching exhibits…'), 500);
-    const data = await ensureLoaded();
-    clearTimeout(t);
-    if (data) {
-      setCompilationStage('Rendering pages…');
-      await new Promise(r => setTimeout(r, 200));
+    if (detail) {
       setShowFullPacket(true);
-      setCompilationStage(null);
-    } else {
-      setCompilationStage(null);
     }
   };
 
-  const cachedData = packetDataCache[packet.id];
-  const verificationDate = cachedData?.location?.verificationDate;
+  const handleShowNOH = () => {
+    if (detail) setShowNOH(true);
+  };
+
+  const cachedData = detail;
+  const verificationDate = cachedData?.location?.verification_date;
   const verificationDaysAgo = verificationDate ? differenceInDays(new Date(), parseISO(verificationDate)) : null;
   const showVerificationWarning = (status === 'Complete' || status === 'Submitted') &&
     cachedData && (verificationDaysAgo === null || verificationDaysAgo > 90);
@@ -447,6 +370,19 @@ function PacketDetail({ packet, packetDataCache, onCacheUpdate, onClose, onUpdat
   }
   if (showNOH && cachedData) {
     return <NoticeOfHearingPrint data={cachedData} onClose={() => setShowNOH(false)} />;
+  }
+
+  if (loading) {
+    return (
+      <div className="bg-card border border-border rounded-xl p-8 space-y-4">
+        <Skeleton className="h-6 w-48" />
+        <Skeleton className="h-20 w-full rounded-lg" />
+        <div className="grid grid-cols-2 gap-4">
+          <Skeleton className="h-10 w-full" />
+          <Skeleton className="h-10 w-full" />
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -469,22 +405,22 @@ function PacketDetail({ packet, packetDataCache, onCacheUpdate, onClose, onUpdat
         <div className="bg-muted/40 rounded-lg p-3 mb-4">
           <div className="flex items-start justify-between gap-2">
             <div>
-              {packet.complaintId && (
+              {packet.complaintid && (
                 <span className="text-xs font-mono font-semibold text-primary bg-primary/10 px-1.5 py-0.5 rounded mr-2">
-                  #{packet.complaintId}
+                  #{packet.complaintid}
                 </span>
               )}
               <p className="text-sm font-semibold text-foreground mt-1">{packet.address ?? '—'}</p>
-              {packet.hearingDate && (
+              {packet.hearing_date && (
                 <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1">
                   <Clock className="w-3 h-3" />
-                  Hearing: {new Date(packet.hearingDate + 'T00:00:00').toLocaleDateString()}
+                  Hearing: {new Date(packet.hearing_date + 'T00:00:00').toLocaleDateString()}
                 </p>
               )}
             </div>
-            {packet.hearingStatus && packet.hearingStatus !== 'None' && (
+            {packet.hearing_status && packet.hearing_status !== 'None' && (
               <span className="text-xs px-2 py-0.5 rounded-full bg-accent/50 text-accent-foreground font-medium whitespace-nowrap">
-                ⚖ {packet.hearingStatus}
+                ⚖ {packet.hearing_status}
               </span>
             )}
           </div>
@@ -756,7 +692,7 @@ function PacketDetail({ packet, packetDataCache, onCacheUpdate, onClose, onUpdat
 
           {/* Status History — immutable audit trail, visible to all roles */}
           {(() => {
-            const history = parseStatusHistory(packet.statusHistory).reverse();
+            const history = parseStatusHistory(packet.status_history).reverse();
             return (
               <div className="rounded-xl border border-border overflow-hidden">
                 <button
@@ -918,49 +854,23 @@ export default function HearingPacketsPage({
   const { user } = useAuth();
   const currentUserRole = user?.role;
 
-  const [packets, setPackets] = useState<Packet[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-  const [selected, setSelected] = useState<Packet | null>(null);
   const [statusFilter, setStatusFilter] = useState('');
-  const [packetDataCache, setPacketDataCache] = useState<PacketDataCache>({});
 
-  const fetchPackets = async (isRefresh = false) => {
-    if (isRefresh) setRefreshing(true);
-    else setLoading(true);
-    try {
-      const r = await getHearingPackets({
-        statusFilter: statusFilter || undefined,
-        assignedToFilter: userScopedFilter && inspectorName ? inspectorName : undefined,
-      });
-      setPackets(r.packets);
-      // Auto-select packet from URL param after fetch
-      if (urlPacketId) {
-        const target = r.packets.find(p => p.id === urlPacketId);
-        if (target) setSelected(target);
-      }
-    } catch {
-      toast.error('Failed to load hearing packets');
-    } finally {
-      if (isRefresh) setRefreshing(false);
-      else setLoading(false);
-    }
-  };
+  const { data: packets = [], isLoading: loading, refetch, isRefetching: refreshing } = useQuery({
+    queryKey: ['packets', statusFilter, userScopedFilter, inspectorName],
+    queryFn: () => packetService.getAll({
+      statusFilter: statusFilter || undefined,
+      assignedToFilter: userScopedFilter && inspectorName ? inspectorName : undefined,
+    }),
+    enabled: !!user,
+  });
 
-  useEffect(() => { fetchPackets(); }, [statusFilter]); // eslint-disable-line
-
-  // Sync selected state when URL param changes (e.g. browser back/forward)
-  useEffect(() => {
-    if (!urlPacketId) {
-      setSelected(null);
-    } else if (packets.length > 0) {
-      const target = packets.find(p => p.id === urlPacketId);
-      if (target) setSelected(target);
-    }
-  }, [urlPacketId]); // eslint-disable-line
+  const selected = useMemo(() => {
+    if (!urlPacketId) return null;
+    return packets.find((p: any) => p.id === urlPacketId) || null;
+  }, [urlPacketId, packets]);
 
   const handleSelectPacket = (pkt: Packet | null) => {
-    setSelected(pkt);
     if (pkt) {
       navigate(`${baseRoute}/${pkt.id}`, { replace: true });
     } else {
@@ -1048,10 +958,9 @@ export default function HearingPacketsPage({
                 <div className="col-span-2"></div>
               </div>
               <div className="divide-y divide-border">
-                {packets.map(pkt => {
-                  const badgeCls = STATUS_BADGE[pkt.packetStatus ?? ''] ?? 'bg-muted text-muted-foreground';
-                  const cached = !!packetDataCache[pkt.id];
-                  const isComplete = pkt.packetStatus === 'Complete' || pkt.packetStatus === 'Submitted';
+                {packets.map((pkt: any) => {
+                  const badgeCls = STATUS_BADGE[pkt.packet_status ?? ''] ?? 'bg-muted text-muted-foreground';
+                  const isComplete = pkt.packet_status === 'Complete' || pkt.packet_status === 'Submitted';
                   return (
                     <button key={pkt.id} type="button"
                       onClick={() => handleSelectPacket(selected?.id === pkt.id ? null : pkt)}
@@ -1060,27 +969,27 @@ export default function HearingPacketsPage({
                         <div className="flex items-start justify-between gap-2 mb-1.5">
                           <div>
                             <p className="text-sm font-semibold text-foreground truncate">{pkt.address ?? '—'}</p>
-                            {pkt.complaintId && <p className="text-xs text-muted-foreground font-mono">#{pkt.complaintId}</p>}
+                            {pkt.complaintid && <p className="text-xs text-muted-foreground font-mono">#{pkt.complaintid}</p>}
                           </div>
-                          <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium whitespace-nowrap ${badgeCls}`}>{pkt.packetStatus}</span>
+                          <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium whitespace-nowrap ${badgeCls}`}>{pkt.packet_status}</span>
                         </div>
                         <p className="text-xs text-muted-foreground">
-                          {pkt.hearingDate ? new Date(pkt.hearingDate + 'T00:00:00').toLocaleDateString() : 'No date'}
+                          {pkt.hearing_date ? new Date(pkt.hearing_date + 'T00:00:00').toLocaleDateString() : 'No date'}
                         </p>
                       </div>
                       <div className="hidden md:grid grid-cols-12 px-4 py-3 items-center gap-1">
                         <div className="col-span-2 text-xs text-muted-foreground flex items-center gap-1">
                           <Clock className="w-3 h-3" />
-                          {pkt.hearingDate ? new Date(pkt.hearingDate + 'T00:00:00').toLocaleDateString() : '—'}
+                          {pkt.hearing_date ? new Date(pkt.hearing_date + 'T00:00:00').toLocaleDateString() : '—'}
                         </div>
-                        <div className="col-span-2 text-xs font-mono text-foreground truncate">{pkt.caseNumber ?? '—'}</div>
+                        <div className="col-span-2 text-xs font-mono text-foreground truncate">{pkt.case_number ?? '—'}</div>
                         <div className="col-span-4">
                           <p className="text-sm font-medium truncate">{pkt.address ?? '—'}</p>
-                          {pkt.complaintId && <p className="text-xs text-muted-foreground font-mono">#{pkt.complaintId}</p>}
+                          {pkt.complaintid && <p className="text-xs text-muted-foreground font-mono">#{pkt.complaintid}</p>}
                         </div>
                         <div className="col-span-2 flex items-center gap-1.5 flex-wrap">
-                          <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${badgeCls}`}>{pkt.packetStatus ?? '—'}</span>
-                          {pkt.revisionNotes && pkt.packetStatus === 'In Progress' && (
+                          <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${badgeCls}`}>{pkt.packet_status ?? '—'}</span>
+                          {pkt.revision_notes && pkt.packet_status === 'In Progress' && (
                             <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground font-medium hidden lg:inline">
                               ↩ Revision
                             </span>
@@ -1092,7 +1001,6 @@ export default function HearingPacketsPage({
                           )}
                         </div>
                         <div className="col-span-2 flex justify-end items-center gap-2">
-                          {cached && <span className="text-xs text-success hidden lg:block">● Loaded</span>}
                           <ChevronRight className={`w-4 h-4 text-muted-foreground transition-transform ${selected?.id === pkt.id ? 'rotate-90' : ''}`} />
                         </div>
                       </div>
