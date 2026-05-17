@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from 'zite-auth-sdk';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/context/AuthContext';
+import { userService } from '@/services/userService';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { Check, Pen, User, Mail, ShieldCheck, Users2 } from 'lucide-react';
-import { saveUserSignature } from 'zite-endpoints-sdk';
 
 // ── Signature style definitions ─────────────────────────────────────────────
 
@@ -43,10 +43,10 @@ export default function ProfilePage() {
   }, [user]);
 
   const handleSave = async () => {
-    if (!sigText.trim()) return;
+    if (!sigText.trim() || !user) return;
     setSaving(true);
     try {
-      await saveUserSignature({ signatureText: sigText.trim(), signatureStyle: sigStyle });
+      await userService.saveSignature(user.id, sigText.trim(), sigStyle);
       setSaved(true);
       toast.success('Signature saved successfully');
       setTimeout(() => setSaved(false), 3000);
