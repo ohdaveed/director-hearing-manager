@@ -54,6 +54,18 @@ export function PrintCheckbox({ checked }: { checked: boolean }) {
   );
 }
 
+// ─── Exhibit Label ───────────────────────────────────────────────────────────
+
+/** Red exhibit label positioned at the top-right of a page/section. */
+export function ExhibitLabel({ letter, className = "" }: { letter?: string; className?: string }) {
+  if (!letter) return null;
+  return (
+    <div className={`absolute top-0 right-0 exhibit-label-red ${className}`}>
+      Exhibit {letter}
+    </div>
+  );
+}
+
 // ─── Footer ───────────────────────────────────────────────────────────────────
 
 /**
