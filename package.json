@@ -29,6 +29,7 @@
     "date-fns": "^4.1.0",
     "framer-motion": "^12.38.0",
     "lucide-react": "^0.344.0",
+    "mammoth": "^1.12.0",
     "next-themes": "^0.2.1",
     "pdfjs-dist": "^5.7.284",
     "react": "^18.2.0",
