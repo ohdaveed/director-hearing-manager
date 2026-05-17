@@ -10,13 +10,11 @@
  * Routes: /complaints  /complaints/:id  /complaints/new  /complaints/import
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import {
-  getAssignedComplaints, getAllComplaints, getComplaintDetail, updateComplaintStatus,
-  GetAllComplaintsOutputType,
-} from 'zite-endpoints-sdk';
-import { useAuth } from 'zite-auth-sdk';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { complaintService } from '@/services/complaintService';
+import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Loader2, ClipboardList, ChevronLeft, FilePlus, Upload } from 'lucide-react';
 import ComplaintListItem from '@/components/ComplaintListItem';
@@ -25,7 +23,7 @@ import ComplaintSummaryCards from '@/components/ComplaintSummaryCards';
 import ComplaintFilterBar from '@/components/ComplaintFilterBar';
 import { toast } from 'sonner';
 
-type Complaint = GetAllComplaintsOutputType['complaints'][0] & { draftInspectionId?: string };
+type Complaint = any; // Properly type later
 
 const ADMIN_ROLES = ['Admin', 'Program Manager', 'Super Admin'];
 const CAN_CREATE_ROLES = ['Inspector', 'Admin', 'Super Admin'];
@@ -35,6 +33,7 @@ export default function ComplaintsPage() {
   const { user } = useAuth();
   const { id: urlComplaintId } = useParams<{ id?: string }>();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const activeRole = user?.role ?? '';
   const showMineToggle = MINE_TOGGLE_ROLES.includes(activeRole);
@@ -43,11 +42,6 @@ export default function ComplaintsPage() {
   const inspectorName = [user?.firstName, user?.lastName].filter(Boolean).join(' ') || user?.email || '';
 
   const [scope, setScope] = useState<'mine' | 'all'>(showMineToggle ? 'mine' : 'all');
-  const [complaints, setComplaints] = useState<Complaint[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [selected, setSelected] = useState<Complaint | null>(null);
-  const [showDetail, setShowDetail] = useState(false);
-
   const [statusFilter, setStatusFilter] = useState('');
   const [hearingStatusFilter, setHearingStatusFilter] = useState('');
   const [inspectorFilter, setInspectorFilter] = useState('');
@@ -55,45 +49,24 @@ export default function ComplaintsPage() {
 
   // ── Data fetching ───────────────────────────────────────────────────────────
 
-  const fetchComplaints = useCallback(async () => {
-    if (!user) return;
-    setLoading(true);
-    try {
-      let result: Complaint[] = [];
-      if (scope === 'mine' && showMineToggle) {
-        const r = await getAssignedComplaints({ inspector: inspectorName });
-        result = ([...r.complaints].sort((a, b) => {
-          if (a.draftInspectionId && !b.draftInspectionId) return -1;
-          if (!a.draftInspectionId && b.draftInspectionId) return 1;
-          return (a.reinspectionDueOnAfter ?? '').localeCompare(b.reinspectionDueOnAfter ?? '');
-        })) as Complaint[];
-      } else {
-        const r = await getAllComplaints({});
-        result = r.complaints as Complaint[];
-      }
-      setComplaints(result);
-      if (urlComplaintId) {
-        const target = result.find(c => c.id === urlComplaintId);
-        if (target) { setSelected(target); setShowDetail(true); }
-      }
-    } catch {
-      toast.error('Failed to load complaints');
-    } finally {
-      setLoading(false);
+  const { data: complaints = [], isLoading } = useQuery({
+    queryKey: ['complaints', scope, inspectorName],
+    queryFn: () => complaintService.getAll(scope === 'mine' ? { assignedTo: inspectorName } : {}),
+    enabled: !!user,
+  });
+
+  const selected = useMemo(() => {
+    if (!urlComplaintId) return null;
+    return complaints.find((c: any) => c.id === urlComplaintId) || null;
+  }, [urlComplaintId, complaints]);
+
+  const updateStatusMutation = useMutation({
+    mutationFn: ({ id, status }: { id: string, status: string }) => 
+      complaintService.update(id, { status }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['complaints'] });
     }
-  }, [scope, showMineToggle, inspectorName, user]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  useEffect(() => {
-    fetchComplaints();
-    setSelected(null);
-    setShowDetail(false);
-  }, [fetchComplaints]);
-
-  useEffect(() => {
-    const onVisibility = () => { if (document.visibilityState === 'visible') fetchComplaints(); };
-    document.addEventListener('visibilitychange', onVisibility);
-    return () => document.removeEventListener('visibilitychange', onVisibility);
-  }, [fetchComplaints]);
+  });
 
   // ── Filtering ───────────────────────────────────────────────────────────────
 
@@ -127,39 +100,27 @@ export default function ComplaintsPage() {
 
   const handleStatusUpdate = async (updatedStatus: string) => {
     if (!selected) return;
-    setComplaints(prev => prev.map(c => c.id === selected.id ? { ...c, status: updatedStatus } : c));
-    setSelected(prev => prev ? { ...prev, status: updatedStatus } : prev);
     try {
-      const detail = await getComplaintDetail({ complaintRecordId: selected.id });
-      const freshStatus = detail.complaint.status ?? updatedStatus;
-      setComplaints(prev => prev.map(c =>
-        c.id === selected.id
-          ? { ...c, status: freshStatus, reinspectionDueOnAfter: detail.complaint.reinspectionDueOnAfter, draftInspectionId: detail.draftInspectionId }
-          : c
-      ));
-      setSelected(prev => prev ? { ...prev, status: freshStatus } : prev);
-    } catch { }
+      await updateStatusMutation.mutateAsync({ id: selected.id, status: updatedStatus });
+      toast.success(`Status updated to ${updatedStatus}`);
+    } catch {
+      toast.error('Failed to update status');
+    }
   };
 
   const handleQuickAction = async (complaint: Complaint, newStatus: string) => {
     const prevStatus = complaint.status;
-    setComplaints(prev => prev.map(c => c.id === complaint.id ? { ...c, status: newStatus } : c));
-    if (selected?.id === complaint.id) setSelected(prev => prev ? { ...prev, status: newStatus } : prev);
     try {
-      await updateComplaintStatus({ complaintRecordId: complaint.id, status: newStatus, previousStatus: prevStatus ?? '' });
+      await updateStatusMutation.mutateAsync({ id: complaint.id, status: newStatus });
       toast.success(`Status → ${newStatus}`, {
         action: {
           label: 'Undo',
           onClick: async () => {
-            setComplaints(prev => prev.map(c => c.id === complaint.id ? { ...c, status: prevStatus } : c));
-            if (selected?.id === complaint.id) setSelected(prev => prev ? { ...prev, status: prevStatus } : prev);
-            await updateComplaintStatus({ complaintRecordId: complaint.id, status: prevStatus ?? '', previousStatus: newStatus });
+            await updateStatusMutation.mutateAsync({ id: complaint.id, status: prevStatus ?? '' });
           },
         },
       });
     } catch {
-      setComplaints(prev => prev.map(c => c.id === complaint.id ? { ...c, status: prevStatus } : c));
-      if (selected?.id === complaint.id) setSelected(prev => prev ? { ...prev, status: prevStatus } : prev);
       toast.error('Failed to update status');
     }
   };
@@ -224,13 +185,13 @@ export default function ComplaintsPage() {
         search={search}
         onSearchChange={setSearch}
         resultCount={filtered.length}
-        loading={loading}
+        loading={isLoading}
         {...(scope === 'all' ? { inspectorFilter, onInspectorChange: setInspectorFilter } : {})}
         actions={actionButtons}
       />
 
       <div className="container mx-auto px-4 sm:px-6 py-5 max-w-[1300px]">
-        {!loading && complaints.length > 0 && scope === 'all' && (
+        {!isLoading && complaints.length > 0 && scope === 'all' && (
           <ComplaintSummaryCards complaints={complaints} />
         )}
 
@@ -244,13 +205,13 @@ export default function ComplaintsPage() {
             md:border-r md:border-border md:pr-5 md:mr-6
             ${showDetail ? 'hidden md:flex' : 'flex flex-col'}
           `}>
-            {!loading && filtered.length > 0 && (
+            {!isLoading && filtered.length > 0 && (
               <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest mb-3 pl-0.5">
                 {filtered.length} complaint{filtered.length !== 1 ? 's' : ''}
               </p>
             )}
             <div className="flex-1 md:overflow-y-auto space-y-2 pb-6 md:pr-1">
-              {loading ? (
+              {isLoading ? (
                 <div className="flex items-center justify-center py-20 text-muted-foreground gap-2">
                   <Loader2 className="w-5 h-5 animate-spin" />
                   <span className="text-sm">Loading complaints...</span>

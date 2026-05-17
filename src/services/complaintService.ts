@@ -2,12 +2,17 @@ import { supabase } from '@/lib/supabase'
 import type { Complaint } from '@/types/complaint'
 
 export const complaintService = {
-  async getAll() {
-    const { data, error } = await supabase
+  async getAll(filters: { assignedTo?: string } = {}) {
+    let query = supabase
       .from('arrizon_open_complaint_inspections_list_1')
       .select('*')
       .order('date_entered', { ascending: false })
     
+    if (filters.assignedTo) {
+      query = query.eq('assigned_to', filters.assignedTo)
+    }
+
+    const { data, error } = await query
     if (error) throw error
     return data
   },
