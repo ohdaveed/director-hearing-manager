@@ -5,16 +5,16 @@
 - [x] Task: Gather a dataset of "edge case" inspection reports for testing. (Created mock_reports.json)
 - [x] Task: Conductor - User Manual Verification 'Phase 1: Research and Baselining' (Protocol in workflow.md) [74f61d1]
 
-## Phase 2: Refinement of Extraction Engine
-- [ ] Task: Update Anthropic API prompt templates to improve structure and accuracy of returned JSON.
-    - [ ] Task: Write failing tests for prompt response parsing.
-    - [ ] Task: Implement updated prompt logic to pass tests.
-- [ ] Task: Integrate SFHC Article 11 validation rules directly into the parsing post-processor.
-    - [ ] Task: Write failing tests for code validation.
-    - [ ] Task: Implement validation logic to pass tests.
-- [ ] Task: Conductor - User Manual Verification 'Phase 2: Refinement of Extraction Engine' (Protocol in workflow.md)
+## Phase 2: Refinement of Extraction Engine [checkpoint: 2956333]
+- [x] Task: Update Anthropic API prompt templates to improve structure and accuracy of returned JSON. [2956333]
+    - [x] Task: Write failing tests for prompt response parsing.
+    - [x] Task: Implement updated prompt logic to pass tests.
+- [x] Task: Integrate SFHC Article 11 validation rules directly into the parsing post-processor. [2956333]
+    - [x] Task: Write failing tests for code validation.
+    - [x] Task: Implement validation logic to pass tests.
+- [x] Task: Conductor - User Manual Verification 'Phase 2: Refinement of Extraction Engine' (Protocol in workflow.md) [2956333]
 
 ## Phase 3: Integration and Validation
-- [ ] Task: Update the "Import Past Inspections" wizard to support the new structured data format.
+- [~] Task: Update the "Import Past Inspections" wizard to support the new structured data format.
 - [ ] Task: Perform end-to-end testing with the "edge case" dataset to verify accuracy improvements.
 - [ ] Task: Conductor - User Manual Verification 'Phase 3: Integration and Validation' (Protocol in workflow.md)
