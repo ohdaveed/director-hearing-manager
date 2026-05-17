@@ -4,8 +4,8 @@
  * Shared complaint summary type used as the common currency for complaint records
  * passed between pages and components (e.g. from My Complaints → Inspection Form).
  *
- * Structurally compatible with both GetAssignedComplaintsOutputType['complaints'][0]
- * and GetAllComplaintsOutputType['complaints'][0] so components can accept either
+ * Structurally compatible with both any['complaints'][0]
+ * and any['complaints'][0] so components can accept either
  * without needing to import endpoint-specific types.
  */
 export type ComplaintSummary = {
@@ -22,5 +22,6 @@ export type ComplaintSummary = {
   hearing_status?: string;
   hearing_date?: string;
   assigned_to?: string;
+  assignedProgram?: string;
   date_entered?: string;
 };
