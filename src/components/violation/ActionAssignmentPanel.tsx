@@ -53,7 +53,7 @@ export default function ActionAssignmentPanel({
   expandTrigger,
 }: Props) {
   const [showCustom, setShowCustom] = useState(customText.trim().length > 0);
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(true);
   const [showAllSnippets, setShowAllSnippets] = useState(false);
   const [customError, setCustomError] = useState<string | undefined>(undefined);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -140,7 +140,7 @@ export default function ActionAssignmentPanel({
         </span>
         <span
           className={`flex-1 text-xs leading-relaxed ${
-            checked ? "text-foreground font-medium" : "text-muted-foreground"
+            checked ? "text-foreground font-medium" : "text-foreground/80"
           }`}
         >
           {action.text}

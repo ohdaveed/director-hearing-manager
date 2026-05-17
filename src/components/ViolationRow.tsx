@@ -583,7 +583,7 @@ export default function ViolationRow({
                                 }
                                 className="w-3 h-3"
                               />
-                              <span className="text-muted-foreground font-semibold text-[10px]">
+                              <span className="text-foreground font-semibold text-[10px]">
                                 Owner
                               </span>
                               <span>{a.text}</span>
@@ -605,7 +605,7 @@ export default function ViolationRow({
                                 }
                                 className="w-3 h-3"
                               />
-                              <span className="text-muted-foreground font-semibold text-[10px]">
+                              <span className="text-foreground font-semibold text-[10px]">
                                 Tenant
                               </span>
                               <span>{a.text}</span>

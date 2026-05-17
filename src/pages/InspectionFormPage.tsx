@@ -63,7 +63,28 @@ const AREAS = [
   "Staircase",
   "Bathroom",
   "Other",
-];
+] as const;
+
+const AREA_GROUPS: Record<string, readonly string[]> = {
+  Exterior: AREAS.filter((a) =>
+    ["Alleyway/Easement", "Front/Backyard", "Garage/Driveway", "Roof"].includes(
+      a,
+    ),
+  ),
+  Interior: AREAS.filter((a) =>
+    [
+      "Basement",
+      "Bathroom",
+      "Hallways",
+      "Laundry Room",
+      "Lightwells",
+      "Lobby",
+      "Staircase",
+    ].includes(a),
+  ),
+  "Common Areas": AREAS.filter((a) => a === "Garbage Area"),
+  Other: AREAS.filter((a) => a === "Other"),
+};
 
 const DRAFT_STORAGE_VERSION = 1;
 const DRAFT_KEY = (complaintId: string) =>
@@ -514,7 +535,56 @@ export default function InspectionFormPage({ inspectorName }: Props) {
 
   const fillInspectionDemoData = () => {
     if (!form) return;
-    const demo = {};
+
+    const buildDemoViolation = (
+      violationKey: string,
+      location: string,
+    ): Violation => {
+      const vType = VIOLATION_TYPES.find(
+        (v) => `${v.category}||${v.label}` === violationKey,
+      );
+      const base = newViolation();
+      if (!vType) return base;
+      return {
+        ...base,
+        violationKey,
+        location,
+        correctiveAction: vType.defaultCorrectiveAction ?? "",
+        dueDate: calcDueDate(form.inspection_date, vType),
+        responsibleParty: "Owner",
+        ownerActions: vType.defaultCorrectiveAction
+          ? [vType.defaultCorrectiveAction]
+          : [],
+      };
+    };
+
+    const demo = {
+      inspection_type: "Routine",
+      areasInspected: [
+        "Hallways",
+        "Bathroom",
+        "Garbage Area",
+        "Front/Backyard",
+        "Lobby",
+        "Staircase",
+      ],
+      summary:
+        "Routine inspection conducted on property. Several violations were identified including sanitation issues in common areas and pest evidence in hallways. Property owner was present during inspection and acknowledged the findings.",
+      globalObservations: [
+        "Property access granted by owner",
+        "Owner present throughout inspection",
+      ],
+      violations: [
+        buildDemoViolation(
+          "Sanitation (Sec. 581(b)(1)–(2))||Garbage / Refuse / Waste / Debris",
+          "Garbage Area",
+        ),
+        buildDemoViolation(
+          "Pests, Vermin & Animals (Sec. 581(b)(8) unless noted)||Rodents",
+          "Hallways / Common Areas",
+        ),
+      ],
+    };
     setForm((prev) => (prev ? { ...prev, ...demo } : prev));
     toast.success("Demo inspection data filled in.");
   };
@@ -767,16 +837,25 @@ export default function InspectionFormPage({ inspectorName }: Props) {
           open={openSections.areas}
           onToggle={() => toggleSection("areas")}
         >
-          <div className="flex flex-wrap gap-2">
-            {AREAS.map((area) => (
-              <button
-                key={area}
-                type="button"
-                onClick={() => toggleArea(area)}
-                className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-all ${form.areasInspected.includes(area) ? "bg-primary text-primary-foreground border-primary shadow-sm" : "bg-card text-foreground border-border hover:bg-muted"}`}
-              >
-                {area}
-              </button>
+          <div className="flex flex-col gap-4">
+            {Object.entries(AREA_GROUPS).map(([category, areas]) => (
+              <div key={category} className="flex flex-col gap-2">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                  {category}
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {areas.map((area) => (
+                    <button
+                      key={area}
+                      type="button"
+                      onClick={() => toggleArea(area)}
+                      className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-all ${form.areasInspected.includes(area) ? "bg-primary text-primary-foreground border-primary shadow-sm" : "bg-card text-foreground border-border hover:bg-muted"}`}
+                    >
+                      {area}
+                    </button>
+                  ))}
+                </div>
+              </div>
             ))}
           </div>
         </CollapsibleSection>
@@ -915,45 +994,48 @@ export default function InspectionFormPage({ inspectorName }: Props) {
         </div>
       </CollapsibleSection>
 
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 pb-10">
-        <Button
-          variant="outline"
-          size="lg"
-          className="gap-2 w-full sm:w-auto"
-          onClick={() => handleSave(true)}
-          disabled={saving}
-        >
-          {saving ? (
-            <Loader2 className="w-4 h-4 animate-spin" />
-          ) : (
-            <Save className="w-4 h-4" />
-          )}{" "}
-          Save Draft
-        </Button>
-        <div className="flex gap-2 w-full sm:w-auto">
+      <div className="sticky bottom-0 z-40 bg-card/95 backdrop-blur-sm border-t border-border shadow-2xl -mx-3 sm:-mx-6 px-3 sm:px-6 py-3">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
           <Button
             variant="outline"
             size="lg"
-            className="gap-2 flex-1 sm:flex-none"
-            onClick={handlePrint}
-          >
-            <Printer className="w-4 h-4" /> Print
-          </Button>
-          <Button
-            size="lg"
-            className="gap-2 flex-1 sm:flex-none"
-            onClick={() => handleSave(false)}
+            className="gap-2 w-full sm:w-auto"
+            onClick={() => handleSave(true)}
             disabled={saving}
           >
             {saving ? (
               <Loader2 className="w-4 h-4 animate-spin" />
             ) : (
-              <CheckCircle2 className="w-4 h-4" />
+              <Save className="w-4 h-4" />
             )}{" "}
-            Submit
+            Save Draft
           </Button>
+          <div className="flex gap-2 w-full sm:w-auto">
+            <Button
+              variant="outline"
+              size="lg"
+              className="gap-2 flex-1 sm:flex-none"
+              onClick={handlePrint}
+            >
+              <Printer className="w-4 h-4" /> Print
+            </Button>
+            <Button
+              size="lg"
+              className="gap-2 flex-1 sm:flex-none"
+              onClick={() => handleSave(false)}
+              disabled={saving}
+            >
+              {saving ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <CheckCircle2 className="w-4 h-4" />
+              )}{" "}
+              Submit
+            </Button>
+          </div>
         </div>
       </div>
+      <div className="h-16" />
     </div>
   );
 }
