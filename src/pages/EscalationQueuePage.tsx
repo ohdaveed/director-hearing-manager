@@ -1,5 +1,7 @@
-import { useState, useEffect } from 'react';
-import { getAllComplaints, updateEscalation, createHearingPacket, GetAllComplaintsOutputType } from 'zite-endpoints-sdk';
+import { useState, useMemo } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { complaintService } from '@/services/complaintService';
+import { packetService } from '@/services/packetService';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -12,8 +14,7 @@ import ComplaintDetailView from '@/components/ComplaintDetailView';
 import { toast } from 'sonner';
 import { HEARING_STATUS_OPTIONS } from '@/utils/complaintStatuses';
 
-
-type Complaint = GetAllComplaintsOutputType['complaints'][0];
+type Complaint = any;
 
 const HEARING_STATUSES = HEARING_STATUS_OPTIONS;
 const ENTRY_TYPES = ['Hearing Referral', 'NOV', 'Contact Attempt', 'Other'];
@@ -33,62 +34,52 @@ function EscalationEditor({ complaint, onUpdated, onComplaintPacketCreated }: {
   onUpdated: (c: Partial<Complaint>) => void;
   onComplaintPacketCreated: (complaintId: string, packetId: string) => void;
 }) {
-  const [hearingStatus, setHearingStatus] = useState(complaint.hearingStatus ?? 'None');
-  const [hearingDate, setHearingDate] = useState(complaint.hearingDate ?? '');
+  const queryClient = useQueryClient();
+  const [hearingStatus, setHearingStatus] = useState(complaint.hearing_status ?? 'None');
+  const [hearingDate, setHearingDate] = useState(complaint.hearing_date ?? '');
   const [chronologySummary, setChronologySummary] = useState('');
   const [entryType, setEntryType] = useState('Hearing Referral');
-  const [saving, setSaving] = useState(false);
-  const [creatingPacket, setCreatingPacket] = useState(false);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
 
+  const updateMutation = useMutation({
+    mutationFn: (updates: any) => complaintService.update(complaint.id, updates),
+    onSuccess: (data) => {
+      onUpdated(data);
+      setChronologySummary('');
+      toast.success('Escalation record updated');
+      queryClient.invalidateQueries({ queryKey: ['complaints'] });
+    }
+  });
+
+  const createPacketMutation = useMutation({
+    mutationFn: () => packetService.create(complaint.id),
+    onSuccess: (data) => {
+      toast.success('Hearing packet created! Navigate to Hearing Packets to manage it.');
+      onComplaintPacketCreated(complaint.id, data.id);
+    }
+  });
+
   useEffect(() => {
-    setHearingStatus(complaint.hearingStatus ?? 'None');
-    setHearingDate(complaint.hearingDate ?? '');
+    setHearingStatus(complaint.hearing_status ?? 'None');
+    setHearingDate(complaint.hearing_date ?? '');
     setChronologySummary('');
   }, [complaint.id]);
 
   const handleSave = async () => {
-    setSaving(true);
-    try {
-      await updateEscalation({
-        complaintRecordId: complaint.id,
-        hearingStatus,
-        hearingDate: hearingDate || undefined,
-        chronologySummary: chronologySummary || undefined,
-        chronologyEntryType: entryType,
-      });
-      onUpdated({ hearingStatus, hearingDate });
-      setChronologySummary('');
-      toast.success('Escalation record updated');
-    } catch {
-      toast.error('Failed to save');
-    } finally {
-      setSaving(false);
-    }
+    updateMutation.mutate({
+      hearing_status: hearingStatus,
+      hearing_date: hearingDate || null,
+    });
   };
 
   const handleCreatePacket = async () => {
-    setCreatingPacket(true);
     setShowCreateDialog(false);
-    try {
-      const result = await createHearingPacket({ complaintRecordId: complaint.id });
-      if (result.created) {
-        toast.success('Hearing packet created! Navigate to Hearing Packets to manage it.');
-        onComplaintPacketCreated(complaint.id, result.packetId);
-      } else {
-        toast.info('A hearing packet already exists for this complaint.');
-        onComplaintPacketCreated(complaint.id, result.packetId);
-      }
-    } catch {
-      toast.error('Failed to create hearing packet');
-    } finally {
-      setCreatingPacket(false);
-    }
+    createPacketMutation.mutate();
   };
 
   const hsCls = HEARING_STATUS_COLORS[hearingStatus] ?? 'bg-muted text-muted-foreground border-border';
   const isPacketEligible = PACKET_ELIGIBLE_STATUSES.includes(hearingStatus);
-  const hasPacket = !!complaint.hearingPacketId;
+  const hasPacket = !!complaint.hearing_packet_id;
 
   return (
     <div className="bg-card border border-border rounded-xl p-5 shadow-sm space-y-4">
@@ -215,36 +206,38 @@ function EscalationEditor({ complaint, onUpdated, onComplaintPacketCreated }: {
 }
 
 export default function EscalationQueuePage() {
-  const [complaints, setComplaints] = useState<Complaint[]>([]);
-  const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<Complaint | null>(null);
   const [showDetail, setShowDetail] = useState(false);
   const [search, setSearch] = useState('');
 
-  useEffect(() => {
-    getAllComplaints({}).then(r => {
-      const escalated = r.complaints.filter(c =>
-        c.status === 'Escalated' || c.status === 'Non-Compliant' || (c.hearingStatus && c.hearingStatus !== 'None')
-      ).sort((a, b) => (b.dateEntered ?? '').localeCompare(a.dateEntered ?? ''));
-      setComplaints(escalated);
-    }).catch(() => toast.error('Failed to load queue')).finally(() => setLoading(false));
-  }, []);
+  const { data: complaints = [], isLoading: loading } = useQuery({
+    queryKey: ['complaints', 'escalated'],
+    queryFn: async () => {
+      const data = await complaintService.getAll();
+      return data
+        .filter((c: any) => 
+          c.status === 'Escalated' || c.status === 'Non-Compliant' || (c.hearing_status && c.hearing_status !== 'None')
+        )
+        .sort((a: any, b: any) => (b.date_entered ?? '').localeCompare(a.date_entered ?? ''));
+    }
+  });
 
-  const filtered = search
-    ? complaints.filter(c => c.address?.toLowerCase().includes(search.toLowerCase()) || c.complaintId?.includes(search))
-    : complaints;
+  const filtered = useMemo(() => {
+    if (!search) return complaints;
+    const q = search.toLowerCase();
+    return complaints.filter((c: any) => 
+      c.address?.toLowerCase().includes(q) || c.complaintid?.includes(q)
+    );
+  }, [complaints, search]);
 
   const handleUpdated = (patch: Partial<Complaint>) => {
     if (!selected) return;
-    const updated = { ...selected, ...patch };
-    setSelected(updated);
-    setComplaints(prev => prev.map(c => c.id === selected.id ? updated : c));
+    setSelected({ ...selected, ...patch });
   };
 
   const handlePacketCreated = (complaintId: string, packetId: string) => {
-    setComplaints(prev => prev.map(c => c.id === complaintId ? { ...c, hearingPacketId: packetId } : c));
     if (selected?.id === complaintId) {
-      setSelected(prev => prev ? { ...prev, hearingPacketId: packetId } : prev);
+      setSelected({ ...selected, hearing_packet_id: packetId });
     }
   };
 
