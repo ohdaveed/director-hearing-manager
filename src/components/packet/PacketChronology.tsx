@@ -12,8 +12,9 @@
 
 import type { CSSProperties } from 'react';
 import { formatDateShort } from '@/utils/formatDate';
+import { getSignatureFont } from '@/pages/ProfilePage';
 import { STATIC_BLOCKS, LAYOUT_TOKENS } from '../../config/documentTemplates';
-import { SignatureBlock, type ParsedSignature } from './SignatureBlock';
+import type { ParsedSignature } from './SignatureBlock';
 
 type Props = {
   chronology: any;
@@ -80,7 +81,7 @@ function ChronologyTable({ entries, showBy }: { entries: any[]; showBy: boolean 
               )}
             </td>
             <td style={{ border: '1px solid black', padding: '4px 6px', fontSize: '9pt', color: '#555' }}>
-              {entry.exhibitRefs ?? ''}
+              {entry.exhibit_refs ?? ''}
             </td>
             <td style={{ border: '1px solid black', padding: '4px 6px', fontSize: '9pt', color: '#777' }}>
               {entry.attachmentPageRef ?? ''}
@@ -93,54 +94,34 @@ function ChronologyTable({ entries, showBy }: { entries: any[]; showBy: boolean 
   );
 }
 
-// Shared cell/label styles for signature table
-const CELL: CSSProperties = {
-  border: '1px solid black',
-  padding: '4px 6px',
-  verticalAlign: 'top',
-  fontSize: pt.body,
-  fontFamily,
-  width: '50%',
-};
-const LABEL: CSSProperties = {
-  fontSize: '7.5pt',
-  color: '#333',
-  display: 'block',
-  marginBottom: '2px',
-};
+function ProposedHearingOrder({ address, inspectorSig, managerSig }: { address: string; inspectorSig?: ParsedSignature | null; managerSig?: ParsedSignature | null }) {
+  const inspFont = getSignatureFont(inspectorSig?.style);
+  const mgrFont = getSignatureFont(managerSig?.style);
 
-function HearingOrderProposal({ address, adminFee, recommendedText }: { address: string; adminFee?: string; recommendedText?: string }) {
   return (
-    <div style={{ borderTop: '2px solid black', paddingTop: '16px', marginTop: '16px', pageBreakInside: 'avoid', breakInside: 'avoid' }}>
-      {/* Recommendation clause — from STATIC_BLOCKS.chronology.recommendationClause */}
-      <p style={{ fontSize: '8.5pt', fontWeight: 'bolder', textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 8px' }}>
-        {S.recommendationClause}
+    <div className="mt-8 pt-6 border-t-2 border-black break-inside-avoid">
+      <h3 className="text-center font-bold text-[14pt] mb-4 underline">PROPOSED HEARING ORDER</h3>
+      <p className="mb-6 leading-relaxed" style={{ fontSize: pt.body }}>
+        {S.proposedOrder.replace('{address}', address)}
       </p>
-      {recommendedText ? (
-        <p style={{ fontSize: pt.body, margin: '0 0 8px', lineHeight: 1.5 }}>{recommendedText}</p>
-      ) : (
-        <ol style={{ fontSize: pt.body, paddingLeft: '20px', margin: 0, lineHeight: '1.6' }}>
-          <li style={{ marginBottom: '4px' }}>
-            The property at <strong>{address}</strong> is hereby declared a public health nuisance.
-          </li>
-          <li style={{ marginBottom: '4px' }}>
-            Property owner/representative shall abate the nuisance within <strong>30 days</strong> after
-            the Director's Hearing Order has been signed by the Director's Hearing Officer.
-          </li>
-          <li style={{ marginBottom: '4px' }}>
-            All responsible parties are required to abate all health code violations within 30 days of
-            the signed Hearing Order.
-          </li>
-          <li style={{ marginBottom: '4px' }}>
-            The Department of Public Health is authorized to refer this case to the City Attorney's
-            Office for civil enforcement if violations are not abated.
-          </li>
-          <li style={{ marginBottom: '4px' }}>
-            An administrative fee of <strong>{adminFee || '___________'}</strong> shall be assessed for
-            failure to abate all health code violations by the abatement deadline.
-          </li>
-        </ol>
-      )}
+      <div className="grid grid-cols-2 gap-8 mt-12">
+        <div className="border-t border-black pt-2 relative">
+          {inspectorSig ? (
+            <div style={{ fontFamily: inspFont.font, fontSize: inspFont.size, position: 'absolute', bottom: '100%', left: 0, paddingBottom: '4px' }}>
+              {inspectorSig.text}
+            </div>
+          ) : null}
+          <div style={{ fontSize: pt.body }}>Inspector Signature</div>
+        </div>
+        <div className="border-t border-black pt-2 relative">
+          {managerSig ? (
+            <div style={{ fontFamily: mgrFont.font, fontSize: mgrFont.size, position: 'absolute', bottom: '100%', left: 0, paddingBottom: '4px' }}>
+              {managerSig.text}
+            </div>
+          ) : null}
+          <div style={{ fontSize: pt.body }}>Program Manager Signature</div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -185,7 +166,7 @@ export function PacketChronology({ chronology, complaint, packet, location, insp
             </td>
             <td style={{ border: '1px solid black', padding: '3px 6px', width: '15%', textAlign: 'left' }}>
               <span style={{ fontSize: '7.5pt', display: 'block', color: '#555' }}>Block/Lot</span>
-              {location?.blockLot ?? ''}
+              {location?.block_lot ?? ''}
             </td>
             <td style={{ border: '1px solid black', padding: '3px 6px', width: '30%', textAlign: 'left' }}>
               <span style={{ fontSize: '7.5pt', display: 'block', color: '#555' }}>Facility Name (DBA)</span>
@@ -229,48 +210,6 @@ export function PacketChronology({ chronology, complaint, packet, location, insp
     </div>
   );
 
-  // ── Signature table (last page) ────────────────────────────────────────────
-  const SignatureTable = () => (
-    <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '16px' }}>
-      <tbody>
-        <tr>
-          <td style={CELL}>
-            <span style={LABEL}>{S.signatureLabels.inspectorName}</span>
-            {inspector?.name ?? packet.assignedTo ?? ''}
-          </td>
-          <SignatureBlock
-            label={S.signatureLabels.inspectorSignature}
-            signature={inspectorSig ?? null}
-            cellStyle={CELL}
-            labelStyle={LABEL}
-          />
-        </tr>
-        <tr>
-          <td style={CELL}>
-            <span style={LABEL}>Inspector Email</span>
-            {inspector?.email ?? ''}
-          </td>
-          <td style={CELL}>
-            <span style={LABEL}>Inspector Phone</span>
-            {C.investigatorDefaultPhone}
-          </td>
-        </tr>
-        <tr>
-          <td style={CELL}>
-            <span style={LABEL}>{S.signatureLabels.managerName}</span>
-            &nbsp;
-          </td>
-          <SignatureBlock
-            label={S.signatureLabels.managerSignature}
-            signature={managerSig ?? null}
-            cellStyle={CELL}
-            labelStyle={LABEL}
-          />
-        </tr>
-      </tbody>
-    </table>
-  );
-
   // ── Frozen snapshot rendering ──────────────────────────────────────────────
   if (frozenSnapshot) {
     const rows = parseFrozenSnapshot(frozenSnapshot);
@@ -295,8 +234,7 @@ export function PacketChronology({ chronology, complaint, packet, location, insp
             ))}
           </tbody>
         </table>
-        <HearingOrderProposal address={address} adminFee={packet.adminFee} />
-        <SignatureTable />
+        <ProposedHearingOrder address={address} inspectorSig={inspectorSig} managerSig={managerSig} />
         <div className="page-number-slot" />
       </div>
     );
@@ -339,8 +277,7 @@ export function PacketChronology({ chronology, complaint, packet, location, insp
                   {publicEntries.length} entr{publicEntries.length !== 1 ? 'ies' : 'y'} total
                   {pages.length > 1 ? ` · ${pages.length} pages` : ''}
                 </p>
-                <HearingOrderProposal address={address} adminFee={packet.adminFee} />
-                <SignatureTable />
+                <ProposedHearingOrder address={address} inspectorSig={inspectorSig} managerSig={managerSig} />
               </>
             )}
             <div className="page-number-slot" />

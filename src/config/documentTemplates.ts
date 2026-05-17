@@ -103,6 +103,8 @@ export const STATIC_BLOCKS = {
     continuationIntro:
       'Following is a continuation chronology of events presented at this hearing date:',
     continuationCheckboxLabel: 'Continued on supplemental page(s)',
+    proposedOrder:
+      'Based on the history of non-compliance documented above, the Department recommends that the Hearing Officer issue an order requiring the abatement of all outstanding violations at {address} within 30 days of the hearing date. Failure to comply will result in further administrative action and assessment of applicable fees.',
     recommendationClause:
       'Based on the above chronology, the Environmental Health Inspector respectfully recommends the following order:',
     signatureLabels: {
@@ -344,7 +346,7 @@ export const NOV_VARIABLE_SLOTS: DocumentFieldConfig[] = [
     required: false,
   },
   {
-    key: 'violations[].correctiveAction',
+    key: 'violations[].corrective_action',
     label: 'Steps to Abate',
     sourceTable: 'Violations',
     sourceField: 'correctiveAction',
@@ -355,7 +357,7 @@ export const NOV_VARIABLE_SLOTS: DocumentFieldConfig[] = [
     hint: 'Specific steps the owner must take — each line becomes a bullet in the NOV',
   },
   {
-    key: 'violations[].dueDate',
+    key: 'violations[].due_date',
     label: 'Deadline for Abatement',
     sourceTable: 'Violations',
     sourceField: 'dueDate',
