@@ -47,7 +47,7 @@ export default function ComplaintListItem({
 
   const handleViewLocation = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (c.locationRecordId) navigate(`/locations/${c.locationRecordId}`);
+    if (c.location) navigate(`/locations/${c.location}`);
   };
 
   const handleLinkLocation = (e: React.MouseEvent) => {
@@ -89,19 +89,19 @@ export default function ComplaintListItem({
 
             {/* Left meta — font-mono ID, then plain-text date/inspector/category */}
             <div className="flex items-center gap-2 flex-wrap min-w-0">
-              {c.complaintId && (
+              {c.complaintid && (
                 <span className="text-xs font-mono font-medium text-muted-foreground shrink-0">
-                  #<span className="text-foreground">{c.complaintId}</span>
+                  #<span className="text-foreground">{c.complaintid}</span>
                 </span>
               )}
-              {c.dateEntered && (
+              {c.date_entered && (
                 <span className="text-[11px] text-muted-foreground tabular-nums shrink-0">
-                  {new Date(c.dateEntered + 'T00:00:00').toLocaleDateString()}
+                  {new Date(c.date_entered + 'T00:00:00').toLocaleDateString()}
                 </span>
               )}
-              {c.assignedTo && (
+              {c.assigned_to && (
                 <span className="text-[11px] text-muted-foreground/70 truncate max-w-[120px]">
-                  · {c.assignedTo}
+                  · {c.assigned_to}
                 </span>
               )}
               {c.category && c.category.length > 0 && (
@@ -113,7 +113,7 @@ export default function ComplaintListItem({
 
             {/* Right: location + quick-action buttons */}
             <div className="flex items-center gap-1.5 shrink-0">
-              {c.locationRecordId ? (
+              {c.location ? (
                 <button
                   type="button"
                   onClick={handleViewLocation}
@@ -122,7 +122,7 @@ export default function ComplaintListItem({
                   <MapPin className="w-3 h-3" />
                   Location
                 </button>
-              ) : !c.locationRecordId && onLinkLocation ? (
+              ) : !c.location && onLinkLocation ? (
                 <button
                   type="button"
                   onClick={handleLinkLocation}

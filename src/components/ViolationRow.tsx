@@ -493,7 +493,7 @@ export default function ViolationRow({
             </div>
             <div className="space-y-1">
               <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Due Date</label>
-              <Input type="date" value={violation.dueDate}
+              <Input type="date" value={violation.due_date}
                 onChange={e => onChange(violation.id, 'dueDate', e.target.value)}
                 className="text-sm h-8" disabled={readOnly} />
             </div>

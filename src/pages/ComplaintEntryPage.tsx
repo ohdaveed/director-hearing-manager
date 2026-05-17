@@ -1,5 +1,8 @@
-import { useState, useReducer, useEffect } from 'react';
+import { useState, useReducer, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { complaintService } from '@/services/complaintService';
+import { locationService } from '@/services/locationService';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -10,13 +13,12 @@ import {
   Search, Loader2, MapPin, Plus, CheckCircle2, AlertCircle,
   AlertTriangle, Link2, FileText, Phone, Mail, Building2, User, Calendar, Hash, Wand2,
 } from 'lucide-react';
-import {
-  createComplaint, searchLocations, checkDuplicateComplaint,
-  SearchLocationsOutputType, CheckDuplicateComplaintOutputType,
-} from 'zite-endpoints-sdk';
 import { useDebouncedCallback } from 'use-debounce';
 import { ALL_COMPLAINT_STATUSES } from '@/utils/complaintStatuses';
 import { INSPECTORS } from '@/utils/inspectors';
+
+type Location = any;
+type DuplicateComplaint = any;
 
 // ── Demo data generator ───────────────────────────────────────────────────────
 function pick<T>(arr: T[]): T { return arr[Math.floor(Math.random() * arr.length)]; }
@@ -228,8 +230,8 @@ function generateDemoData(inspectorName?: string): Partial<FormState> & { _locat
   };
 }
 
-type Location = SearchLocationsOutputType['locations'][0];
-type DuplicateComplaint = CheckDuplicateComplaintOutputType['complaints'][0];
+type Location = any['locations'][0];
+type DuplicateComplaint = any['complaints'][0];
 
 // ── Constants ────────────────────────────────────────────────────────────────
 const FACILITY_TYPES = ['Tourist Hotel', 'Residential Hotel', 'Apartments', 'Residential Property', 'Vacant Lot', 'City Owned Property', 'Other'];
@@ -447,13 +449,9 @@ type Props = {
 
 export default function ComplaintEntryPage({ inspectorName, onSuccess }: Props) {
   const [state, dispatch] = useReducer(reducer, inspectorName, makeInitialState);
+  const queryClient = useQueryClient();
   const set = <K extends keyof FormState>(field: K, value: FormState[K]) =>
     dispatch({ type: 'SET_FIELD', field, value });
-
-  // Keep assignedTo in sync if inspectorName changes (e.g. role switch)
-  useEffect(() => {
-    if (inspectorName) set('assignedTo', inspectorName);
-  }, [inspectorName]); // eslint-disable-line
 
   // Location UI state
   const [locationQuery, setLocationQuery] = useState('');
@@ -463,142 +461,57 @@ export default function ComplaintEntryPage({ inspectorName, onSuccess }: Props) 
   const [isSearchingLocations, setIsSearchingLocations] = useState(false);
   const [recentLocations] = useState<RecentLocation[]>(getRecentLocations);
 
-  // Duplicate detection
-  const [duplicateComplaints, setDuplicateComplaints] = useState<DuplicateComplaint[]>([]);
-  const [isDuplicateChecking, setIsDuplicateChecking] = useState(false);
-  const [duplicateAction, setDuplicateAction] = useState<'link' | 'standalone' | null>(null);
-  const [linkedToComplaintId, setLinkedToComplaintId] = useState<string | null>(null);
-
   // Form meta
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [submittedSummary, setSubmittedSummary] = useState<{ address: string; complaintId: string; assignedTo: string } | null>(null);
   const [submitAttempted, setSubmitAttempted] = useState(false);
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
-  const hasLocation = !!(selectedLocation || (creatingNewLocation && state.locAddress.trim()));
-  const hasComplainant = state.complainantAnonymous || !!(state.complainantName || state.complainantPhone || state.complainantEmail);
-  const hasDetails = !!state.description.trim();
-
-  const blurField = (field: string) => {
-    setTouched(prev => ({ ...prev, [field]: true }));
-    if (field === 'complainantEmail' && state.complainantEmail && !validateEmail(state.complainantEmail)) {
-      setFormErrors(prev => ({ ...prev, complainantEmail: 'Enter a valid email address' }));
-    }
-  };
-  const clearError = (field: string) => setFormErrors(prev => { const n = { ...prev }; delete n[field]; return n; });
-
-  const checkForDuplicates = async (locationRecordId?: string, address?: string) => {
-    setDuplicateComplaints([]); setDuplicateAction(null); setLinkedToComplaintId(null);
-    if (!locationRecordId && !address) return;
-    setIsDuplicateChecking(true);
-    try {
-      const result = await checkDuplicateComplaint({ locationRecordId, address });
-      if (result.found && result.complaints.length > 0) {
-        setDuplicateComplaints(result.complaints);
-        setLinkedToComplaintId(result.complaints[0].id);
+  const createMutation = useMutation({
+    mutationFn: (data: any) => complaintService.create(data),
+    onSuccess: (data) => {
+      toast.success('Complaint created successfully!');
+      queryClient.invalidateQueries({ queryKey: ['complaints'] });
+      if (onSuccess) {
+        onSuccess();
+      } else {
+        setSubmittedSummary({
+          address: selectedLocation?.address || state.locAddress || 'Unknown address',
+          complaintId: data.complaintid,
+          assignedTo: state.assigned_to || 'Unassigned',
+        });
+        setSubmitted(true);
       }
-    } catch { } finally { setIsDuplicateChecking(false); }
-  };
-
-  const doDuplicateCheckByAddress = useDebouncedCallback(async (addr: string) => {
-    if (addr.length < 5) { setDuplicateComplaints([]); setDuplicateAction(null); return; }
-    await checkForDuplicates(undefined, addr);
-  }, 800);
+    },
+    onError: () => toast.error('Failed to create complaint')
+  });
 
   const doLocationSearch = useDebouncedCallback(async (q: string) => {
     if (!q.trim()) { setLocationResults([]); return; }
     setIsSearchingLocations(true);
     try {
-      const result = await searchLocations({ query: q });
-      setLocationResults(result.locations);
+      const res = await locationService.search(q);
+      setLocationResults(res);
     } catch { } finally { setIsSearchingLocations(false); }
   }, 500);
 
-  const handleSelectLocation = (loc: Location) => {
-    setSelectedLocation(loc); setLocationQuery(loc.address ?? '');
-    setLocationResults([]); setCreatingNewLocation(false);
-    checkForDuplicates(loc.id, undefined);
-    saveRecentLocation({ id: loc.id, address: loc.address ?? '', facilityType: loc.facilityType ?? undefined, ownerName: loc.ownerName ?? undefined });
-  };
-
-  const handleCreateNew = () => {
-    setSelectedLocation(null); setCreatingNewLocation(true);
-    set('locAddress', locationQuery); setLocationResults([]);
-  };
-
   const handleSubmit = async () => {
     setSubmitAttempted(true);
-    const missingFields: string[] = [];
-    if (!hasLocation) missingFields.push('a property location');
-    if (!state.description.trim()) missingFields.push('a complaint description');
-    if (missingFields.length > 0) {
-      toast.error(`Please provide ${missingFields.join(' and ')} before saving.`);
+    if (!hasLocation || !state.description.trim()) {
+      toast.error('Please provide a property location and description before saving.');
       return;
     }
-    setIsSubmitting(true);
-    try {
-      const result = await createComplaint({
-        complaintId: state.complaintId.trim() || undefined,
-        locationRecordId: selectedLocation?.id,
-        newLocation: creatingNewLocation ? {
-          address: state.locAddress,
-          locationId: state.locLocationId || undefined,
-          blockLot: state.locBlockLot || undefined,
-          ownerName: state.locOwnerName || undefined,
-          ownerAddress: state.locOwnerAddress || undefined,
-          ownerPhone: state.locOwnerPhone || undefined,
-          ownerEmail: state.locOwnerEmail || undefined,
-          facilityType: state.locFacilityType || undefined,
-          numberOfUnits: state.locNumUnits ? Number(state.locNumUnits) : undefined,
-          healthyHousing: state.locHealthyHousing,
-          censusTract: state.locCensusTract || undefined,
-        } : undefined,
-        caseNumber311: state.caseNumber311 || undefined,
-        dateReceived: state.dateReceived || undefined,
-        unitNumber: state.unitNumber || undefined,
-        facilityName: state.facilityName || undefined,
-        facilityOwnership: state.facilityOwnership || undefined,
-        description: state.description,
-        category: state.categories.length > 0 ? state.categories : undefined,
-        complaintType: state.complaintType || undefined,
-        complaintSubtype: state.complaintSubtype || undefined,
-        methodReceived: state.methodReceived || undefined,
-        assignedProgram: state.assignedProgram || undefined,
-        assignedTo: state.assignedTo || undefined,
-        dateAssigned: state.dateAssigned || undefined,
-        status: state.status,
-        dateClosed: state.dateClosed || undefined,
-        complainantAnonymous: state.complainantAnonymous,
-        complainantName: state.complainantName || undefined,
-        complainantPhone: state.complainantPhone || undefined,
-        complainantEmail: state.complainantEmail || undefined,
-        complainantAddress: state.complainantAddress || undefined,
-        complainantContactDates: state.complainantContactDates || undefined,
-        threadParentId: duplicateAction === 'link' && linkedToComplaintId ? linkedToComplaintId : undefined,
-      });
 
-      toast.success('Complaint created successfully!');
-
-      if (onSuccess) {
-        // Inspector flow: redirect to My Complaints
-        onSuccess();
-      } else {
-        // Admin flow: show inline success screen
-        setSubmittedSummary({
-          address: selectedLocation?.address || state.locAddress || 'Unknown address',
-          complaintId: result.complaintId,
-          assignedTo: state.assignedTo || 'Unassigned',
-        });
-        setSubmitted(true);
-      }
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Failed to create complaint. Please try again.';
-      toast.error(msg);
-    } finally {
-      setIsSubmitting(false);
-    }
+    createMutation.mutate({
+      complaintid: state.complaintid || undefined,
+      address: selectedLocation?.address || state.locAddress,
+      description: state.description,
+      status: state.status,
+      assigned_to: state.assigned_to,
+      date_entered: state.dateReceived,
+      // ... more mappings
+    });
   };
 
   const fillDemoData = () => {
@@ -639,8 +552,8 @@ export default function ComplaintEntryPage({ inspectorName, onSuccess }: Props) 
         <CheckCircle2 className="w-16 h-16 text-primary mx-auto mb-4" />
         <h2 className="text-2xl font-bold text-foreground mb-2">Complaint Created</h2>
         <p className="text-muted-foreground mb-1">{submittedSummary.address}</p>
-        <p className="text-sm text-muted-foreground mb-1">Complaint ID: <span className="font-mono font-semibold">{submittedSummary.complaintId}</span></p>
-        <p className="text-sm text-muted-foreground mb-8">Assigned to: {submittedSummary.assignedTo}</p>
+        <p className="text-sm text-muted-foreground mb-1">Complaint ID: <span className="font-mono font-semibold">{submittedSummary.complaintid}</span></p>
+        <p className="text-sm text-muted-foreground mb-8">Assigned to: {submittedSummary.assigned_to}</p>
         <Button onClick={handleReset}>Create Another Complaint</Button>
       </div>
     );
@@ -677,7 +590,7 @@ export default function ComplaintEntryPage({ inspectorName, onSuccess }: Props) 
 
       {/* ── Section 1: Complaint Information ─────────────────────────────── */}
       <SectionCard>
-        <SectionHeader step={<FileText className="w-4 h-4" />} done={!!state.caseNumber311 || !!state.complaintId} icon={undefined} title="Complaint Information" />
+        <SectionHeader step={<FileText className="w-4 h-4" />} done={!!state.caseNumber311 || !!state.complaintid} icon={undefined} title="Complaint Information" />
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-1">
             <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1">
@@ -685,7 +598,7 @@ export default function ComplaintEntryPage({ inspectorName, onSuccess }: Props) 
             </label>
             <Input
               placeholder="e.g. 419076 — leave blank to auto-generate"
-              value={state.complaintId}
+              value={state.complaintid}
               onChange={e => set('complaintId', e.target.value)}
             />
             <p className="text-[10px] text-muted-foreground">Enter the ID from the paper form, or leave blank.</p>
@@ -714,7 +627,7 @@ export default function ComplaintEntryPage({ inspectorName, onSuccess }: Props) 
           </div>
           <div className="space-y-1">
             <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Assigned Inspector</label>
-            <Select value={state.assignedTo} onValueChange={v => set('assignedTo', v)}>
+            <Select value={state.assigned_to} onValueChange={v => set('assignedTo', v)}>
               <SelectTrigger className="text-sm h-9"><SelectValue placeholder="Assign inspector..." /></SelectTrigger>
               <SelectContent>{INSPECTORS.map(n => <SelectItem key={n} value={n}>{n}</SelectItem>)}</SelectContent>
             </Select>
@@ -747,11 +660,11 @@ export default function ComplaintEntryPage({ inspectorName, onSuccess }: Props) 
                 <div className="space-y-1">
                   {recentLocations.map(loc => (
                     <button key={loc.id} type="button"
-                      onClick={() => handleSelectLocation({ id: loc.id, address: loc.address, facilityType: loc.facilityType, ownerName: loc.ownerName, locationId: undefined })}
+                      onClick={() => handleSelectLocation({ id: loc.id, address: loc.address, facilityType: loc.facility_type, ownerName: loc.owner_name, locationId: undefined })}
                       className="w-full text-left px-3 py-2 rounded-lg border border-border bg-muted/30 hover:bg-muted transition-colors">
                       <p className="text-sm font-medium text-foreground">{loc.address}</p>
-                      {(loc.facilityType || loc.ownerName) && (
-                        <p className="text-xs text-muted-foreground">{[loc.facilityType, loc.ownerName].filter(Boolean).join(' · ')}</p>
+                      {(loc.facility_type || loc.owner_name) && (
+                        <p className="text-xs text-muted-foreground">{[loc.facility_type, loc.owner_name].filter(Boolean).join(' · ')}</p>
                       )}
                     </button>
                   ))}
@@ -773,7 +686,7 @@ export default function ComplaintEntryPage({ inspectorName, onSuccess }: Props) 
                     <button key={loc.id} type="button" onClick={() => handleSelectLocation(loc)}
                       className="w-full text-left px-4 py-3 hover:bg-muted border-b border-border last:border-0 transition-colors">
                       <p className="text-sm font-medium text-foreground">{loc.address}</p>
-                      <p className="text-xs text-muted-foreground">{[loc.facilityType, loc.ownerName].filter(Boolean).join(' · ')}</p>
+                      <p className="text-xs text-muted-foreground">{[loc.facility_type, loc.owner_name].filter(Boolean).join(' · ')}</p>
                     </button>
                   ))}
                 </motion.div>
@@ -790,7 +703,7 @@ export default function ComplaintEntryPage({ inspectorName, onSuccess }: Props) 
             <div>
               <p className="text-sm font-semibold text-foreground">{selectedLocation.address}</p>
               <p className="text-xs text-muted-foreground mt-0.5">
-                {[selectedLocation.facilityType, selectedLocation.ownerName, selectedLocation.locationId ? `ID: ${selectedLocation.locationId}` : ''].filter(Boolean).join(' · ')}
+                {[selectedLocation.facility_type, selectedLocation.owner_name, selectedLocation.location_id ? `ID: ${selectedLocation.location_id}` : ''].filter(Boolean).join(' · ')}
               </p>
             </div>
             <Button variant="ghost" size="sm" className="text-xs" onClick={() => { setSelectedLocation(null); setLocationQuery(''); }}>Change</Button>
@@ -915,9 +828,9 @@ export default function ComplaintEntryPage({ inspectorName, onSuccess }: Props) 
                     <div key={c.id} onClick={() => setLinkedToComplaintId(c.id)}
                       className={`p-3 rounded-lg border cursor-pointer transition-all ${linkedToComplaintId === c.id ? 'border-primary bg-primary/5' : 'border-border bg-card hover:bg-muted/40'}`}>
                       <div className="flex items-center gap-2 mb-1">
-                        {c.complaintId && <span className="text-xs font-mono font-semibold text-primary bg-primary/10 px-1.5 py-0.5 rounded">#{c.complaintId}</span>}
+                        {c.complaintid && <span className="text-xs font-mono font-semibold text-primary bg-primary/10 px-1.5 py-0.5 rounded">#{c.complaintid}</span>}
                         {c.status && <span className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded-full">{c.status}</span>}
-                        {c.dateEntered && <span className="text-xs text-muted-foreground ml-auto">{new Date(c.dateEntered + 'T00:00:00').toLocaleDateString()}</span>}
+                        {c.date_entered && <span className="text-xs text-muted-foreground ml-auto">{new Date(c.date_entered + 'T00:00:00').toLocaleDateString()}</span>}
                       </div>
                       {c.description && <p className="text-xs text-muted-foreground line-clamp-2">{c.description}</p>}
                     </div>
@@ -932,7 +845,7 @@ export default function ComplaintEntryPage({ inspectorName, onSuccess }: Props) 
               <div className="flex items-center justify-between bg-primary/5 border border-primary/20 rounded-xl px-4 py-3">
                 <div className="flex items-center gap-2">
                   <Link2 className="w-4 h-4 text-primary" />
-                  <span className="text-sm font-medium">Linked to #{duplicateComplaints.find(c => c.id === linkedToComplaintId)?.complaintId}</span>
+                  <span className="text-sm font-medium">Linked to #{duplicateComplaints.find(c => c.id === linkedToComplaintId)?.complaintid}</span>
                 </div>
                 <Button variant="ghost" size="sm" className="text-xs" onClick={() => setDuplicateAction(null)}>Change</Button>
               </div>
@@ -1090,7 +1003,7 @@ export default function ComplaintEntryPage({ inspectorName, onSuccess }: Props) 
             {CLOSED_STATUSES.includes(state.status) && (
               <motion.div initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -8 }} className="space-y-1">
                 <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Date Closed</label>
-                <Input type="date" value={state.dateClosed} onChange={e => set('dateClosed', e.target.value)} />
+                <Input type="date" value={state.date_closed} onChange={e => set('dateClosed', e.target.value)} />
               </motion.div>
             )}
           </AnimatePresence>
@@ -1100,9 +1013,9 @@ export default function ComplaintEntryPage({ inspectorName, onSuccess }: Props) 
       {/* ── Submit ────────────────────────────────────────────────────────── */}
       <div className="flex items-center justify-between pb-8">
         <p className="text-xs text-muted-foreground"><span className="text-destructive">*</span> Required fields</p>
-        <Button size="lg" className="gap-2 px-8" onClick={handleSubmit} disabled={isSubmitting}>
-          {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
-          {isSubmitting ? 'Saving...' : 'Save Complaint'}
+        <Button size="lg" className="gap-2 px-8" onClick={handleSubmit} disabled={createMutation.isPending}>
+          {createMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
+          {createMutation.isPending ? 'Saving...' : 'Save Complaint'}
         </Button>
       </div>
     </div>

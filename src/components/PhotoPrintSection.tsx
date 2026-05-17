@@ -22,7 +22,7 @@ export default function PhotoPrintSection({ photos, address, inspectionDate, com
 
   // Sort by type order
   const sorted = [...uploaded].sort((a, b) => {
-    return TYPE_ORDER.indexOf(a.photoType) - TYPE_ORDER.indexOf(b.photoType);
+    return TYPE_ORDER.indexOf(a.photo_type) - TYPE_ORDER.indexOf(b.photo_type);
   });
 
   // Chunk into pages of 3
@@ -58,11 +58,11 @@ export default function PhotoPrintSection({ photos, address, inspectionDate, com
                   style={{ width: '280px', height: '210px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #e5e7eb', flexShrink: 0 }}
                 />
                 <div style={{ flex: 1, paddingTop: '4px' }}>
-                  <span style={{ fontSize: '10px', fontWeight: 600, padding: '2px 8px', borderRadius: '999px', ...parseStyle(TYPE_BADGE[photo.photoType]) }}>
-                    {photo.photoType}
+                  <span style={{ fontSize: '10px', fontWeight: 600, padding: '2px 8px', borderRadius: '999px', ...parseStyle(TYPE_BADGE[photo.photo_type]) }}>
+                    {photo.photo_type}
                   </span>
-                  {photo.violationLabel && (
-                    <div style={{ marginTop: '6px', fontSize: '12px', fontWeight: 600, color: '#111827' }}>{photo.violationLabel}</div>
+                  {photo.violation_label && (
+                    <div style={{ marginTop: '6px', fontSize: '12px', fontWeight: 600, color: '#111827' }}>{photo.violation_label}</div>
                   )}
                   {photo.caption && (
                     <div style={{ marginTop: '4px', fontSize: '12px', color: '#374151' }}>{photo.caption}</div>

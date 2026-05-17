@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
-import { getInspectionDetail, GetInspectionDetailOutputType } from 'zite-endpoints-sdk';
+
 import { Loader2, X, Printer, CheckCircle2, XCircle, Clock, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-type Detail = GetInspectionDetailOutputType;
+type Detail = any;
 
 type Props = {
   inspectionId: string;
@@ -69,8 +69,8 @@ export default function InspectionDetailPanel({ inspectionId, onClose }: Props) 
             ) : (
               <span className="inline-flex items-center gap-1 text-xs font-medium text-warning bg-warning/10 px-2 py-0.5 rounded-full"><Clock className="w-3 h-3" /> Draft</span>
             )}
-            {inspection.inspectionRating === 'Satisfactory' && <span className="inline-flex items-center gap-1 text-xs font-medium text-success bg-success/10 px-2 py-0.5 rounded-full"><CheckCircle2 className="w-3 h-3" /> Satisfactory</span>}
-            {inspection.inspectionRating === 'Unsatisfactory' && <span className="inline-flex items-center gap-1 text-xs font-medium text-destructive bg-destructive/10 px-2 py-0.5 rounded-full"><XCircle className="w-3 h-3" /> Unsatisfactory</span>}
+            {inspection.inspection_rating === 'Satisfactory' && <span className="inline-flex items-center gap-1 text-xs font-medium text-success bg-success/10 px-2 py-0.5 rounded-full"><CheckCircle2 className="w-3 h-3" /> Satisfactory</span>}
+            {inspection.inspection_rating === 'Unsatisfactory' && <span className="inline-flex items-center gap-1 text-xs font-medium text-destructive bg-destructive/10 px-2 py-0.5 rounded-full"><XCircle className="w-3 h-3" /> Unsatisfactory</span>}
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -87,21 +87,21 @@ export default function InspectionDetailPanel({ inspectionId, onClose }: Props) 
         {/* Summary fields */}
         <div className="grid grid-cols-2 gap-x-6 gap-y-3">
           <Field label="Inspector" value={inspection.inspector} />
-          <Field label="Date" value={inspection.inspectionDate ? new Date(inspection.inspectionDate).toLocaleDateString() : undefined} />
+          <Field label="Date" value={inspection.inspection_date ? new Date(inspection.inspection_date).toLocaleDateString() : undefined} />
           <Field label="Time In" value={inspection.timeIn} />
           <Field label="Time Out" value={inspection.timeOut} />
-          <Field label="Inspection Type" value={inspection.inspectionType} />
+          <Field label="Inspection Type" value={inspection.inspection_type} />
           <Field label="Access Granted By" value={inspection.accessGrantedBy} />
           <Field label="DBA" value={inspection.dba} />
-          <Field label="Complaint ID" value={inspection.complaintId} />
+          <Field label="Complaint ID" value={inspection.complaintid} />
           {inspection.contactPhone && <Field label="Contact Phone" value={inspection.contactPhone} />}
           {inspection.contactEmail && <Field label="Contact Email" value={inspection.contactEmail} />}
-          {location?.ownerName && <Field label="Owner" value={location.ownerName} />}
-          {location?.facilityType && <Field label="Facility Type" value={location.facilityType} />}
-          {location?.numberOfUnits && <Field label="# Units" value={String(location.numberOfUnits)} />}
-          {location?.numberOfRooms && <Field label="# Rooms" value={String(location.numberOfRooms)} />}
-          {location?.censusTract && <Field label="Census Tract" value={location.censusTract} />}
-          {location?.currentFees != null && <Field label="Current Fees" value={`$${(location.currentFees as number).toFixed(2)}`} />}
+          {location?.owner_name && <Field label="Owner" value={location.owner_name} />}
+          {location?.facility_type && <Field label="Facility Type" value={location.facility_type} />}
+          {location?.number_of_units && <Field label="# Units" value={String(location.number_of_units)} />}
+          {location?.number_of_rooms && <Field label="# Rooms" value={String(location.number_of_rooms)} />}
+          {location?.census_tract && <Field label="Census Tract" value={location.census_tract} />}
+          {location?.current_fees != null && <Field label="Current Fees" value={`$${(location.current_fees as number).toFixed(2)}`} />}
         </div>
 
         {/* Violations */}
@@ -116,16 +116,16 @@ export default function InspectionDetailPanel({ inspectionId, onClose }: Props) 
                   <div className="flex items-start justify-between gap-3 mb-1">
                     <div className="flex items-center gap-2">
                       <span className="w-5 h-5 rounded-full bg-destructive/10 text-destructive text-xs font-bold flex items-center justify-center flex-shrink-0">{i + 1}</span>
-                      <p className="text-sm font-semibold text-foreground">{v.violationLabel}</p>
+                      <p className="text-sm font-semibold text-foreground">{v.violation_label}</p>
                     </div>
                     <div className="flex items-center gap-1.5 flex-shrink-0">
-                      {v.responsibleParty && <span className="text-xs bg-muted px-2 py-0.5 rounded">{v.responsibleParty}</span>}
+                      {v.responsible_party && <span className="text-xs bg-muted px-2 py-0.5 rounded">{v.responsible_party}</span>}
                       <span className={`text-xs px-2 py-0.5 rounded font-medium ${statusBadge(v.status)}`}>{v.status ?? 'Violation'}</span>
                     </div>
                   </div>
-                  {v.locationInProperty && <p className="text-xs text-muted-foreground ml-7">📍 {v.locationInProperty}</p>}
-                  {v.correctiveAction && <p className="text-xs text-foreground mt-1.5 ml-7 leading-relaxed">{v.correctiveAction}</p>}
-                  {v.dueDate && <p className="text-xs text-muted-foreground mt-1 ml-7">Due: {new Date(v.dueDate).toLocaleDateString()}</p>}
+                  {v.location_in_property && <p className="text-xs text-muted-foreground ml-7">📍 {v.location_in_property}</p>}
+                  {v.corrective_action && <p className="text-xs text-foreground mt-1.5 ml-7 leading-relaxed">{v.corrective_action}</p>}
+                  {v.due_date && <p className="text-xs text-muted-foreground mt-1 ml-7">Due: {new Date(v.due_date).toLocaleDateString()}</p>}
                 </div>
               ))}
             </div>

@@ -1,117 +1,85 @@
 /**
  * PacketPhotoAppendix.tsx
  *
- * Renders photo pages for a single inspection:
- * - "Exhibit" photos (selected via selectedPhotoIDs) are rendered one-per-page
- *   with a full metadata block and the red exhibit label.
- * - Non-exhibit photos are rendered in the existing 2×2 grid layout.
- *
- * globalPhotoOffset allows sequential photo numbering across multiple inspections.
+ * Refactored to strictly one-photo-per-page layout with metadata table
+ * and exhibit label as per SOP requirements.
  */
 
+import { ExhibitLabel, fmtDate } from './printUtils';
 
-import { formatDateShort } from '@/utils/formatDate';
-
-type Photo = any['allPhotos'][0];
+type Photo = any;
 type Inspection = any;
 
 type Props = {
   inspection: Inspection;
   index: number;
-  complaint: any['complaint'];
-  packet: any['packet'];
+  complaint: any;
+  packet: any;
   globalPhotoOffset: number;
   exhibitLetter?: string;
   allPhotosForInspection?: Photo[];
   exhibitPhotoIds?: string[];
 };
 
-const fmt = formatDateShort;
-
-/** Single full-page photo with metadata block */
-function ExhibitPhotoPage({
+/** Single full-page photo with metadata block per SOP */
+function PhotoPage({
   photo,
   inspection,
   complaint,
-  packet,
   exhibitLetter,
-  photoNumber,
 }: {
   photo: Photo;
   inspection: Inspection;
-  complaint: Props['complaint'];
-  packet: Props['packet'];
+  complaint: any;
   exhibitLetter?: string;
-  photoNumber: number;
 }) {
-  return (
-    <div className="packet-page print-page-break" style={{ fontFamily: 'Times New Roman, serif', display: 'flex', flexDirection: 'column' }}>
-      {/* Page header with exhibit label */}
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '12px' }}>
-        <div>
-          <p style={{ fontSize: '8.5pt', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.06em', margin: 0 }}>
-            City and County of San Francisco — Department of Public Health
-          </p>
-          <p style={{ fontSize: '11pt', fontWeight: '900', textTransform: 'uppercase', margin: '3px 0 2px' }}>
-            {exhibitLetter ? `Exhibit ${exhibitLetter} — ` : ''}Inspection Photo #{photoNumber}
-          </p>
-          <p style={{ fontSize: '8.5pt', color: '#555', margin: 0 }}>
-            {fmt(inspection.inspection_date)} | Inspector: {inspection.inspector ?? '—'} | Case: {packet.case_number ?? '—'}
-          </p>
-        </div>
-        {exhibitLetter && (
-          <p style={{ fontSize: '18pt', fontWeight: '900', color: '#dc2626', lineHeight: 1, margin: 0, flexShrink: 0, marginLeft: '16px' }}>
-            Exhibit {exhibitLetter}
-          </p>
-        )}
-      </div>
+  // Use uploaded_at if available, fallback to inspection_date.
+  // We take the first 10 characters (YYYY-MM-DD) to ensure compatibility with fmtDate's T00:00:00 hack.
+  const dateStr = (photo.uploaded_at || inspection.inspection_date || '').substring(0, 10);
 
-      {/* Full-width photo */}
-      <div style={{ flex: 1, border: '1px solid black', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f4f4f4', minHeight: '5in', maxHeight: '7in', marginBottom: '12px' }}>
-        {photo.photoUrl ? (
-          <img
-            src={photo.photoUrl}
-            alt={photo.caption ?? `Photo ${photoNumber}`}
-            style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', display: 'block' }}
+  return (
+    <div className="packet-page print-page relative min-h-[10.5in] flex flex-col pt-12 px-8">
+      <ExhibitLabel letter={exhibitLetter} />
+      
+      <div className="flex-grow flex items-center justify-center mb-8">
+        {photo.photo_url ? (
+          <img 
+            src={photo.photo_url} 
+            alt={photo.caption ?? 'Inspection Photo'}
+            className="max-w-full max-h-[6.5in] object-contain border border-gray-400 shadow-sm" 
           />
         ) : (
-          <div style={{ color: '#aaa', textAlign: 'center', fontSize: '10pt' }}>
-            <div style={{ fontSize: '24pt', marginBottom: '8px' }}>📷</div>
-            Photo not available
+          <div className="flex flex-col items-center justify-center text-gray-400 h-[5in]">
+            <span className="text-4xl mb-2">📷</span>
+            <span>Photo not available</span>
           </div>
         )}
       </div>
 
-      {/* Metadata block */}
-      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '9pt' }}>
+      <table className="w-full border-collapse border border-black text-[10.5pt] mb-8">
         <tbody>
           <tr>
-            <td style={{ border: '1px solid black', padding: '4px 6px', width: '50%' }}>
-              <strong>Date / Time:</strong>{' '}
-              {photo.uploadedAt
-                ? new Date(photo.uploadedAt).toLocaleString('en-US', { month: '2-digit', day: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' })
-                : fmt(inspection.inspection_date)}
-            </td>
-            <td style={{ border: '1px solid black', padding: '4px 6px', width: '50%' }}>
-              <strong>Inspector:</strong> {inspection.inspector ?? '—'}
-            </td>
+            <td className="border border-black p-2 font-bold bg-gray-50 w-1/4 text-right">Date / Time</td>
+            <td className="border border-black p-2 w-3/4">{fmtDate(dateStr)}</td>
           </tr>
           <tr>
-            <td style={{ border: '1px solid black', padding: '4px 6px' }}>
-              <strong>Address:</strong> {complaint?.address ?? inspection.facilityAddress ?? '—'}
-            </td>
-            <td style={{ border: '1px solid black', padding: '4px 6px' }}>
-              <strong>Violation:</strong> {photo.violationLabel ?? '—'}
-            </td>
+            <td className="border border-black p-2 font-bold bg-gray-50 text-right">Inspector</td>
+            <td className="border border-black p-2">{inspection.inspector ?? '—'}</td>
           </tr>
           <tr>
-            <td colSpan={2} style={{ border: '1px solid black', padding: '4px 6px' }}>
-              <strong>Description:</strong> {photo.caption ?? '—'}
-            </td>
+            <td className="border border-black p-2 font-bold bg-gray-50 text-right">Address</td>
+            <td className="border border-black p-2">{complaint?.address ?? inspection.facilityAddress ?? '—'}</td>
+          </tr>
+          <tr>
+            <td className="border border-black p-2 font-bold bg-gray-50 text-right">Violation</td>
+            <td className="border border-black p-2">{photo.violation_label ?? '—'}</td>
+          </tr>
+          <tr>
+            <td className="border border-black p-2 font-bold bg-gray-50 text-right">Description</td>
+            <td className="border border-black p-2">{photo.caption ?? '—'}</td>
           </tr>
         </tbody>
       </table>
-
       <div className="page-number-slot" />
     </div>
   );
@@ -119,114 +87,25 @@ function ExhibitPhotoPage({
 
 export function PacketPhotoAppendix({
   inspection,
-  index,
   complaint,
-  packet,
-  globalPhotoOffset,
   exhibitLetter,
   allPhotosForInspection,
-  exhibitPhotoIds = [],
 }: Props) {
-  // Determine exhibit vs regular photos
-  const sourcePhotos = allPhotosForInspection ?? inspection.photos;
-  const hasExhibitSelection = exhibitPhotoIds.length > 0;
-
-  const exhibitPhotos = hasExhibitSelection
-    ? sourcePhotos.filter(p => exhibitPhotoIds.includes(p.id))
-    : [];
-  const regularPhotos = hasExhibitSelection
-    ? sourcePhotos.filter(p => !exhibitPhotoIds.includes(p.id))
-    : sourcePhotos;
+  const sourcePhotos = allPhotosForInspection ?? inspection.photos ?? [];
 
   if (sourcePhotos.length === 0) return null;
 
-  // Group regular photos into 2×2 pages
-  const PHOTOS_PER_PAGE = 4;
-  const regularPages: Photo[][] = [];
-  for (let i = 0; i < regularPhotos.length; i += PHOTOS_PER_PAGE) {
-    regularPages.push(regularPhotos.slice(i, i + PHOTOS_PER_PAGE));
-  }
-
   return (
     <>
-      {/* Exhibit photos — one per page */}
-      {exhibitPhotos.map((photo, ei) => (
-        <ExhibitPhotoPage
+      {sourcePhotos.map((photo: any) => (
+        <PhotoPage
           key={photo.id}
           photo={photo}
           inspection={inspection}
           complaint={complaint}
-          packet={packet}
           exhibitLetter={exhibitLetter}
-          photoNumber={globalPhotoOffset + ei + 1}
         />
       ))}
-
-      {/* Regular photos — 2×2 grid */}
-      {regularPages.map((pagePhotos, pageIdx) => {
-        const pagePhotoOffset = globalPhotoOffset + exhibitPhotos.length + pageIdx * PHOTOS_PER_PAGE;
-        return (
-          <div key={`reg-${pageIdx}`} className="packet-page print-page-break">
-            <div className="text-center mb-4">
-              <p className="text-xs font-bold uppercase tracking-widest">
-                City and County of San Francisco — Department of Public Health
-              </p>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '16px' }}>
-                <h2 className="text-base font-black uppercase tracking-wider mt-1">
-                  Photo Appendix — Inspection #{index + 1}
-                  {regularPages.length > 1 ? ` (Page ${pageIdx + 1} of ${regularPages.length})` : ''}
-                </h2>
-                {exhibitLetter && (
-                  <p style={{ fontSize: '16pt', fontWeight: '900', color: '#dc2626', lineHeight: 1, margin: '4px 0 0' }}>
-                    Exhibit {exhibitLetter}
-                  </p>
-                )}
-              </div>
-              <p className="text-xs text-gray-600">
-                {fmt(inspection.inspection_date)} | Inspector: {inspection.inspector ?? '—'} |
-                Case: {packet.case_number ?? '—'} | Complaint: {complaint?.complaintId ?? '—'}
-              </p>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4 flex-1">
-              {pagePhotos.map((photo, pi) => (
-                <div
-                  key={photo.id}
-                  className="photo-card border border-black"
-                  style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}
-                >
-                  <div style={{ height: '3.2in', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f4f4f4' }}>
-                    {photo.photoUrl ? (
-                      <img
-                        src={photo.photoUrl}
-                        alt={photo.caption ?? `Photo ${pagePhotoOffset + pi + 1}`}
-                        style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', display: 'block' }}
-                      />
-                    ) : (
-                      <div className="text-gray-400 text-xs text-center p-4">
-                        <div className="text-2xl mb-1">📷</div>
-                        Photo not available
-                      </div>
-                    )}
-                  </div>
-                  <div className="text-xs px-2 py-1.5 border-t border-black">
-                    <span className="font-bold">Photo {pagePhotoOffset + pi + 1}.</span>{' '}
-                    {photo.caption ?? '—'}
-                    {photo.violationLabel && (
-                      <span className="text-gray-500"> [{photo.violationLabel}]</span>
-                    )}
-                    {photo.photoType && (
-                      <span className="ml-1 text-gray-400">({photo.photoType})</span>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="page-number-slot" />
-          </div>
-        );
-      })}
     </>
   );
 }

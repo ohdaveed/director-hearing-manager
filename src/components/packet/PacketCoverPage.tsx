@@ -81,7 +81,7 @@ export function PacketCoverPage({ packet, complaint, location }: Props) {
           {STATIC_BLOCKS.cover.documentTitle}
         </h1>
 
-        {/* Case number — variable slot: HearingPackets.caseNumber */}
+        {/* Case number — variable slot: HearingPackets.case_number */}
         <p style={{ fontSize: pt.coverSubtitle, margin: '0 0 18px', fontWeight: 'normal' }}>
           {STATIC_BLOCKS.cover.caseLabel} {caseNumber}
         </p>

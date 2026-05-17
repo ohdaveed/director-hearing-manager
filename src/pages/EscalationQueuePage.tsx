@@ -178,8 +178,8 @@ function EscalationEditor({ complaint, onUpdated, onComplaintPacketCreated }: {
               <div className="space-y-3 text-sm">
                 <p>This will create a new Director's Hearing Packet for this case.</p>
                 <div className="bg-muted rounded-lg p-3 space-y-1 text-foreground">
-                  {complaint.complaintId && (
-                    <p><span className="font-medium">Complaint:</span> <span className="font-mono">#{complaint.complaintId}</span></p>
+                  {complaint.complaintid && (
+                    <p><span className="font-medium">Complaint:</span> <span className="font-mono">#{complaint.complaintid}</span></p>
                   )}
                   {complaint.address && (
                     <p><span className="font-medium">Address:</span> {complaint.address}</p>
@@ -187,8 +187,8 @@ function EscalationEditor({ complaint, onUpdated, onComplaintPacketCreated }: {
                   {hearingDate && (
                     <p><span className="font-medium">Hearing Date:</span> {new Date(hearingDate + 'T00:00:00').toLocaleDateString()}</p>
                   )}
-                  {complaint.assignedTo && (
-                    <p><span className="font-medium">Inspector:</span> {complaint.assignedTo}</p>
+                  {complaint.assigned_to && (
+                    <p><span className="font-medium">Inspector:</span> {complaint.assigned_to}</p>
                   )}
                 </div>
                 <p className="text-muted-foreground">Navigate to the <strong>Hearing Packets</strong> section to manage and print the packet.</p>

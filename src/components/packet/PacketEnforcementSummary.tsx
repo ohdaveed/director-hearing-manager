@@ -71,7 +71,7 @@ function isActionChecked(key: string, proposed: string[]): boolean {
 }
 
 export function PacketEnforcementSummary({ packet, complaint, location, inspections, inspector, inspectorSig, managerSig }: Props) {
-  const flags = parseFlags(packet.enforcementFlags, packet.proposed_actions ?? []);
+  const flags = parseFlags(packet.enforcement_flags, packet.proposed_actions ?? []);
   const proposed = packet.proposed_actions ?? [];
 
   const address = complaint?.address ?? location?.address ?? '—';
@@ -127,7 +127,7 @@ export function PacketEnforcementSummary({ packet, complaint, location, inspecti
               </td>
               <td style={{ ...CELL, width: '15%' }}>
                 <span style={LABEL}>Block/Lot</span>
-                {location?.blockLot ?? ''}
+                {location?.block_lot ?? ''}
               </td>
               <td style={{ ...CELL, width: '30%' }}>
                 <span style={LABEL}>Facility Name (DBA)</span>
@@ -141,29 +141,29 @@ export function PacketEnforcementSummary({ packet, complaint, location, inspecti
             <tr>
               <td style={CELL}>
                 <span style={LABEL}>Property Owner</span>
-                {location?.ownerName ?? ''}
+                {location?.owner_name ?? ''}
               </td>
               <td colSpan={2} style={CELL}>
                 <span style={LABEL}>Phone</span>
-                {location?.ownerPhone ?? ''}
+                {location?.owner_phone ?? ''}
               </td>
               <td style={CELL}>
                 <span style={LABEL}>Email</span>
-                {location?.ownerEmail ?? ''}
+                {location?.owner_email ?? ''}
               </td>
             </tr>
             <tr>
               <td style={CELL}>
                 <span style={LABEL}>Responsible Party or Parties</span>
-                {location?.responsibleParty ?? ''}
+                {location?.responsible_party ?? ''}
               </td>
               <td colSpan={2} style={CELL}>
                 <span style={LABEL}>Phone</span>
-                {location?.responsiblePartyPhone ?? ''}
+                {location?.responsible_party_phone ?? ''}
               </td>
               <td style={CELL}>
                 <span style={LABEL}>Email</span>
-                {location?.responsiblePartyEmail ?? ''}
+                {location?.responsible_party_email ?? ''}
               </td>
             </tr>
           </tbody>
@@ -290,7 +290,7 @@ export function PacketEnforcementSummary({ packet, complaint, location, inspecti
             <tr>
               <td style={CELL}>
                 <span style={LABEL}>Inspector</span>
-                {inspector?.name ?? packet.assignedTo ?? ''}
+                {inspector?.name ?? packet.assigned_to ?? ''}
               </td>
               <SignatureBlock
                 label="Inspector Signature"
@@ -351,7 +351,7 @@ export function PacketEnforcementSummary({ packet, complaint, location, inspecti
                 </td>
                 <td style={{ ...CELL, width: '15%' }}>
                   <span style={LABEL}>Block/Lot</span>
-                  {location?.blockLot ?? ''}
+                  {location?.block_lot ?? ''}
                 </td>
                 <td style={{ ...CELL, width: '30%' }}>
                   <span style={LABEL}>Facility Name (DBA)</span>
@@ -365,7 +365,7 @@ export function PacketEnforcementSummary({ packet, complaint, location, inspecti
               <tr>
                 <td colSpan={2} style={CELL}>
                   <span style={LABEL}>Responsible Party or Parties</span>
-                  {location?.responsibleParty ?? ''}
+                  {location?.responsible_party ?? ''}
                 </td>
                 <td style={CELL}>
                   <span style={LABEL}>Hearing Date</span>

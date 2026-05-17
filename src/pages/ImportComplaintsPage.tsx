@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from 'react';
-import { bulkImportComplaints } from 'zite-endpoints-sdk';
+
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { Upload, FileText, CheckCircle2, AlertCircle, Download, X, Loader2 } from 'lucide-react';
@@ -114,16 +114,16 @@ function parseCSV(text: string): { rows: ParsedRow[]; strippedCount: number } {
       address: mapped.address ?? '',
       dateReceived: normalizedDate,
       description: mapped.description ?? '',
-      complaintId: mapped.complaintId || undefined,
+      complaintId: mapped.complaintid || undefined,
       caseNumber311: mapped.caseNumber311 || undefined,
       complaintType: mapped.complaintType || undefined,
       category: mapped.category || undefined,
-      assignedTo: mapped.assignedTo || undefined,
+      assignedTo: mapped.assigned_to || undefined,
       status: mapped.status || undefined,
       methodReceived: mapped.methodReceived || undefined,
       assignedProgram: mapped.assignedProgram || undefined,
       dateAssigned: mapped.dateAssigned || undefined,
-      locationId: mapped.locationId || undefined,
+      locationId: mapped.location_id || undefined,
       errors,
       valid: errors.length === 0,
     };
@@ -131,20 +131,20 @@ function parseCSV(text: string): { rows: ParsedRow[]; strippedCount: number } {
 
   // Strip rows where ALL key fields are empty — catches EHB footer metadata and blank lines
   const dataRows = allRows.filter(r =>
-    r.address.trim() || r.dateReceived.trim() || r.description.trim() || r.complaintId?.trim()
+    r.address.trim() || r.dateReceived.trim() || r.description.trim() || r.complaintid?.trim()
   );
   const strippedCount = allRows.length - dataRows.length;
 
   // Detect within-file duplicate Complaint Numbers
   const seenIds = new Map<string, number>(); // normalised id → first rowNum
   const rows = dataRows.map(r => {
-    if (!r.complaintId?.trim()) return r;
-    const key = r.complaintId.trim().toLowerCase();
+    if (!r.complaintid?.trim()) return r;
+    const key = r.complaintid.trim().toLowerCase();
     if (seenIds.has(key)) {
       const firstRow = seenIds.get(key)!;
       return {
         ...r,
-        errors: [...r.errors, `Duplicate Complaint Number "${r.complaintId}" — first seen on row ${firstRow}`],
+        errors: [...r.errors, `Duplicate Complaint Number "${r.complaintid}" — first seen on row ${firstRow}`],
         valid: false,
       };
     }
@@ -304,16 +304,16 @@ export default function ImportComplaintsPage() {
           address: r.address,
           dateReceived: r.dateReceived,
           description: r.description,
-          complaintId: r.complaintId,
+          complaintId: r.complaintid,
           caseNumber311: r.caseNumber311,
           complaintType: r.complaintType,
           category: r.category,
-          assignedTo: r.assignedTo,
+          assignedTo: r.assigned_to,
           status: r.status,
           methodReceived: r.methodReceived,
           assignedProgram: r.assignedProgram,
           dateAssigned: r.dateAssigned,
-          locationId: r.locationId,
+          locationId: r.location_id,
         })),
       });
       setResult(res);

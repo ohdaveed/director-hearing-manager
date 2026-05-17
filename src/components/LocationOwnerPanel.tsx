@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getLocationDetail, updateLocation, GetLocationDetailOutputType } from 'zite-endpoints-sdk';
+
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -73,11 +73,11 @@ export default function LocationOwnerPanel({ locationRecordId }: { locationRecor
       .then(r => {
         setLoc(r.location);
         setForm({
-          locationId: r.location.locationId ?? '',
-          ownerName: r.location.ownerName ?? '',
-          ownerAddress: r.location.ownerAddress ?? '',
-          ownerPhone: r.location.ownerPhone ?? '',
-          ownerEmail: r.location.ownerEmail ?? '',
+          locationId: r.location.location_id ?? '',
+          ownerName: r.location.owner_name ?? '',
+          ownerAddress: r.location.owner_address ?? '',
+          ownerPhone: r.location.owner_phone ?? '',
+          ownerEmail: r.location.owner_email ?? '',
         });
       })
       .catch(() => toast.error('Failed to load location'))
@@ -99,18 +99,18 @@ export default function LocationOwnerPanel({ locationRecordId }: { locationRecor
   };
 
   const handleSave = async () => {
-    const err = validateLocationId(form.locationId);
+    const err = validateLocationId(form.location_id);
     if (err) { setLocationIdError(err); return; }
 
     setSaving(true);
     try {
       await updateLocation({
         locationRecordId,
-        locationId: form.locationId || undefined,
-        ownerName: form.ownerName || undefined,
-        ownerAddress: form.ownerAddress || undefined,
-        ownerPhone: form.ownerPhone || undefined,
-        ownerEmail: form.ownerEmail || undefined,
+        locationId: form.location_id || undefined,
+        ownerName: form.owner_name || undefined,
+        ownerAddress: form.owner_address || undefined,
+        ownerPhone: form.owner_phone || undefined,
+        ownerEmail: form.owner_email || undefined,
       });
       setLoc(prev => prev ? { ...prev, ...form } : prev);
       setEditing(false);
@@ -169,7 +169,7 @@ export default function LocationOwnerPanel({ locationRecordId }: { locationRecor
               min={1}
               max={9999999}
               step={1}
-              value={form.locationId}
+              value={form.location_id}
               onChange={e => handleLocationIdChange(e.target.value)}
               placeholder="e.g. 110881"
               className={`h-8 text-sm mt-0.5 ${locationIdError ? 'border-destructive' : ''}`}
@@ -210,12 +210,12 @@ export default function LocationOwnerPanel({ locationRecordId }: { locationRecor
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
             {[
-              { label: 'Location ID', value: loc.locationId },
-              { label: 'Facility Type', value: loc.facilityType },
-              { label: 'Owner', value: loc.ownerName },
-              { label: 'Mailing Address', value: loc.ownerAddress },
-              { label: 'Phone', value: loc.ownerPhone },
-              { label: 'Email', value: loc.ownerEmail },
+              { label: 'Location ID', value: loc.location_id },
+              { label: 'Facility Type', value: loc.facility_type },
+              { label: 'Owner', value: loc.owner_name },
+              { label: 'Mailing Address', value: loc.owner_address },
+              { label: 'Phone', value: loc.owner_phone },
+              { label: 'Email', value: loc.owner_email },
             ].map(({ label, value }) => value ? (
               <div key={label}>
                 <p className="text-xs text-muted-foreground">{label}</p>
@@ -225,11 +225,11 @@ export default function LocationOwnerPanel({ locationRecordId }: { locationRecor
           </div>
 
           {/* Phase 3: Building features */}
-          {loc.buildingFeatures && loc.buildingFeatures.length > 0 && (
+          {loc.building_features && loc.building_features.length > 0 && (
             <div className="mt-3">
               <p className="text-xs text-muted-foreground mb-1">Building Features</p>
               <div className="flex flex-wrap gap-1">
-                {loc.buildingFeatures.map(f => (
+                {loc.building_features.map(f => (
                   <Badge key={f} variant="secondary" className="text-xs">{f}</Badge>
                 ))}
               </div>
@@ -238,7 +238,7 @@ export default function LocationOwnerPanel({ locationRecordId }: { locationRecor
 
           {/* Phase 3: Verification date with staleness warning */}
           <VerificationBadge
-            verificationDate={loc.verificationDate}
+            verificationDate={loc.verification_date}
             onVerify={handleVerifyNow}
             saving={verifying}
           />

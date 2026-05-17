@@ -1,11 +1,11 @@
 import { useState, useMemo } from 'react';
-import { savePacketSelections, GetHearingPacketDataOutputType } from 'zite-endpoints-sdk';
+
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
 import { Loader2, CheckCircle2, FileText, Image, ExternalLink } from 'lucide-react';
 
-type PacketData = GetHearingPacketDataOutputType;
+type PacketData = any;
 
 function fmt(d?: string) {
   if (!d) return '—';
@@ -50,8 +50,8 @@ function PhotoThumb({ photo, checked, onToggle }: {
   return (
     <label className="relative cursor-pointer group">
       <div className={`aspect-square rounded-lg overflow-hidden border-2 transition-colors ${checked ? 'border-primary' : 'border-transparent'}`}>
-        {photo.photoUrl ? (
-          <img src={photo.photoUrl} alt={photo.caption ?? ''} className="w-full h-full object-cover" />
+        {photo.photo_url ? (
+          <img src={photo.photo_url} alt={photo.caption ?? ''} className="w-full h-full object-cover" />
         ) : (
           <div className="w-full h-full bg-muted flex items-center justify-center">
             <Image className="w-5 h-5 text-muted-foreground opacity-40" />
@@ -62,7 +62,7 @@ function PhotoThumb({ photo, checked, onToggle }: {
       <div className="absolute top-1.5 left-1.5">
         <Checkbox checked={checked} onCheckedChange={onToggle} className="bg-background/90 border-border" />
       </div>
-      <p className="text-xs text-muted-foreground mt-1 truncate">{photo.caption ?? photo.photoType ?? 'Photo'}</p>
+      <p className="text-xs text-muted-foreground mt-1 truncate">{photo.caption ?? photo.photo_type ?? 'Photo'}</p>
     </label>
   );
 }
@@ -72,8 +72,8 @@ export default function AttachmentsEvidenceTab({ packetId, data }: {
   data: PacketData;
 }) {
   // selectedReportIds / selectedPhotoIds are now typed arrays from linked record fields
-  const savedReportIds = data.packet.selectedReportIds ?? [];
-  const savedPhotoIds = data.packet.selectedPhotoIds ?? [];
+  const savedReportIds = data.packet.selected_report_ids ?? [];
+  const savedPhotoIds = data.packet.selected_photo_ids ?? [];
 
   const [selectedReportIds, setSelectedReportIds] = useState<Set<string>>(() => new Set(savedReportIds));
   const [selectedPhotoIds, setSelectedPhotoIds] = useState<Set<string>>(() => new Set(savedPhotoIds));
@@ -86,7 +86,7 @@ export default function AttachmentsEvidenceTab({ packetId, data }: {
       items.push({
         id: `report:${r.id}`,
         title: r.reportTitle ?? 'Imported Report',
-        subtitle: [r.inspectorName, r.inspectionRating, r.violationCount != null ? `${r.violationCount} violations` : ''].filter(Boolean).join(' · '),
+        subtitle: [r.inspectorName, r.inspection_rating, r.violation_count != null ? `${r.violation_count} violations` : ''].filter(Boolean).join(' · '),
         tag: 'Imported PDF',
         pdfUrl: r.pdfUrl,
       });
@@ -107,7 +107,7 @@ export default function AttachmentsEvidenceTab({ packetId, data }: {
   const photoGroups: PhotoGroup[] = useMemo(() => {
     const groups = new Map<string, PacketData['allPhotos']>();
     for (const p of data.allPhotos) {
-      const key = p.inspectionDate ?? 'Unknown';
+      const key = p.inspection_date ?? 'Unknown';
       if (!groups.has(key)) groups.set(key, []);
       groups.get(key)!.push(p);
     }
@@ -195,7 +195,7 @@ export default function AttachmentsEvidenceTab({ packetId, data }: {
             {photoGroups.map((group, gi) => (
               <div key={gi}>
                 <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
-                  {group.inspectionDate ? `Inspection — ${fmt(group.inspectionDate)}` : 'Unassigned'} ({group.photos.length} photo{group.photos.length !== 1 ? 's' : ''})
+                  {group.inspection_date ? `Inspection — ${fmt(group.inspection_date)}` : 'Unassigned'} ({group.photos.length} photo{group.photos.length !== 1 ? 's' : ''})
                 </p>
                 <div className="grid grid-cols-4 gap-2">
                   {group.photos.map(p => (

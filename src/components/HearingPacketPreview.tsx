@@ -6,13 +6,10 @@ import { Printer, X, AlertTriangle, CheckCircle2, PenLine, Loader2 } from 'lucid
 import { useNavigate } from 'react-router-dom';
 import { PacketCoverPage } from './packet/PacketCoverPage';
 import { PacketEnforcementSummary } from './packet/PacketEnforcementSummary';
-import { PacketNoticeOfViolation } from './packet/PacketNoticeOfViolation';
-import { PacketNoticeOfHearing } from './packet/PacketNoticeOfHearing';
 import { PacketChronology } from './packet/PacketChronology';
-import { PacketExhibitList } from './packet/PacketExhibitList';
 import { PacketInspectionReport } from './packet/PacketInspectionReport';
 import { PacketPhotoAppendix } from './packet/PacketPhotoAppendix';
-import { PacketServiceLog } from './packet/PacketServiceLog';
+import { PacketExhibitEBundle } from './packet/PacketExhibitEBundle';
 import { tryParseSignature, type ParsedSignature } from './packet/SignatureBlock';
 
 type Props = {
@@ -98,11 +95,12 @@ export default function HearingPacketPreview({ data, onClose }: Props) {
   // Inject page numbers after render
   useEffect(() => {
     if (!printRef.current) return;
-    const pages = printRef.current.querySelectorAll('.packet-page');
-    const total = pages.length;
-    pages.forEach((page, i) => {
-      const slot = page.querySelector('.page-number-slot');
-      if (slot) slot.textContent = `Page ${i + 1} of ${total}`;
+    const slots = printRef.current.querySelectorAll('.page-number-slot');
+    const total = slots.length;
+    slots.forEach((slot, i) => {
+      const s = slot as HTMLElement;
+      s.innerHTML = `Page ${String(i + 1).padStart(3, '0')} of ${String(total).padStart(3, '0')}`;
+      s.style.textAlign = 'center';
     });
     setRenderStage('ready');
   }, [data, inspectorSig, managerSig]);
@@ -145,24 +143,8 @@ export default function HearingPacketPreview({ data, onClose }: Props) {
             left: 0;
             width: 100%;
           }
-          .print-toolbar { display: none !important; }
           .print-page-break { page-break-after: always; break-after: page; }
           .print-page-break:last-child { page-break-after: avoid; break-after: avoid; }
-          .packet-page {
-            padding: 0.75in;
-            min-height: 10.5in;
-            box-sizing: border-box;
-            display: flex;
-            flex-direction: column;
-          }
-          .page-number-slot {
-            margin-top: auto;
-            padding-top: 12pt;
-            text-align: right;
-            font-size: 9pt;
-            color: #888;
-            font-family: Arial, sans-serif;
-          }
           tr { break-inside: avoid; }
           .photo-card { break-inside: avoid; }
         }
@@ -177,13 +159,6 @@ export default function HearingPacketPreview({ data, onClose }: Props) {
             box-sizing: border-box;
             display: flex;
             flex-direction: column;
-          }
-          .page-number-slot {
-            margin-top: auto;
-            padding-top: 12px;
-            text-align: right;
-            font-size: 11px;
-            color: #aaa;
           }
         }
       `}</style>
@@ -308,25 +283,7 @@ export default function HearingPacketPreview({ data, onClose }: Props) {
           managerSig={managerSig}
         />
 
-        {/* 3. Notice of Violation */}
-        <PacketNoticeOfViolation
-          packet={packet}
-          complaint={complaint}
-          location={location}
-          inspections={inspections}
-          inspector={inspector}
-        />
-
-        {/* 4. Notice of Hearing */}
-        <PacketNoticeOfHearing
-          packet={packet}
-          complaint={complaint}
-          location={location}
-          inspector={inspector}
-          inspections={inspections}
-        />
-
-        {/* 5. Director's Hearing Case Chronology */}
+        {/* 3. Director's Hearing Case Chronology (Proposed Order integrated inside) */}
         <PacketChronology
           chronology={chronology}
           complaint={complaint}
@@ -337,10 +294,7 @@ export default function HearingPacketPreview({ data, onClose }: Props) {
           inspector={inspector}
         />
 
-        {/* 6. Exhibit List */}
-        <PacketExhibitList exhibits={exhibits} packet={packet} complaint={complaint} />
-
-        {/* 7. Inspection Reports + Photo Appendices */}
+        {/* 4. Inspection Exhibits (A, B, C...) */}
         {inspections.map((insp, idx) => (
           <div key={insp.id}>
             <PacketInspectionReport
@@ -364,13 +318,14 @@ export default function HearingPacketPreview({ data, onClose }: Props) {
           </div>
         ))}
 
-        {/* 8. Proof of Service */}
-        <PacketServiceLog
-          serviceLog={serviceLog}
+        {/* 5. Exhibit E Bundle (Notice of Hearing, NOV, Service Logs) */}
+        <PacketExhibitEBundle
+          packet={packet}
           complaint={complaint}
           location={location}
-          packet={packet}
           inspector={inspector}
+          inspections={inspections}
+          serviceLog={serviceLog}
         />
       </div>
     </div>

@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { GetComplaintDetailOutputType } from 'zite-endpoints-sdk';
+
 import { BookOpen, User, ChevronDown, ChevronUp } from 'lucide-react';
 import { sanitizeText } from '@/utils/sanitizeText';
 
-type ChronologyEntry = GetComplaintDetailOutputType['chronology'][0];
+type ChronologyEntry = any['chronology'][0];
 
 type Props = {
   chronology: ChronologyEntry[];
@@ -138,8 +138,8 @@ export default function ComplaintChronologyPanel({ chronology, loading }: Props)
                       </div>
                     </td>
                     <td className="px-3 py-2.5">
-                      {entry.exhibitRefs ? (
-                        <span className="text-primary font-medium leading-snug">{entry.exhibitRefs}</span>
+                      {entry.exhibit_refs ? (
+                        <span className="text-primary font-medium leading-snug">{entry.exhibit_refs}</span>
                       ) : (
                         <span className="text-muted-foreground">—</span>
                       )}

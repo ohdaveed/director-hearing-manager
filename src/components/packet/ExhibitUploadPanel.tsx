@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from 'react';
-import { uploadFile } from 'zite-file-upload-sdk';
+
 import {
   uploadExhibit,
   deleteExhibit,

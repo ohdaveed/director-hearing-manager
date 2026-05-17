@@ -160,26 +160,26 @@ function InspectionCard({
           {/* Top: date + type + rating + status */}
           <div className="flex flex-wrap items-center gap-1.5">
             <span className="text-sm font-bold text-foreground">
-              {formatDateShort(inspection.inspectionDate)}
+              {formatDateShort(inspection.inspection_date)}
             </span>
-            {inspection.inspectionType && (
+            {inspection.inspection_type && (
               <Badge
                 variant="secondary"
                 className="text-[10px] h-4 px-1.5 font-normal py-0"
               >
-                {inspection.inspectionType}
+                {inspection.inspection_type}
               </Badge>
             )}
-            {inspection.inspectionRating && (
+            {inspection.inspection_rating && (
               <Badge
                 variant={
-                  inspection.inspectionRating === 'Unsatisfactory'
+                  inspection.inspection_rating === 'Unsatisfactory'
                     ? 'destructive'
                     : 'outline'
                 }
                 className="text-[10px] h-4 px-1.5 font-normal py-0"
               >
-                {inspection.inspectionRating}
+                {inspection.inspection_rating}
               </Badge>
             )}
             {isDisabled && (
@@ -209,11 +209,11 @@ function InspectionCard({
               <FileText className="w-3 h-3" />
               Report · ~5 pages
             </span>
-            {inspection.violationCount > 0 && (
+            {inspection.violation_count > 0 && (
               <span className="flex items-center gap-1 text-[10px] text-destructive/80 font-medium">
                 <Shield className="w-3 h-3" />
-                {inspection.violationCount} violation
-                {inspection.violationCount !== 1 ? 's' : ''}
+                {inspection.violation_count} violation
+                {inspection.violation_count !== 1 ? 's' : ''}
               </span>
             )}
             {inspection.photoCount > 0 && (
@@ -236,9 +236,9 @@ function InspectionCard({
                   {code}
                 </span>
               ))}
-              {inspection.violationCount > displayCodes.length && (
+              {inspection.violation_count > displayCodes.length && (
                 <span className="text-[10px] text-muted-foreground px-1 py-0.5">
-                  +{inspection.violationCount - displayCodes.length} more
+                  +{inspection.violation_count - displayCodes.length} more
                 </span>
               )}
             </div>

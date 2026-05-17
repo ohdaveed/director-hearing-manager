@@ -56,10 +56,10 @@ function ProofOfServicePage({
   inspector?: Props['inspector'];
   hasViolations: boolean;
 }) {
-  const serverName = complaint?.assignedTo ?? inspector?.name ?? '';
+  const serverName = complaint?.assigned_to ?? inspector?.name ?? '';
   const serviceDate = fmtDate(entry?.serviceDate);
-  const recipient = entry?.recipient ?? location?.ownerName ?? '';
-  const recipientAddress = location?.ownerAddress ?? '';
+  const recipient = entry?.recipient ?? location?.owner_name ?? '';
+  const recipientAddress = location?.owner_address ?? '';
   const method = entry?.serviceMethod ?? '';
 
   // Document checkboxes
@@ -158,7 +158,7 @@ function ProofOfServicePage({
           <PrintCheckbox checked={isMethodChecked(method, 'email')} />
           <span>
             <strong>BY ELECTRONIC MAIL:</strong> Based on an agreement of the parties to accept electronic service, I caused the documents to be sent to the person(s) at the electronic service address(es) listed above. Such document(s) were transmitted <em>via</em> electronic mail in portable document format ("PDF") Adobe Acrobat from the electronic address:{' '}
-            <BlankLine width={200} value={isMethodChecked(method, 'email') ? (complaint?.hearingRpEmail ?? location?.ownerEmail ?? '') : ''} />
+            <BlankLine width={200} value={isMethodChecked(method, 'email') ? (complaint?.hearingRpEmail ?? location?.owner_email ?? '') : ''} />
           </span>
         </div>
       </div>

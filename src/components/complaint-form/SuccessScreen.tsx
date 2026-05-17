@@ -39,14 +39,14 @@ export default function SuccessScreen({ summary, onReset }: Props) {
               <FileText className="w-3.5 h-3.5 text-muted-foreground mt-0.5 flex-shrink-0" />
               <div>
                 <p className="text-[10px] text-muted-foreground uppercase tracking-wide font-medium">Complaint ID</p>
-                <p className="text-sm font-mono font-semibold text-primary">#{summary.complaintId}</p>
+                <p className="text-sm font-mono font-semibold text-primary">#{summary.complaintid}</p>
               </div>
             </div>
             <div className="flex items-start gap-2">
               <User className="w-3.5 h-3.5 text-muted-foreground mt-0.5 flex-shrink-0" />
               <div>
                 <p className="text-[10px] text-muted-foreground uppercase tracking-wide font-medium">Assigned Inspector</p>
-                <p className="text-sm font-semibold text-foreground">{summary.assignedTo}</p>
+                <p className="text-sm font-semibold text-foreground">{summary.assigned_to}</p>
               </div>
             </div>
           </div>

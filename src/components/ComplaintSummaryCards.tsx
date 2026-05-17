@@ -5,11 +5,11 @@
  * Displays counts for Active, Overdue, New This Month, and Hearing Ready complaints.
  */
 
-import { GetAllComplaintsOutputType } from 'zite-endpoints-sdk';
+
 import { AlertTriangle, Clock, FilePlus, Scale } from 'lucide-react';
 import { ACTIVE_STATUSES, isOverdue } from '@/utils/complaintStatuses';
 
-type Complaint = GetAllComplaintsOutputType['complaints'][0];
+type Complaint = any['complaints'][0];
 
 type Props = {
   complaints: Complaint[];
@@ -21,12 +21,12 @@ export default function ComplaintSummaryCards({ complaints }: Props) {
   const active = complaints.filter(c => (ACTIVE_STATUSES as readonly string[]).includes(c.status ?? '')).length;
   const overdue = complaints.filter(isOverdue).length;
   const newThisMonth = complaints.filter(c => {
-    if (!c.dateEntered) return false;
-    const d = new Date(c.dateEntered + 'T00:00:00');
+    if (!c.date_entered) return false;
+    const d = new Date(c.date_entered + 'T00:00:00');
     return d.getMonth() === today.getMonth() && d.getFullYear() === today.getFullYear();
   }).length;
   const hearingReady = complaints.filter(
-    c => c.hearingStatus === 'Referred' || c.hearingStatus === 'Hearing Scheduled'
+    c => c.hearing_status === 'Referred' || c.hearing_status === 'Hearing Scheduled'
   ).length;
 
   const cards = [

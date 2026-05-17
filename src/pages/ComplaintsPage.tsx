@@ -51,14 +51,24 @@ export default function ComplaintsPage() {
 
   const { data: complaints = [], isLoading } = useQuery({
     queryKey: ['complaints', scope, inspectorName],
-    queryFn: () => complaintService.getAll(scope === 'mine' ? { assignedTo: inspectorName } : {}),
+    queryFn: () => complaintService.getAll(scope === 'mine' ? { assigned_to: inspectorName } : {}),
     enabled: !!user,
   });
 
+  const [selectedId, setSelectedId] = useState<string | null>(urlComplaintId || null);
+  const [showDetail, setShowDetail] = useState(!!urlComplaintId);
+
   const selected = useMemo(() => {
-    if (!urlComplaintId) return null;
-    return complaints.find((c: any) => c.id === urlComplaintId) || null;
-  }, [urlComplaintId, complaints]);
+    if (!selectedId) return null;
+    return complaints.find((c: any) => c.id === selectedId) || null;
+  }, [selectedId, complaints]);
+
+  useEffect(() => {
+    if (urlComplaintId) {
+      setSelectedId(urlComplaintId);
+      setShowDetail(true);
+    }
+  }, [urlComplaintId]);
 
   const updateStatusMutation = useMutation({
     mutationFn: ({ id, status }: { id: string, status: string }) => 
@@ -72,11 +82,11 @@ export default function ComplaintsPage() {
 
   const filtered = complaints.filter(c => {
     if (statusFilter && c.status !== statusFilter) return false;
-    if (hearingStatusFilter && (c.hearingStatus ?? 'None') !== hearingStatusFilter) return false;
-    if (scope === 'all' && inspectorFilter && c.assignedTo !== inspectorFilter) return false;
+    if (hearingStatusFilter && (c.hearing_status ?? 'None') !== hearingStatusFilter) return false;
+    if (scope === 'all' && inspectorFilter && c.assigned_to !== inspectorFilter) return false;
     if (search) {
       const q = search.toLowerCase();
-      if (!c.address?.toLowerCase().includes(q) && !c.complaintId?.includes(q)) return false;
+      if (!c.address?.toLowerCase().includes(q) && !c.complaintid?.includes(q)) return false;
     }
     return true;
   });
@@ -93,7 +103,7 @@ export default function ComplaintsPage() {
   };
 
   const handleSelect = (c: Complaint) => {
-    setSelected(c);
+    setSelectedId(c.id);
     setShowDetail(true);
     navigate(`/complaints/${c.id}`, { replace: true });
   };

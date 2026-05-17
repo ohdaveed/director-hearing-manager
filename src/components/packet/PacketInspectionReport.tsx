@@ -44,7 +44,7 @@ export function PacketInspectionReport({ inspection, index, complaint, location,
             Inspection Report #{index + 1}
           </h2>
           <p className="text-xs text-gray-600">
-            Case: {packet.case_number ?? '—'} | Complaint: {complaint?.complaintId ?? '—'}
+            Case: {packet.case_number ?? '—'} | Complaint: {complaint?.complaintid ?? '—'}
           </p>
         </div>
         {exhibitLetter && (
@@ -65,9 +65,9 @@ export function PacketInspectionReport({ inspection, index, complaint, location,
         <Row label="Inspector" value={inspection.inspector} />
         <Row label="Time In / Out" value={inspection.timeIn ? `${inspection.timeIn} — ${inspection.timeOut ?? ''}` : undefined} />
         <Row label="Access Granted By" value={inspection.accessGrantedBy} />
-        <Row label="Rating" value={inspection.inspectionRating} />
-        <Row label="Owner" value={location?.ownerName} />
-        <Row label="Owner Phone" value={location?.ownerPhone} />
+        <Row label="Rating" value={inspection.inspection_rating} />
+        <Row label="Owner" value={location?.owner_name} />
+        <Row label="Owner Phone" value={location?.owner_phone} />
       </div>
 
       {/* Violations Table */}
@@ -92,11 +92,11 @@ export function PacketInspectionReport({ inspection, index, complaint, location,
               <tr key={v.id} className={i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
                 <td className="border border-black px-2 py-1 font-mono text-xs">{v.violationCode ?? '—'}</td>
                 <td className="border border-black px-2 py-1">
-                  <div className="font-medium">{v.violationLabel ?? '—'}</div>
-                  {v.locationInProperty && <div className="text-gray-500">Location: {v.locationInProperty}</div>}
+                  <div className="font-medium">{v.violation_label ?? '—'}</div>
+                  {v.location_in_property && <div className="text-gray-500">Location: {v.location_in_property}</div>}
                 </td>
-                <td className="border border-black px-2 py-1">{v.correctiveAction ?? '—'}</td>
-                <td className="border border-black px-2 py-1 whitespace-nowrap">{fmt(v.dueDate)}</td>
+                <td className="border border-black px-2 py-1">{v.corrective_action ?? '—'}</td>
+                <td className="border border-black px-2 py-1 whitespace-nowrap">{fmt(v.due_date)}</td>
                 <td className="border border-black px-2 py-1">{v.status ?? '—'}</td>
               </tr>
             ))}

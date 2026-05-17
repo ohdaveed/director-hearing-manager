@@ -14,7 +14,7 @@ import {
   updateChronologyEntry,
   deleteChronologyEntry,
   reorderChronology,
-  GetChronologyForPacketOutputType,
+  any,
 } from 'zite-endpoints-sdk';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -39,10 +39,10 @@ import ChronologyContextHeader from './packet/ChronologyContextHeader';
 import ExhibitUploadPanel from './packet/ExhibitUploadPanel';
 import InspectionImportWizard from './InspectionImportWizard';
 
-type Entry = GetChronologyForPacketOutputType['chronology'][0];
-type ExhibitType = GetChronologyForPacketOutputType['exhibits'][0];
-type PacketMeta = GetChronologyForPacketOutputType['packetMeta'];
-type LocationMeta = GetChronologyForPacketOutputType['locationMeta'];
+type Entry = any['chronology'][0];
+type ExhibitType = any['exhibits'][0];
+type PacketMeta = any['packetMeta'];
+type LocationMeta = any['locationMeta'];
 
 const ENTRY_TYPES = ['Inspection', 'NOV', 'Re-inspection', 'Contact Attempt', 'Hearing Referral', 'Other'];
 
@@ -229,7 +229,7 @@ export default function ChronologyEditorTab({ packetId }: { packetId: string }) 
       const data = await getChronologyForPacket({ packetId });
       setEntries(data.chronology);
       setExhibits(data.exhibits);
-      setComplaintId(data.complaintId ?? undefined);
+      setComplaintId(data.complaintid ?? undefined);
       setPacketMeta(data.packetMeta ?? undefined);
       setLocationMeta(data.locationMeta ?? undefined);
     } catch {
@@ -479,7 +479,7 @@ export default function ChronologyEditorTab({ packetId }: { packetId: string }) 
                           )}
                         </td>
                         <td className="px-2 py-2.5 text-center">
-                          <span className="text-xs font-black text-primary">{entry.exhibitRefs || letter}</span>
+                          <span className="text-xs font-black text-primary">{entry.exhibit_refs || letter}</span>
                         </td>
                         <td className="px-2 py-2.5 text-[10px] text-muted-foreground font-mono whitespace-nowrap">
                           {entry.attachmentPageRef ?? '—'}

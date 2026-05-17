@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { Camera, Upload, AlertTriangle } from 'lucide-react';
-import { uploadFile } from 'zite-file-upload-sdk';
-import { savePhoto } from 'zite-endpoints-sdk';
+
+
 import { toast } from 'sonner';
 import { prepareImageForUpload } from '@/utils/resizeImage';
 import PhotoCard, { PhotoEntry } from './PhotoCard';

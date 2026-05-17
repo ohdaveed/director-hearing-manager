@@ -7,14 +7,14 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Loader2, Plus, Trash2, CheckCircle2, Printer } from 'lucide-react';
 import { toast } from 'sonner';
-import { saveHearingOrder, GetHearingPacketDataOutputType } from 'zite-endpoints-sdk';
+
 import { HearingOrderData, PacketHearingOrder } from '@/components/packet/PacketHearingOrder';
 
 type Props = {
-  packet: GetHearingPacketDataOutputType['packet'];
-  complaint: GetHearingPacketDataOutputType['complaint'];
-  location: GetHearingPacketDataOutputType['location'];
-  inspections: GetHearingPacketDataOutputType['inspections'];
+  packet: any['packet'];
+  complaint: any['complaint'];
+  location: any['location'];
+  inspections: any['inspections'];
 };
 
 const DETERMINATION_OPTIONS = ['upheld', 'dismissed', 'modified'] as const;
@@ -29,7 +29,7 @@ function makeDefaultOrderData(
   const codeSections = [...new Set(
     inspections.flatMap(i => i.violations.map(v => v.violationCode).filter(Boolean))
   )];
-  const rpName = complaint?.hearingRpName || location?.ownerName || '';
+  const rpName = complaint?.hearingRpName || location?.owner_name || '';
   return {
     attendees: rpName ? [{ name: rpName, role: 'Owner', attended: false }] : [],
     determinations: codeSections.map(cs => ({ codeSection: cs ?? '', determination: 'upheld', notes: '' })),
@@ -39,7 +39,7 @@ function makeDefaultOrderData(
     nuisanceAbatementConditions: '',
     costRecovery: '',
     appealNotes: '',
-    orderDate: packet.hearingDate ?? new Date().toISOString().split('T')[0],
+    orderDate: packet.hearing_date ?? new Date().toISOString().split('T')[0],
     hearingOfficer: '',
   };
 }

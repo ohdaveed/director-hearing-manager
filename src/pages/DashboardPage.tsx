@@ -29,7 +29,7 @@ type Complaint = any; // Will be properly typed once types are updated
 // ── Local helper functions ────────────────────────────────────────────────────
 
 function isHearingReady(c: Complaint): boolean {
-  return c.hearingStatus === 'Referred' || c.hearingStatus === 'Hearing Scheduled';
+  return c.hearing_status === 'Referred' || c.hearing_status === 'Hearing Scheduled';
 }
 
 function monthKey(dateStr?: string): string {
@@ -134,32 +134,32 @@ export default function DashboardPage({ role = 'Program Manager' }: { role?: str
   const active = complaints.filter(c => (ACTIVE_STATUSES as readonly string[]).includes(c.status ?? ''));
   const overdue = complaints.filter(isOverdue);
   const newThisMonth = complaints.filter(c => {
-    if (!c.dateEntered) return false;
-    const d = new Date(c.dateEntered + 'T00:00:00');
+    if (!c.date_entered) return false;
+    const d = new Date(c.date_entered + 'T00:00:00');
     return d.getMonth() === today.getMonth() && d.getFullYear() === today.getFullYear();
   });
 
   const hearingReady = complaints.filter(isHearingReady);
-  const hearingScheduled = complaints.filter(c => c.hearingStatus === 'Hearing Scheduled');
+  const hearingScheduled = complaints.filter(c => c.hearing_status === 'Hearing Scheduled');
 
   const missingReinspDate = complaints.filter(
     c => c.status === 'Re-Inspection Due' && !c.reinspectionDueOnAfter
   );
   const missingAssignment = complaints.filter(
-    c => (ACTIVE_STATUSES as readonly string[]).includes(c.status ?? '') && !c.assignedTo
+    c => (ACTIVE_STATUSES as readonly string[]).includes(c.status ?? '') && !c.assigned_to
   );
 
   const upcomingHearings = complaints.filter(c => {
-    if (!c.hearingDate) return false;
-    const hd = new Date(c.hearingDate + 'T00:00:00');
+    if (!c.hearing_date) return false;
+    const hd = new Date(c.hearing_date + 'T00:00:00');
     const diff = (hd.getTime() - today.getTime()) / (1000 * 60 * 60 * 24);
     return diff >= 0 && diff <= 14;
-  }).sort((a, b) => (a.hearingDate ?? '').localeCompare(b.hearingDate ?? ''));
+  }).sort((a, b) => (a.hearing_date ?? '').localeCompare(b.hearing_date ?? ''));
 
   const byInspector = INSPECTORS.map(name => ({
     name,
-    count: active.filter(c => c.assignedTo === name).length,
-    overdue: overdue.filter(c => c.assignedTo === name).length,
+    count: active.filter(c => c.assigned_to === name).length,
+    overdue: overdue.filter(c => c.assigned_to === name).length,
   })).filter(i => i.count > 0).sort((a, b) => b.count - a.count);
 
   const maxInspectorCount = Math.max(...byInspector.map(i => i.count), 1);
@@ -179,7 +179,7 @@ export default function DashboardPage({ role = 'Program Manager' }: { role?: str
   }
   const monthlyIntake = months.map(m => ({
     month: m,
-    count: complaints.filter(c => monthKey(c.dateEntered) === m).length,
+    count: complaints.filter(c => monthKey(c.date_entered) === m).length,
   }));
   const maxMonthly = Math.max(...monthlyIntake.map(m => m.count), 1);
 
@@ -234,7 +234,7 @@ export default function DashboardPage({ role = 'Program Manager' }: { role?: str
               <div className="space-y-1">
                 {missingReinspDate.slice(0, 5).map(c => (
                   <p key={c.id} className="text-xs text-muted-foreground truncate">
-                    <span className="font-mono text-primary">#{c.complaintId}</span> · {c.address}
+                    <span className="font-mono text-primary">#{c.complaintid}</span> · {c.address}
                   </p>
                 ))}
                 {missingReinspDate.length > 5 && (
@@ -254,7 +254,7 @@ export default function DashboardPage({ role = 'Program Manager' }: { role?: str
               <div className="space-y-1">
                 {missingAssignment.slice(0, 5).map(c => (
                   <p key={c.id} className="text-xs text-muted-foreground truncate">
-                    <span className="font-mono text-primary">#{c.complaintId}</span> · {c.address}
+                    <span className="font-mono text-primary">#{c.complaintid}</span> · {c.address}
                   </p>
                 ))}
                 {missingAssignment.length > 5 && (
@@ -329,7 +329,7 @@ export default function DashboardPage({ role = 'Program Manager' }: { role?: str
                 <div className="space-y-2">
                   {upcomingHearings.map(c => {
                     const daysOut = Math.round(
-                      (new Date(c.hearingDate! + 'T00:00:00').getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+                      (new Date(c.hearing_date! + 'T00:00:00').getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
                     );
                     return (
                       <div key={c.id} className={`flex items-center gap-3 p-2.5 rounded-lg border ${
@@ -342,12 +342,12 @@ export default function DashboardPage({ role = 'Program Manager' }: { role?: str
                         <div className="min-w-0 flex-1">
                           <p className="text-xs font-semibold text-foreground truncate">{c.address}</p>
                           <p className="text-xs text-muted-foreground">
-                            {c.complaintId && <span className="font-mono">#{c.complaintId} · </span>}
-                            {formatDate(c.hearingDate)}
+                            {c.complaintid && <span className="font-mono">#{c.complaintid} · </span>}
+                            {formatDate(c.hearing_date)}
                           </p>
                         </div>
                         <span className="text-xs text-accent-foreground bg-accent/40 px-1.5 py-0.5 rounded-full shrink-0">
-                          {c.hearingStatus}
+                          {c.hearing_status}
                         </span>
                       </div>
                     );

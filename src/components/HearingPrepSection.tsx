@@ -65,7 +65,7 @@ export default function HearingPrepSection(p: HearingPrepSectionProps) {
           </div>
           <div className="space-y-1">
             <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Hearing Date</label>
-            <Input type="date" value={p.hearingDate}
+            <Input type="date" value={p.hearing_date}
               onChange={e => { p.onUpdate('hearingDate', e.target.value); p.onAnyChange(); }}
               disabled={p.isSubmitted} className="h-9 text-sm" />
           </div>
@@ -77,7 +77,7 @@ export default function HearingPrepSection(p: HearingPrepSectionProps) {
           </div>
           <div className="space-y-1">
             <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Block / Lot</label>
-            <Input placeholder="e.g. 1234/056" value={p.blockLot}
+            <Input placeholder="e.g. 1234/056" value={p.block_lot}
               onChange={e => { p.onUpdate('blockLot', e.target.value); p.onAnyChange(); }}
               disabled={p.isSubmitted} className="h-9 text-sm" />
           </div>

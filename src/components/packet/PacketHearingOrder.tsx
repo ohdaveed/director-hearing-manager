@@ -40,8 +40,8 @@ export function PacketHearingOrder({ packet, complaint, location, inspections, o
     inspections.flatMap((i: any) => i.violations.map((v: any) => v.violationCode).filter(Boolean))
   )];
 
-  const rpName = complaint?.hearingRpName || location?.ownerName || '';
-  const rpAddr = complaint?.hearingRpAddress || location?.ownerAddress || '';
+  const rpName = complaint?.hearingRpName || location?.owner_name || '';
+  const rpAddr = complaint?.hearingRpAddress || location?.owner_address || '';
 
   const orderDate = orderData.orderDate || complaint?.hearingOrderDate || packet.hearing_date || '';
 
@@ -79,7 +79,7 @@ export function PacketHearingOrder({ packet, complaint, location, inspections, o
           </div>
           <div>
             <p style={{ fontSize: '9pt', margin: '0 0 2px', fontWeight: 'bold' }}>Block / Lot</p>
-            <div style={UNDERLINE}>{location?.blockLot ?? ''}</div>
+            <div style={UNDERLINE}>{location?.block_lot ?? ''}</div>
           </div>
           <div>
             <p style={{ fontSize: '9pt', margin: '0 0 2px', fontWeight: 'bold' }}>Facility Name (DBA)</p>
@@ -87,17 +87,17 @@ export function PacketHearingOrder({ packet, complaint, location, inspections, o
           </div>
           <div>
             <p style={{ fontSize: '9pt', margin: '0 0 2px', fontWeight: 'bold' }}>Facility Type</p>
-            <div style={UNDERLINE}>{location?.facilityType ?? ''}</div>
+            <div style={UNDERLINE}>{location?.facility_type ?? ''}</div>
           </div>
           <div>
             <p style={{ fontSize: '9pt', margin: '0 0 2px', fontWeight: 'bold' }}>Property Owner</p>
-            <div style={UNDERLINE}>{location?.ownerName ?? ''}</div>
+            <div style={UNDERLINE}>{location?.owner_name ?? ''}</div>
           </div>
           <div>
             <p style={{ fontSize: '9pt', margin: '0 0 2px', fontWeight: 'bold' }}>Owner Address</p>
-            <div style={UNDERLINE}>{location?.ownerAddress ?? ''}</div>
+            <div style={UNDERLINE}>{location?.owner_address ?? ''}</div>
           </div>
-          {rpName !== location?.ownerName && (
+          {rpName !== location?.owner_name && (
             <>
               <div>
                 <p style={{ fontSize: '9pt', margin: '0 0 2px', fontWeight: 'bold' }}>Responsible Party</p>

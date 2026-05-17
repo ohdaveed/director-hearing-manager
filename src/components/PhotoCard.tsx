@@ -23,7 +23,7 @@ type Props = {
 };
 
 export default function PhotoCard({ photo, onChange, onRemove }: Props) {
-  const showViolationSelect = photo.photoType === 'Violation' || photo.photoType === 'Abatement';
+  const showViolationSelect = photo.photo_type === 'Violation' || photo.photo_type === 'Abatement';
   const violationLabels = VIOLATION_TYPES.map(v => v.label);
   const uniqueLabels = [...new Set(violationLabels)];
 
@@ -55,11 +55,11 @@ export default function PhotoCard({ photo, onChange, onRemove }: Props) {
       {/* Controls */}
       <div className="p-3 space-y-2 flex-1">
         {/* Type Badge */}
-        <div className={`inline-flex items-center text-xs font-semibold px-2 py-0.5 rounded-full border ${PHOTO_TYPE_THEME[photo.photoType]}`}>
-          {photo.photoType}
+        <div className={`inline-flex items-center text-xs font-semibold px-2 py-0.5 rounded-full border ${PHOTO_TYPE_THEME[photo.photo_type]}`}>
+          {photo.photo_type}
         </div>
 
-        <Select value={photo.photoType} onValueChange={v => onChange(photo.id, 'photoType', v)}>
+        <Select value={photo.photo_type} onValueChange={v => onChange(photo.id, 'photoType', v)}>
           <SelectTrigger className="h-8 text-xs">
             <SelectValue />
           </SelectTrigger>
@@ -72,7 +72,7 @@ export default function PhotoCard({ photo, onChange, onRemove }: Props) {
         </Select>
 
         {showViolationSelect && (
-          <Select value={photo.violationLabel} onValueChange={v => onChange(photo.id, 'violationLabel', v)}>
+          <Select value={photo.violation_label} onValueChange={v => onChange(photo.id, 'violationLabel', v)}>
             <SelectTrigger className="h-8 text-xs">
               <SelectValue placeholder="Link to violation..." />
             </SelectTrigger>

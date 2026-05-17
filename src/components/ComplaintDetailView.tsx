@@ -594,9 +594,9 @@ export default function ComplaintDetailView({
           <div className="p-4 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
             {detail.photos.map(photo => (
               <div key={photo.id} className="aspect-square rounded-lg overflow-hidden bg-muted border border-border">
-                {photo.photoUrl && (
-                  <a href={photo.photoUrl} target="_blank" rel="noopener noreferrer">
-                    <img src={photo.photoUrl} alt={photo.caption ?? photo.photoType ?? 'Photo'}
+                {photo.photo_url && (
+                  <a href={photo.photo_url} target="_blank" rel="noopener noreferrer">
+                    <img src={photo.photo_url} alt={photo.caption ?? photo.photo_type ?? 'Photo'}
                       className="w-full h-full object-cover hover:opacity-90 transition-opacity" />
                   </a>
                 )}

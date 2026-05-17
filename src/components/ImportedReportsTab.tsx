@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
-import { useAuth } from 'zite-auth-sdk';
-import { uploadFile } from 'zite-file-upload-sdk';
-import { importReportPdf, getImportedReports, deleteImportedReport, saveImportedReportManual, GetImportedReportsOutputType } from 'zite-endpoints-sdk';
+import { useAuth } from '@/context/AuthContext';
+
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -9,7 +9,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { toast } from 'sonner';
 import { UploadCloud, Loader2, FileText, Trash2, ExternalLink, AlertTriangle, Plus, X, CheckCircle2, Info } from 'lucide-react';
 
-type ImportedReport = GetImportedReportsOutputType['reports'][0];
+type ImportedReport = any['reports'][0];
 
 type PendingUpload = { tempId: string; fileName: string; status: 'uploading' | 'parsing' | 'failed'; reportId?: string; parseOnly?: boolean; fileSizeMB?: number };
 type ManualViolation = { violationLabel: string; violationCode: string; locationInProperty: string; correctiveAction: string; dueDate: string };
@@ -44,7 +44,7 @@ function ManualEntryForm({ entry, locationId, onSaved, onRemove }: {
         reportId: entry.reportId, locationId,
         inspectionDate: data.date, inspectorName: data.inspector,
         inspectionType: data.type, inspectionRating: data.rating,
-        violations: data.violations.filter(v => v.violationLabel),
+        violations: data.violations.filter(v => v.violation_label),
       });
       toast.success('Report saved');
       onSaved();
@@ -93,11 +93,11 @@ function ManualEntryForm({ entry, locationId, onSaved, onRemove }: {
         <div className="space-y-2">
           {data.violations.map((v, i) => (
             <div key={i} className="grid grid-cols-4 gap-2 items-center">
-              <Input value={v.violationLabel} onChange={e => updateViolation(i, 'violationLabel', e.target.value)} placeholder="Label" className="h-7 text-xs" />
-              <Input value={v.locationInProperty} onChange={e => updateViolation(i, 'locationInProperty', e.target.value)} placeholder="Location" className="h-7 text-xs" />
-              <Input value={v.correctiveAction} onChange={e => updateViolation(i, 'correctiveAction', e.target.value)} placeholder="Corrective action" className="h-7 text-xs" />
+              <Input value={v.violation_label} onChange={e => updateViolation(i, 'violationLabel', e.target.value)} placeholder="Label" className="h-7 text-xs" />
+              <Input value={v.location_in_property} onChange={e => updateViolation(i, 'locationInProperty', e.target.value)} placeholder="Location" className="h-7 text-xs" />
+              <Input value={v.corrective_action} onChange={e => updateViolation(i, 'correctiveAction', e.target.value)} placeholder="Corrective action" className="h-7 text-xs" />
               <div className="flex gap-1">
-                <Input type="date" value={v.dueDate} onChange={e => updateViolation(i, 'dueDate', e.target.value)} className="h-7 text-xs flex-1" />
+                <Input type="date" value={v.due_date} onChange={e => updateViolation(i, 'dueDate', e.target.value)} className="h-7 text-xs flex-1" />
                 <button onClick={() => removeViolation(i)} className="text-muted-foreground hover:text-destructive"><X className="w-3 h-3" /></button>
               </div>
             </div>
@@ -147,7 +147,7 @@ function ReportCard({ report, onDelete }: { report: ImportedReport; onDelete: ()
               </span>
             </div>
             <p className="text-xs text-muted-foreground">
-              {[report.inspectorName && `Inspector: ${report.inspectorName}`, report.inspectionRating, report.violationCount != null && `${report.violationCount} violation${report.violationCount !== 1 ? 's' : ''}`].filter(Boolean).join(' · ')}
+              {[report.inspectorName && `Inspector: ${report.inspectorName}`, report.inspection_rating, report.violation_count != null && `${report.violation_count} violation${report.violation_count !== 1 ? 's' : ''}`].filter(Boolean).join(' · ')}
             </p>
           </div>
           <div className="flex items-center gap-3 text-xs ml-3 flex-shrink-0">
@@ -165,7 +165,7 @@ function ReportCard({ report, onDelete }: { report: ImportedReport; onDelete: ()
           <div className="flex flex-wrap gap-1.5 mt-2">
             {topViolations.map((v, i) => (
               <span key={i} className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded-full">
-                {[v.violationLabel, v.locationInProperty].filter(Boolean).join(' · ')}
+                {[v.violation_label, v.location_in_property].filter(Boolean).join(' · ')}
               </span>
             ))}
             {extra > 0 && <span className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded-full">+{extra} more</span>}
@@ -178,7 +178,7 @@ function ReportCard({ report, onDelete }: { report: ImportedReport; onDelete: ()
           </p>
         )}
         {report.uploadedBy && (
-          <p className="text-xs text-muted-foreground mt-2">Uploaded by {report.uploadedBy} · {fmt(report.uploadedAt?.slice(0, 10))}</p>
+          <p className="text-xs text-muted-foreground mt-2">Uploaded by {report.uploadedBy} · {fmt(report.uploaded_at?.slice(0, 10))}</p>
         )}
       </div>
       <AlertDialog open={confirmDelete} onOpenChange={setConfirmDelete}>

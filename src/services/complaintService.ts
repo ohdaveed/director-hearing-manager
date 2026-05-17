@@ -1,20 +1,19 @@
 import { supabase } from '@/lib/supabase'
-import type { Complaint } from '@/types/complaint'
 
 export const complaintService = {
-  async getAll(filters: { assignedTo?: string } = {}) {
+  async getAll(filters: { assigned_to?: string } = {}) {
     let query = supabase
       .from('complaints')
       .select('*')
       .order('date_entered', { ascending: false })
     
-    if (filters.assignedTo) {
-      query = query.eq('assigned_to', filters.assignedTo)
+    if (filters.assigned_to) {
+      query = query.eq('assigned_to', filters.assigned_to)
     }
 
     const { data, error } = await query
     if (error) throw error
-    return data
+    return data as any[]
   },
 
   async getById(id: string) {
@@ -37,7 +36,7 @@ export const complaintService = {
     return data
   },
 
-  async create(complaint: Partial<Complaint>) {
+  async create(complaint: any) {
     const { data, error } = await supabase
       .from('complaints')
       .insert([complaint])
@@ -48,7 +47,7 @@ export const complaintService = {
     return data
   },
 
-  async update(id: string, updates: Partial<Complaint>) {
+  async update(id: string, updates: any) {
     const { data, error } = await supabase
       .from('complaints')
       .update(updates)

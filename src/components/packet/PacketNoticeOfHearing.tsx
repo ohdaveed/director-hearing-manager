@@ -6,7 +6,7 @@
 
 
 import { SFDPHReportHeader } from './SFDPHReportHeader';
-import { fmtDate, PrintCheckbox, SFDPHReportFooter } from './printUtils';
+import { fmtDate, PrintCheckbox, SFDPHReportFooter, ExhibitLabel } from './printUtils';
 
 type Props = {
   packet: any['packet'];
@@ -14,6 +14,7 @@ type Props = {
   location: any['location'];
   inspector: any['inspector'];
   inspections: any['inspections'];
+  exhibitLetter?: string;
 };
 
 function FieldLine({ label, value, rightLabel, rightValue }: {
@@ -54,19 +55,19 @@ function getProgramChecks(assignedProgram: string | undefined, categories: strin
 function getPermitNumber(complaint: Props['complaint'], location: Props['location'], packet: Props['packet']): string {
   const prog = (complaint?.assignedProgram ?? '').toLowerCase();
   const isHHVC = prog.includes('health') || prog.includes('housing') || prog.includes('vector');
-  const units = location?.numberOfUnits ?? 0;
+  const units = location?.number_of_units ?? 0;
   if (isHHVC && units >= 3 && location?.id) {
     return location.id.slice(-8).toUpperCase();
   }
   return '';
 }
 
-export function PacketNoticeOfHearing({ packet, complaint, location, inspector, inspections }: Props) {
+export function PacketNoticeOfHearing({ packet, complaint, location, inspector, inspections, exhibitLetter }: Props) {
   const noticeDate = complaint?.noticeOfHearingDate ?? new Date().toISOString().split('T')[0];
   const address = complaint?.address ?? location?.address ?? '';
-  const ownerName = location?.ownerName ?? '';
-  const ownerEmail = location?.ownerEmail ?? '';
-  const ownerAddress = location?.ownerAddress ?? '';
+  const ownerName = location?.owner_name ?? '';
+  const ownerEmail = location?.owner_email ?? '';
+  const ownerAddress = location?.owner_address ?? '';
   const dba = location?.dba ?? '';
   const permitNum = getPermitNumber(complaint, location, packet);
 
@@ -84,7 +85,8 @@ export function PacketNoticeOfHearing({ packet, complaint, location, inspector, 
   const hearingDateTime = [fmtDate(packet.hearing_date), packet.hearingTime].filter(Boolean).join(', ');
 
   return (
-    <div className="packet-page print-page-break" style={{ fontFamily: 'Times New Roman, serif', fontSize: '11pt', lineHeight: 1.5 }}>
+    <div className="packet-page print-page-break relative" style={{ fontFamily: 'Times New Roman, serif', fontSize: '11pt', lineHeight: 1.5 }}>
+      <ExhibitLabel letter={exhibitLetter} />
 
       {/* Multilingual translation notice box */}
       <div style={{ border: '1px solid black', padding: '6px 10px', marginBottom: '14px', fontSize: '9pt' }}>
@@ -184,7 +186,7 @@ export function PacketNoticeOfHearing({ packet, complaint, location, inspector, 
       <p style={{ marginBottom: '4px', fontSize: '11pt' }}>
         <strong>Inspector/Investigator:</strong>{' '}
         <span style={{ borderBottom: '1px solid black', display: 'inline-block', minWidth: '200px', paddingBottom: '1px' }}>
-          {inspector?.name ?? complaint?.assignedTo ?? ''}
+          {inspector?.name ?? complaint?.assigned_to ?? ''}
         </span>
       </p>
       <p style={{ marginBottom: '14px', fontSize: '11pt' }}>

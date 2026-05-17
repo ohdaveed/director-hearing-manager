@@ -79,7 +79,7 @@ const STATUS_BADGE: Record<string, string> = {
   'Submitted': 'bg-primary/10 text-primary',
 };
 
-type PacketDataCache = Record<string, GetHearingPacketDataOutputType>;
+type PacketDataCache = Record<string, any>;
 
 interface EnforcementFlags {
   nuisanceAbatement: boolean;
@@ -190,7 +190,7 @@ function PreparationChecklist({
 }
 
 // ── Standalone Notice of Hearing print view ───────────────────────────────────
-function NoticeOfHearingPrint({ data, onClose }: { data: GetHearingPacketDataOutputType; onClose: () => void }) {
+function NoticeOfHearingPrint({ data, onClose }: { data: any; onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-50 bg-black/60 overflow-auto">
       <style>{`
@@ -552,7 +552,7 @@ function PacketDetail({ packetId, onClose, userRole }: {
               <AlertCircle className="w-4 h-4 text-muted-foreground flex-shrink-0 mt-0.5" />
               <div className="min-w-0 flex-1">
                 <p className="text-xs font-semibold text-foreground leading-none mb-1">Revision requested</p>
-                <p className="text-xs text-muted-foreground leading-relaxed">{packet.revisionNotes}</p>
+                <p className="text-xs text-muted-foreground leading-relaxed">{packet.revision_notes}</p>
               </div>
             </div>
           )}
@@ -578,7 +578,7 @@ function PacketDetail({ packetId, onClose, userRole }: {
             <div>
               <Label className="text-xs font-medium text-muted-foreground mb-1 block">Hearing Date</Label>
               <p className="text-sm font-medium text-foreground py-1">
-                {packet.hearingDate ? new Date(packet.hearingDate + 'T00:00:00').toLocaleDateString() : '—'}
+                {packet.hearing_date ? new Date(packet.hearing_date + 'T00:00:00').toLocaleDateString() : '—'}
               </p>
             </div>
             <div>
@@ -684,7 +684,7 @@ function PacketDetail({ packetId, onClose, userRole }: {
           {/* Preparation Checklist */}
           <div>
             <PreparationChecklist
-              hearingDate={packet.hearingDate}
+              hearingDate={packet.hearing_date}
               completion={checklistCompletion}
               onToggle={handleChecklistToggle}
             />
@@ -765,9 +765,9 @@ function PacketDetail({ packetId, onClose, userRole }: {
                 <p className="font-medium text-foreground mb-1">Notice of Hearing</p>
                 <p className="text-xs">Generated from complaint and location data. Opens as a standalone printable document.</p>
                 <div className="mt-2 grid grid-cols-2 gap-2 text-xs">
-                  <div><span className="font-medium">To:</span> {cachedData.complaint?.hearingRpName || cachedData.location?.ownerName || '—'}</div>
+                  <div><span className="font-medium">To:</span> {cachedData.complaint?.hearingRpName || cachedData.location?.owner_name || '—'}</div>
                   <div><span className="font-medium">Re:</span> {cachedData.complaint?.address || cachedData.location?.address || '—'}</div>
-                  <div><span className="font-medium">Hearing:</span> {packet.hearingDate ? new Date(packet.hearingDate + 'T00:00:00').toLocaleDateString() : '—'}</div>
+                  <div><span className="font-medium">Hearing:</span> {packet.hearing_date ? new Date(packet.hearing_date + 'T00:00:00').toLocaleDateString() : '—'}</div>
                   <div><span className="font-medium">Inspector:</span> {cachedData.inspector?.name || '—'}</div>
                 </div>
               </div>
@@ -883,7 +883,7 @@ export default function HearingPacketsPage({
     setSelected(updated);
   };
 
-  const handleCacheUpdate = (id: string, data: GetHearingPacketDataOutputType) => {
+  const handleCacheUpdate = (id: string, data: any) => {
     setPacketDataCache(prev => ({ ...prev, [id]: data }));
   };
 

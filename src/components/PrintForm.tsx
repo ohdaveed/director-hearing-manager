@@ -104,7 +104,7 @@ function FormPage1(p: PrintFormProps) {
   const hasBd = (b: string) => p.buildingDetails.includes(b);
 
   const reinspDate = filled.length
-    ? filled.reduce((m, v) => (!m || v.dueDate < m ? v.dueDate : m), '')
+    ? filled.reduce((m, v) => (!m || v.due_date < m ? v.due_date : m), '')
     : '';
 
   // Gather all owner and tenant actions across violations (new format + legacy fallback)
@@ -113,20 +113,20 @@ function FormPage1(p: PrintFormProps) {
   filled.forEach(v => {
     if ((v.ownerActions?.length ?? 0) > 0) {
       allOwnerActions.push(...(v.ownerActions ?? []));
-    } else if (v.responsibleParty === 'Owner' && v.correctiveAction) {
+    } else if (v.responsible_party === 'Owner' && v.corrective_action) {
       // Legacy: single corrective action for owner
-      allOwnerActions.push(v.correctiveAction);
+      allOwnerActions.push(v.corrective_action);
     }
     if ((v.tenantActions?.length ?? 0) > 0) {
       allTenantActions.push(...(v.tenantActions ?? []));
-    } else if (v.responsibleParty === 'Tenant' && v.correctiveAction) {
+    } else if (v.responsible_party === 'Tenant' && v.corrective_action) {
       // Legacy: single corrective action for tenant
-      allTenantActions.push(v.correctiveAction);
+      allTenantActions.push(v.corrective_action);
     }
   });
 
   // Earliest due date across all violations (for tenant section header)
-  const earliestDueDate = filled.reduce((min, v) => (!min || v.dueDate < min ? v.dueDate : min), '');
+  const earliestDueDate = filled.reduce((min, v) => (!min || v.due_date < min ? v.due_date : min), '');
 
   const obsLines: string[] = [];
   // Global observations appear as a numbered list above the narrative summary
@@ -168,7 +168,7 @@ function FormPage1(p: PrintFormProps) {
 
   const obsText = obsLines.join('\n\n');
 
-  const isOtherFacility = p.facilityType && !['Tourist Hotel', 'Residential Hotel', 'Apartments'].includes(p.facilityType);
+  const isOtherFacility = p.facility_type && !['Tourist Hotel', 'Residential Hotel', 'Apartments'].includes(p.facility_type);
 
   return (
     <div style={{ ...pageStyle, fontFamily: 'Arial, Helvetica, sans-serif', fontSize: 8, color: '#000', lineHeight: 1.3, width: '100%' }}>
@@ -184,7 +184,7 @@ function FormPage1(p: PrintFormProps) {
               <div>OFFICE: (415) 252-3800&nbsp;&nbsp;&nbsp;FAX: (415) 252-3930&nbsp;&nbsp;&nbsp;WWW.SFDPH.ORG/DPH/EH</div>
             </td>
             <td style={{ ...cellBase, width: '26%', padding: '4px 8px' }}>
-              <div style={{ marginBottom: 3 }}>Date: <strong>{fmtDate(p.inspectionDate)}</strong></div>
+              <div style={{ marginBottom: 3 }}>Date: <strong>{fmtDate(p.inspection_date)}</strong></div>
               <div style={{ marginBottom: 3 }}>Time in w/ travel: <strong>{fmtTime(p.timeIn)}</strong></div>
               <div>Time out: <strong>{fmtTime(p.timeOut)}</strong></div>
             </td>
@@ -198,20 +198,20 @@ function FormPage1(p: PrintFormProps) {
           <tr>
             <td style={{ ...cellBase, width: '45%' }}><strong>Location Address:</strong> {p.facilityName}</td>
             <td style={{ ...cellBase, width: '30%' }}><strong>Contact Phone(s):</strong> {p.contactPhone}</td>
-            <td style={{ ...cellBase, width: '25%' }}><strong>Location ID:</strong> {p.locationId}</td>
+            <td style={{ ...cellBase, width: '25%' }}><strong>Location ID:</strong> {p.location_id}</td>
           </tr>
           <tr>
             <td style={cellBase}><strong>DBA:</strong> {p.reportTitle}</td>
             <td style={cellBase}>&nbsp;</td>
-            <td style={cellBase}><strong>Complaint ID:</strong> {p.complaintId}</td>
+            <td style={cellBase}><strong>Complaint ID:</strong> {p.complaintid}</td>
           </tr>
           <tr>
-            <td style={cellBase}><strong>Management Name:</strong> {p.ownerName}</td>
+            <td style={cellBase}><strong>Management Name:</strong> {p.owner_name}</td>
             <td style={cellBase}><strong>Contact Email(s):</strong> {p.contactEmail}</td>
             <td style={cellBase}><strong>Re-inspection On/After:</strong> {fmtDate(reinspDate)}</td>
           </tr>
           <tr>
-            <td style={cellBase} colSpan={3}><strong>Owner&apos;s Name:</strong> {p.ownerName}</td>
+            <td style={cellBase} colSpan={3}><strong>Owner&apos;s Name:</strong> {p.owner_name}</td>
           </tr>
         </tbody>
       </table>
@@ -245,10 +245,10 @@ function FormPage1(p: PrintFormProps) {
           </tr>
           <tr>
             <td style={{ ...cellBase, verticalAlign: 'top' }}>
-              <Cb checked={p.facilityType === 'Tourist Hotel'} label="Tourist Hotel" />
-              <Cb checked={p.facilityType === 'Residential Hotel'} label="Residential Hotel" />
-              <Cb checked={p.facilityType === 'Apartments'} label="Apartments" />
-              <Cb checked={isOtherFacility || undefined} label={isOtherFacility ? `Other: ${p.facilityType}` : 'Other:'} />
+              <Cb checked={p.facility_type === 'Tourist Hotel'} label="Tourist Hotel" />
+              <Cb checked={p.facility_type === 'Residential Hotel'} label="Residential Hotel" />
+              <Cb checked={p.facility_type === 'Apartments'} label="Apartments" />
+              <Cb checked={isOtherFacility || undefined} label={isOtherFacility ? `Other: ${p.facility_type}` : 'Other:'} />
             </td>
             <td style={{ ...cellBase, verticalAlign: 'top' }}>
               <div>Apts: {p.numApts}</div>
@@ -278,17 +278,17 @@ function FormPage1(p: PrintFormProps) {
             <td style={cellCenter}><strong>Vector Survey</strong></td>
           </tr>
           <tr>
-            <td style={cellBase}><Cb checked={p.inspectionType === 'Routine'} label="Routine" /></td>
-            <td style={cellBase}><Cb checked={p.inspectionType === 'Routine Re-inspection'} label="Routine Re-inspection" /></td>
-            <td style={cellBase} colSpan={2}><Cb checked={p.inspectionType === 'Citation to Hearing Issued'} label="Citation to Hearing Issued" /></td>
-            <td style={cellBase}><Cb checked={p.inspectionRating === 'Satisfactory'} label="Satisfactory" /></td>
-            <td style={cellBase}><Cb checked={p.inspectionRating === 'Unsatisfactory'} label="Unsatisfactory" /></td>
+            <td style={cellBase}><Cb checked={p.inspection_type === 'Routine'} label="Routine" /></td>
+            <td style={cellBase}><Cb checked={p.inspection_type === 'Routine Re-inspection'} label="Routine Re-inspection" /></td>
+            <td style={cellBase} colSpan={2}><Cb checked={p.inspection_type === 'Citation to Hearing Issued'} label="Citation to Hearing Issued" /></td>
+            <td style={cellBase}><Cb checked={p.inspection_rating === 'Satisfactory'} label="Satisfactory" /></td>
+            <td style={cellBase}><Cb checked={p.inspection_rating === 'Unsatisfactory'} label="Unsatisfactory" /></td>
             <td style={cellBase}><Cb checked={false} label="Field Survey" /></td>
           </tr>
           <tr>
-            <td style={cellBase}><Cb checked={p.inspectionType === 'Complaint'} label="Complaint" /></td>
-            <td style={cellBase}><Cb checked={p.inspectionType === 'Complaint Re-inspection'} label="Complaint Re-inspection" /></td>
-            <td style={cellBase} colSpan={2}><Cb checked={p.inspectionType === 'Field Consultation / Survey'} label="Field Consultation / Survey" /></td>
+            <td style={cellBase}><Cb checked={p.inspection_type === 'Complaint'} label="Complaint" /></td>
+            <td style={cellBase}><Cb checked={p.inspection_type === 'Complaint Re-inspection'} label="Complaint Re-inspection" /></td>
+            <td style={cellBase} colSpan={2}><Cb checked={p.inspection_type === 'Field Consultation / Survey'} label="Field Consultation / Survey" /></td>
             <td style={cellBase} colSpan={3}>&nbsp;</td>
           </tr>
         </tbody>
@@ -491,7 +491,7 @@ function FormPage2() {
 function FormPage3(p: PrintFormProps) {
   const filled = p.violations.filter(v => v.violationKey);
   const reinspDate = filled.length
-    ? filled.reduce((m, v) => (!m || v.dueDate < m ? v.dueDate : m), '')
+    ? filled.reduce((m, v) => (!m || v.due_date < m ? v.due_date : m), '')
     : '';
 
   return (
@@ -513,19 +513,19 @@ function FormPage3(p: PrintFormProps) {
         <tbody>
           <tr>
             <td style={{ ...cellBase, width: '55%' }}><strong>Facility Address:</strong> {p.facilityName}</td>
-            <td style={cellBase}><strong>Inspection Date:</strong> {fmtDate(p.inspectionDate)}</td>
+            <td style={cellBase}><strong>Inspection Date:</strong> {fmtDate(p.inspection_date)}</td>
           </tr>
           <tr>
             <td style={cellBase}><strong>Business Name:</strong> {p.reportTitle}</td>
             <td style={cellBase}><strong>Reinspection Date:</strong> {fmtDate(reinspDate)}</td>
           </tr>
           <tr>
-            <td style={cellBase}><strong>Owner Name(s):</strong> {p.ownerName}</td>
-            <td style={cellBase}><strong>Inspection Type:</strong> {p.inspectionType}</td>
+            <td style={cellBase}><strong>Owner Name(s):</strong> {p.owner_name}</td>
+            <td style={cellBase}><strong>Inspection Type:</strong> {p.inspection_type}</td>
           </tr>
           <tr>
-            <td style={cellBase}><strong>Facility Type:</strong> {p.facilityType}&nbsp;&nbsp;&nbsp;<strong>Phone Number:</strong> {p.contactPhone}</td>
-            <td style={cellBase}><strong>Location ID:</strong> {p.locationId}</td>
+            <td style={cellBase}><strong>Facility Type:</strong> {p.facility_type}&nbsp;&nbsp;&nbsp;<strong>Phone Number:</strong> {p.contactPhone}</td>
+            <td style={cellBase}><strong>Location ID:</strong> {p.location_id}</td>
           </tr>
         </tbody>
       </table>
@@ -559,10 +559,10 @@ function FormPage3(p: PrintFormProps) {
             // Resolve owner and tenant actions (new format with fallback to legacy)
             const ownerCAs = (v.ownerActions?.length ?? 0) > 0
               ? (v.ownerActions ?? [])
-              : (v.responsibleParty === 'Owner' && v.correctiveAction ? [v.correctiveAction] : []);
+              : (v.responsible_party === 'Owner' && v.corrective_action ? [v.corrective_action] : []);
             const tenantCAs = (v.tenantActions?.length ?? 0) > 0
               ? (v.tenantActions ?? [])
-              : (v.responsibleParty === 'Tenant' && v.correctiveAction ? [v.correctiveAction] : []);
+              : (v.responsible_party === 'Tenant' && v.corrective_action ? [v.corrective_action] : []);
             return (
               <tr key={v.id} style={{ verticalAlign: 'top' }}>
                 <td style={{ ...cellBase, fontWeight: 'bold' }}>{i + 1}</td>
@@ -587,7 +587,7 @@ function FormPage3(p: PrintFormProps) {
                     : <span style={{ color: '#999' }}>—</span>
                   }
                 </td>
-                <td style={{ ...cellBase, whiteSpace: 'nowrap' }}>{fmtDate(v.dueDate)}</td>
+                <td style={{ ...cellBase, whiteSpace: 'nowrap' }}>{fmtDate(v.due_date)}</td>
               </tr>
             );
           })}
@@ -637,8 +637,8 @@ export default function PrintForm(props: PrintFormProps) {
       <PhotoPrintSection
         photos={props.photos}
         address={props.facilityName}
-        inspectionDate={props.inspectionDate}
-        complaintId={props.complaintId}
+        inspectionDate={props.inspection_date}
+        complaintId={props.complaintid}
       />
     </>
   );

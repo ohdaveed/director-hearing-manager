@@ -284,7 +284,7 @@ export default function InspectorDashboardPage({ inspectorName }: { inspectorNam
     <FeedRow
       key={c.id}
       address={c.address ?? '—'}
-      complaintId={c.complaintId}
+      complaintId={c.complaintid}
       meta={c.dateAssigned ? `Assigned ${formatDate(c.dateAssigned)}` : 'Recently assigned'}
       statusLabel={c.status ?? undefined}
       statusCls={COMPLAINT_STATUS_THEME[c.status as keyof typeof COMPLAINT_STATUS_THEME]}
@@ -293,12 +293,12 @@ export default function InspectorDashboardPage({ inspectorName }: { inspectorNam
   ));
 
   const noContactRows = noContactAttempt.map((c: AlertComplaint) => {
-    const days = daysSince(c.dateEntered);
+    const days = daysSince(c.date_entered);
     return (
       <FeedRow
         key={c.id}
         address={c.address ?? '—'}
-        complaintId={c.complaintId}
+        complaintId={c.complaintid}
         meta={days > 0 ? `Entered ${days} day${days !== 1 ? 's' : ''} ago · No contact logged` : 'No contact logged'}
         onClick={() => navigate(`/complaints/${c.id}`)}
       />
@@ -314,7 +314,7 @@ export default function InspectorDashboardPage({ inspectorName }: { inspectorNam
       <FeedRow
         key={c.id}
         address={c.address ?? '—'}
-        complaintId={c.complaintId}
+        complaintId={c.complaintid}
         meta={`Due ${formatDate(c.reinspectionDueOnAfter)}`}
         statusLabel={c.status ?? undefined}
         statusCls={COMPLAINT_STATUS_THEME[c.status as keyof typeof COMPLAINT_STATUS_THEME]}
@@ -338,7 +338,7 @@ export default function InspectorDashboardPage({ inspectorName }: { inspectorNam
       <FeedRow
         key={c.id}
         address={c.address ?? '—'}
-        complaintId={c.complaintId}
+        complaintId={c.complaintid}
         meta={`Was due ${formatDate(c.reinspectionDueOnAfter)}`}
         urgent
         leftSlot={
@@ -518,29 +518,29 @@ export default function InspectorDashboardPage({ inspectorName }: { inspectorNam
                       <p className="text-sm font-semibold text-foreground truncate">{insp.facilityAddress ?? '—'}</p>
                       {/* Tiers 2 & 3 */}
                       <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-                        {insp.complaintId && (
+                        {insp.complaintid && (
                           <span className="text-[10px] font-mono font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded shrink-0">
-                            #{insp.complaintId}
+                            #{insp.complaintid}
                           </span>
                         )}
                         <span className="text-[10px] text-muted-foreground">
-                          {[insp.inspectionType, insp.inspectionDate && formatDate(insp.inspectionDate)].filter(Boolean).join(' · ')}
+                          {[insp.inspection_type, insp.inspection_date && formatDate(insp.inspection_date)].filter(Boolean).join(' · ')}
                         </span>
                       </div>
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
-                      {insp.inspectionRating && (
+                      {insp.inspection_rating && (
                         <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold ${
-                          insp.inspectionRating === 'Satisfactory' ? 'bg-success/10 text-success' :
-                          insp.inspectionRating === 'Unsatisfactory' ? 'bg-destructive/10 text-destructive' :
+                          insp.inspection_rating === 'Satisfactory' ? 'bg-success/10 text-success' :
+                          insp.inspection_rating === 'Unsatisfactory' ? 'bg-destructive/10 text-destructive' :
                           'bg-muted text-muted-foreground'
                         }`}>
-                          {insp.inspectionRating}
+                          {insp.inspection_rating}
                         </span>
                       )}
-                      {insp.violationCount != null && insp.violationCount > 0 && (
+                      {insp.violation_count != null && insp.violation_count > 0 && (
                         <span className="text-[10px] text-muted-foreground tabular-nums">
-                          {insp.violationCount}v
+                          {insp.violation_count}v
                         </span>
                       )}
                     </div>

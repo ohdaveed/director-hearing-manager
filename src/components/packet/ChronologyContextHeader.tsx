@@ -10,14 +10,14 @@ interface Props {
 }
 
 export default function ChronologyContextHeader({ packetMeta, locationMeta }: Props) {
-  const rpName = locationMeta?.responsibleParty || locationMeta?.ownerName;
-  const rpPhone = locationMeta?.responsiblePartyPhone || locationMeta?.ownerPhone;
-  const rpEmail = locationMeta?.responsiblePartyEmail || locationMeta?.ownerEmail;
+  const rpName = locationMeta?.responsible_party || locationMeta?.owner_name;
+  const rpPhone = locationMeta?.responsible_party_phone || locationMeta?.owner_phone;
+  const rpEmail = locationMeta?.responsible_party_email || locationMeta?.owner_email;
 
   const siteLine = [
-    locationMeta?.blockLot && `Block/Lot: ${locationMeta.blockLot}`,
-    locationMeta?.facilityType,
-    locationMeta?.numberOfUnits != null && `${locationMeta.numberOfUnits} units`,
+    locationMeta?.block_lot && `Block/Lot: ${locationMeta.block_lot}`,
+    locationMeta?.facility_type,
+    locationMeta?.number_of_units != null && `${locationMeta.number_of_units} units`,
   ].filter(Boolean).join(' · ');
 
   const hearingLine = [
