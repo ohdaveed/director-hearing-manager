@@ -140,7 +140,7 @@ export default function DashboardPage({
     .slice(0, 8);
   if (isLoading) {
     return (
-      <div className="container mx-auto px-4 sm:px-6 max-w-[1300px]">
+      <div className="container mx-auto px-4 sm:px-6 max-w-7xl">
         <div className="flex items-center justify-between py-5 border-b border-border">
           <div className="space-y-1.5">
             <div className="h-6 w-48 bg-muted/60 rounded-lg animate-pulse" />
@@ -195,7 +195,7 @@ export default function DashboardPage({
   );
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 max-w-[1300px]">
+    <div className="container mx-auto px-4 sm:px-6 max-w-7xl">
       {/* Page header */}
       <div className="flex items-center justify-between py-5 border-b border-border">
         <div>
@@ -230,42 +230,23 @@ export default function DashboardPage({
         </div>
       </div>
 
-      {/* ── Body ──────────────────────────────────────────────────────────── */}
-      <div className="flex flex-col lg:flex-row gap-5 py-6">
-        {/* ── Mobile stat rail (2×2 grid + quality checks above feed) ──── */}
-        <div className="lg:hidden space-y-4">
-          <div
-            className={`grid gap-3 ${showHearings ? "grid-cols-2 sm:grid-cols-3" : "grid-cols-2 sm:grid-cols-3"}`}
-          >
-            {statCards}
-          </div>
+      <div className="grid grid-cols-1 xl:grid-cols-[280px_1fr] gap-6 py-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-1 gap-3 content-start">
+          {statCards}
           <QualityChecksPanel
             missingReinspDate={missingReinspDate}
             missingAssignment={missingAssignment}
           />
         </div>
 
-        {/* ── Desktop sticky stat rail ───────────────────────────────────── */}
-        <div className="hidden lg:block w-56 xl:w-64 shrink-0">
-          <div className="sticky top-[73px] space-y-3">
-            {statCards}
-            <div className="pt-1">
-              <QualityChecksPanel
-                missingReinspDate={missingReinspDate}
-                missingAssignment={missingAssignment}
-              />
-            </div>
-          </div>
-        </div>
-
         {/* ── RIGHT: scrollable feed ──────────────────────────────────────── */}
-        <div className="flex-1 min-w-0 space-y-4">
+        <div className="space-y-4 min-w-0">
           {/* Upcoming Hearings */}
           {showHearings && (
             <UpcomingHearingsPanel hearings={upcomingHearings} today={today} />
           )}
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
             <div className="bg-card border border-border rounded-xl p-4 shadow-sm">
               <h3 className="text-sm font-semibold text-foreground mb-3">
                 Workload by Inspector

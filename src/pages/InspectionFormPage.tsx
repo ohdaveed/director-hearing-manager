@@ -505,7 +505,7 @@ export default function InspectionFormPage({ inspectorName }: Props) {
       isDraft,
       inspector: inspectorName,
       complaint_id: selectedComplaint.id,
-      location_id: (selectedComplaint as any).location,
+      location_id: selectedComplaint.locationid,
       inspection_date: form.inspection_date,
       time_in: form.timeIn,
       time_out: form.timeOut,

@@ -274,7 +274,14 @@ export default function ComplaintDetailView({
     updateStatusMutation.mutate(newStatus);
   };
 
-  const handleStartInspection = () => navigate(`/inspections/${complaint.id}`);
+  const handleStartInspection = () =>
+    navigate(`/inspections/${complaint.id}`, {
+      state: {
+        address: complaint.address,
+        description: detail?.description,
+        complaintId: complaint.id,
+      },
+    });
 
   const handleSaveResponsibleParty = () => {
     updateLocationMutation.mutate({
@@ -776,9 +783,10 @@ export default function ComplaintDetailView({
   ) : null;
 
   // ── Desktop actions card ───────────────────────────────────────────────────
+  const canShowActions = viewMode === "admin" || canEditStatus;
 
   const actionsCard =
-    canEditStatus || actionsSlot ? (
+    canShowActions || actionsSlot ? (
       <div className="bg-card border border-border rounded-xl overflow-hidden shadow-sm print:hidden">
         <div className="px-5 py-3 bg-muted/40 border-b border-border">
           <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
@@ -903,15 +911,15 @@ export default function ComplaintDetailView({
               {canStartInspection && (
                 <Button
                   onClick={handleStartInspection}
-                  className="gap-2 flex-shrink-0"
+                  className="gap-2 flex-shrink-0 h-11 px-6 text-base font-semibold shadow-md"
                 >
                   {hasDraft ? (
                     <>
-                      <FileEdit className="w-4 h-4" /> Resume Draft
+                      <FileEdit className="w-5 h-5" /> Resume Draft
                     </>
                   ) : (
                     <>
-                      <FilePlus className="w-4 h-4" /> Start Inspection
+                      <FilePlus className="w-5 h-5" /> Start Inspection
                     </>
                   )}
                 </Button>

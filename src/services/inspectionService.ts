@@ -66,14 +66,26 @@ export const inspectionService = {
   },
 
   async save(inspection: any) {
-    const { violations, photos, ...inspectionData } = inspection;
+    const {
+      violations,
+      photos,
+      isDraft: _isDraft,
+      summary,
+      global_observations: _globalObs,
+      areas_inspected: _areas,
+      ...rest
+    } = inspection;
+
+    // Transform fields to match database schema
+    const inspectionData = {
+      ...rest,
+      notes: summary, // map summary to notes column
+      updated_at: new Date().toISOString(),
+    };
 
     const { data: savedInspection, error: inspectionError } = await supabase
       .from("inspections")
-      .upsert({
-        ...inspectionData,
-        updated_at: new Date().toISOString(),
-      })
+      .upsert(inspectionData)
       .select(INSPECTION_LIST_COLUMNS)
       .single();
 

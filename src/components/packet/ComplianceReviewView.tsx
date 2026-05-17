@@ -19,6 +19,8 @@ interface ComplianceReviewViewProps {
   onEdit: () => void;
   onBack: () => void;
   onDownload?: () => void;
+  isLoading?: boolean;
+  partial?: boolean;
 }
 
 const severityColors = {
@@ -36,6 +38,10 @@ const categoryLabels = {
   missing_element: "Missing Element",
 };
 
+function Skeleton({ className }: { className?: string }) {
+  return <div className={`animate-pulse bg-muted rounded ${className}`} />;
+}
+
 export default function ComplianceReviewView({
   complianceResult,
   extractedText,
@@ -44,6 +50,8 @@ export default function ComplianceReviewView({
   onEdit,
   onBack,
   onDownload,
+  isLoading = false,
+  partial = false,
 }: ComplianceReviewViewProps) {
   const [showOriginalText, setShowOriginalText] = useState(false);
 
@@ -52,6 +60,20 @@ export default function ComplianceReviewView({
     if (score >= 60) return "text-yellow-600";
     return "text-red-600";
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col gap-6 p-6 max-w-4xl mx-auto">
+        <Skeleton className="h-8 w-64" />
+        <div className="grid gap-4 md:grid-cols-3">
+          <Skeleton className="h-32" />
+          <Skeleton className="h-32" />
+          <Skeleton className="h-32" />
+        </div>
+        <Skeleton className="h-64" />
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-6 p-6 max-w-4xl mx-auto">
@@ -73,7 +95,11 @@ export default function ComplianceReviewView({
           <div
             className={`text-4xl font-bold ${getScoreColor(complianceResult.score)}`}
           >
-            {complianceResult.score}
+            {partial ? (
+              <Skeleton className="h-10 w-20" />
+            ) : (
+              complianceResult.score
+            )}
           </div>
           <p className="text-xs text-muted-foreground mt-1">out of 100</p>
         </div>
@@ -82,7 +108,9 @@ export default function ComplianceReviewView({
           <p className="text-sm font-medium text-muted-foreground mb-1">
             Status
           </p>
-          {complianceResult.isCompliant ? (
+          {partial ? (
+            <Skeleton className="h-10 w-32" />
+          ) : complianceResult.isCompliant ? (
             <div className="flex items-center gap-2 text-green-600">
               <CheckCircle className="w-5 h-5" />
               <span className="font-semibold">Compliant</span>
@@ -100,10 +128,18 @@ export default function ComplianceReviewView({
             Issues Found
           </p>
           <div className="text-4xl font-bold">
-            {complianceResult.issues.length}
+            {partial ? (
+              <Skeleton className="h-10 w-20" />
+            ) : (
+              complianceResult.issues.length
+            )}
           </div>
           <p className="text-xs text-muted-foreground mt-1">
-            {complianceResult.missingSections.length} missing sections
+            {partial ? (
+              <Skeleton className="h-4 w-32" />
+            ) : (
+              `${complianceResult.missingSections.length} missing sections`
+            )}
           </p>
         </div>
       </div>
