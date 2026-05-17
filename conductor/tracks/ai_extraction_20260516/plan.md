@@ -14,7 +14,7 @@
     - [x] Task: Implement validation logic to pass tests.
 - [x] Task: Conductor - User Manual Verification 'Phase 2: Refinement of Extraction Engine' (Protocol in workflow.md) [2956333]
 
-## Phase 3: Integration and Validation
-- [~] Task: Update the "Import Past Inspections" wizard to support the new structured data format.
-- [ ] Task: Perform end-to-end testing with the "edge case" dataset to verify accuracy improvements.
-- [ ] Task: Conductor - User Manual Verification 'Phase 3: Integration and Validation' (Protocol in workflow.md)
+## Phase 3: Integration and Validation [checkpoint: 8bbd32b]
+- [x] Task: Update the "Import Past Inspections" wizard to support the new structured data format. [8bbd32b]
+- [x] Task: Perform end-to-end testing with the "edge case" dataset to verify accuracy improvements. [8bbd32b]
+- [x] Task: Conductor - User Manual Verification 'Phase 3: Integration and Validation' (Protocol in workflow.md) [8bbd32b]
