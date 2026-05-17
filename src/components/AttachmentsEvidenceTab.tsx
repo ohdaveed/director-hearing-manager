@@ -9,7 +9,10 @@ import {
   FileText,
   Image,
   ExternalLink,
+  ClipboardList,
 } from "lucide-react";
+import InspectionImportWizard from "@/components/InspectionImportWizard";
+import { packetService } from "@/services/packetService";
 
 type PacketData = any;
 
@@ -116,7 +119,7 @@ function PhotoThumb({
 }
 
 export default function AttachmentsEvidenceTab({
-  packetId: _packetId,
+  packetId,
   data,
 }: {
   packetId: string;
@@ -133,6 +136,7 @@ export default function AttachmentsEvidenceTab({
     () => new Set(savedPhotoIds),
   );
   const [saving, setSaving] = useState(false);
+  const [importWizardOpen, setImportWizardOpen] = useState(false);
 
   // Build evidence items: imported reports + exhibits
   const evidenceItems: EvidenceItem[] = useMemo(() => {
@@ -206,7 +210,10 @@ export default function AttachmentsEvidenceTab({
   const handleSave = async () => {
     setSaving(true);
     try {
-      await Promise.resolve();
+      await packetService.update(packetId, {
+        selected_report_ids: [...selectedReportIds],
+        selected_photo_ids: [...selectedPhotoIds],
+      });
       toast.success("Selections saved");
     } catch {
       toast.error("Failed to save selections");
@@ -217,6 +224,27 @@ export default function AttachmentsEvidenceTab({
 
   return (
     <div className="p-5 space-y-5 overflow-y-auto max-h-[calc(100vh-320px)]">
+      {/* Import Inspections */}
+      <div className="flex items-center justify-between rounded-lg border border-border bg-muted/30 px-3 py-2.5">
+        <div className="min-w-0">
+          <p className="text-xs font-semibold text-foreground leading-none">
+            Import Inspection Reports
+          </p>
+          <p className="text-[11px] text-muted-foreground mt-0.5 leading-none">
+            Add submitted inspections with photos to this packet
+          </p>
+        </div>
+        <Button
+          size="sm"
+          variant="outline"
+          className="shrink-0 gap-1.5 text-xs h-8 ml-3"
+          onClick={() => setImportWizardOpen(true)}
+        >
+          <ClipboardList className="w-3 h-3" />
+          Import
+        </Button>
+      </div>
+
       {/* Evidence & Reports */}
       <div>
         <div className="flex items-center justify-between mb-3">
@@ -319,6 +347,18 @@ export default function AttachmentsEvidenceTab({
         )}
         Save Selections
       </Button>
+
+      <InspectionImportWizard
+        packetId={packetId}
+        open={importWizardOpen}
+        onClose={() => setImportWizardOpen(false)}
+        onImportComplete={() => {
+          setImportWizardOpen(false);
+          toast.success(
+            "Inspections imported — refresh to see updated exhibits",
+          );
+        }}
+      />
     </div>
   );
 }
