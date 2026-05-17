@@ -1,0 +1,19 @@
+[
+  {
+    "id": "report_001",
+    "text": "CITY AND COUNTY OF SAN FRANCISCO\nDEPARTMENT OF PUBLIC HEALTH\nINSPECTION REPORT\n\nDate: 2026-04-15\nInspector: J. Smith\nAddress: 123 Main St\n\nVIOLATIONS OBSERVED:\n1. § 581(b)(13) - Rodents observed in basement. Structural gaps around pipes.\n2. § 581(b)(2) - Overgrown vegetation at rear property line.\n3. § 581(b)(1) - Accumulation of garbage in side yard.\n\nCorrective Actions: Seal gaps, trim vegetation, remove garbage.",
+    "expected_violations": [
+      { "code": "§ 581(b)(13)", "label": "Rodents" },
+      { "code": "§ 581(b)(2)", "label": "Overgrown Vegetation" },
+      { "code": "§ 581(b)(1)", "label": "Garbage / Refuse / Waste" }
+    ]
+  },
+  {
+    "id": "report_002",
+    "text": "INSPECTION REPORT\nDate: 2026-05-01\nAddress: 456 Oak Ave\n\nFound pigeons nesting on roof. Citation: SFHC § 581(b)(7).\nAlso found mold in unit 4. Citation: § 581(b)(6).",
+    "expected_violations": [
+      { "code": "§ 581(b)(7)", "label": "Pigeons / Birds" },
+      { "code": "§ 581(b)(6)", "label": "Mold Growth" }
+    ]
+  }
+]
