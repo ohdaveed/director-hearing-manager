@@ -60,8 +60,8 @@ function ChronologyTable({ entries, showBy }: { entries: any[]; showBy: boolean 
           <th style={{ border: '1px solid black', padding: '4px 6px', textAlign: 'left', width: '100px', fontWeight: 'bold' }}>{S.tableHeader.codeSection}</th>
           <th style={{ border: '1px solid black', padding: '4px 6px', textAlign: 'left', fontWeight: 'bold' }}>{S.tableHeader.summary}</th>
           <th style={{ border: '1px solid black', padding: '4px 6px', textAlign: 'left', width: '60px', fontWeight: 'bold' }}>{S.tableHeader.exhibits}</th>
-          <th style={{ border: '1px solid black', padding: '4px 6px', textAlign: 'left', width: '40px', fontWeight: 'bold' }}>Pg.</th>
-          {showBy && <th style={{ border: '1px solid black', padding: '4px 6px', textAlign: 'left', width: '80px', fontWeight: 'bold' }}>By</th>}
+          <th style={{ border: '1px solid black', padding: '4px 6px', textAlign: 'left', width: '40px', fontWeight: 'bold' }}>{S.tableHeader.page}</th>
+          {showBy && <th style={{ border: '1px solid black', padding: '4px 6px', textAlign: 'left', width: '80px', fontWeight: 'bold' }}>{S.tableHeader.by}</th>}
         </tr>
       </thead>
       <tbody>
@@ -76,7 +76,7 @@ function ChronologyTable({ entries, showBy }: { entries: any[]; showBy: boolean 
               <span>{entry.summary ?? '—'}</span>
               {entry.violationsObserved && (
                 <p style={{ margin: '3px 0 0', color: '#444', fontSize: '8.5pt' }}>
-                  <strong>Violations:</strong> {entry.violationsObserved}
+                  <strong>{S.fieldLabels.violationsObserved}</strong> {entry.violationsObserved}
                 </p>
               )}
             </td>
@@ -100,7 +100,7 @@ function ProposedHearingOrder({ address, inspectorSig, managerSig }: { address: 
 
   return (
     <div className="mt-8 pt-6 border-t-2 border-black break-inside-avoid">
-      <h3 className="text-center font-bold text-[14pt] mb-4 underline">PROPOSED HEARING ORDER</h3>
+      <h3 className="text-center font-bold text-[14pt] mb-4 underline">{S.proposedOrderHeading}</h3>
       <p className="mb-6 leading-relaxed" style={{ fontSize: pt.body }}>
         {S.proposedOrder.replace('{address}', address)}
       </p>
@@ -111,7 +111,7 @@ function ProposedHearingOrder({ address, inspectorSig, managerSig }: { address: 
               {inspectorSig.text}
             </div>
           ) : null}
-          <div style={{ fontSize: pt.body }}>Inspector Signature</div>
+          <div style={{ fontSize: pt.body }}>{S.signatureLabels.inspector}</div>
         </div>
         <div className="border-t border-black pt-2 relative">
           {managerSig ? (
@@ -119,7 +119,7 @@ function ProposedHearingOrder({ address, inspectorSig, managerSig }: { address: 
               {managerSig.text}
             </div>
           ) : null}
-          <div style={{ fontSize: pt.body }}>Program Manager Signature</div>
+          <div style={{ fontSize: pt.body }}>{S.signatureLabels.manager}</div>
         </div>
       </div>
     </div>
@@ -161,33 +161,33 @@ export function PacketChronology({ chronology, complaint, packet, location, insp
         <tbody>
           <tr>
             <td style={{ border: '1px solid black', padding: '3px 6px', width: '35%', textAlign: 'left' }}>
-              <span style={{ fontSize: '7.5pt', display: 'block', color: '#555' }}>Location Address</span>
+              <span style={{ fontSize: '7.5pt', display: 'block', color: '#555' }}>{S.fieldLabels.address}</span>
               <strong>{address}</strong>
             </td>
             <td style={{ border: '1px solid black', padding: '3px 6px', width: '15%', textAlign: 'left' }}>
-              <span style={{ fontSize: '7.5pt', display: 'block', color: '#555' }}>Block/Lot</span>
+              <span style={{ fontSize: '7.5pt', display: 'block', color: '#555' }}>{S.fieldLabels.blockLot}</span>
               {location?.block_lot ?? ''}
             </td>
             <td style={{ border: '1px solid black', padding: '3px 6px', width: '30%', textAlign: 'left' }}>
-              <span style={{ fontSize: '7.5pt', display: 'block', color: '#555' }}>Facility Name (DBA)</span>
+              <span style={{ fontSize: '7.5pt', display: 'block', color: '#555' }}>{S.fieldLabels.facility}</span>
               {location?.dba ?? ''}
             </td>
             <td style={{ border: '1px solid black', padding: '3px 6px', width: '20%', textAlign: 'left' }}>
-              <span style={{ fontSize: '7.5pt', display: 'block', color: '#555' }}>Date of Submittal</span>
+              <span style={{ fontSize: '7.5pt', display: 'block', color: '#555' }}>{S.fieldLabels.submittalDate}</span>
               {today}
             </td>
           </tr>
           <tr>
             <td style={{ border: '1px solid black', padding: '3px 6px', textAlign: 'left' }}>
-              <span style={{ fontSize: '7.5pt', display: 'block', color: '#555' }}>Hearing Date</span>
+              <span style={{ fontSize: '7.5pt', display: 'block', color: '#555' }}>{S.fieldLabels.hearingDate}</span>
               {hearingDateFmt}
             </td>
             <td style={{ border: '1px solid black', padding: '3px 6px', textAlign: 'left' }}>
-              <span style={{ fontSize: '7.5pt', display: 'block', color: '#555' }}>Program Code</span>
+              <span style={{ fontSize: '7.5pt', display: 'block', color: '#555' }}>{S.fieldLabels.programCode}</span>
               {packet.program_code ?? ''}
             </td>
             <td colSpan={2} style={{ border: '1px solid black', padding: '3px 6px', textAlign: 'left' }}>
-              <span style={{ fontSize: '7.5pt', display: 'block', color: '#555' }}>Case Number</span>
+              <span style={{ fontSize: '7.5pt', display: 'block', color: '#555' }}>{S.fieldLabels.caseNumber}</span>
               {packet.case_number ?? complaint?.complaintid ?? '—'}
             </td>
           </tr>
@@ -204,7 +204,7 @@ export function PacketChronology({ chronology, complaint, packet, location, insp
       )}
       {frozenSnapshot && (
         <p style={{ fontSize: '8.5pt', color: '#666', marginTop: '2px' }}>
-          ⚖ Frozen chronology record — submitted for hearing
+          {S.fieldLabels.frozenNote}
         </p>
       )}
     </div>
@@ -220,7 +220,7 @@ export function PacketChronology({ chronology, complaint, packet, location, insp
           <thead>
             <tr style={{ background: '#f0f0f0' }}>
               <th style={{ border: '1px solid black', padding: '4px 6px', textAlign: 'left', width: '80px', fontWeight: 'bold' }}>{S.tableHeader.date}</th>
-              <th style={{ border: '1px solid black', padding: '4px 6px', textAlign: 'left', width: '90px', fontWeight: 'bold' }}>Type</th>
+              <th style={{ border: '1px solid black', padding: '4px 6px', textAlign: 'left', width: '90px', fontWeight: 'bold' }}>{S.tableHeader.codeSection}</th>
               <th style={{ border: '1px solid black', padding: '4px 6px', textAlign: 'left', fontWeight: 'bold' }}>{S.tableHeader.summary}</th>
             </tr>
           </thead>

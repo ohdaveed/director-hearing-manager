@@ -99,19 +99,33 @@ export const STATIC_BLOCKS = {
       codeSection: 'CODE SECTION',
       summary: 'SUMMARY OF ACTIONS, OBSERVATIONS OR NOTES',
       exhibits: 'EXHIBITS',
+      page: 'Pg.',
+      by: 'By',
     },
     continuationIntro:
       'Following is a continuation chronology of events presented at this hearing date:',
     continuationCheckboxLabel: 'Continued on supplemental page(s)',
+    proposedOrderHeading: 'PROPOSED HEARING ORDER',
     proposedOrder:
       'Based on the history of non-compliance documented above, the Department recommends that the Hearing Officer issue an order requiring the abatement of all outstanding violations at {address} within 30 days of the hearing date. Failure to comply will result in further administrative action and assessment of applicable fees.',
     recommendationClause:
       'Based on the above chronology, the Environmental Health Inspector respectfully recommends the following order:',
+    fieldLabels: {
+      address: 'Location Address',
+      blockLot: 'Block/Lot',
+      facility: 'Facility Name (DBA)',
+      submittalDate: 'Date of Submittal',
+      hearingDate: 'Hearing Date',
+      programCode: 'Program Code',
+      caseNumber: 'Case Number',
+      violationsObserved: 'Violations:',
+      frozenNote: '⚖ Frozen chronology record — submitted for hearing',
+    },
     signatureLabels: {
+      inspector: 'Inspector Signature',
+      manager: 'Program Manager Signature',
       inspectorName: 'Environmental Health Inspector',
-      inspectorSignature: 'Inspector Signature',
       managerName: 'Program Manager / Supervisor',
-      managerSignature: 'Manager Signature',
     },
   },
 
