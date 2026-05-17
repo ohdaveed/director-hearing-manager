@@ -1,37 +1,54 @@
-import { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-import { inspectionService } from '@/services/inspectionService';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Search, CheckCircle2, XCircle, Clock, FileText, ChevronRight, X, ClipboardCheck, Loader2 } from 'lucide-react';
-import InspectionDetailPanel from '@/components/InspectionDetailPanel';
-import { INSPECTORS } from '@/utils/inspectors';
-
-type Inspection = any; // Properly type later
+import { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { inspectionService } from "@/services/inspectionService";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Search,
+  CheckCircle2,
+  XCircle,
+  Clock,
+  FileText,
+  ChevronRight,
+  X,
+  ClipboardCheck,
+  Loader2,
+} from "lucide-react";
+import InspectionDetailPanel from "@/components/InspectionDetailPanel";
+import { INSPECTORS } from "@/utils/inspectors";
 
 function RatingBadge({ rating }: { rating?: string }) {
-  if (rating === 'Satisfactory') return (
-    <span className="inline-flex items-center gap-1 text-xs font-medium text-success bg-success/10 px-2 py-0.5 rounded-full whitespace-nowrap">
-      <CheckCircle2 className="w-3 h-3" /> Sat.
-    </span>
-  );
-  if (rating === 'Unsatisfactory') return (
-    <span className="inline-flex items-center gap-1 text-xs font-medium text-destructive bg-destructive/10 px-2 py-0.5 rounded-full whitespace-nowrap">
-      <XCircle className="w-3 h-3" /> Unsat.
-    </span>
-  );
+  if (rating === "Satisfactory")
+    return (
+      <span className="inline-flex items-center gap-1 text-xs font-medium text-success bg-success/10 px-2 py-0.5 rounded-full whitespace-nowrap">
+        <CheckCircle2 className="w-3 h-3" /> Sat.
+      </span>
+    );
+  if (rating === "Unsatisfactory")
+    return (
+      <span className="inline-flex items-center gap-1 text-xs font-medium text-destructive bg-destructive/10 px-2 py-0.5 rounded-full whitespace-nowrap">
+        <XCircle className="w-3 h-3" /> Unsat.
+      </span>
+    );
   return <span className="text-xs text-muted-foreground">—</span>;
 }
 
 function StatusBadge({ status }: { status?: string }) {
-  if (status === 'Submitted') return (
-    <span className="inline-flex items-center gap-1 text-xs font-medium text-primary bg-primary/10 px-2 py-0.5 rounded-full whitespace-nowrap">
-      <CheckCircle2 className="w-3 h-3" /> Submitted
-    </span>
-  );
+  if (status === "Submitted")
+    return (
+      <span className="inline-flex items-center gap-1 text-xs font-medium text-primary bg-primary/10 px-2 py-0.5 rounded-full whitespace-nowrap">
+        <CheckCircle2 className="w-3 h-3" /> Submitted
+      </span>
+    );
   return (
     <span className="inline-flex items-center gap-1 text-xs font-medium text-warning bg-warning/10 px-2 py-0.5 rounded-full whitespace-nowrap">
       <Clock className="w-3 h-3" /> Draft
@@ -64,16 +81,28 @@ function LoadingSkeleton() {
               </div>
             </div>
             <div className="hidden md:grid grid-cols-12 items-center gap-1">
-              <div className="col-span-2"><Skeleton className="h-3 w-20" /></div>
+              <div className="col-span-2">
+                <Skeleton className="h-3 w-20" />
+              </div>
               <div className="col-span-3 space-y-1.5">
                 <Skeleton className="h-4 w-40" />
                 <Skeleton className="h-3 w-16" />
               </div>
-              <div className="col-span-2"><Skeleton className="h-3 w-24" /></div>
-              <div className="col-span-2"><Skeleton className="h-3 w-28" /></div>
-              <div className="col-span-1"><Skeleton className="h-5 w-10 rounded-full" /></div>
-              <div className="col-span-1"><Skeleton className="h-5 w-6 rounded-full" /></div>
-              <div className="col-span-1"><Skeleton className="h-5 w-16 rounded-full" /></div>
+              <div className="col-span-2">
+                <Skeleton className="h-3 w-24" />
+              </div>
+              <div className="col-span-2">
+                <Skeleton className="h-3 w-28" />
+              </div>
+              <div className="col-span-1">
+                <Skeleton className="h-5 w-10 rounded-full" />
+              </div>
+              <div className="col-span-1">
+                <Skeleton className="h-5 w-6 rounded-full" />
+              </div>
+              <div className="col-span-1">
+                <Skeleton className="h-5 w-16 rounded-full" />
+              </div>
             </div>
           </div>
         ))}
@@ -84,21 +113,29 @@ function LoadingSkeleton() {
 
 export default function InspectionHistoryPage() {
   const navigate = useNavigate();
-  const [addressSearch, setAddressSearch] = useState('');
-  const [filterInspector, setFilterInspector] = useState('');
-  const [filterRating, setFilterRating] = useState('');
-  const [filterStatus, setFilterStatus] = useState('');
+  const [addressSearch, setAddressSearch] = useState("");
+  const [filterInspector, setFilterInspector] = useState("");
+  const [filterRating, setFilterRating] = useState("");
+  const [filterStatus, setFilterStatus] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [showFilters, setShowFilters] = useState(false);
 
-  const { data: inspections = [], isLoading: loading, refetch } = useQuery({
-    queryKey: ['inspections', filterInspector, filterRating, filterStatus],
+  const {
+    data: inspections = [],
+    isLoading: loading,
+    refetch,
+  } = useQuery({
+    queryKey: ["inspections", filterInspector, filterRating, filterStatus],
     queryFn: () => inspectionService.getAll(), // TODO: filter in service or client
   });
 
   const filtered = useMemo(() => {
     return inspections.filter((i: any) => {
-      if (addressSearch && !i.facility_address?.toLowerCase().includes(addressSearch.toLowerCase())) return false;
+      if (
+        addressSearch &&
+        !i.facility_address?.toLowerCase().includes(addressSearch.toLowerCase())
+      )
+        return false;
       if (filterInspector && i.inspector !== filterInspector) return false;
       if (filterRating && i.inspection_rating !== filterRating) return false;
       if (filterStatus && i.status !== filterStatus) return false;
@@ -106,11 +143,20 @@ export default function InspectionHistoryPage() {
     });
   }, [inspections, addressSearch, filterInspector, filterRating, filterStatus]);
 
-  const hasFilters = filterInspector || filterRating || filterStatus || addressSearch;
-  const activeFilterCount = [filterInspector, filterRating, filterStatus, addressSearch].filter(Boolean).length;
+  const hasFilters =
+    filterInspector || filterRating || filterStatus || addressSearch;
+  const activeFilterCount = [
+    filterInspector,
+    filterRating,
+    filterStatus,
+    addressSearch,
+  ].filter(Boolean).length;
 
   const clearFilters = () => {
-    setFilterInspector(''); setFilterRating(''); setFilterStatus(''); setAddressSearch('');
+    setFilterInspector("");
+    setFilterRating("");
+    setFilterStatus("");
+    setAddressSearch("");
   };
 
   return (
@@ -119,14 +165,26 @@ export default function InspectionHistoryPage() {
       <div className="mb-5 flex items-center justify-between gap-3">
         <div>
           <h1 className="text-xl font-bold text-foreground">Inspections</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">Submitted and draft inspection reports</p>
+          <p className="text-sm text-muted-foreground mt-0.5">
+            Submitted and draft inspection reports
+          </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={() => refetch()} disabled={loading} className="h-8 text-xs gap-1.5">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => refetch()}
+            disabled={loading}
+            className="h-8 text-xs gap-1.5"
+          >
             {loading && <Loader2 className="w-3 h-3 animate-spin" />}
             Refresh
           </Button>
-          <Button size="sm" className="gap-1.5 h-8" onClick={() => navigate('/inspections/new')}>
+          <Button
+            size="sm"
+            className="gap-1.5 h-8"
+            onClick={() => navigate("/inspections/new")}
+          >
             <ClipboardCheck className="w-3.5 h-3.5" /> Start Inspection
           </Button>
         </div>
@@ -138,25 +196,49 @@ export default function InspectionHistoryPage() {
         <div className="hidden md:flex flex-wrap gap-2.5 items-center px-4 py-3">
           <div className="relative flex-1 min-w-[180px]">
             <Search className="w-3.5 h-3.5 text-muted-foreground absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-            <Input placeholder="Filter by address..." value={addressSearch} onChange={e => setAddressSearch(e.target.value)} className="pl-8 h-8 text-sm" />
+            <Input
+              placeholder="Filter by address..."
+              value={addressSearch}
+              onChange={(e) => setAddressSearch(e.target.value)}
+              className="pl-8 h-8 text-sm"
+            />
           </div>
-          <Select value={filterInspector || 'all'} onValueChange={v => setFilterInspector(v === 'all' ? '' : v)}>
-            <SelectTrigger className="w-44 h-8 text-sm"><SelectValue placeholder="All inspectors" /></SelectTrigger>
+          <Select
+            value={filterInspector || "all"}
+            onValueChange={(v) => setFilterInspector(v === "all" ? "" : v)}
+          >
+            <SelectTrigger className="w-44 h-8 text-sm">
+              <SelectValue placeholder="All inspectors" />
+            </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Inspectors</SelectItem>
-              {INSPECTORS.map(name => <SelectItem key={name} value={name}>{name}</SelectItem>)}
+              {INSPECTORS.map((name) => (
+                <SelectItem key={name} value={name}>
+                  {name}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
-          <Select value={filterRating || 'all'} onValueChange={v => setFilterRating(v === 'all' ? '' : v)}>
-            <SelectTrigger className="w-40 h-8 text-sm"><SelectValue placeholder="All ratings" /></SelectTrigger>
+          <Select
+            value={filterRating || "all"}
+            onValueChange={(v) => setFilterRating(v === "all" ? "" : v)}
+          >
+            <SelectTrigger className="w-40 h-8 text-sm">
+              <SelectValue placeholder="All ratings" />
+            </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Ratings</SelectItem>
               <SelectItem value="Satisfactory">Satisfactory</SelectItem>
               <SelectItem value="Unsatisfactory">Unsatisfactory</SelectItem>
             </SelectContent>
           </Select>
-          <Select value={filterStatus || 'all'} onValueChange={v => setFilterStatus(v === 'all' ? '' : v)}>
-            <SelectTrigger className="w-36 h-8 text-sm"><SelectValue placeholder="All statuses" /></SelectTrigger>
+          <Select
+            value={filterStatus || "all"}
+            onValueChange={(v) => setFilterStatus(v === "all" ? "" : v)}
+          >
+            <SelectTrigger className="w-36 h-8 text-sm">
+              <SelectValue placeholder="All statuses" />
+            </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Statuses</SelectItem>
               <SelectItem value="Draft">Draft</SelectItem>
@@ -164,18 +246,28 @@ export default function InspectionHistoryPage() {
             </SelectContent>
           </Select>
           {hasFilters && (
-            <Button variant="ghost" size="sm" className="gap-1 text-muted-foreground h-8" onClick={clearFilters}>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="gap-1 text-muted-foreground h-8"
+              onClick={clearFilters}
+            >
               <X className="w-3.5 h-3.5" /> Clear
             </Button>
           )}
           <span className="ml-auto text-sm text-muted-foreground tabular-nums">
-            {filtered.length} result{filtered.length !== 1 ? 's' : ''}
+            {filtered.length} result{filtered.length !== 1 ? "s" : ""}
           </span>
         </div>
 
         {/* Mobile: toggle button row */}
         <div className="md:hidden flex items-center gap-2 px-4 py-2.5">
-          <Button variant="ghost" size="sm" onClick={() => setShowFilters(f => !f)} className="gap-2 h-8 text-sm">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowFilters((f) => !f)}
+            className="gap-2 h-8 text-sm"
+          >
             <Search className="w-3.5 h-3.5" />
             Filters
             {activeFilterCount > 0 && (
@@ -184,7 +276,9 @@ export default function InspectionHistoryPage() {
               </span>
             )}
           </Button>
-          <span className="ml-auto text-sm text-muted-foreground">{filtered.length} result{filtered.length !== 1 ? 's' : ''}</span>
+          <span className="ml-auto text-sm text-muted-foreground">
+            {filtered.length} result{filtered.length !== 1 ? "s" : ""}
+          </span>
         </div>
 
         {/* Mobile expanded filters */}
@@ -192,26 +286,50 @@ export default function InspectionHistoryPage() {
           <div className="md:hidden border-t border-border px-4 py-3 space-y-3">
             <div className="relative">
               <Search className="w-3.5 h-3.5 text-muted-foreground absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-              <Input placeholder="Filter by address..." value={addressSearch} onChange={e => setAddressSearch(e.target.value)} className="pl-8 h-8 text-sm" />
+              <Input
+                placeholder="Filter by address..."
+                value={addressSearch}
+                onChange={(e) => setAddressSearch(e.target.value)}
+                className="pl-8 h-8 text-sm"
+              />
             </div>
-            <Select value={filterInspector || 'all'} onValueChange={v => setFilterInspector(v === 'all' ? '' : v)}>
-              <SelectTrigger className="h-8 text-sm"><SelectValue placeholder="All inspectors" /></SelectTrigger>
+            <Select
+              value={filterInspector || "all"}
+              onValueChange={(v) => setFilterInspector(v === "all" ? "" : v)}
+            >
+              <SelectTrigger className="h-8 text-sm">
+                <SelectValue placeholder="All inspectors" />
+              </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Inspectors</SelectItem>
-                {INSPECTORS.map(name => <SelectItem key={name} value={name}>{name}</SelectItem>)}
+                {INSPECTORS.map((name) => (
+                  <SelectItem key={name} value={name}>
+                    {name}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
             <div className="grid grid-cols-2 gap-2">
-              <Select value={filterRating || 'all'} onValueChange={v => setFilterRating(v === 'all' ? '' : v)}>
-                <SelectTrigger className="h-8 text-sm"><SelectValue placeholder="Rating" /></SelectTrigger>
+              <Select
+                value={filterRating || "all"}
+                onValueChange={(v) => setFilterRating(v === "all" ? "" : v)}
+              >
+                <SelectTrigger className="h-8 text-sm">
+                  <SelectValue placeholder="Rating" />
+                </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All</SelectItem>
                   <SelectItem value="Satisfactory">Satisfactory</SelectItem>
                   <SelectItem value="Unsatisfactory">Unsatisfactory</SelectItem>
                 </SelectContent>
               </Select>
-              <Select value={filterStatus || 'all'} onValueChange={v => setFilterStatus(v === 'all' ? '' : v)}>
-                <SelectTrigger className="h-8 text-sm"><SelectValue placeholder="Status" /></SelectTrigger>
+              <Select
+                value={filterStatus || "all"}
+                onValueChange={(v) => setFilterStatus(v === "all" ? "" : v)}
+              >
+                <SelectTrigger className="h-8 text-sm">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All</SelectItem>
                   <SelectItem value="Draft">Draft</SelectItem>
@@ -220,7 +338,12 @@ export default function InspectionHistoryPage() {
               </Select>
             </div>
             {hasFilters && (
-              <Button variant="ghost" size="sm" className="gap-1 w-full h-8" onClick={clearFilters}>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="gap-1 w-full h-8"
+                onClick={clearFilters}
+              >
                 <X className="w-3.5 h-3.5" /> Clear all filters
               </Button>
             )}
@@ -229,15 +352,18 @@ export default function InspectionHistoryPage() {
       </div>
 
       {/* Content */}
-      <div className={`flex gap-6 ${selectedId ? 'flex-col xl:flex-row' : ''}`}>
-        <div className={`${selectedId ? 'xl:w-1/2' : 'w-full'} min-w-0`}>
+      <div className={`flex gap-6 ${selectedId ? "flex-col xl:flex-row" : ""}`}>
+        <div className={`${selectedId ? "xl:w-1/2" : "w-full"} min-w-0`}>
           {loading ? (
             <LoadingSkeleton />
           ) : filtered.length === 0 ? (
             <div className="text-center py-16 text-muted-foreground">
               <FileText className="w-10 h-10 mx-auto mb-3 opacity-30" />
               <p className="font-medium">No inspections found</p>
-              <p className="text-sm mt-1">Try adjusting your filters or submit an inspection from the form.</p>
+              <p className="text-sm mt-1">
+                Try adjusting your filters or submit an inspection from the
+                form.
+              </p>
             </div>
           ) : (
             <div className="bg-card border border-border rounded-xl overflow-hidden shadow-sm">
@@ -253,37 +379,60 @@ export default function InspectionHistoryPage() {
               </div>
 
               <div className="divide-y divide-border">
-                {filtered.map(insp => (
+                {filtered.map((insp: any) => (
                   <button
-                    key={insp.id}
+                    key={insp.inspection_id}
                     type="button"
-                    onClick={() => setSelectedId(selectedId === insp.id ? null : insp.id)}
+                    onClick={() =>
+                      setSelectedId(
+                        selectedId === insp.inspection_id
+                          ? null
+                          : insp.inspection_id,
+                      )
+                    }
                     className={`w-full text-left transition-colors ${
-                      selectedId === insp.id
-                        ? 'bg-primary/5 border-l-2 border-l-primary hover:bg-primary/8'
-                        : 'hover:bg-muted/40 active:bg-muted/60'
+                      selectedId === insp.inspection_id
+                        ? "bg-primary/5 border-l-2 border-l-primary hover:bg-primary/8"
+                        : "hover:bg-muted/40 active:bg-muted/60"
                     }`}
                   >
                     {/* Mobile card layout */}
                     <div className="md:hidden px-4 py-3.5 min-h-[44px]">
                       <div className="flex items-start justify-between gap-2 mb-2">
                         <div className="min-w-0">
-                          <p className="text-sm font-semibold text-foreground truncate">{insp.facility_address || '—'}</p>
-                          {insp.complaintid && <p className="text-xs text-muted-foreground font-mono">#{insp.complaintid}</p>}
+                          <p className="text-sm font-semibold text-foreground truncate">
+                            {insp.facility_address || "—"}
+                          </p>
+                          {insp.complaint_id && (
+                            <p className="text-xs text-muted-foreground font-mono">
+                              #{insp.complaint_id}
+                            </p>
+                          )}
                         </div>
-                        <ChevronRight className={`w-4 h-4 text-muted-foreground flex-shrink-0 mt-0.5 transition-transform ${selectedId === insp.id ? 'rotate-90' : ''}`} />
+                        <ChevronRight
+                          className={`w-4 h-4 text-muted-foreground flex-shrink-0 mt-0.5 transition-transform ${selectedId === insp.inspection_id ? "rotate-90" : ""}`}
+                        />
                       </div>
                       <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                        {insp.inspection_date && <span>{new Date(insp.inspection_date).toLocaleDateString()}</span>}
+                        {insp.inspection_date && (
+                          <span>
+                            {new Date(
+                              insp.inspection_date,
+                            ).toLocaleDateString()}
+                          </span>
+                        )}
                         {insp.inspector && <span>· {insp.inspector}</span>}
-                        {insp.inspection_type && <span>· {insp.inspection_type}</span>}
+                        {insp.inspection_type && (
+                          <span>· {insp.inspection_type}</span>
+                        )}
                       </div>
                       <div className="flex flex-wrap items-center gap-2 mt-2">
                         <RatingBadge rating={insp.inspection_rating} />
                         <StatusBadge status={insp.status} />
-                        {(insp.violation_count ?? 0) > 0 && (
+                        {((insp as any).violation_count ?? 0) > 0 && (
                           <span className="bg-destructive/10 text-destructive text-xs font-semibold px-2 py-0.5 rounded-full">
-                            {insp.violation_count} violation{insp.violation_count !== 1 ? 's' : ''}
+                            {(insp as any).violation_count} violation
+                            {(insp as any).violation_count !== 1 ? "s" : ""}
                           </span>
                         )}
                       </div>
@@ -292,21 +441,37 @@ export default function InspectionHistoryPage() {
                     {/* Desktop grid row — 7 divs summing to exactly 12 cols */}
                     <div className="hidden md:grid grid-cols-12 px-4 py-3 items-center gap-1">
                       <div className="col-span-2 text-xs text-muted-foreground tabular-nums">
-                        {insp.inspection_date ? new Date(insp.inspection_date).toLocaleDateString() : '—'}
+                        {insp.inspection_date
+                          ? new Date(insp.inspection_date).toLocaleDateString()
+                          : "—"}
                       </div>
                       <div className="col-span-3 min-w-0">
-                        <p className="text-sm font-medium text-foreground truncate">{insp.facility_address || '—'}</p>
-                        {insp.complaintid && <p className="text-xs text-muted-foreground font-mono">#{insp.complaintid}</p>}
+                        <p className="text-sm font-medium text-foreground truncate">
+                          {insp.facility_address || "—"}
+                        </p>
+                        {insp.complaint_id && (
+                          <p className="text-xs text-muted-foreground font-mono">
+                            #{insp.complaint_id}
+                          </p>
+                        )}
                       </div>
-                      <div className="col-span-2 text-xs text-foreground truncate">{insp.inspector || '—'}</div>
-                      <div className="col-span-2 text-xs text-muted-foreground truncate">{insp.inspection_type || '—'}</div>
+                      <div className="col-span-2 text-xs text-foreground truncate">
+                        {insp.inspector || "—"}
+                      </div>
+                      <div className="col-span-2 text-xs text-muted-foreground truncate">
+                        {insp.inspection_type || "—"}
+                      </div>
                       <div className="col-span-1">
                         <RatingBadge rating={insp.inspection_rating} />
                       </div>
                       <div className="col-span-1 text-xs text-center">
-                        {(insp.violation_count ?? 0) > 0
-                          ? <span className="bg-destructive/10 text-destructive font-bold px-2 py-0.5 rounded-full tabular-nums">{insp.violation_count}</span>
-                          : <span className="text-muted-foreground/50">—</span>}
+                        {((insp as any).violation_count ?? 0) > 0 ? (
+                          <span className="bg-destructive/10 text-destructive font-bold px-2 py-0.5 rounded-full tabular-nums">
+                            {(insp as any).violation_count}
+                          </span>
+                        ) : (
+                          <span className="text-muted-foreground/50">—</span>
+                        )}
                       </div>
                       {/* Status — col-span-1 only (chevron removed, total stays 12) */}
                       <div className="col-span-1">

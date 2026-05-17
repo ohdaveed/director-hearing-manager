@@ -6,7 +6,9 @@ const WEBP_QUALITY = 0.92;
  * If file is under 25MB, returns it unchanged.
  * Otherwise resizes to MAX_DIMENSION and converts to WebP at 0.92 quality.
  */
-export async function prepareImageForUpload(file: File): Promise<{ data: Blob; filename: string }> {
+export async function prepareImageForUpload(
+  file: File,
+): Promise<{ data: Blob; filename: string }> {
   if (file.size <= MAX_BYTES) {
     return { data: file, filename: file.name };
   }
@@ -19,28 +21,28 @@ export async function prepareImageForUpload(file: File): Promise<{ data: Blob; f
       URL.revokeObjectURL(objectUrl);
       const { width, height } = img;
       const scale = Math.min(1, MAX_DIMENSION / Math.max(width, height));
-      const canvas = document.createElement('canvas');
+      const canvas = document.createElement("canvas");
       canvas.width = Math.round(width * scale);
       canvas.height = Math.round(height * scale);
 
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return reject(new Error('Canvas context unavailable'));
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return reject(new Error("Canvas context unavailable"));
       ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
       canvas.toBlob(
-        blob => {
-          if (!blob) return reject(new Error('Failed to convert image'));
-          const baseName = file.name.replace(/\.[^/.]+$/, '');
+        (blob) => {
+          if (!blob) return reject(new Error("Failed to convert image"));
+          const baseName = file.name.replace(/\.[^/.]+$/, "");
           resolve({ data: blob, filename: `${baseName}.webp` });
         },
-        'image/webp',
+        "image/webp",
         WEBP_QUALITY,
       );
     };
 
     img.onerror = () => {
       URL.revokeObjectURL(objectUrl);
-      reject(new Error('Failed to load image'));
+      reject(new Error("Failed to load image"));
     };
 
     img.src = objectUrl;

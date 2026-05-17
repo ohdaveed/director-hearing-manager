@@ -46,7 +46,7 @@ export const CA_STATE_CODE_PATTERNS: RegExp[] = [
  * Used to validate user-typed text fields and AI output before display.
  */
 export function containsCAStateCode(text: string): boolean {
-  return CA_STATE_CODE_PATTERNS.some(pattern => pattern.test(text));
+  return CA_STATE_CODE_PATTERNS.some((pattern) => pattern.test(text));
 }
 
 /**
@@ -54,36 +54,36 @@ export function containsCAStateCode(text: string): boolean {
  * Direct users to SFHC citations exclusively.
  */
 export const CA_STATE_CODE_ERROR =
-  'California state codes are not accepted — cite San Francisco Health Code articles only ' +
-  '(Article 11, Article 11A, Article 2, Sec. 283, etc.).';
+  "California state codes are not accepted — cite San Francisco Health Code articles only " +
+  "(Article 11, Article 11A, Article 2, Sec. 283, etc.).";
 
 // ── 2. Lead Omission Rule ─────────────────────────────────────────────────────
 // Keywords and phrases to be excluded from autocomplete lists, AI suggestion prompts,
 // dropdown options, and contextual text generators.
 
 export const LEAD_KEYWORDS: string[] = [
-  'lead-based paint',
-  'lead based paint',
-  'lead safety',
-  'lead abatement',
-  'lead hazard',
-  'lead mitigation',
-  'lead clearance',
-  'lead inspection',
-  'lead testing',
-  'lead paint',
-  'lead poisoning',
-  'lead exposure',
-  'blood lead',
-  'lead dust',
-  'lead soil',
-  'lead remediation',
-  'lead encapsulation',
-  'lead disclosure',
-  'XRF testing',
-  'x-ray fluorescence',
+  "lead-based paint",
+  "lead based paint",
+  "lead safety",
+  "lead abatement",
+  "lead hazard",
+  "lead mitigation",
+  "lead clearance",
+  "lead inspection",
+  "lead testing",
+  "lead paint",
+  "lead poisoning",
+  "lead exposure",
+  "blood lead",
+  "lead dust",
+  "lead soil",
+  "lead remediation",
+  "lead encapsulation",
+  "lead disclosure",
+  "XRF testing",
+  "x-ray fluorescence",
   // Standalone "lead" checked separately as a whole word
-  'lead',
+  "lead",
 ];
 
 /**
@@ -93,7 +93,7 @@ export const LEAD_KEYWORDS: string[] = [
 export function containsLeadKeyword(text: string): boolean {
   const lower = text.toLowerCase();
   for (const keyword of LEAD_KEYWORDS) {
-    if (keyword === 'lead') {
+    if (keyword === "lead") {
       if (/\blead\b/i.test(lower)) return true;
     } else {
       if (lower.includes(keyword.toLowerCase())) return true;
@@ -107,12 +107,16 @@ export function containsLeadKeyword(text: string): boolean {
  * defaultCorrectiveAction contain lead-related references.
  * Use at render time to ensure lead content never appears in dropdowns or chips.
  */
-export function filterLeadViolations<T extends { label: string; defaultCorrectiveAction?: string }>(
-  violations: T[]
-): T[] {
-  return violations.filter(v => {
+export function filterLeadViolations<
+  T extends { label: string; defaultCorrectiveAction?: string },
+>(violations: T[]): T[] {
+  return violations.filter((v) => {
     if (containsLeadKeyword(v.label)) return false;
-    if (v.defaultCorrectiveAction && containsLeadKeyword(v.defaultCorrectiveAction)) return false;
+    if (
+      v.defaultCorrectiveAction &&
+      containsLeadKeyword(v.defaultCorrectiveAction)
+    )
+      return false;
     return true;
   });
 }
@@ -142,34 +146,34 @@ export const BIOHAZARD_PROHIBITION_PATTERNS: Array<{
   {
     pattern:
       /(?:bleach|hypochlorite).{0,60}(?:ammonia|glass\s*cleaner)|(?:ammonia|glass\s*cleaner).{0,60}(?:bleach|hypochlorite)/i,
-    shortLabel: 'Bleach + ammonia mixing',
+    shortLabel: "Bleach + ammonia mixing",
     violation:
-      'Mixing bleach (hypochlorite) with ammonia produces poisonous chlorine gas — this is ' +
-      'explicitly prohibited by Director\'s Rules Sec. XIV.',
+      "Mixing bleach (hypochlorite) with ammonia produces poisonous chlorine gas — this is " +
+      "explicitly prohibited by Director's Rules Sec. XIV.",
     correction:
-      'Use bleach solution and ammonia-based cleaners separately, never together. ' +
-      '(Director\'s Rules Sec. XIV)',
+      "Use bleach solution and ammonia-based cleaners separately, never together. " +
+      "(Director's Rules Sec. XIV)",
   },
   {
     pattern:
       /(?:vacuum(?:ing|ed)?|sweep(?:ing)?|swept)\s+(?:up\s+)?(?:feces|droppings?|waste|urine|contaminated|rodent|animal|bird)\b|(?:feces|droppings?|waste|urine|contaminated)\b.{0,50}(?:vacuum(?:ing|ed)?|sweep(?:ing)?|swept)\b/i,
-    shortLabel: 'Vacuuming/sweeping unsterilized waste',
+    shortLabel: "Vacuuming/sweeping unsterilized waste",
     violation:
-      'Vacuuming or sweeping unsterilized feces, droppings, or contaminated surfaces aerosolizes ' +
-      'disease organisms — explicitly prohibited by Director\'s Rules Sec. XIV.',
+      "Vacuuming or sweeping unsterilized feces, droppings, or contaminated surfaces aerosolizes " +
+      "disease organisms — explicitly prohibited by Director's Rules Sec. XIV.",
     correction:
-      'Disinfect all contaminated surfaces with bleach solution FIRST, then remove residue ' +
-      'using dampened paper towels and sealed disposal bags. (Director\'s Rules Sec. XIV)',
+      "Disinfect all contaminated surfaces with bleach solution FIRST, then remove residue " +
+      "using dampened paper towels and sealed disposal bags. (Director's Rules Sec. XIV)",
   },
   {
     pattern: /spray\s*foam/i,
-    shortLabel: 'Spray foam for rodent exclusion',
+    shortLabel: "Spray foam for rodent exclusion",
     violation:
-      'Spray foam is explicitly prohibited for rodent exclusion — rodents can chew through it. ' +
-      '(Director\'s Rules Sec. VIII)',
+      "Spray foam is explicitly prohibited for rodent exclusion — rodents can chew through it. " +
+      "(Director's Rules Sec. VIII)",
     correction:
-      'Seal all gaps larger than ¼ inch with approved rodent-proof materials: sheet metal, ' +
-      '¼-inch wire metal mesh, concrete, or cement. (Director\'s Rules Sec. VIII)',
+      "Seal all gaps larger than ¼ inch with approved rodent-proof materials: sheet metal, " +
+      "¼-inch wire metal mesh, concrete, or cement. (Director's Rules Sec. VIII)",
   },
 ];
 
@@ -179,16 +183,22 @@ export const BIOHAZARD_PROHIBITION_PATTERNS: Array<{
  * An empty array means no violations.
  */
 export function getBiohazardViolations(
-  text: string
+  text: string,
 ): Array<{ shortLabel: string; violation: string; correction: string }> {
-  return BIOHAZARD_PROHIBITION_PATTERNS.filter(({ pattern }) => pattern.test(text)).map(
-    ({ shortLabel, violation, correction }) => ({ shortLabel, violation, correction })
-  );
+  return BIOHAZARD_PROHIBITION_PATTERNS.filter(({ pattern }) =>
+    pattern.test(text),
+  ).map(({ shortLabel, violation, correction }) => ({
+    shortLabel,
+    violation,
+    correction,
+  }));
 }
 
 /** Returns true if any biohazard prohibition pattern matches the text. */
 export function containsBiohazardViolation(text: string): boolean {
-  return BIOHAZARD_PROHIBITION_PATTERNS.some(({ pattern }) => pattern.test(text));
+  return BIOHAZARD_PROHIBITION_PATTERNS.some(({ pattern }) =>
+    pattern.test(text),
+  );
 }
 
 /**
@@ -198,9 +208,7 @@ export function containsBiohazardViolation(text: string): boolean {
 export function getBiohazardViolationError(text: string): string | undefined {
   const hits = getBiohazardViolations(text);
   if (hits.length === 0) return undefined;
-  return hits
-    .map(h => `⚠ ${h.shortLabel}: ${h.correction}`)
-    .join(' • ');
+  return hits.map((h) => `⚠ ${h.shortLabel}: ${h.correction}`).join(" • ");
 }
 
 /**
@@ -215,52 +223,155 @@ export function getFieldValidationError(text: string): string | undefined {
 
 /** Static banner-level error message for when a biohazard prohibition is triggered. */
 export const BIOHAZARD_VIOLATION_ERROR =
-  'This text contradicts Director\'s Rules safe cleanup protocols — check for prohibited ' +
-  'chemical combinations (bleach + ammonia), cleanup methods (vacuuming unsterilized waste), ' +
-  'or excluded materials (spray foam for rodent exclusion).';
+  "This text contradicts Director's Rules safe cleanup protocols — check for prohibited " +
+  "chemical combinations (bleach + ammonia), cleanup methods (vacuuming unsterilized waste), " +
+  "or excluded materials (spray foam for rodent exclusion).";
 
 // ── 4. Statutory Cross-Mapping ────────────────────────────────────────────────
 // When a California state code is detected, suggest the nearest SFHC Article 11 equivalent
 // based on keyword context in the surrounding text.
 
 export type SfhcSuggestion = {
-  code: string;       // e.g. '§ 581(b)(4)'
-  label: string;      // e.g. 'Unsanitary Conditions'
+  code: string; // e.g. '§ 581(b)(4)'
+  label: string; // e.g. 'Unsanitary Conditions'
   description: string; // contextual hint shown in the suggestion card
 };
 
-export const STATE_TO_SFHC_MAP: Array<{ keywords: string[]; suggestion: SfhcSuggestion }> = [
+export const STATE_TO_SFHC_MAP: Array<{
+  keywords: string[];
+  suggestion: SfhcSuggestion;
+}> = [
   {
-    keywords: ['rodent', 'rat', 'rats', 'mouse', 'mice', 'gnaw', 'burrow'],
-    suggestion: { code: '§ 581(b)(13)', label: 'Rodents', description: 'Covers rat, mouse, and other rodent infestations and associated evidence' },
+    keywords: ["rodent", "rat", "rats", "mouse", "mice", "gnaw", "burrow"],
+    suggestion: {
+      code: "§ 581(b)(13)",
+      label: "Rodents",
+      description:
+        "Covers rat, mouse, and other rodent infestations and associated evidence",
+    },
   },
   {
-    keywords: ['insect', 'vermin', 'bug', 'cockroach', 'roach', 'bedbug', 'bed bug', 'mosquito', 'fly', 'flea', 'termite', 'ant'],
-    suggestion: { code: '§ 581(b)(8)', label: 'Noxious Insects / Vermin', description: 'Covers insect infestations including cockroaches, bed bugs, mosquitoes, and other pests' },
+    keywords: [
+      "insect",
+      "vermin",
+      "bug",
+      "cockroach",
+      "roach",
+      "bedbug",
+      "bed bug",
+      "mosquito",
+      "fly",
+      "flea",
+      "termite",
+      "ant",
+    ],
+    suggestion: {
+      code: "§ 581(b)(8)",
+      label: "Noxious Insects / Vermin",
+      description:
+        "Covers insect infestations including cockroaches, bed bugs, mosquitoes, and other pests",
+    },
   },
   {
-    keywords: ['sewage', 'sewer', 'urine', 'feces', 'fecal', 'human waste', 'animal waste', 'septic', 'drain'],
-    suggestion: { code: '§ 581(b)(5)', label: 'Sewage / Human Waste', description: 'Covers sewage leaks, human/animal waste accumulation, and drainage failures' },
+    keywords: [
+      "sewage",
+      "sewer",
+      "urine",
+      "feces",
+      "fecal",
+      "human waste",
+      "animal waste",
+      "septic",
+      "drain",
+    ],
+    suggestion: {
+      code: "§ 581(b)(5)",
+      label: "Sewage / Human Waste",
+      description:
+        "Covers sewage leaks, human/animal waste accumulation, and drainage failures",
+    },
   },
   {
-    keywords: ['mold', 'mould', 'fungus', 'fungi', 'moisture', 'damp', 'water damage', 'leak'],
-    suggestion: { code: '§ 581(b)(6)', label: 'Mold Growth', description: 'Covers mold, moisture damage, and conditions supporting fungal growth' },
+    keywords: [
+      "mold",
+      "mould",
+      "fungus",
+      "fungi",
+      "moisture",
+      "damp",
+      "water damage",
+      "leak",
+    ],
+    suggestion: {
+      code: "§ 581(b)(6)",
+      label: "Mold Growth",
+      description:
+        "Covers mold, moisture damage, and conditions supporting fungal growth",
+    },
   },
   {
-    keywords: ['pigeon', 'bird', 'flock', 'avian', 'nesting', 'roosting'],
-    suggestion: { code: '§ 581(b)(7)', label: 'Pigeons / Birds', description: 'Covers pigeon and bird infestations and associated waste hazards' },
+    keywords: ["pigeon", "bird", "flock", "avian", "nesting", "roosting"],
+    suggestion: {
+      code: "§ 581(b)(7)",
+      label: "Pigeons / Birds",
+      description:
+        "Covers pigeon and bird infestations and associated waste hazards",
+    },
   },
   {
-    keywords: ['vegetation', 'plant', 'weed', 'shrub', 'overgrown', 'garden', 'yard'],
-    suggestion: { code: '§ 581(b)(2)', label: 'Overgrown Vegetation', description: 'Covers overgrown plants, weeds, and vegetation posing health or safety hazards' },
+    keywords: [
+      "vegetation",
+      "plant",
+      "weed",
+      "shrub",
+      "overgrown",
+      "garden",
+      "yard",
+    ],
+    suggestion: {
+      code: "§ 581(b)(2)",
+      label: "Overgrown Vegetation",
+      description:
+        "Covers overgrown plants, weeds, and vegetation posing health or safety hazards",
+    },
   },
   {
-    keywords: ['refuse', 'garbage', 'trash', 'debris', 'litter', 'dump', 'junk'],
-    suggestion: { code: '§ 581(b)(1)', label: 'Garbage / Refuse / Waste', description: 'Covers accumulation of garbage, refuse, and solid waste materials' },
+    keywords: [
+      "refuse",
+      "garbage",
+      "trash",
+      "debris",
+      "litter",
+      "dump",
+      "junk",
+    ],
+    suggestion: {
+      code: "§ 581(b)(1)",
+      label: "Garbage / Refuse / Waste",
+      description:
+        "Covers accumulation of garbage, refuse, and solid waste materials",
+    },
   },
   {
-    keywords: ['structural', 'habitability', 'deteriorat', 'defect', 'damage', 'plaster', 'ceiling', 'wall', 'floor', 'paint', 'building condition'],
-    suggestion: { code: '§ 581(b)(4)', label: 'Unsanitary Conditions', description: 'Covers structural defects, habitability issues, and general unsanitary building conditions' },
+    keywords: [
+      "structural",
+      "habitability",
+      "deteriorat",
+      "defect",
+      "damage",
+      "plaster",
+      "ceiling",
+      "wall",
+      "floor",
+      "paint",
+      "building condition",
+    ],
+    suggestion: {
+      code: "§ 581(b)(4)",
+      label: "Unsanitary Conditions",
+      description:
+        "Covers structural defects, habitability issues, and general unsanitary building conditions",
+    },
   },
 ];
 
@@ -272,14 +383,15 @@ export const STATE_TO_SFHC_MAP: Array<{ keywords: string[]; suggestion: SfhcSugg
 export function getSfhcSuggestion(text: string): SfhcSuggestion {
   const lower = text.toLowerCase();
   for (const entry of STATE_TO_SFHC_MAP) {
-    if (entry.keywords.some(kw => lower.includes(kw))) {
+    if (entry.keywords.some((kw) => lower.includes(kw))) {
       return entry.suggestion;
     }
   }
   return {
-    code: '§ 581(b)(4)',
-    label: 'Unsanitary Conditions',
-    description: 'General-purpose citation for sanitary code violations. Review the specific conditions and select a more precise code if applicable.',
+    code: "§ 581(b)(4)",
+    label: "Unsanitary Conditions",
+    description:
+      "General-purpose citation for sanitary code violations. Review the specific conditions and select a more precise code if applicable.",
   };
 }
 
@@ -288,7 +400,10 @@ export function getSfhcSuggestion(text: string): SfhcSuggestion {
  * with the given SFHC code string (e.g., '§ 581(b)(4)').
  * The rest of the summary text is preserved exactly.
  */
-export function replaceStateCodeWithSfhc(text: string, sfhcCode: string): string {
+export function replaceStateCodeWithSfhc(
+  text: string,
+  sfhcCode: string,
+): string {
   let result = text;
   for (const pattern of CA_STATE_CODE_PATTERNS) {
     // Reset lastIndex for global patterns, replace only first occurrence

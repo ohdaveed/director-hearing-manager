@@ -6,27 +6,32 @@
  * and footer so every packet component pulls from a single source.
  */
 
-import type { CSSProperties } from 'react';
-import { STATIC_BLOCKS } from '../../config/documentTemplates';
+import type { CSSProperties } from "react";
+import { STATIC_BLOCKS } from "../../config/documentTemplates";
 
 // ─── Official seal ────────────────────────────────────────────────────────────
 
 export const SF_SEAL_URL =
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Seal_of_San_Francisco%2C_California.svg/240px-Seal_of_San_Francisco%2C_California.svg.png';
+  "https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Seal_of_San_Francisco%2C_California.svg/240px-Seal_of_San_Francisco%2C_California.svg.png";
 
 // ─── Locked office contact (sourced from config) ─────────────────────────────
-const { officeAddressShort, officeCity, officePhone, officeFax, officeVoicemail } =
-  STATIC_BLOCKS.common;
+const {
+  officeAddressShort,
+  officeCity,
+  officePhone,
+  officeFax,
+  officeVoicemail,
+} = STATIC_BLOCKS.common;
 
 // ─── Date formatter ───────────────────────────────────────────────────────────
 
 /** Format an ISO date string (YYYY-MM-DD) as MM/DD/YYYY. */
 export function fmtDate(d: string | undefined): string {
-  if (!d) return '';
-  return new Date(d + 'T00:00:00').toLocaleDateString('en-US', {
-    month: '2-digit',
-    day: '2-digit',
-    year: 'numeric',
+  if (!d) return "";
+  return new Date(d + "T00:00:00").toLocaleDateString("en-US", {
+    month: "2-digit",
+    day: "2-digit",
+    year: "numeric",
   });
 }
 
@@ -37,19 +42,19 @@ export function PrintCheckbox({ checked }: { checked: boolean }) {
   return (
     <span
       style={{
-        display: 'inline-block',
-        width: '11px',
-        height: '11px',
-        border: '1px solid black',
-        verticalAlign: 'middle',
-        marginRight: '4px',
-        textAlign: 'center',
-        lineHeight: '11px',
-        fontSize: '9pt',
+        display: "inline-block",
+        width: "11px",
+        height: "11px",
+        border: "1px solid black",
+        verticalAlign: "middle",
+        marginRight: "4px",
+        textAlign: "center",
+        lineHeight: "11px",
+        fontSize: "9pt",
         flexShrink: 0,
       }}
     >
-      {checked ? '✓' : ''}
+      {checked ? "✓" : ""}
     </span>
   );
 }
@@ -57,7 +62,13 @@ export function PrintCheckbox({ checked }: { checked: boolean }) {
 // ─── Exhibit Label ───────────────────────────────────────────────────────────
 
 /** Red exhibit label positioned at the top-right of a page/section. */
-export function ExhibitLabel({ letter, className = "" }: { letter?: string; className?: string }) {
+export function ExhibitLabel({
+  letter,
+  className = "",
+}: {
+  letter?: string;
+  className?: string;
+}) {
   if (!letter) return null;
   return (
     <div className={`absolute top-0 right-0 exhibit-label-red ${className}`}>
@@ -90,27 +101,27 @@ export function SFDPHReportFooter({
     return (
       <div
         style={{
-          marginTop: '8px',
-          borderTop: '1px solid black',
-          paddingTop: '4px',
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr 1fr',
-          fontSize: '8pt',
-          fontFamily: 'Times New Roman, serif',
+          marginTop: "8px",
+          borderTop: "1px solid black",
+          paddingTop: "4px",
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr 1fr",
+          fontSize: "8pt",
+          fontFamily: "Times New Roman, serif",
           ...containerStyle,
         }}
       >
         <div>
-          <strong>{programName ?? ''}</strong>
+          <strong>{programName ?? ""}</strong>
           <br />
           Voice mail {officeVoicemail}
         </div>
-        <div style={{ textAlign: 'center' }}>
+        <div style={{ textAlign: "center" }}>
           {officeAddressShort}
           <br />
           {officeCity}
         </div>
-        <div style={{ textAlign: 'right' }}>
+        <div style={{ textAlign: "right" }}>
           Phone {officePhone}
           <br />
           Fax {officeFax}
@@ -123,16 +134,18 @@ export function SFDPHReportFooter({
     return (
       <div
         style={{
-          borderTop: '1px solid black',
-          paddingTop: '4px',
-          display: 'flex',
-          justifyContent: 'space-between',
-          fontSize: '8.5pt',
-          fontFamily: 'Times New Roman, serif',
+          borderTop: "1px solid black",
+          paddingTop: "4px",
+          display: "flex",
+          justifyContent: "space-between",
+          fontSize: "8.5pt",
+          fontFamily: "Times New Roman, serif",
           ...containerStyle,
         }}
       >
-        <span>{officeAddressShort}, {officeCity}</span>
+        <span>
+          {officeAddressShort}, {officeCity}
+        </span>
         <span>Phone {officePhone}</span>
       </div>
     );
@@ -142,10 +155,10 @@ export function SFDPHReportFooter({
   return (
     <p
       style={{
-        textAlign: 'center',
-        fontSize: '8.5pt',
-        margin: '6px 0 0',
-        fontFamily: 'Times New Roman, serif',
+        textAlign: "center",
+        fontSize: "8.5pt",
+        margin: "6px 0 0",
+        fontFamily: "Times New Roman, serif",
         ...containerStyle,
       }}
     >

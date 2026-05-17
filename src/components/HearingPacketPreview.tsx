@@ -1,43 +1,65 @@
-import { useRef, useEffect, useState } from 'react';
-import { useAuth } from '@/context/AuthContext';
-import { packetService } from '@/services/packetService';
-import { Button } from '@/components/ui/button';
-import { Printer, X, AlertTriangle, CheckCircle2, PenLine, Loader2 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { PacketCoverPage } from './packet/PacketCoverPage';
-import { PacketEnforcementSummary } from './packet/PacketEnforcementSummary';
-import { PacketChronology } from './packet/PacketChronology';
-import { PacketInspectionReport } from './packet/PacketInspectionReport';
-import { PacketPhotoAppendix } from './packet/PacketPhotoAppendix';
-import { PacketExhibitEBundle } from './packet/PacketExhibitEBundle';
-import { tryParseSignature, type ParsedSignature } from './packet/SignatureBlock';
+import { useRef, useEffect, useState } from "react";
+import { useAuth } from "@/context/AuthContext";
+import { packetService } from "@/services/packetService";
+import { Button } from "@/components/ui/button";
+import {
+  Printer,
+  X,
+  AlertTriangle,
+  CheckCircle2,
+  PenLine,
+  Loader2,
+} from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { PacketCoverPage } from "./packet/PacketCoverPage";
+import { PacketEnforcementSummary } from "./packet/PacketEnforcementSummary";
+import { PacketChronology } from "./packet/PacketChronology";
+import { PacketInspectionReport } from "./packet/PacketInspectionReport";
+import { PacketPhotoAppendix } from "./packet/PacketPhotoAppendix";
+import { PacketExhibitEBundle } from "./packet/PacketExhibitEBundle";
+import {
+  tryParseSignature,
+  type ParsedSignature,
+} from "./packet/SignatureBlock";
 
 type Props = {
   data: any; // Properly type later
   onClose: () => void;
 };
 
-const MANAGER_ROLES = ['Program Manager', 'Admin', 'Super Admin'];
+const MANAGER_ROLES = ["Program Manager", "Admin", "Super Admin"];
 
 export default function HearingPacketPreview({ data, onClose }: Props) {
   const printRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  const { packet, complaint, location, inspector, inspections, chronology, exhibits, serviceLog } = data;
+  const {
+    packet,
+    complaint,
+    location,
+    inspector,
+    inspections,
+    chronology,
+    exhibits,
+    serviceLog,
+  } = data;
 
   // ── Compilation stage progress ───────────────────────────────────────────
-  const [renderStage, setRenderStage] = useState<'rendering' | 'numbering' | 'ready'>('rendering');
+  const [renderStage, setRenderStage] = useState<
+    "rendering" | "numbering" | "ready"
+  >("rendering");
 
   useEffect(() => {
-    setRenderStage('rendering');
-    const t = setTimeout(() => setRenderStage('numbering'), 450);
+    setRenderStage("rendering");
+    const t = setTimeout(() => setRenderStage("numbering"), 450);
     return () => clearTimeout(t);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data.packet.id]);
 
   // ── Signature state ─────────────────────────────────────────────────────
-  const [inspectorSig, setInspectorSig] = useState<ParsedSignature | null>(null);
+  const [inspectorSig, setInspectorSig] = useState<ParsedSignature | null>(
+    null,
+  );
   const [managerSig, setManagerSig] = useState<ParsedSignature | null>(null);
   const [sigSaving, setSigSaving] = useState(false);
 
@@ -54,15 +76,16 @@ export default function HearingPacketPreview({ data, onClose }: Props) {
       // Auto-fill inspector slot from current user's saved signature
       const autoSig: ParsedSignature = {
         text: user.signatureText,
-        style: user.signatureStyle ?? 'Style 1 — Classic',
+        style: user.signatureStyle ?? "Style 1 — Classic",
       };
       setInspectorSig(autoSig);
-      // Persist to packet record silently
-      packetService.update(packet.id, {
-        inspector_signature: JSON.stringify(autoSig),
-      }).catch(() => { /* silent */ });
+      packetService
+        .update(packet.id, {
+          inspector_signature: JSON.stringify(autoSig),
+        })
+        .catch(() => {});
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [packet.id]);
 
   const isManagerRole = user?.role && MANAGER_ROLES.includes(user.role);
@@ -73,14 +96,16 @@ export default function HearingPacketPreview({ data, onClose }: Props) {
     setSigSaving(true);
     const sig: ParsedSignature = {
       text: user.signatureText,
-      style: user.signatureStyle ?? 'Style 1 — Classic',
+      style: user.signatureStyle ?? "Style 1 — Classic",
     };
     setManagerSig(sig);
     try {
       await packetService.update(packet.id, {
         manager_signature: JSON.stringify(sig),
       });
-    } catch { /* ignore */ } finally {
+    } catch {
+      /* ignore */
+    } finally {
       setSigSaving(false);
     }
   };
@@ -88,27 +113,31 @@ export default function HearingPacketPreview({ data, onClose }: Props) {
   const handleClearManagerSig = async () => {
     setManagerSig(null);
     try {
-      await packetService.update(packet.id, { manager_signature: '' });
-    } catch { /* ignore */ }
+      await packetService.update(packet.id, { manager_signature: "" });
+    } catch {
+      /* ignore */
+    }
   };
 
   // Inject page numbers after render
   useEffect(() => {
     if (!printRef.current) return;
-    const slots = printRef.current.querySelectorAll('.page-number-slot');
+    const slots = printRef.current.querySelectorAll(".page-number-slot");
     const total = slots.length;
     slots.forEach((slot, i) => {
       const s = slot as HTMLElement;
-      s.innerHTML = `Page ${String(i + 1).padStart(3, '0')} of ${String(total).padStart(3, '0')}`;
-      s.style.textAlign = 'center';
+      s.innerHTML = `Page ${String(i + 1).padStart(3, "0")} of ${String(total).padStart(3, "0")}`;
+      s.style.textAlign = "center";
     });
-    setRenderStage('ready');
+    setRenderStage("ready");
   }, [data, inspectorSig, managerSig]);
 
   const handlePrint = () => window.print();
 
   // Assign exhibit letters A, B, C... to inspections in chronological order
-  const inspectionExhibitLetters = inspections.map((_, idx) => String.fromCharCode(65 + idx));
+  const inspectionExhibitLetters = inspections.map((_: any, idx: number) =>
+    String.fromCharCode(65 + idx),
+  );
 
   const selectedPhotoIds: string[] = packet.selected_photo_ids ?? [];
 
@@ -122,7 +151,7 @@ export default function HearingPacketPreview({ data, onClose }: Props) {
   });
 
   let photoOffset = 0;
-  const photoOffsets: number[] = inspections.map((_, idx) => {
+  const photoOffsets: number[] = inspections.map((_: any, idx: number) => {
     const offset = photoOffset;
     photoOffset += allPhotosPerInspection[idx].length;
     return offset;
@@ -133,7 +162,6 @@ export default function HearingPacketPreview({ data, onClose }: Props) {
   return (
     <div className="fixed inset-0 z-50 bg-black/60 overflow-auto print:bg-transparent print:static">
       <style>{`
-        @import url("https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;700&family=Great+Vibes&family=Pinyon+Script&family=Pacifico&display=swap");
         @media print {
           body * { visibility: hidden; }
           #hearing-packet-print, #hearing-packet-print * { visibility: visible; }
@@ -166,14 +194,20 @@ export default function HearingPacketPreview({ data, onClose }: Props) {
       {/* Toolbar */}
       <div className="print-toolbar sticky top-0 z-10 bg-card border-b border-border shadow-md px-6 py-3 flex items-center justify-between print:hidden">
         <div className="flex items-center gap-3">
-          <button onClick={onClose} className="text-muted-foreground hover:text-foreground transition-colors">
+          <button
+            onClick={onClose}
+            className="text-muted-foreground hover:text-foreground transition-colors"
+          >
             <X className="w-5 h-5" />
           </button>
           <div>
-            <h2 className="text-sm font-bold text-foreground">Director's Hearing Packet</h2>
+            <h2 className="text-sm font-bold text-foreground">
+              Director's Hearing Packet
+            </h2>
             <p className="text-xs text-muted-foreground">
-              {complaint?.complaintid ? `#${complaint.complaintid} — ` : ''}{complaint?.address ?? ''}
-              {packet.case_number ? ` | Case ${packet.case_number}` : ''}
+              {complaint?.complaintid ? `#${complaint.complaintid} — ` : ""}
+              {complaint?.address ?? ""}
+              {packet.case_number ? ` | Case ${packet.case_number}` : ""}
             </p>
           </div>
         </div>
@@ -186,7 +220,10 @@ export default function HearingPacketPreview({ data, onClose }: Props) {
               <span>No signature saved —</span>
               <button
                 type="button"
-                onClick={() => { onClose(); navigate('/profile'); }}
+                onClick={() => {
+                  onClose();
+                  navigate("/profile");
+                }}
                 className="underline underline-offset-2 hover:no-underline font-medium"
               >
                 Set up on My Profile
@@ -203,8 +240,8 @@ export default function HearingPacketPreview({ data, onClose }: Props) {
           )}
 
           {/* Manager countersign */}
-          {isManagerRole && (
-            managerSig ? (
+          {isManagerRole &&
+            (managerSig ? (
               <div className="flex items-center gap-2">
                 <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                   <CheckCircle2 className="w-3.5 h-3.5 text-success" />
@@ -227,17 +264,18 @@ export default function HearingPacketPreview({ data, onClose }: Props) {
                 className="gap-2 text-xs"
               >
                 <PenLine className="w-3.5 h-3.5" />
-                {sigSaving ? 'Signing…' : 'Countersign'}
+                {sigSaving ? "Signing…" : "Countersign"}
               </Button>
-            )
-          )}
+            ))}
 
           {/* Compilation stage indicator */}
-          {renderStage !== 'ready' ? (
+          {renderStage !== "ready" ? (
             <div className="hidden sm:flex items-center gap-2 text-xs text-muted-foreground px-2">
               <Loader2 className="w-3.5 h-3.5 animate-spin text-primary flex-shrink-0" />
               <span>
-                {renderStage === 'rendering' ? 'Rendering packet pages…' : 'Calculating page numbers…'}
+                {renderStage === "rendering"
+                  ? "Rendering packet pages…"
+                  : "Calculating page numbers…"}
               </span>
             </div>
           ) : (
@@ -247,30 +285,38 @@ export default function HearingPacketPreview({ data, onClose }: Props) {
             </div>
           )}
           <p className="text-xs text-muted-foreground hidden lg:block">
-            {inspections.length} insp ·{' '}
-            {totalPhotos} photo{totalPhotos !== 1 ? 's' : ''} ·{' '}
-            {chronology.length} chrono · {exhibits.length} exhibit{exhibits.length !== 1 ? 's' : ''}
+            {inspections.length} insp · {totalPhotos} photo
+            {totalPhotos !== 1 ? "s" : ""} · {chronology.length} chrono ·{" "}
+            {exhibits.length} exhibit{exhibits.length !== 1 ? "s" : ""}
           </p>
           <Button
             onClick={handlePrint}
             size="sm"
             className="gap-2"
-            disabled={renderStage !== 'ready'}
+            disabled={renderStage !== "ready"}
           >
-            {renderStage !== 'ready' ? (
+            {renderStage !== "ready" ? (
               <Loader2 className="w-4 h-4 animate-spin" />
             ) : (
               <Printer className="w-4 h-4" />
             )}
-            {renderStage !== 'ready' ? 'Assembling…' : 'Print / Save PDF'}
+            {renderStage !== "ready" ? "Assembling…" : "Print / Save PDF"}
           </Button>
         </div>
       </div>
 
       {/* Packet document order */}
-      <div className="py-8 px-4 print:p-0" id="hearing-packet-print" ref={printRef}>
+      <div
+        className="py-8 px-4 print:p-0"
+        id="hearing-packet-print"
+        ref={printRef}
+      >
         {/* 1. Cover Page */}
-        <PacketCoverPage packet={packet} complaint={complaint} location={location} />
+        <PacketCoverPage
+          packet={packet}
+          complaint={complaint}
+          location={location}
+        />
 
         {/* 2. Environmental Health Basis for Proposed Enforcement Action */}
         <PacketEnforcementSummary
@@ -295,7 +341,7 @@ export default function HearingPacketPreview({ data, onClose }: Props) {
         />
 
         {/* 4. Inspection Exhibits (A, B, C...) */}
-        {inspections.map((insp, idx) => (
+        {inspections.map((insp: any, idx: number) => (
           <div key={insp.id}>
             <PacketInspectionReport
               inspection={insp}

@@ -92,7 +92,7 @@ CREATE TABLE complaints (
   thread_parent text,
   violations text,
   inspection_photos text,
-  311_case_number text,
+  "311_case_number" text,
   unit_number text,
   complaint_type text,
   complaint_subtype text,

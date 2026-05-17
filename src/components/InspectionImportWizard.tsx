@@ -12,49 +12,48 @@
  * - Calls importInspectionHistory and surfaces results via toast
  */
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef } from "react";
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
-} from '@/components/ui/sheet';
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Separator } from '@/components/ui/separator';
-import { toast } from 'sonner';
-import { importService } from '@/services/importService';
-import { formatDateShort } from '@/utils/formatDate';
+} from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Separator } from "@/components/ui/separator";
+import { toast } from "sonner";
+import { importService } from "@/services/importService";
+import { formatDateShort } from "@/utils/formatDate";
 import {
-  ClipboardCheck,
-  Camera,
   Shield,
   CheckCircle2,
   Loader2,
   AlertCircle,
+  Camera,
   ChevronDown,
   ChevronUp,
   FileText,
   Download,
   XCircle,
-} from 'lucide-react';
+} from "lucide-react";
 
 type Inspection = any; // Simplify for now, or extract from importService return type
 
 // ── Progress stage definitions ─────────────────────────────────────────────
 
 const STAGES = [
-  { label: 'Scanning inspection records', pct: 10 },
-  { label: 'Parsing violations & citations', pct: 28 },
-  { label: 'Mapping SFHC Article 11 codes', pct: 45 },
-  { label: 'Creating chronology entries', pct: 62 },
-  { label: 'Ingesting exhibit records', pct: 78 },
-  { label: 'Recalculating Bates numbers', pct: 92 },
-  { label: 'Finalizing import', pct: 98 },
+  { label: "Scanning inspection records", pct: 10 },
+  { label: "Parsing violations & citations", pct: 28 },
+  { label: "Mapping SFHC Article 11 codes", pct: 45 },
+  { label: "Creating chronology entries", pct: 62 },
+  { label: "Ingesting exhibit records", pct: 78 },
+  { label: "Recalculating Bates numbers", pct: 92 },
+  { label: "Finalizing import", pct: 98 },
 ];
 
 // ── Sub-components ─────────────────────────────────────────────────────────
@@ -89,10 +88,10 @@ function ProgressOverlay({
               key={i}
               className={`flex items-center gap-2.5 text-[11px] transition-colors ${
                 i < stage
-                  ? 'text-primary'
+                  ? "text-primary"
                   : i === stage
-                  ? 'text-foreground font-medium'
-                  : 'text-muted-foreground/50'
+                    ? "text-foreground font-medium"
+                    : "text-muted-foreground/50"
               }`}
             >
               {i < stage ? (
@@ -124,22 +123,22 @@ function InspectionCard({
   const isDisabled = inspection.alreadyImported;
 
   // Collect unique displayed codes (prefer violationCode over category)
-  const displayCodes = [
+  const displayCodes: string[] = [
     ...new Set(
       inspection.violations
-        .map(v => v.violationCode || v.category || '')
+        .map((v: any) => v.violationCode || v.category || "")
         .filter(Boolean),
     ),
-  ].slice(0, 5);
+  ].slice(0, 5) as string[];
 
   return (
     <div
       className={`rounded-xl border overflow-hidden transition-all duration-150 ${
         isDisabled
-          ? 'border-border/40 bg-muted/20 opacity-65'
+          ? "border-border/40 bg-muted/20 opacity-65"
           : checked
-          ? 'border-primary/40 bg-primary/[0.03] shadow-sm ring-1 ring-primary/20'
-          : 'border-border bg-card hover:border-border'
+            ? "border-primary/40 bg-primary/[0.03] shadow-sm ring-1 ring-primary/20"
+            : "border-border bg-card hover:border-border"
       }`}
     >
       <div className="p-4 flex items-start gap-3">
@@ -170,9 +169,9 @@ function InspectionCard({
             {inspection.inspection_rating && (
               <Badge
                 variant={
-                  inspection.inspection_rating === 'Unsatisfactory'
-                    ? 'destructive'
-                    : 'outline'
+                  inspection.inspection_rating === "Unsatisfactory"
+                    ? "destructive"
+                    : "outline"
                 }
                 className="text-[10px] h-4 px-1.5 font-normal py-0"
               >
@@ -193,7 +192,7 @@ function InspectionCard({
           {/* Inspector */}
           {inspection.inspector && (
             <p className="text-[11px] text-muted-foreground">
-              Inspector:{' '}
+              Inspector:{" "}
               <span className="font-medium text-foreground">
                 {inspection.inspector}
               </span>
@@ -210,14 +209,14 @@ function InspectionCard({
               <span className="flex items-center gap-1 text-[10px] text-destructive/80 font-medium">
                 <Shield className="w-3 h-3" />
                 {inspection.violation_count} violation
-                {inspection.violation_count !== 1 ? 's' : ''}
+                {inspection.violation_count !== 1 ? "s" : ""}
               </span>
             )}
             {inspection.photoCount > 0 && (
               <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
                 <Camera className="w-3 h-3" />
                 {inspection.photoCount} photo
-                {inspection.photoCount !== 1 ? 's' : ''}
+                {inspection.photoCount !== 1 ? "s" : ""}
               </span>
             )}
           </div>
@@ -244,7 +243,7 @@ function InspectionCard({
           {/* Photo thumbnails */}
           {inspection.photoThumbnails.length > 0 && (
             <div className="flex gap-1.5 mt-0.5">
-              {inspection.photoThumbnails.map((url, i) => (
+              {inspection.photoThumbnails.map((url: any, i: number) => (
                 <div
                   key={i}
                   className="w-12 h-10 rounded-md overflow-hidden bg-muted border border-border flex-shrink-0"
@@ -259,8 +258,7 @@ function InspectionCard({
               {inspection.photoCount > inspection.photoThumbnails.length && (
                 <div className="w-12 h-10 rounded-md bg-muted border border-border flex-shrink-0 flex items-center justify-center">
                   <span className="text-[9px] text-muted-foreground font-semibold">
-                    +
-                    {inspection.photoCount - inspection.photoThumbnails.length}
+                    +{inspection.photoCount - inspection.photoThumbnails.length}
                   </span>
                 </div>
               )}
@@ -271,7 +269,7 @@ function InspectionCard({
           {inspection.violations.length > 0 && (
             <>
               <button
-                onClick={() => setExpanded(e => !e)}
+                onClick={() => setExpanded((e) => !e)}
                 className="flex items-center gap-1 text-[10px] text-muted-foreground hover:text-foreground transition-colors mt-1"
               >
                 {expanded ? (
@@ -279,12 +277,12 @@ function InspectionCard({
                 ) : (
                   <ChevronDown className="w-3 h-3" />
                 )}
-                {expanded ? 'Hide' : 'Show'} violations detail
+                {expanded ? "Hide" : "Show"} violations detail
               </button>
 
               {expanded && (
                 <div className="space-y-1.5 border-t border-border/60 pt-2 mt-0.5">
-                  {inspection.violations.map(v => (
+                  {inspection.violations.map((v: any) => (
                     <div
                       key={v.id}
                       className="flex items-start gap-2 text-[10px]"
@@ -297,7 +295,7 @@ function InspectionCard({
                           </span>
                         )}
                         <span className="text-muted-foreground">
-                          {v.observation || v.label || v.category || '—'}
+                          {v.observation || v.label || v.category || "—"}
                         </span>
                       </div>
                     </div>
@@ -341,11 +339,13 @@ export default function InspectionImportWizard({
       setInspections(data.inspections);
       // Pre-select all un-imported inspections
       const preSelected = new Set(
-        data.inspections.filter((i: any) => !i.alreadyImported).map((i: any) => i.id),
+        data.inspections
+          .filter((i: any) => !i.alreadyImported)
+          .map((i: any) => i.id),
       );
       setSelected(preSelected);
     } catch {
-      toast.error('Failed to load inspections');
+      toast.error("Failed to load inspections");
     } finally {
       setLoading(false);
     }
@@ -356,7 +356,7 @@ export default function InspectionImportWizard({
   }, [load]);
 
   const toggleSelect = (id: string) => {
-    setSelected(prev => {
+    setSelected((prev) => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id);
       else next.add(id);
@@ -366,7 +366,7 @@ export default function InspectionImportWizard({
 
   const selectAll = () =>
     setSelected(
-      new Set(inspections.filter(i => !i.alreadyImported).map(i => i.id)),
+      new Set(inspections.filter((i) => !i.alreadyImported).map((i) => i.id)),
     );
   const deselectAll = () => setSelected(new Set());
 
@@ -402,26 +402,25 @@ export default function InspectionImportWizard({
       stopProgressAnim();
       setProgress(100);
 
-      await new Promise(r => setTimeout(r, 500));
+      await new Promise((r) => setTimeout(r, 500));
 
       const chronoWord =
-        result.chronologyEntriesCreated === 1 ? 'entry' : 'entries';
-      const exhibitWord =
-        result.exhibitsCreated === 1 ? 'exhibit' : 'exhibits';
+        result.chronologyEntriesCreated === 1 ? "entry" : "entries";
+      const exhibitWord = result.exhibitsCreated === 1 ? "exhibit" : "exhibits";
 
       toast.success(
         `Import complete — ${result.chronologyEntriesCreated} chronology ${chronoWord} ` +
           `and ${result.exhibitsCreated} ${exhibitWord} created.` +
           (result.skipped > 0
             ? ` (${result.skipped} already imported, skipped)`
-            : ''),
+            : ""),
       );
 
       onImportComplete();
       onClose();
     } catch {
       stopProgressAnim();
-      toast.error('Import failed. Please try again.');
+      toast.error("Import failed. Please try again.");
     } finally {
       setImporting(false);
       setProgress(0);
@@ -429,13 +428,13 @@ export default function InspectionImportWizard({
     }
   };
 
-  const importableCount = inspections.filter(i => !i.alreadyImported).length;
+  const importableCount = inspections.filter((i) => !i.alreadyImported).length;
   const selectedCount = selected.size;
 
   return (
     <Sheet
       open={open}
-      onOpenChange={v => {
+      onOpenChange={(v) => {
         if (!v && !importing) onClose();
       }}
     >
@@ -453,23 +452,27 @@ export default function InspectionImportWizard({
               </SheetTitle>
               <p className="text-xs text-muted-foreground leading-relaxed">
                 Select inspections to auto-generate chronology entries, SFHC
-                citations, and exhibit records. Or upload a PDF report for AI extraction.
+                citations, and exhibit records. Or upload a PDF report for AI
+                extraction.
               </p>
               <div className="pt-2">
-                <Input 
-                  type="file" 
-                  accept=".pdf" 
+                <Input
+                  type="file"
+                  accept=".pdf"
                   onChange={async (e) => {
                     const file = e.target.files?.[0];
                     if (file) {
-                      toast.promise(importService.importFromPdf({ packetId, file }), {
-                        loading: 'Analyzing PDF with AI...',
-                        success: (data) => {
-                          onImportComplete();
-                          return `Successfully extracted ${data.violationsFound} violations.`;
+                      toast.promise(
+                        importService.importDraftPacket({ packetId, file }),
+                        {
+                          loading: "Analyzing PDF with AI...",
+                          success: (data: any) => {
+                            onImportComplete();
+                            return `Successfully extracted ${data.violationsFound} violations.`;
+                          },
+                          error: "Failed to parse PDF.",
                         },
-                        error: 'Failed to parse PDF.'
-                      });
+                      );
                     }
                   }}
                   className="h-8 text-[11px]"
@@ -487,7 +490,7 @@ export default function InspectionImportWizard({
             {loading ? (
               <>
                 <Skeleton className="h-5 w-48" />
-                {[1, 2, 3].map(i => (
+                {[1, 2, 3].map((i) => (
                   <Skeleton key={i} className="h-28 w-full rounded-xl" />
                 ))}
               </>
@@ -507,8 +510,8 @@ export default function InspectionImportWizard({
                 {/* Select controls + count */}
                 <div className="flex items-center justify-between">
                   <p className="text-xs text-muted-foreground">
-                    {importableCount}{' '}
-                    {importableCount === 1 ? 'inspection' : 'inspections'}{' '}
+                    {importableCount}{" "}
+                    {importableCount === 1 ? "inspection" : "inspections"}{" "}
                     available · {selectedCount} selected
                   </p>
                   <div className="flex items-center gap-2">
@@ -557,7 +560,7 @@ export default function InspectionImportWizard({
 
                 {/* Inspection cards */}
                 <div className="space-y-2">
-                  {inspections.map(insp => (
+                  {inspections.map((insp) => (
                     <InspectionCard
                       key={insp.id}
                       inspection={insp}
@@ -590,8 +593,8 @@ export default function InspectionImportWizard({
               className="h-8 text-xs gap-1.5"
             >
               <Download className="w-3 h-3" />
-              Import {selectedCount > 0 ? `${selectedCount} ` : ''}
-              {selectedCount === 1 ? 'Inspection' : 'Inspections'}
+              Import {selectedCount > 0 ? `${selectedCount} ` : ""}
+              {selectedCount === 1 ? "Inspection" : "Inspections"}
             </Button>
           </div>
         )}

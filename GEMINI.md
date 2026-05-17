@@ -1,9 +1,11 @@
 # GEMINI.md - Project Context: Zite (Director Hearing Manager)
 
 ## Project Overview
+
 **Zite** is an enterprise-grade operational tool designed for the **San Francisco Department of Public Health (SFDPH)** Environmental Health Division, specifically the Healthy Housing and Vector Control (HHVC) program. It automates the transition from field inspections to administrative enforcement by managing the compilation, validation, and tracking of **Director's Hearing Packets**.
 
 ### Core Objectives:
+
 - **Case Management:** Unified tracking of health code complaints and locations.
 - **Automated Enforcement:** Streamlining the assembly of Director's Hearing Packets (Cover Page, NOV, Chronology).
 - **Regulatory Compliance:** Strict enforcement of SF Health Code Article 11 standards.
@@ -12,6 +14,7 @@
 ---
 
 ## Technology Stack
+
 - **Frontend:** [React](https://react.dev/) (Functional Components, Hooks)
 - **Language:** [TypeScript](https://www.typescriptlang.org/)
 - **Build Tool:** [Vite](https://vitejs.dev/)
@@ -24,6 +27,7 @@
 ---
 
 ## Architecture & Navigation
+
 The application follows a **5-pillar information architecture**, accessible via the main navigation bar:
 
 1.  **Dashboard:** Role-scoped KPIs and active case summaries.
@@ -33,6 +37,7 @@ The application follows a **5-pillar information architecture**, accessible via 
 5.  **Locations:** Master registry for property data and historical case tracking.
 
 ### Key Data Entities:
+
 - `Complaints`: The root of all enforcement activity.
 - `Inspections`: Individual site visits linked to complaints.
 - `Violations`: Specific code infractions found during inspections.
@@ -45,22 +50,28 @@ The application follows a **5-pillar information architecture**, accessible via 
 ## Development Conventions
 
 ### 1. Code Style & Structure
+
 - **Type Safety:** Mandatory use of TypeScript. Use `ComplaintSummary` from `src/types/complaint.ts` for shared complaint data.
 - **Components:** Functional components using `.tsx`. UI components are located in `src/components/ui/` (Shadcn/UI pattern).
 - **Services:** All database interactions are encapsulated in the `src/services/` directory (e.g., `complaintService.ts`, `packetService.ts`).
 - **Icons:** Use `lucide-react` for all iconography.
 
 ### 2. Role-Based Access Control (RBAC)
+
 Roles are defined as: `Inspector`, `Admin`, `Program Manager`, `Super Admin`.
+
 - **Nav Guarding:** Managed in `src/App.tsx`.
 - **Impersonation:** Super Admins can "preview" as any role via the header banner.
 
 ### 3. Document Generation
+
 The **Director's Hearing Packet** is configuration-driven.
+
 - **Source of Truth:** `src/config/documentTemplates.ts` defines all static boilerplate and variable slots.
 - **Rendering:** Components in `src/components/packet/` (e.g., `PacketCoverPage.tsx`, `PacketNoticeOfViolation.tsx`) use these templates to render print-ready PDFs.
 
 ### 4. Data Management
+
 - **Supabase Client:** Configured in `src/lib/supabase.ts`.
 - **Querying:** Use `useQuery` and `useMutation` from TanStack Query for caching and state synchronization.
 
@@ -69,6 +80,7 @@ The **Director's Hearing Packet** is configuration-driven.
 ## Building and Running
 
 ### Development
+
 ```bash
 # Install dependencies
 npm install
@@ -81,6 +93,7 @@ npm run lint
 ```
 
 ### Production
+
 ```bash
 # Build the project (TypeScript check + Vite build)
 npm run build
@@ -92,6 +105,7 @@ npm run preview
 ---
 
 ## Key Files & Directories
+
 - `src/App.tsx`: Main routing, shell layout, and RBAC logic.
 - `src/main.tsx`: App entry point with `QueryClientProvider`.
 - `schema.sql`: Complete PostgreSQL schema for the Supabase backend.

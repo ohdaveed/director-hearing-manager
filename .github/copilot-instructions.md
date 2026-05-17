@@ -111,7 +111,7 @@ Complaint → Inspection → Violations → Chronology → Hearing Packet
 - Example pattern:
   ```tsx
   const { data: complaint } = useQuery({
-    queryKey: ['complaints', id],
+    queryKey: ["complaints", id],
     queryFn: () => complaintService.getById(id),
   });
   ```
@@ -124,8 +124,9 @@ Complaint → Inspection → Violations → Chronology → Hearing Packet
   ```ts
   export const complaintService = {
     async getAll(filters: { assigned_to?: string } = {}) {
-      let query = supabase.from('complaints').select('*');
-      if (filters.assigned_to) query = query.eq('assigned_to', filters.assigned_to);
+      let query = supabase.from("complaints").select("*");
+      if (filters.assigned_to)
+        query = query.eq("assigned_to", filters.assigned_to);
       const { data, error } = await query;
       if (error) throw error;
       return data as ComplaintSummary[];
@@ -143,6 +144,7 @@ The Director's Hearing Packet is configuration-driven:
 3. **Print to PDF** using browser print dialog (components styled for print media)
 
 Key files:
+
 - `src/config/documentTemplates.ts` – Source of truth for legal templates
 - `src/components/packet/printUtils.tsx` – Utility helpers for print formatting
 
@@ -166,6 +168,7 @@ npm run test -- --grep "should parse PDF"
 Test file location: `__tests__/` subdirectory in the same folder as the module being tested.
 
 Example:
+
 ```ts
 import { render, screen } from '@testing-library/react';
 import { vi } from 'vitest';
@@ -195,8 +198,9 @@ Never hardcode legal document text. All boilerplate lives in `src/config/documen
 ### Supabase Client
 
 The Supabase client is initialized in `src/lib/supabase.ts`. Import and use it in services:
+
 ```ts
-import { supabase } from '@/lib/supabase';
+import { supabase } from "@/lib/supabase";
 ```
 
 ## MCP Servers
@@ -206,6 +210,7 @@ This project integrates with two MCP servers for enhanced development capabiliti
 ### Playwright MCP
 
 For browser automation testing and E2E verification:
+
 - Useful for testing complex UI interactions (forms, modals, multi-step workflows)
 - Can verify that Director's Hearing Packet rendering is correct across print and screen views
 - Connect with: `playwright` MCP server
@@ -213,6 +218,7 @@ For browser automation testing and E2E verification:
 ### PostgreSQL MCP
 
 For direct database schema inspection and query exploration:
+
 - Useful for exploring the Supabase schema without leaving the IDE
 - Can verify data relationships and constraints before writing queries
 - Supabase credentials needed: Check `.env` for `SUPABASE_URL` and `SUPABASE_ANON_KEY`

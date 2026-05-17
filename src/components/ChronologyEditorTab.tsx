@@ -7,37 +7,57 @@
  * Right: drag-and-drop exhibit upload panel with auto page-range calculation.
  */
 
-import { useState, useEffect, useCallback } from 'react';
-import { chronoService } from '@/services/chronoService';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Skeleton } from '@/components/ui/skeleton';
-import { toast } from 'sonner';
+import { useState, useEffect, useCallback } from "react";
+import { chronoService } from "@/services/chronoService";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import {
-  Plus, Pencil, Trash2, ChevronUp, ChevronDown,
-  Loader2, Shield, BookOpen, Download,
-} from 'lucide-react';
-import { SFHC_ARTICLE_11_CODES } from '@/utils/sfhcArticle11';
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "sonner";
+import {
+  Plus,
+  Pencil,
+  Trash2,
+  ChevronUp,
+  ChevronDown,
+  Loader2,
+  Shield,
+  BookOpen,
+  Download,
+} from "lucide-react";
+import { SFHC_ARTICLE_11_CODES } from "@/utils/sfhcArticle11";
 import {
   getFieldValidationError,
   getSfhcSuggestion,
   replaceStateCodeWithSfhc,
   containsCAStateCode,
-} from '@/utils/validationRules';
-import { formatDateShort } from '@/utils/formatDate';
-import ChronologyContextHeader from './packet/ChronologyContextHeader';
-import ExhibitUploadPanel from './packet/ExhibitUploadPanel';
-import InspectionImportWizard from './InspectionImportWizard';
+} from "@/utils/validationRules";
+import { formatDateShort } from "@/utils/formatDate";
+import ChronologyContextHeader from "./packet/ChronologyContextHeader";
+import ExhibitUploadPanel from "./packet/ExhibitUploadPanel";
+import InspectionImportWizard from "./InspectionImportWizard";
 
-type Entry = any['chronology'][0];
-type ExhibitType = any['exhibits'][0];
-type PacketMeta = any['packetMeta'];
-type LocationMeta = any['locationMeta'];
+type Entry = any["chronology"][0];
+type ExhibitType = any["exhibits"][0];
+type PacketMeta = any["packetMeta"];
+type LocationMeta = any["locationMeta"];
 
-const ENTRY_TYPES = ['Inspection', 'NOV', 'Re-inspection', 'Contact Attempt', 'Hearing Referral', 'Other'];
+const ENTRY_TYPES = [
+  "Inspection",
+  "NOV",
+  "Re-inspection",
+  "Contact Attempt",
+  "Hearing Referral",
+  "Other",
+];
 
 function entryLetter(idx: number): string {
   return idx < 26 ? String.fromCharCode(65 + idx) : `(${idx + 1})`;
@@ -53,7 +73,11 @@ interface FormState {
 }
 
 function EntryForm({
-  initial, onSave, onCancel, saving, assignedLetter,
+  initial,
+  onSave,
+  onCancel,
+  saving,
+  assignedLetter,
 }: {
   initial?: FormState;
   onSave: (form: FormState) => void;
@@ -63,29 +87,48 @@ function EntryForm({
 }) {
   const [form, setForm] = useState<FormState>(
     initial ?? {
-      entryDate: new Date().toISOString().split('T')[0],
-      entryType: 'Inspection',
-      citationCode: '',
-      summary: '',
-      attachmentPageRef: '',
+      entryDate: new Date().toISOString().split("T")[0],
+      entryType: "Inspection",
+      citationCode: "",
+      summary: "",
+      attachmentPageRef: "",
     },
   );
   const [summaryError, setSummaryError] = useState<string | undefined>();
-  const set = (k: keyof FormState, v: string) => setForm(prev => ({ ...prev, [k]: v }));
+  const set = (k: keyof FormState, v: string) =>
+    setForm((prev) => ({ ...prev, [k]: v }));
 
   return (
     <div className="border border-primary/30 rounded-xl p-4 bg-primary/5 space-y-3">
       <div className="grid grid-cols-3 gap-3">
         <div>
-          <Label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide mb-1.5 block">Date</Label>
-          <Input type="date" value={form.entryDate} onChange={e => set('entryDate', e.target.value)} className="h-8 text-xs" />
+          <Label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide mb-1.5 block">
+            Date
+          </Label>
+          <Input
+            type="date"
+            value={form.entryDate}
+            onChange={(e) => set("entryDate", e.target.value)}
+            className="h-8 text-xs"
+          />
         </div>
         <div>
-          <Label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide mb-1.5 block">Entry Type</Label>
-          <Select value={form.entryType} onValueChange={v => set('entryType', v)}>
-            <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+          <Label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide mb-1.5 block">
+            Entry Type
+          </Label>
+          <Select
+            value={form.entryType}
+            onValueChange={(v) => set("entryType", v)}
+          >
+            <SelectTrigger className="h-8 text-xs">
+              <SelectValue />
+            </SelectTrigger>
             <SelectContent>
-              {ENTRY_TYPES.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+              {ENTRY_TYPES.map((t) => (
+                <SelectItem key={t} value={t}>
+                  {t}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
@@ -93,11 +136,16 @@ function EntryForm({
           <Label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide mb-1.5 flex items-center gap-1 block">
             <Shield className="w-2.5 h-2.5 text-primary" /> SFHC Article 11 Code
           </Label>
-          <Select value={form.citationCode || 'none'} onValueChange={v => set('citationCode', v === 'none' ? '' : v)}>
-            <SelectTrigger className="h-8 text-xs"><SelectValue placeholder="Select code…" /></SelectTrigger>
+          <Select
+            value={form.citationCode || "none"}
+            onValueChange={(v) => set("citationCode", v === "none" ? "" : v)}
+          >
+            <SelectTrigger className="h-8 text-xs">
+              <SelectValue placeholder="Select code…" />
+            </SelectTrigger>
             <SelectContent>
               <SelectItem value="none">— No code section —</SelectItem>
-              {SFHC_ARTICLE_11_CODES.map(c => (
+              {SFHC_ARTICLE_11_CODES.map((c) => (
                 <SelectItem key={c.value} value={c.value}>
                   <span className="font-mono">{c.code}</span> — {c.label}
                 </SelectItem>
@@ -113,48 +161,56 @@ function EntryForm({
         </Label>
         <Textarea
           value={form.summary}
-          onChange={e => {
+          onChange={(e) => {
             const val = e.target.value;
-            set('summary', val);
+            set("summary", val);
             setSummaryError(getFieldValidationError(val));
           }}
           placeholder="Describe the action, observation, or contact…"
           rows={3}
-          className={`text-xs resize-none ${summaryError ? 'border-destructive' : ''}`}
+          className={`text-xs resize-none ${summaryError ? "border-destructive" : ""}`}
         />
-        {summaryError && containsCAStateCode(form.summary) ? (() => {
-          const suggestion = getSfhcSuggestion(form.summary);
-          return (
-            <div className="mt-2 rounded-lg border border-border bg-muted/30 p-3 space-y-2">
-              <p className="text-[10px] font-semibold text-destructive flex items-center gap-1.5">
-                <Shield className="w-3 h-3 flex-shrink-0" /> California state codes are not accepted
-              </p>
-              <div className="rounded-md border border-border bg-card p-2.5 flex items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <p className="text-[10px] text-muted-foreground">Did you mean:</p>
-                  <p className="text-xs font-semibold text-foreground mt-0.5 font-mono">
-                    {suggestion.code} — {suggestion.label}
-                  </p>
-                  <p className="text-[10px] text-muted-foreground mt-0.5 leading-relaxed">
-                    {suggestion.description}
-                  </p>
+        {summaryError && containsCAStateCode(form.summary) ? (
+          (() => {
+            const suggestion = getSfhcSuggestion(form.summary);
+            return (
+              <div className="mt-2 rounded-lg border border-border bg-muted/30 p-3 space-y-2">
+                <p className="text-[10px] font-semibold text-destructive flex items-center gap-1.5">
+                  <Shield className="w-3 h-3 flex-shrink-0" /> California state
+                  codes are not accepted
+                </p>
+                <div className="rounded-md border border-border bg-card p-2.5 flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="text-[10px] text-muted-foreground">
+                      Did you mean:
+                    </p>
+                    <p className="text-xs font-semibold text-foreground mt-0.5 font-mono">
+                      {suggestion.code} — {suggestion.label}
+                    </p>
+                    <p className="text-[10px] text-muted-foreground mt-0.5 leading-relaxed">
+                      {suggestion.description}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const newSummary = replaceStateCodeWithSfhc(
+                        form.summary,
+                        suggestion.code,
+                      );
+                      set("summary", newSummary);
+                      set("citationCode", suggestion.code);
+                      setSummaryError(getFieldValidationError(newSummary));
+                    }}
+                    className="flex-shrink-0 text-[10px] font-semibold bg-primary text-primary-foreground px-2.5 py-1.5 rounded-md hover:opacity-90 transition-opacity"
+                  >
+                    Apply
+                  </button>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    const newSummary = replaceStateCodeWithSfhc(form.summary, suggestion.code);
-                    set('summary', newSummary);
-                    set('citationCode', suggestion.code);
-                    setSummaryError(getFieldValidationError(newSummary));
-                  }}
-                  className="flex-shrink-0 text-[10px] font-semibold bg-primary text-primary-foreground px-2.5 py-1.5 rounded-md hover:opacity-90 transition-opacity"
-                >
-                  Apply
-                </button>
               </div>
-            </div>
-          );
-        })() : summaryError ? (
+            );
+          })()
+        ) : summaryError ? (
           <p className="text-[10px] text-destructive flex items-center gap-1 mt-1">
             <span className="font-bold flex-shrink-0">⚠</span> {summaryError}
           </p>
@@ -168,27 +224,39 @@ function EntryForm({
           </Label>
           <Input
             value={form.attachmentPageRef}
-            onChange={e => set('attachmentPageRef', e.target.value)}
+            onChange={(e) => set("attachmentPageRef", e.target.value)}
             placeholder="e.g. 009–012"
             className="h-8 text-xs"
           />
         </div>
         <div className="text-center pb-0.5">
           <p className="text-[10px] text-muted-foreground mb-1">Exhibit</p>
-          <span className="text-lg font-black text-primary leading-none">{assignedLetter}</span>
+          <span className="text-lg font-black text-primary leading-none">
+            {assignedLetter}
+          </span>
         </div>
       </div>
 
       <div className="flex items-center justify-between pt-1 border-t border-border/60">
         <p className="text-[10px] text-muted-foreground italic flex items-center gap-1">
           <Shield className="w-3 h-3 text-primary" />
-          SFHC articles only — California state health codes are blocked by policy
+          SFHC articles only — California state health codes are blocked by
+          policy
         </p>
         <div className="flex gap-2">
-          <Button size="sm" variant="outline" onClick={onCancel} className="h-7 text-xs">Cancel</Button>
           <Button
             size="sm"
-            onClick={() => { if (!summaryError) onSave(form); }}
+            variant="outline"
+            onClick={onCancel}
+            className="h-7 text-xs"
+          >
+            Cancel
+          </Button>
+          <Button
+            size="sm"
+            onClick={() => {
+              if (!summaryError) onSave(form);
+            }}
             disabled={saving || !form.summary.trim() || !!summaryError}
             className="h-7 text-xs gap-1"
           >
@@ -202,7 +270,11 @@ function EntryForm({
 }
 
 // ── Main editor component ─────────────────────────────────────────────────────
-export default function ChronologyEditorTab({ packetId }: { packetId: string }) {
+export default function ChronologyEditorTab({
+  packetId,
+}: {
+  packetId: string;
+}) {
   const [entries, setEntries] = useState<Entry[]>([]);
   const [exhibits, setExhibits] = useState<ExhibitType[]>([]);
   const [complaintId, setComplaintId] = useState<string | undefined>();
@@ -219,31 +291,36 @@ export default function ChronologyEditorTab({ packetId }: { packetId: string }) 
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await chronoService.getChronologyForPacket({ packetId });
+      const data: any = await chronoService.getChronologyForPacket({
+        packetId,
+      });
       setEntries(data.chronology);
       setExhibits(data.exhibits);
       setComplaintId(data.complaintid ?? undefined);
       setPacketMeta(data.packetMeta ?? undefined);
       setLocationMeta(data.locationMeta ?? undefined);
     } catch {
-      toast.error('Failed to load chronology');
+      toast.error("Failed to load chronology");
     } finally {
       setLoading(false);
     }
   }, [packetId]);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    load();
+  }, [load]);
 
   const sorted = [...entries].sort((a, b) => {
-    if (a.chronologyOrder != null && b.chronologyOrder != null) return a.chronologyOrder - b.chronologyOrder;
+    if (a.chronologyOrder != null && b.chronologyOrder != null)
+      return a.chronologyOrder - b.chronologyOrder;
     if (a.chronologyOrder != null) return -1;
     if (b.chronologyOrder != null) return 1;
-    return (a.entryDate ?? '').localeCompare(b.entryDate ?? '');
+    return (a.entryDate ?? "").localeCompare(b.entryDate ?? "");
   });
 
   const handleAdd = async (form: FormState) => {
     if (!complaintId) return;
-    setSavingId('new');
+    setSavingId("new");
     try {
       await chronoService.addChronologyEntry({
         complaintId,
@@ -255,9 +332,9 @@ export default function ChronologyEditorTab({ packetId }: { packetId: string }) 
       });
       setShowAddForm(false);
       await load();
-      toast.success('Chronology entry added');
+      toast.success("Chronology entry added");
     } catch {
-      toast.error('Failed to add entry');
+      toast.error("Failed to add entry");
     } finally {
       setSavingId(null);
     }
@@ -266,8 +343,7 @@ export default function ChronologyEditorTab({ packetId }: { packetId: string }) 
   const handleUpdate = async (id: string, form: FormState) => {
     setSavingId(id);
     try {
-      await chronoService.updateChronologyEntry({
-        entryId: id,
+      await chronoService.updateChronologyEntry(id, {
         entryDate: form.entryDate,
         entryType: form.entryType,
         citationCode: form.citationCode || undefined,
@@ -276,9 +352,9 @@ export default function ChronologyEditorTab({ packetId }: { packetId: string }) 
       });
       setEditingId(null);
       await load();
-      toast.success('Entry updated');
+      toast.success("Entry updated");
     } catch {
-      toast.error('Failed to update entry');
+      toast.error("Failed to update entry");
     } finally {
       setSavingId(null);
     }
@@ -287,28 +363,37 @@ export default function ChronologyEditorTab({ packetId }: { packetId: string }) 
   const handleDelete = async (id: string) => {
     setDeletingId(id);
     try {
-      await chronoService.deleteChronologyEntry({ entryId: id });
+      await chronoService.deleteChronologyEntry(id);
       await load();
-      toast.success('Entry deleted');
+      toast.success("Entry deleted");
     } catch {
-      toast.error('Failed to delete entry');
+      toast.error("Failed to delete entry");
     } finally {
       setDeletingId(null);
     }
   };
 
-  const handleMove = async (idx: number, direction: 'up' | 'down') => {
+  const handleMove = async (idx: number, direction: "up" | "down") => {
     if (!complaintId) return;
-    const swapIdx = direction === 'up' ? idx - 1 : idx + 1;
+    const swapIdx = direction === "up" ? idx - 1 : idx + 1;
     if (swapIdx < 0 || swapIdx >= sorted.length) return;
     const newSorted = [...sorted];
     [newSorted[idx], newSorted[swapIdx]] = [newSorted[swapIdx], newSorted[idx]];
-    setEntries(newSorted.map((e, i) => ({ ...e, chronologyOrder: i + 1, exhibitRefs: entryLetter(i) })));
+    setEntries(
+      newSorted.map((e, i) => ({
+        ...e,
+        chronologyOrder: i + 1,
+        exhibitRefs: entryLetter(i),
+      })),
+    );
     setReordering(true);
     try {
-      await chronoService.reorderChronology({ complaintId, orderedIds: newSorted.map(e => e.id) });
+      await chronoService.reorderChronology({
+        complaintId,
+        orderedIds: newSorted.map((e) => e.id),
+      });
     } catch {
-      toast.error('Failed to reorder');
+      toast.error("Failed to reorder");
       await load();
     } finally {
       setReordering(false);
@@ -339,8 +424,12 @@ export default function ChronologyEditorTab({ packetId }: { packetId: string }) 
     return (
       <div className="p-8 text-center text-muted-foreground">
         <BookOpen className="w-10 h-10 mx-auto mb-3 opacity-20" />
-        <p className="text-sm font-medium">No complaint linked to this packet</p>
-        <p className="text-xs mt-1">A complaint must be linked before the chronology can be managed.</p>
+        <p className="text-sm font-medium">
+          No complaint linked to this packet
+        </p>
+        <p className="text-xs mt-1">
+          A complaint must be linked before the chronology can be managed.
+        </p>
       </div>
     );
   }
@@ -348,9 +437,12 @@ export default function ChronologyEditorTab({ packetId }: { packetId: string }) 
   const nextLetter = entryLetter(sorted.length);
 
   return (
-    <div className="flex flex-col" style={{ maxHeight: 'calc(100vh - 260px)' }}>
+    <div className="flex flex-col" style={{ maxHeight: "calc(100vh - 260px)" }}>
       {/* ── Context header ── */}
-      <ChronologyContextHeader packetMeta={packetMeta} locationMeta={locationMeta} />
+      <ChronologyContextHeader
+        packetMeta={packetMeta}
+        locationMeta={locationMeta}
+      />
 
       {/* ── Split workspace ── */}
       <div className="flex flex-1 min-h-0">
@@ -360,10 +452,12 @@ export default function ChronologyEditorTab({ packetId }: { packetId: string }) 
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <BookOpen className="w-4 h-4 text-muted-foreground" />
-              <h3 className="text-sm font-bold text-foreground">Case Chronology</h3>
+              <h3 className="text-sm font-bold text-foreground">
+                Case Chronology
+              </h3>
               {sorted.length > 0 && (
                 <span className="text-[10px] text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
-                  {sorted.length} {sorted.length === 1 ? 'entry' : 'entries'}
+                  {sorted.length} {sorted.length === 1 ? "entry" : "entries"}
                 </span>
               )}
             </div>
@@ -377,7 +471,14 @@ export default function ChronologyEditorTab({ packetId }: { packetId: string }) 
                 >
                   <Download className="w-3 h-3" /> Import Past Inspections
                 </Button>
-                <Button size="sm" className="h-7 text-xs gap-1" onClick={() => { setShowAddForm(true); setEditingId(null); }}>
+                <Button
+                  size="sm"
+                  className="h-7 text-xs gap-1"
+                  onClick={() => {
+                    setShowAddForm(true);
+                    setEditingId(null);
+                  }}
+                >
                   <Plus className="w-3 h-3" /> Add Entry
                 </Button>
               </div>
@@ -389,7 +490,7 @@ export default function ChronologyEditorTab({ packetId }: { packetId: string }) 
             <EntryForm
               onSave={handleAdd}
               onCancel={() => setShowAddForm(false)}
-              saving={savingId === 'new'}
+              saving={savingId === "new"}
               assignedLetter={nextLetter}
             />
           )}
@@ -399,7 +500,9 @@ export default function ChronologyEditorTab({ packetId }: { packetId: string }) 
             <div className="text-center py-10 text-muted-foreground border-2 border-dashed border-border rounded-xl">
               <BookOpen className="w-8 h-8 mx-auto mb-2 opacity-20" />
               <p className="text-sm font-medium">No chronology entries yet</p>
-              <p className="text-xs mt-1">Click "Add Entry" to document this case history.</p>
+              <p className="text-xs mt-1">
+                Click "Add Entry" to document this case history.
+              </p>
             </div>
           )}
 
@@ -409,11 +512,21 @@ export default function ChronologyEditorTab({ packetId }: { packetId: string }) 
               <table className="w-full text-xs">
                 <thead>
                   <tr className="bg-muted/50 border-b border-border">
-                    <th className="text-left px-3 py-2.5 font-semibold text-[10px] uppercase tracking-wide text-muted-foreground w-20">Date</th>
-                    <th className="text-left px-3 py-2.5 font-semibold text-[10px] uppercase tracking-wide text-muted-foreground w-36">Code / Type</th>
-                    <th className="text-left px-3 py-2.5 font-semibold text-[10px] uppercase tracking-wide text-muted-foreground">Summary</th>
-                    <th className="text-center px-2 py-2.5 font-semibold text-[10px] uppercase tracking-wide text-muted-foreground w-12">Exh.</th>
-                    <th className="text-left px-2 py-2.5 font-semibold text-[10px] uppercase tracking-wide text-muted-foreground w-24">Pages</th>
+                    <th className="text-left px-3 py-2.5 font-semibold text-[10px] uppercase tracking-wide text-muted-foreground w-20">
+                      Date
+                    </th>
+                    <th className="text-left px-3 py-2.5 font-semibold text-[10px] uppercase tracking-wide text-muted-foreground w-36">
+                      Code / Type
+                    </th>
+                    <th className="text-left px-3 py-2.5 font-semibold text-[10px] uppercase tracking-wide text-muted-foreground">
+                      Summary
+                    </th>
+                    <th className="text-center px-2 py-2.5 font-semibold text-[10px] uppercase tracking-wide text-muted-foreground w-12">
+                      Exh.
+                    </th>
+                    <th className="text-left px-2 py-2.5 font-semibold text-[10px] uppercase tracking-wide text-muted-foreground w-24">
+                      Pages
+                    </th>
                     <th className="w-24" />
                   </tr>
                 </thead>
@@ -430,13 +543,16 @@ export default function ChronologyEditorTab({ packetId }: { packetId: string }) 
                           <td colSpan={6} className="p-3">
                             <EntryForm
                               initial={{
-                                entryDate: entry.entryDate ?? new Date().toISOString().split('T')[0],
-                                entryType: entry.entryType ?? 'Other',
-                                citationCode: entry.citationCode ?? '',
-                                summary: entry.summary ?? '',
-                                attachmentPageRef: entry.attachmentPageRef ?? '',
+                                entryDate:
+                                  entry.entryDate ??
+                                  new Date().toISOString().split("T")[0],
+                                entryType: entry.entryType ?? "Other",
+                                citationCode: entry.citationCode ?? "",
+                                summary: entry.summary ?? "",
+                                attachmentPageRef:
+                                  entry.attachmentPageRef ?? "",
                               }}
-                              onSave={form => handleUpdate(entry.id, form)}
+                              onSave={(form) => handleUpdate(entry.id, form)}
                               onCancel={() => setEditingId(null)}
                               saving={isSaving}
                               assignedLetter={letter}
@@ -447,8 +563,10 @@ export default function ChronologyEditorTab({ packetId }: { packetId: string }) 
                     }
 
                     return (
-                      <tr key={entry.id}
-                        className={`border-b border-border align-top transition-colors ${idx % 2 === 0 ? 'bg-background' : 'bg-muted/20'} hover:bg-muted/30`}>
+                      <tr
+                        key={entry.id}
+                        className={`border-b border-border align-top transition-colors ${idx % 2 === 0 ? "bg-background" : "bg-muted/20"} hover:bg-muted/30`}
+                      >
                         <td className="px-3 py-2.5 whitespace-nowrap font-medium text-foreground text-xs">
                           {formatDateShort(entry.entryDate)}
                         </td>
@@ -460,40 +578,68 @@ export default function ChronologyEditorTab({ packetId }: { packetId: string }) 
                             </span>
                           ) : null}
                           {entry.entryType && (
-                            <p className={`text-[10px] text-muted-foreground ${entry.citationCode ? 'mt-0.5' : ''}`}>
+                            <p
+                              className={`text-[10px] text-muted-foreground ${entry.citationCode ? "mt-0.5" : ""}`}
+                            >
                               {entry.entryType}
                             </p>
                           )}
                         </td>
                         <td className="px-3 py-2.5 text-foreground leading-relaxed text-xs">
-                          <span>{entry.summary ?? '—'}</span>
+                          <span>{entry.summary ?? "—"}</span>
                           {entry.createdBy && (
-                            <p className="text-[10px] text-muted-foreground mt-0.5">By: {entry.createdBy}</p>
+                            <p className="text-[10px] text-muted-foreground mt-0.5">
+                              By: {entry.createdBy}
+                            </p>
                           )}
                         </td>
                         <td className="px-2 py-2.5 text-center">
-                          <span className="text-xs font-black text-primary">{entry.exhibit_refs || letter}</span>
+                          <span className="text-xs font-black text-primary">
+                            {entry.exhibit_refs || letter}
+                          </span>
                         </td>
                         <td className="px-2 py-2.5 text-[10px] text-muted-foreground font-mono whitespace-nowrap">
-                          {entry.attachmentPageRef ?? '—'}
+                          {entry.attachmentPageRef ?? "—"}
                         </td>
                         <td className="px-1.5 py-2.5">
                           <div className="flex items-center gap-0.5 justify-end">
-                            <button onClick={() => handleMove(idx, 'up')} disabled={idx === 0 || reordering}
-                              className="p-1 rounded hover:bg-muted transition-colors disabled:opacity-30 disabled:cursor-not-allowed" title="Move up">
+                            <button
+                              onClick={() => handleMove(idx, "up")}
+                              disabled={idx === 0 || reordering}
+                              className="p-1 rounded hover:bg-muted transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                              title="Move up"
+                            >
                               <ChevronUp className="w-3 h-3" />
                             </button>
-                            <button onClick={() => handleMove(idx, 'down')} disabled={idx === sorted.length - 1 || reordering}
-                              className="p-1 rounded hover:bg-muted transition-colors disabled:opacity-30 disabled:cursor-not-allowed" title="Move down">
+                            <button
+                              onClick={() => handleMove(idx, "down")}
+                              disabled={idx === sorted.length - 1 || reordering}
+                              className="p-1 rounded hover:bg-muted transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                              title="Move down"
+                            >
                               <ChevronDown className="w-3 h-3" />
                             </button>
-                            <button onClick={() => { setEditingId(entry.id); setShowAddForm(false); }}
-                              className="p-1 rounded hover:bg-muted transition-colors text-muted-foreground hover:text-foreground" title="Edit">
+                            <button
+                              onClick={() => {
+                                setEditingId(entry.id);
+                                setShowAddForm(false);
+                              }}
+                              className="p-1 rounded hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
+                              title="Edit"
+                            >
                               <Pencil className="w-3 h-3" />
                             </button>
-                            <button onClick={() => handleDelete(entry.id)} disabled={isDeleting}
-                              className="p-1 rounded hover:bg-destructive/10 transition-colors text-muted-foreground hover:text-destructive" title="Delete">
-                              {isDeleting ? <Loader2 className="w-3 h-3 animate-spin" /> : <Trash2 className="w-3 h-3" />}
+                            <button
+                              onClick={() => handleDelete(entry.id)}
+                              disabled={isDeleting}
+                              className="p-1 rounded hover:bg-destructive/10 transition-colors text-muted-foreground hover:text-destructive"
+                              title="Delete"
+                            >
+                              {isDeleting ? (
+                                <Loader2 className="w-3 h-3 animate-spin" />
+                              ) : (
+                                <Trash2 className="w-3 h-3" />
+                              )}
                             </button>
                           </div>
                         </td>
@@ -509,9 +655,12 @@ export default function ChronologyEditorTab({ packetId }: { packetId: string }) 
           <div className="flex items-start gap-2 p-3 rounded-lg bg-primary/5 border border-primary/15">
             <Shield className="w-3.5 h-3.5 text-primary flex-shrink-0 mt-0.5" />
             <p className="text-[10px] text-muted-foreground leading-relaxed">
-              <span className="font-semibold text-foreground">SFHC articles only.</span>{' '}
-              California state health and safety codes are completely blocked by policy — use SFHC articles only
-              (Article 11, Article 11A, Article 2, and other relevant sections).
+              <span className="font-semibold text-foreground">
+                SFHC articles only.
+              </span>{" "}
+              California state health and safety codes are completely blocked by
+              policy — use SFHC articles only (Article 11, Article 11A, Article
+              2, and other relevant sections).
             </p>
           </div>
         </div>

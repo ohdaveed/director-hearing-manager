@@ -11,15 +11,15 @@
  *   /enforcement/hearings/:id → Hearing Packets (auto-selects packet by ID)
  */
 
-import { useLocation, useNavigate } from 'react-router-dom';
-import { AlertTriangle, Package } from 'lucide-react';
-import EscalationQueuePage from '@/pages/EscalationQueuePage';
-import HearingPacketsPage from '@/pages/HearingPacketsPage';
+import { useLocation, useNavigate } from "react-router-dom";
+import { AlertTriangle, Package } from "lucide-react";
+import EscalationQueuePage from "@/pages/EscalationQueuePage";
+import HearingPacketsPage from "@/pages/HearingPacketsPage";
 
 export default function EnforcementPage() {
   const location = useLocation();
   const navigate = useNavigate();
-  const isHearings = location.pathname.startsWith('/enforcement/hearings');
+  const isHearings = location.pathname.startsWith("/enforcement/hearings");
 
   return (
     <div className="min-h-screen bg-background">
@@ -29,11 +29,11 @@ export default function EnforcementPage() {
           <div className="flex items-center gap-1">
             <button
               type="button"
-              onClick={() => navigate('/enforcement')}
+              onClick={() => navigate("/enforcement")}
               className={`flex items-center gap-1.5 px-4 py-3 text-[13px] font-medium border-b-2 transition-colors ${
                 !isHearings
-                  ? 'border-primary text-primary'
-                  : 'border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/30'
+                  ? "border-primary text-primary"
+                  : "border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/30"
               }`}
             >
               <AlertTriangle className="w-3.5 h-3.5" />
@@ -41,11 +41,11 @@ export default function EnforcementPage() {
             </button>
             <button
               type="button"
-              onClick={() => navigate('/enforcement/hearings')}
+              onClick={() => navigate("/enforcement/hearings")}
               className={`flex items-center gap-1.5 px-4 py-3 text-[13px] font-medium border-b-2 transition-colors ${
                 isHearings
-                  ? 'border-primary text-primary'
-                  : 'border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/30'
+                  ? "border-primary text-primary"
+                  : "border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/30"
               }`}
             >
               <Package className="w-3.5 h-3.5" />

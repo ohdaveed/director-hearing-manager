@@ -1,5 +1,5 @@
-import { MapPin, User, Calendar } from 'lucide-react';
-import { formatDate } from '@/utils/formatDate';
+import { MapPin, User, Calendar } from "lucide-react";
+import { formatDate } from "@/utils/formatDate";
 
 type PacketMeta = any;
 type LocationMeta = any;
@@ -9,21 +9,31 @@ interface Props {
   locationMeta?: LocationMeta;
 }
 
-export default function ChronologyContextHeader({ packetMeta, locationMeta }: Props) {
+export default function ChronologyContextHeader({
+  packetMeta,
+  locationMeta,
+}: Props) {
   const rpName = locationMeta?.responsible_party || locationMeta?.owner_name;
-  const rpPhone = locationMeta?.responsible_party_phone || locationMeta?.owner_phone;
-  const rpEmail = locationMeta?.responsible_party_email || locationMeta?.owner_email;
+  const rpPhone =
+    locationMeta?.responsible_party_phone || locationMeta?.owner_phone;
+  const rpEmail =
+    locationMeta?.responsible_party_email || locationMeta?.owner_email;
 
   const siteLine = [
     locationMeta?.block_lot && `Block/Lot: ${locationMeta.block_lot}`,
     locationMeta?.facility_type,
-    locationMeta?.number_of_units != null && `${locationMeta.number_of_units} units`,
-  ].filter(Boolean).join(' · ');
+    locationMeta?.number_of_units != null &&
+      `${locationMeta.number_of_units} units`,
+  ]
+    .filter(Boolean)
+    .join(" · ");
 
   const hearingLine = [
     packetMeta?.case_number && `Case ${packetMeta.case_number}`,
     packetMeta?.program_code && `Program ${packetMeta.program_code}`,
-  ].filter(Boolean).join(' · ');
+  ]
+    .filter(Boolean)
+    .join(" · ");
 
   return (
     <section className="w-full border-b border-border bg-muted/30 flex-shrink-0">
@@ -33,8 +43,12 @@ export default function ChronologyContextHeader({ packetMeta, locationMeta }: Pr
           <p className="font-semibold text-muted-foreground uppercase tracking-wide text-[10px] mb-1 flex items-center gap-1">
             <MapPin className="w-2.5 h-2.5" /> Site Metadata
           </p>
-          <p className="text-foreground font-medium">{locationMeta?.address || '—'}</p>
-          <p className="text-muted-foreground text-[10px] mt-0.5">{siteLine || '—'}</p>
+          <p className="text-foreground font-medium">
+            {locationMeta?.address || "—"}
+          </p>
+          <p className="text-muted-foreground text-[10px] mt-0.5">
+            {siteLine || "—"}
+          </p>
         </div>
 
         {/* Owner / RP Details */}
@@ -42,9 +56,9 @@ export default function ChronologyContextHeader({ packetMeta, locationMeta }: Pr
           <p className="font-semibold text-muted-foreground uppercase tracking-wide text-[10px] mb-1 flex items-center gap-1">
             <User className="w-2.5 h-2.5" /> Owner / RP Details
           </p>
-          <p className="text-foreground font-medium">{rpName || '—'}</p>
+          <p className="text-foreground font-medium">{rpName || "—"}</p>
           <p className="text-muted-foreground text-[10px] mt-0.5">
-            {[rpPhone, rpEmail].filter(Boolean).join(' · ') || '—'}
+            {[rpPhone, rpEmail].filter(Boolean).join(" · ") || "—"}
           </p>
         </div>
 
@@ -55,10 +69,12 @@ export default function ChronologyContextHeader({ packetMeta, locationMeta }: Pr
           </p>
           <p className="text-foreground font-medium">
             {packetMeta?.hearing_date
-              ? `${formatDate(packetMeta.hearing_date)}${packetMeta.hearingTime ? ` · ${packetMeta.hearingTime}` : ''}`
-              : '—'}
+              ? `${formatDate(packetMeta.hearing_date)}${packetMeta.hearingTime ? ` · ${packetMeta.hearingTime}` : ""}`
+              : "—"}
           </p>
-          <p className="text-muted-foreground text-[10px] mt-0.5">{hearingLine || '—'}</p>
+          <p className="text-muted-foreground text-[10px] mt-0.5">
+            {hearingLine || "—"}
+          </p>
         </div>
       </div>
     </section>

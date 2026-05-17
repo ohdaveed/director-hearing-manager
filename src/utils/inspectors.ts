@@ -9,5 +9,5 @@
  * on AllComplaintsPage, InspectionHistoryPage, and ComplaintEntryPage will update automatically.
  */
 
-export const INSPECTORS = ['David Arrizon', 'Adaku Ude'] as const;
-export type InspectorName = typeof INSPECTORS[number];
+export const INSPECTORS = ["David Arrizon", "Adaku Ude"] as const;
+export type InspectorName = (typeof INSPECTORS)[number];

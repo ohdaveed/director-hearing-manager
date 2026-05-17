@@ -18,8 +18,8 @@
  * Returns "—" for empty/undefined values.
  */
 export function formatDate(d?: string): string {
-  if (!d) return '—';
-  return new Date(d + 'T00:00:00').toLocaleDateString();
+  if (!d) return "—";
+  return new Date(d + "T00:00:00").toLocaleDateString();
 }
 
 /**
@@ -28,11 +28,11 @@ export function formatDate(d?: string): string {
  * Returns "—" for empty/undefined values.
  */
 export function formatDateShort(d?: string): string {
-  if (!d) return '—';
-  return new Date(d + 'T00:00:00').toLocaleDateString('en-US', {
-    month: '2-digit',
-    day: '2-digit',
-    year: 'numeric',
+  if (!d) return "—";
+  return new Date(d + "T00:00:00").toLocaleDateString("en-US", {
+    month: "2-digit",
+    day: "2-digit",
+    year: "numeric",
   });
 }
 
@@ -42,11 +42,11 @@ export function formatDateShort(d?: string): string {
  * Returns "—" for empty/undefined values.
  */
 export function formatDateLong(d?: string): string {
-  if (!d) return '—';
-  return new Date(d + 'T00:00:00').toLocaleDateString('en-US', {
-    month: 'long',
-    day: 'numeric',
-    year: 'numeric',
+  if (!d) return "—";
+  return new Date(d + "T00:00:00").toLocaleDateString("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
   });
 }
 
@@ -55,11 +55,11 @@ export function formatDateLong(d?: string): string {
  * Used in legal/hearing forms where a visible blank is preferable to a dash.
  */
 export function formatDateBlank(d?: string): string {
-  if (!d) return '_______________';
-  return new Date(d + 'T00:00:00').toLocaleDateString('en-US', {
-    month: 'long',
-    day: 'numeric',
-    year: 'numeric',
+  if (!d) return "_______________";
+  return new Date(d + "T00:00:00").toLocaleDateString("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
   });
 }
 
@@ -68,10 +68,10 @@ export function formatDateBlank(d?: string): string {
  * Used in printed enforcement/service forms where a short format blank is needed.
  */
 export function formatDateShortBlank(d?: string): string {
-  if (!d) return '_______________';
-  return new Date(d + 'T00:00:00').toLocaleDateString('en-US', {
-    month: '2-digit',
-    day: '2-digit',
-    year: 'numeric',
+  if (!d) return "_______________";
+  return new Date(d + "T00:00:00").toLocaleDateString("en-US", {
+    month: "2-digit",
+    day: "2-digit",
+    year: "numeric",
   });
 }

@@ -1,4 +1,10 @@
-import { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  ReactNode,
+} from "react";
 
 export type AppUser = {
   id: string;
@@ -14,13 +20,29 @@ type UserContextType = {
   logout: () => void;
 };
 
-const STORAGE_KEY = 'ehd_selected_user';
+const STORAGE_VERSION = 1;
+const STORAGE_KEY = `ehd_selected_user_v${STORAGE_VERSION}`;
+const LEGACY_STORAGE_KEY = "ehd_selected_user";
 
 function loadStored(): AppUser | null {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    let raw = localStorage.getItem(STORAGE_KEY);
+
+    if (!raw) {
+      raw = localStorage.getItem(LEGACY_STORAGE_KEY);
+      if (raw) {
+        localStorage.setItem(STORAGE_KEY, raw);
+        localStorage.removeItem(LEGACY_STORAGE_KEY);
+      }
+    }
+
     return raw ? (JSON.parse(raw) as AppUser) : null;
   } catch {
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch {
+      /* ignore */
+    }
     return null;
   }
 }

@@ -1,4 +1,3 @@
-
 import { Config } from "tailwindcss";
 import defaultTheme from "tailwindcss/defaultTheme";
 
@@ -68,8 +67,8 @@ const tailwindConfig: Config = {
         },
       },
       borderRadius: {
-        '3xl': "calc(var(--radius) + 16px)",
-        '2xl': "calc(var(--radius) + 8px)",
+        "3xl": "calc(var(--radius) + 16px)",
+        "2xl": "calc(var(--radius) + 8px)",
         xl: "calc(var(--radius) + 4px)",
         lg: "var(--radius)",
         DEFAULT: "calc(var(--radius) - 2px)",
@@ -77,14 +76,14 @@ const tailwindConfig: Config = {
         sm: "calc(var(--radius) - 4px)",
       },
       boxShadow: {
-        '2xs': "var(--shadow-2xs)",
+        "2xs": "var(--shadow-2xs)",
         xs: "var(--shadow-xs)",
         sm: "var(--shadow-sm)",
         DEFAULT: "var(--shadow)",
         md: "var(--shadow-md)",
         lg: "var(--shadow-lg)",
         xl: "var(--shadow-xl)",
-        '2xl': "var(--shadow-2xl)",
+        "2xl": "var(--shadow-2xl)",
       },
     },
   },

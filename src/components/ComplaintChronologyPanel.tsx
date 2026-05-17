@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { useState } from "react";
 
-import { BookOpen, User, ChevronDown, ChevronUp } from 'lucide-react';
-import { sanitizeText } from '@/utils/sanitizeText';
+import { BookOpen, User, ChevronDown, ChevronUp } from "lucide-react";
+import { sanitizeText } from "@/utils/sanitizeText";
 
-type ChronologyEntry = any['chronology'][0];
+type ChronologyEntry = any["chronology"][0];
 
 type Props = {
   chronology: ChronologyEntry[];
@@ -11,28 +11,31 @@ type Props = {
 };
 
 function fmtDate(d?: string) {
-  if (!d) return '—';
-  const [y, m, day] = d.split('-');
+  if (!d) return "—";
+  const [y, m, day] = d.split("-");
   return `${m}/${day}/${y}`;
 }
 
 const TYPE_BADGE: Record<string, string> = {
-  'Inspection':       'bg-primary/10 text-primary',
-  'NOV':              'bg-destructive/10 text-destructive',
-  'Re-inspection':    'bg-accent/20 text-accent-foreground',
-  'Contact Attempt':  'bg-muted text-muted-foreground',
-  'Hearing Referral': 'bg-accent/10 text-accent-foreground',
-  'Other':            'bg-muted text-muted-foreground',
+  Inspection: "bg-primary/10 text-primary",
+  NOV: "bg-destructive/10 text-destructive",
+  "Re-inspection": "bg-accent/20 text-accent-foreground",
+  "Contact Attempt": "bg-muted text-muted-foreground",
+  "Hearing Referral": "bg-accent/10 text-accent-foreground",
+  Other: "bg-muted text-muted-foreground",
 };
 
 const PREVIEW_COUNT = 5;
 
-export default function ComplaintChronologyPanel({ chronology, loading }: Props) {
+export default function ComplaintChronologyPanel({
+  chronology,
+  loading,
+}: Props) {
   const [showAll, setShowAll] = useState(false);
 
   // Sort newest-first for the preview
   const sorted = [...chronology].sort((a, b) =>
-    (b.entryDate ?? '').localeCompare(a.entryDate ?? '')
+    (b.entryDate ?? "").localeCompare(a.entryDate ?? ""),
   );
   const visible = showAll ? sorted : sorted.slice(0, PREVIEW_COUNT);
   const hasMore = sorted.length > PREVIEW_COUNT;
@@ -42,10 +45,12 @@ export default function ComplaintChronologyPanel({ chronology, loading }: Props)
       <div className="bg-card border border-border rounded-xl overflow-hidden shadow-sm">
         <div className="px-5 py-3 bg-muted/40 border-b border-border flex items-center gap-2">
           <BookOpen className="w-4 h-4 text-muted-foreground" />
-          <h3 className="text-sm font-semibold text-foreground">Case Chronology</h3>
+          <h3 className="text-sm font-semibold text-foreground">
+            Case Chronology
+          </h3>
         </div>
         <div className="p-5 space-y-2">
-          {[1, 2, 3].map(i => (
+          {[1, 2, 3].map((i) => (
             <div key={i} className="h-10 bg-muted/40 rounded animate-pulse" />
           ))}
         </div>
@@ -59,14 +64,18 @@ export default function ComplaintChronologyPanel({ chronology, loading }: Props)
       <div className="px-5 py-3 bg-muted/40 border-b border-border flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <BookOpen className="w-4 h-4 text-muted-foreground" />
-          <h3 className="text-sm font-semibold text-foreground">Case Chronology</h3>
+          <h3 className="text-sm font-semibold text-foreground">
+            Case Chronology
+          </h3>
           {chronology.length > 0 && (
             <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
               {chronology.length}
             </span>
           )}
         </div>
-        <span className="text-xs text-muted-foreground italic hidden sm:inline">Director's Hearing preview</span>
+        <span className="text-xs text-muted-foreground italic hidden sm:inline">
+          Director's Hearing preview
+        </span>
       </div>
 
       {chronology.length === 0 ? (
@@ -74,7 +83,8 @@ export default function ComplaintChronologyPanel({ chronology, loading }: Props)
           <BookOpen className="w-8 h-8 mx-auto mb-2 opacity-30" />
           <p className="text-sm font-medium">No chronology entries yet</p>
           <p className="text-xs mt-1 max-w-xs mx-auto">
-            Entries are added automatically as inspections, NOVs, and other actions are recorded.
+            Entries are added automatically as inspections, NOVs, and other
+            actions are recorded.
           </p>
         </div>
       ) : (
@@ -101,14 +111,16 @@ export default function ComplaintChronologyPanel({ chronology, loading }: Props)
                 {visible.map((entry, i) => (
                   <tr
                     key={entry.id}
-                    className={`border-b border-border align-top ${i % 2 === 0 ? 'bg-background' : 'bg-muted/30'}`}
+                    className={`border-b border-border align-top ${i % 2 === 0 ? "bg-background" : "bg-muted/30"}`}
                   >
                     <td className="px-3 py-2.5 border-r border-border whitespace-nowrap text-foreground font-medium">
                       {fmtDate(entry.entryDate)}
                     </td>
                     <td className="px-3 py-2.5 border-r border-border">
                       {entry.entryType ? (
-                        <span className={`inline-block px-1.5 py-0.5 rounded text-[10px] font-semibold whitespace-nowrap ${TYPE_BADGE[entry.entryType] ?? 'bg-muted text-muted-foreground'}`}>
+                        <span
+                          className={`inline-block px-1.5 py-0.5 rounded text-[10px] font-semibold whitespace-nowrap ${TYPE_BADGE[entry.entryType] ?? "bg-muted text-muted-foreground"}`}
+                        >
                           {entry.entryType}
                         </span>
                       ) : (
@@ -118,11 +130,15 @@ export default function ComplaintChronologyPanel({ chronology, loading }: Props)
                     <td className="px-3 py-2.5 border-r border-border">
                       <div className="space-y-1">
                         {entry.summary && (
-                          <p className="text-foreground leading-relaxed">{sanitizeText(entry.summary)}</p>
+                          <p className="text-foreground leading-relaxed">
+                            {sanitizeText(entry.summary)}
+                          </p>
                         )}
                         {entry.violationsObserved && (
                           <p className="text-muted-foreground leading-relaxed">
-                            <span className="font-semibold text-foreground/70">Violations: </span>
+                            <span className="font-semibold text-foreground/70">
+                              Violations:{" "}
+                            </span>
                             {sanitizeText(entry.violationsObserved)}
                           </p>
                         )}
@@ -139,12 +155,16 @@ export default function ComplaintChronologyPanel({ chronology, loading }: Props)
                     </td>
                     <td className="px-3 py-2.5">
                       {entry.exhibit_refs ? (
-                        <span className="text-primary font-medium leading-snug">{entry.exhibit_refs}</span>
+                        <span className="text-primary font-medium leading-snug">
+                          {entry.exhibit_refs}
+                        </span>
                       ) : (
                         <span className="text-muted-foreground">—</span>
                       )}
                       {entry.attachmentPageRef && (
-                        <p className="text-muted-foreground mt-0.5">p. {entry.attachmentPageRef}</p>
+                        <p className="text-muted-foreground mt-0.5">
+                          p. {entry.attachmentPageRef}
+                        </p>
                       )}
                     </td>
                   </tr>
@@ -158,18 +178,23 @@ export default function ComplaintChronologyPanel({ chronology, loading }: Props)
             <p className="text-[10px] text-muted-foreground italic">
               {hasMore && !showAll
                 ? `Showing ${PREVIEW_COUNT} of ${sorted.length} entries (newest first)`
-                : `${sorted.length} ${sorted.length === 1 ? 'entry' : 'entries'} — newest first`}
+                : `${sorted.length} ${sorted.length === 1 ? "entry" : "entries"} — newest first`}
             </p>
             {hasMore && (
               <button
                 type="button"
-                onClick={() => setShowAll(v => !v)}
+                onClick={() => setShowAll((v) => !v)}
                 className="flex items-center gap-1 text-xs text-primary font-semibold hover:underline"
               >
                 {showAll ? (
-                  <><ChevronUp className="w-3.5 h-3.5" /> Collapse</>
+                  <>
+                    <ChevronUp className="w-3.5 h-3.5" /> Collapse
+                  </>
                 ) : (
-                  <><ChevronDown className="w-3.5 h-3.5" /> View all {sorted.length}</>
+                  <>
+                    <ChevronDown className="w-3.5 h-3.5" /> View all{" "}
+                    {sorted.length}
+                  </>
                 )}
               </button>
             )}

@@ -12,28 +12,28 @@
  *                              Non-Compliant, Escalated (destructive)
  */
 
-import type { ComplaintStatus } from './complaintStatuses';
+import type { ComplaintStatus } from "./complaintStatuses";
 
 // ── Complaint status badges ───────────────────────────────────────────────────
 
 /** Tailwind CSS classes for complaint status badges (three-tier hierarchy). */
 export const COMPLAINT_STATUS_THEME: Record<ComplaintStatus, string> = {
   // Tier 1 — Neutral / working states
-  'New':                    'bg-muted text-muted-foreground',
-  'Monitoring':             'bg-muted text-muted-foreground',
-  'Closed — Compliant':     'bg-success/10 text-success',
-  'Closed — No Violation':  'bg-muted text-muted-foreground',
-  'Closed — Unfounded':     'bg-muted text-muted-foreground',
+  New: "bg-muted text-muted-foreground",
+  Monitoring: "bg-muted text-muted-foreground",
+  "Closed — Compliant": "bg-success/10 text-success",
+  "Closed — No Violation": "bg-muted text-muted-foreground",
+  "Closed — Unfounded": "bg-muted text-muted-foreground",
 
   // Tier 2 — Active / in-progress states
-  'Contact Pending':        'bg-primary/10 text-primary',
-  'Inspection Scheduled':   'bg-primary/10 text-primary',
+  "Contact Pending": "bg-primary/10 text-primary",
+  "Inspection Scheduled": "bg-primary/10 text-primary",
 
   // Tier 3 — Compliance-critical / high-urgency states
-  'NOV Issued':             'bg-accent/20 text-accent-foreground font-semibold',
-  'Re-Inspection Due':      'bg-accent/20 text-accent-foreground font-semibold',
-  'Non-Compliant':          'bg-destructive/10 text-destructive font-semibold',
-  'Escalated':              'bg-destructive/20 text-destructive font-semibold',
+  "NOV Issued": "bg-accent/20 text-accent-foreground font-semibold",
+  "Re-Inspection Due": "bg-accent/20 text-accent-foreground font-semibold",
+  "Non-Compliant": "bg-destructive/10 text-destructive font-semibold",
+  Escalated: "bg-destructive/20 text-destructive font-semibold",
 };
 
 // ── Inspection status badges ──────────────────────────────────────────────────
@@ -44,8 +44,8 @@ export const COMPLAINT_STATUS_THEME: Record<ComplaintStatus, string> = {
  * compliance-critical complaint badges.
  */
 export const INSPECTION_STATUS_THEME: Record<string, string> = {
-  'Submitted': 'bg-primary/10 text-primary',
-  'Draft':     'bg-muted/60 text-muted-foreground border border-dashed border-border',
+  Submitted: "bg-primary/10 text-primary",
+  Draft: "bg-muted/60 text-muted-foreground border border-dashed border-border",
 };
 
 // ── Violation due-date badges ─────────────────────────────────────────────────
@@ -55,9 +55,9 @@ export const INSPECTION_STATUS_THEME: Record<string, string> = {
  * 48hrs = critical (destructive), 30days = standard (muted), 90days = extended (warning).
  */
 export const VIOLATION_DUE_BADGE_THEME: Record<string, string> = {
-  '48hrs':  'bg-destructive/10 text-destructive border-destructive/30',
-  '30days': 'bg-muted text-muted-foreground border-border',
-  '90days': 'bg-accent/10 text-accent-foreground border-accent/30',
+  "48hrs": "bg-destructive/10 text-destructive border-destructive/30",
+  "30days": "bg-muted text-muted-foreground border-border",
+  "90days": "bg-accent/10 text-accent-foreground border-accent/30",
 };
 
 // ── Photo type badges ─────────────────────────────────────────────────────────
@@ -67,10 +67,10 @@ export const VIOLATION_DUE_BADGE_THEME: Record<string, string> = {
  * Violation = destructive, Abatement = success, Memo = primary, General = muted.
  */
 export const PHOTO_TYPE_THEME: Record<string, string> = {
-  'Violation':     'bg-destructive/10 text-destructive border-destructive/30',
-  'Abatement':     'bg-success/10 text-success border-success/30',
-  'Memo of Visit': 'bg-primary/10 text-primary border-primary/30',
-  'General':       'bg-muted text-muted-foreground border-border',
+  Violation: "bg-destructive/10 text-destructive border-destructive/30",
+  Abatement: "bg-success/10 text-success border-success/30",
+  "Memo of Visit": "bg-primary/10 text-primary border-primary/30",
+  General: "bg-muted text-muted-foreground border-border",
 };
 
 // ── Action party theme (Owner / Tenant) ───────────────────────────────────────
@@ -79,13 +79,16 @@ export const PHOTO_TYPE_THEME: Record<string, string> = {
  * Icon and badge backgrounds for Owner vs Tenant action assignment panels.
  * Owner = primary blue tint, Tenant = accent/secondary tint.
  */
-export const ACTION_PARTY_THEME: Record<'Owner' | 'Tenant', { icon: string; badge: string }> = {
+export const ACTION_PARTY_THEME: Record<
+  "Owner" | "Tenant",
+  { icon: string; badge: string }
+> = {
   Owner: {
-    icon:  'bg-primary/15 text-primary',
-    badge: 'bg-primary/15 text-primary',
+    icon: "bg-primary/15 text-primary",
+    badge: "bg-primary/15 text-primary",
   },
   Tenant: {
-    icon:  'bg-accent/15 text-accent-foreground',
-    badge: 'bg-accent/15 text-accent-foreground',
+    icon: "bg-accent/15 text-accent-foreground",
+    badge: "bg-accent/15 text-accent-foreground",
   },
 };

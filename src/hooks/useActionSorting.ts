@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo } from "react";
 
 interface Action {
   text: string;
@@ -18,8 +18,12 @@ export function useActionSorting(
   selectedTexts: Set<string>,
 ) {
   return useMemo(() => {
-    const selectedItems = predefinedActions.filter(a => selectedTexts.has(a.text));
-    const unselectedItems = predefinedActions.filter(a => !selectedTexts.has(a.text));
+    const selectedItems = predefinedActions.filter((a) =>
+      selectedTexts.has(a.text),
+    );
+    const unselectedItems = predefinedActions.filter(
+      (a) => !selectedTexts.has(a.text),
+    );
     const showDivider = selectedItems.length > 0 && unselectedItems.length > 0;
     return { selectedItems, unselectedItems, showDivider };
   }, [predefinedActions, selectedTexts]);

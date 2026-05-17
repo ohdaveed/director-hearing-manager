@@ -11,12 +11,12 @@
  * source via COVER_PAGE_VARIABLE_SLOTS.
  */
 
-import { SFDPHReportHeader } from './SFDPHReportHeader';
+import { SFDPHReportHeader } from "./SFDPHReportHeader";
 import {
   STATIC_BLOCKS,
   LAYOUT_TOKENS,
   COVER_PAGE_VARIABLE_SLOTS,
-} from '../../config/documentTemplates';
+} from "../../config/documentTemplates";
 
 type Props = {
   packet: any;
@@ -35,32 +35,41 @@ function resolveVariable(
   location: any,
 ): string {
   switch (key) {
-    case 'caseNumber':
-      return packet.case_number ?? '—';
-    case 'propertyAddress':
-      return complaint?.address ?? location?.address ?? '—';
-    case 'programCode':
-      return packet.program_code ?? '';
+    case "caseNumber":
+      return packet.case_number ?? "—";
+    case "propertyAddress":
+      return complaint?.address ?? location?.address ?? "—";
+    case "programCode":
+      return packet.program_code ?? "";
     default:
-      return '';
+      return "";
   }
 }
 
 export function PacketCoverPage({ packet, complaint, location }: Props) {
   // Resolve variable slots through the config registry — traceable to source tables
-  const caseNumberSlot = COVER_PAGE_VARIABLE_SLOTS.find(s => s.key === 'caseNumber')!;
-  const addressSlot = COVER_PAGE_VARIABLE_SLOTS.find(s => s.key === 'propertyAddress')!;
+  const caseNumberSlot = COVER_PAGE_VARIABLE_SLOTS.find(
+    (s) => s.key === "caseNumber",
+  )!;
+  const addressSlot = COVER_PAGE_VARIABLE_SLOTS.find(
+    (s) => s.key === "propertyAddress",
+  )!;
 
-  const caseNumber = resolveVariable(caseNumberSlot.key, packet, complaint, location);
+  const caseNumber = resolveVariable(
+    caseNumberSlot.key,
+    packet,
+    complaint,
+    location,
+  );
   const address = resolveVariable(addressSlot.key, packet, complaint, location);
 
   // Layout constants from the locked token set
-  const { fontFamily, pt, page, pageMargin } = LAYOUT_TOKENS;
+  const { fontFamily, pt } = LAYOUT_TOKENS;
 
   return (
     <div
       className="packet-page print-page-break"
-      style={{ fontFamily, display: 'flex', flexDirection: 'column' }}
+      style={{ fontFamily, display: "flex", flexDirection: "column" }}
     >
       <SFDPHReportHeader layout="cover" sealSize={72} />
 
@@ -68,26 +77,45 @@ export function PacketCoverPage({ packet, complaint, location }: Props) {
       <div
         style={{
           flex: 1,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          textAlign: 'center',
-          padding: '60px 0',
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          textAlign: "center",
+          padding: "60px 0",
         }}
       >
         {/* Document title — locked static string */}
-        <h1 style={{ fontSize: pt.coverTitle, fontWeight: 'bolder', margin: '0 0 28px', letterSpacing: '0.03em' }}>
+        <h1
+          style={{
+            fontSize: pt.coverTitle,
+            fontWeight: "bolder",
+            margin: "0 0 28px",
+            letterSpacing: "0.03em",
+          }}
+        >
           {STATIC_BLOCKS.cover.documentTitle}
         </h1>
 
         {/* Case number — variable slot: HearingPackets.case_number */}
-        <p style={{ fontSize: pt.coverSubtitle, margin: '0 0 18px', fontWeight: 'normal' }}>
+        <p
+          style={{
+            fontSize: pt.coverSubtitle,
+            margin: "0 0 18px",
+            fontWeight: "normal",
+          }}
+        >
           {STATIC_BLOCKS.cover.caseLabel} {caseNumber}
         </p>
 
         {/* Property address — variable slot: Complaints.address or Locations.address */}
-        <p style={{ fontSize: pt.coverSubtitle, margin: '0', fontWeight: 'normal' }}>
+        <p
+          style={{
+            fontSize: pt.coverSubtitle,
+            margin: "0",
+            fontWeight: "normal",
+          }}
+        >
           {STATIC_BLOCKS.cover.addressLabel} {address}
         </p>
       </div>
@@ -95,11 +123,11 @@ export function PacketCoverPage({ packet, complaint, location }: Props) {
       {/* ── Footer — locked static text from STATIC_BLOCKS.cover ── */}
       <div
         style={{
-          borderTop: '1px solid #888',
-          paddingTop: '10px',
-          textAlign: 'center',
+          borderTop: "1px solid #888",
+          paddingTop: "10px",
+          textAlign: "center",
           fontSize: pt.footer,
-          color: '#555',
+          color: "#555",
         }}
       >
         {STATIC_BLOCKS.cover.footerText}

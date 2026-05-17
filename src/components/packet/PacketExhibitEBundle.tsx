@@ -1,6 +1,6 @@
-import { PacketNoticeOfHearing } from './PacketNoticeOfHearing';
-import { PacketNoticeOfViolation } from './PacketNoticeOfViolation';
-import { PacketServiceLog } from './PacketServiceLog';
+import { PacketNoticeOfHearing } from "./PacketNoticeOfHearing";
+import { PacketNoticeOfViolation } from "./PacketNoticeOfViolation";
+import { PacketServiceLog } from "./PacketServiceLog";
 
 type Props = {
   complaint: any;
@@ -13,41 +13,41 @@ type Props = {
 
 /**
  * PacketExhibitEBundle.tsx
- * 
+ *
  * Groups legal and service documentation into a single Exhibit E bundle.
  * Sequence: Notice of Hearing (Labeled E) -> NOV -> Proof of Service.
  */
-export function PacketExhibitEBundle({ 
-  complaint, 
-  location, 
-  packet, 
-  inspector, 
+export function PacketExhibitEBundle({
+  complaint,
+  location,
+  packet,
+  inspector,
   inspections,
-  serviceLog 
+  serviceLog,
 }: Props) {
   return (
     <div className="exhibit-e-bundle">
       {/* 1. Notice of Hearing (The Exhibit E Anchor) */}
-      <PacketNoticeOfHearing 
-        complaint={complaint} 
-        location={location} 
-        packet={packet} 
-        inspector={inspector} 
+      <PacketNoticeOfHearing
+        complaint={complaint}
+        location={location}
+        packet={packet}
+        inspector={inspector}
         inspections={inspections}
-        exhibitLetter="E" 
+        exhibitLetter="E"
       />
-      
+
       {/* 2. Notice of Violation (Part of Exhibit E) */}
-      <PacketNoticeOfViolation 
-        complaint={complaint} 
-        location={location} 
-        packet={packet} 
+      <PacketNoticeOfViolation
+        complaint={complaint}
+        location={location}
+        packet={packet}
         inspections={inspections}
         inspector={inspector}
       />
-      
+
       {/* 3. Proof of Service */}
-      <PacketServiceLog 
+      <PacketServiceLog
         serviceLog={serviceLog || []}
         complaint={complaint}
         location={location}

@@ -5,20 +5,33 @@
  * or Location ID. Clicking a result navigates to the full LocationPage,
  * which shows Owner Info, Inspections, and Complaints tabs.
  */
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { locationService } from '@/services/locationService';
-import { Input } from '@/components/ui/input';
-import { Skeleton } from '@/components/ui/skeleton';
-import { useDebouncedCallback } from 'use-debounce';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { locationService } from "@/services/locationService";
+import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useDebouncedCallback } from "use-debounce";
 import {
-  Search, MapPin, Building2, Hash, User, Phone,
-  ChevronRight, X, AlertCircle,
-} from 'lucide-react';
+  Search,
+  MapPin,
+  Building2,
+  Hash,
+  User,
+  Phone,
+  ChevronRight,
+  X,
+  AlertCircle,
+} from "lucide-react";
 
 type Location = any; // Properly type later
 
-function LocationCard({ loc, onClick }: { loc: Location; onClick: () => void }) {
+function LocationCard({
+  loc,
+  onClick,
+}: {
+  loc: Location;
+  onClick: () => void;
+}) {
   return (
     <button
       type="button"
@@ -30,7 +43,7 @@ function LocationCard({ loc, onClick }: { loc: Location; onClick: () => void }) 
         <div className="flex items-center gap-2">
           <MapPin className="w-4 h-4 text-primary flex-shrink-0" />
           <span className="text-sm font-semibold text-foreground truncate">
-            {loc.address ?? 'Unknown Address'}
+            {loc.address ?? "Unknown Address"}
           </span>
         </div>
 
@@ -87,7 +100,7 @@ function SkeletonCard() {
 
 export default function AllLocationsPage() {
   const navigate = useNavigate();
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState("");
   const [results, setResults] = useState<Location[]>([]);
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
@@ -120,7 +133,7 @@ export default function AllLocationsPage() {
   };
 
   const handleClear = () => {
-    setQuery('');
+    setQuery("");
     setResults([]);
     setSearched(false);
     setError(false);
@@ -129,7 +142,6 @@ export default function AllLocationsPage() {
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-3xl mx-auto px-4 py-8">
-
         {/* Header */}
         <div className="mb-7">
           <div className="flex items-center gap-2.5 mb-2">
@@ -139,7 +151,8 @@ export default function AllLocationsPage() {
             <h1 className="text-xl font-bold text-foreground">All Locations</h1>
           </div>
           <p className="text-sm text-muted-foreground pl-10">
-            Search by street address or Location ID to view complaints and inspections at a property.
+            Search by street address or Location ID to view complaints and
+            inspections at a property.
           </p>
         </div>
 
@@ -148,7 +161,7 @@ export default function AllLocationsPage() {
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
           <Input
             value={query}
-            onChange={e => handleChange(e.target.value)}
+            onChange={(e) => handleChange(e.target.value)}
             placeholder="Search by address or Location ID…"
             className="pl-11 pr-11 h-12 text-sm bg-card border-border focus:border-primary/50 shadow-sm"
             autoFocus
@@ -167,7 +180,9 @@ export default function AllLocationsPage() {
         {/* Loading skeletons */}
         {loading && (
           <div className="space-y-3">
-            {[1, 2, 3].map(i => <SkeletonCard key={i} />)}
+            {[1, 2, 3].map((i) => (
+              <SkeletonCard key={i} />
+            ))}
           </div>
         )}
 
@@ -175,7 +190,9 @@ export default function AllLocationsPage() {
         {!loading && error && (
           <div className="flex items-center gap-2.5 text-destructive bg-destructive/5 border border-destructive/20 rounded-xl px-5 py-4">
             <AlertCircle className="w-4 h-4 flex-shrink-0" />
-            <p className="text-sm">Failed to search locations. Please try again.</p>
+            <p className="text-sm">
+              Failed to search locations. Please try again.
+            </p>
           </div>
         )}
 
@@ -183,7 +200,9 @@ export default function AllLocationsPage() {
         {!loading && !error && searched && results.length === 0 && (
           <div className="text-center py-16">
             <MapPin className="w-10 h-10 mx-auto mb-3 text-muted-foreground opacity-25" />
-            <p className="text-sm font-medium text-muted-foreground">No locations found</p>
+            <p className="text-sm font-medium text-muted-foreground">
+              No locations found
+            </p>
             <p className="text-xs text-muted-foreground mt-1">
               Try a different address or Location ID
             </p>
@@ -196,9 +215,12 @@ export default function AllLocationsPage() {
             <div className="w-16 h-16 rounded-2xl bg-muted/50 border border-border flex items-center justify-center mx-auto mb-4">
               <MapPin className="w-7 h-7 text-muted-foreground opacity-40" />
             </div>
-            <p className="text-sm font-semibold text-muted-foreground">Search for a location</p>
+            <p className="text-sm font-semibold text-muted-foreground">
+              Search for a location
+            </p>
             <p className="text-xs text-muted-foreground mt-1.5 max-w-xs mx-auto leading-relaxed">
-              Enter a street address or numeric Location ID to find complaints and inspections at that property.
+              Enter a street address or numeric Location ID to find complaints
+              and inspections at that property.
             </p>
           </div>
         )}
@@ -207,10 +229,10 @@ export default function AllLocationsPage() {
         {!loading && !error && results.length > 0 && (
           <>
             <p className="text-xs text-muted-foreground mb-3 font-medium">
-              {results.length} result{results.length !== 1 ? 's' : ''}
+              {results.length} result{results.length !== 1 ? "s" : ""}
             </p>
             <div className="space-y-3">
-              {results.map(loc => (
+              {results.map((loc) => (
                 <LocationCard
                   key={loc.id}
                   loc={loc}

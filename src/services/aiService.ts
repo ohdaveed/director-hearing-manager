@@ -1,9 +1,16 @@
-import Anthropic from '@anthropic-ai/sdk';
-import { SFHC_ARTICLE_11_CODES, isValidArticle11Code } from '@/utils/sfhcArticle11';
-import { getStandardsForViolationCode, buildStandardsPromptBlock } from '@/utils/directorsRulesStandards';
+import Anthropic from "@anthropic-ai/sdk";
+import {
+  SFHC_ARTICLE_11_CODES,
+  isValidArticle11Code,
+} from "@/utils/sfhcArticle11";
+import {
+  getStandardsForViolationCode,
+  buildStandardsPromptBlock,
+} from "@/utils/directorsRulesStandards";
+import type { ComplianceResult } from "@/types/compliance";
 
 const anthropic = new Anthropic({
-  apiKey: import.meta.env.VITE_ANTHROPIC_API_KEY || 'mock_key',
+  apiKey: import.meta.env.VITE_ANTHROPIC_API_KEY || "mock_key",
 });
 
 export const aiService = {
@@ -18,7 +25,7 @@ RULES:
 3. Use pre-authorized regulatory language for corrective actions where applicable.
 
 ALLOWED CODES:
-${SFHC_ARTICLE_11_CODES.map(c => `- ${c.code}: ${c.label}`).join('\n')}
+${SFHC_ARTICLE_11_CODES.map((c) => `- ${c.code}: ${c.label}`).join("\n")}
 
 RESPONSE FORMAT:
 Return a JSON array of objects:
@@ -26,23 +33,25 @@ Return a JSON array of objects:
 `;
 
     const response = await anthropic.messages.create({
-      model: 'claude-3-haiku-20240307',
+      model: "claude-3-haiku-20240307",
       max_tokens: 1000,
       system: systemPrompt,
-      messages: [{ role: 'user', content: reportText }],
+      messages: [{ role: "user", content: reportText }],
     });
 
     const content = response.content[0];
-    if (content.type === 'text') {
+    if (content.type === "text") {
       try {
         // Find JSON in the response
         const jsonMatch = content.text.match(/\[.*\]/s);
         if (jsonMatch) {
           const rawViolations = JSON.parse(jsonMatch[0]);
-          
+
           // Filter for valid Article 11 codes only
-          const validViolations = rawViolations.filter((v: any) => isValidArticle11Code(v.code));
-          
+          const validViolations = rawViolations.filter((v: any) =>
+            isValidArticle11Code(v.code),
+          );
+
           // Post-process to add standards
           return validViolations.map((v: any) => {
             const standards = getStandardsForViolationCode(v.code);
@@ -54,10 +63,91 @@ Return a JSON array of objects:
           });
         }
       } catch (e) {
-        console.error('Failed to parse AI response', e);
+        console.error("Failed to parse AI response", e);
       }
     }
 
     return [];
-  }
+  },
+
+  async analyzePacketCompliance(
+    text: string,
+    fileName: string,
+  ): Promise<ComplianceResult> {
+    const systemPrompt = `
+You are an expert at analyzing Director Hearing Packets for compliance with SF Health Department Standard Operating Procedures.
+
+Your task is to analyze draft hearing packet documents and identify compliance issues against the SOP requirements.
+
+DIRECTOR HEARING PACKET SOP SEQUENCE:
+1. Cover Page - Case identification, respondent info, hearing date/time/location
+2. Enforcement Summary - Violation overview, history, recommended action
+3. Chronology - Timeline of events with Hearing Order Proposal at bottom
+4. Inspection Exhibits (A, B, C...) - Photos, reports, observations
+5. Exhibit E Bundle - Notice of Hearing, Notice of Violation, Proof of Service
+
+RULES FOR COMPLIANCE CHECKING:
+1. Check for all required sections in the correct sequence
+2. Verify each section contains necessary elements
+3. Identify missing or incorrect content
+4. Flag formatting issues that would affect legal validity
+
+RESPONSE FORMAT:
+Return a JSON object with this structure:
+{
+  "isCompliant": boolean,
+  "score": number (0-100),
+  "issues": [
+    {
+      "id": "string",
+      "category": "missing_section" | "incorrect_sequence" | "formatting" | "content" | "missing_element",
+      "severity": "critical" | "major" | "minor" | "info",
+      "description": "string",
+      "location": "string (optional - where in document)",
+      "suggestion": "string",
+      "reference": "string (optional - SOP reference)"
+    }
+  ],
+  "summary": "string",
+  "missingSections": ["string array of missing section names"],
+  "recommendations": ["string array of suggested fixes"]
+}
+
+Be thorough - check every required section and element.
+`;
+
+    try {
+      const response = await anthropic.messages.create({
+        model: "claude-3-haiku-20240307",
+        max_tokens: 2000,
+        system: systemPrompt,
+        messages: [
+          {
+            role: "user",
+            content: `Analyze this draft hearing packet for SOP compliance.\n\nFile: ${fileName}\n\nDocument content:\n${text}`,
+          },
+        ],
+      });
+
+      const content = response.content[0];
+      if (content.type === "text") {
+        const jsonMatch = content.text.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          const result = JSON.parse(jsonMatch[0]) as ComplianceResult;
+          return result;
+        }
+      }
+    } catch (error) {
+      console.error("Error analyzing packet compliance:", error);
+    }
+
+    return {
+      isCompliant: false,
+      score: 0,
+      issues: [],
+      summary: "Failed to analyze document",
+      missingSections: [],
+      recommendations: ["Please try again or manually verify compliance"],
+    };
+  },
 };

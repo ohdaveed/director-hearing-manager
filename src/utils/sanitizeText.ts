@@ -4,7 +4,7 @@
  * "smart quotes" / curly apostrophes) is stored without proper encoding conversion.
  */
 export function sanitizeText(text: string | null | undefined): string {
-  if (!text) return '';
+  if (!text) return "";
   // Replace the Unicode replacement character with a standard apostrophe
   return text.replace(/\uFFFD/g, "'");
 }

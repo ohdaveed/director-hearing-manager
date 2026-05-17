@@ -1,20 +1,30 @@
-import { supabase } from '@/lib/supabase';
+import { supabase } from "@/lib/supabase";
+
+/** Column selections to avoid SELECT * */
+export const CHRONOLOGY_LIST_COLUMNS = `
+  id, summary, entry_date, entry_type, created_by,
+  related_inspection, visibility, chronology_order,
+  citation_code, violations_observed, exhibit_refs,
+  attachment_page_ref, frozen_at, source_record,
+  deleted_at, created_at, updated_at
+`;
 
 export const chronoService = {
   async getChronologyForPacket({ packetId }: { packetId: string }) {
     const { data: packet } = await supabase
-      .from('hearing_packets')
-      .select('complaint')
-      .eq('id', packetId)
+      .from("hearing_packets")
+      .select("complaint")
+      .eq("id", packetId)
       .single();
 
-    if (!packet) throw new Error('Packet not found');
+    if (!packet) throw new Error("Packet not found");
 
     const { data, error } = await supabase
-      .from('chronology')
-      .select('*')
-      .eq('complaint', packet.complaint)
-      .order('chronology_order', { ascending: true });
+      .from("chronology")
+      .select(CHRONOLOGY_LIST_COLUMNS)
+      .eq("complaint", packet.complaint)
+      .is("deleted_at", null)
+      .order("chronology_order", { ascending: true });
 
     if (error) throw error;
     return { chronology: data };
@@ -22,24 +32,29 @@ export const chronoService = {
 
   async addChronologyEntry(entry: any) {
     const { data, error } = await supabase
-      .from('chronology')
-      .insert([entry])
-      .select()
+      .from("chronology")
+      .insert([
+        {
+          ...entry,
+          created_at: new Date().toISOString(),
+        },
+      ])
+      .select(CHRONOLOGY_LIST_COLUMNS)
       .single();
-    
+
     if (error) throw error;
     return data;
   },
 
   async updateChronologyEntry(id: string, updates: any) {
-    // Note: The id here might be a uuid or a composite key, 
-    // but in schema.sql chronology doesn't have a primary key?
-    // Wait, let me check schema.sql again.
     const { data, error } = await supabase
-      .from('chronology')
-      .update(updates)
-      .eq('id', id) // Assuming there is an id column despite schema.sql missing it in my quick read
-      .select()
+      .from("chronology")
+      .update({
+        ...updates,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", id)
+      .select(CHRONOLOGY_LIST_COLUMNS)
       .single();
 
     if (error) throw error;
@@ -48,19 +63,30 @@ export const chronoService = {
 
   async deleteChronologyEntry(id: string) {
     const { error } = await supabase
-      .from('chronology')
-      .delete()
-      .eq('id', id);
-    
+      .from("chronology")
+      .update({ deleted_at: new Date().toISOString() })
+      .eq("id", id);
+
     if (error) throw error;
   },
 
-  async reorderChronology({ packetId, orderedIds }: { packetId: string, orderedIds: string[] }) {
-    for (let i = 0; i < orderedIds.length; i++) {
-      await supabase
-        .from('chronology')
-        .update({ chronology_order: i + 1 })
-        .eq('id', orderedIds[i]);
-    }
-  }
+  async reorderChronology({
+    complaintId: _complaintId,
+    orderedIds,
+  }: {
+    complaintId?: string;
+    orderedIds: string[];
+  }) {
+    const updates = orderedIds.map((id, index) => ({
+      id,
+      chronology_order: index + 1,
+    }));
+
+    const { error } = await supabase
+      .from("chronology")
+      .upsert(updates, { onConflict: "id" })
+      .select();
+
+    if (error) throw error;
+  },
 };

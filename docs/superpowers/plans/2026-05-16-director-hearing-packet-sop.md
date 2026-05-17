@@ -4,7 +4,8 @@
 
 **Goal:** Refactor the Hearing Packet generation system to comply with official SFDPH SOPs, including document reordering, centered page numbering, red exhibit labeling, and a one-photo-per-page layout.
 
-**Architecture:** 
+**Architecture:**
+
 - Centralize print styles for page numbering and exhibit labels in `src/index.css`.
 - Create a composite `PacketExhibitEBundle` component for legal notices.
 - Update `HearingPacketPreview` to manage the strict SOP document sequence and dynamic numbering.
@@ -16,6 +17,7 @@
 ### Task 1: Print Layout & CSS Foundations
 
 **Files:**
+
 - Modify: `src/index.css`
 - Modify: `src/components/packet/printUtils.tsx`
 
@@ -26,6 +28,7 @@
 ### Task 2: SOP-Compliant Photo Appendix
 
 **Files:**
+
 - Modify: `src/components/packet/PacketPhotoAppendix.tsx`
 
 - [x] **Step 1: Refactor `PacketPhotoAppendix.tsx` for one-photo-per-page and metadata table.**
@@ -35,6 +38,7 @@
 ### Task 3: Integrated Chronology & Proposed Order
 
 **Files:**
+
 - Modify: `src/components/packet/PacketChronology.tsx`
 
 - [x] **Step 1: Update `PacketChronology.tsx` to include `HearingOrderProposal` at the bottom of the log.**
@@ -44,6 +48,7 @@
 ### Task 4: Exhibit E Legal Bundle
 
 **Files:**
+
 - Create: `src/components/packet/PacketExhibitEBundle.tsx`
 - Modify: `src/components/packet/PacketNoticeOfHearing.tsx`
 - Modify: `src/components/packet/PacketNoticeOfViolation.tsx`
@@ -55,6 +60,7 @@
 ### Task 5: Packet Reordering & Centered Numbering
 
 **Files:**
+
 - Modify: `src/components/HearingPacketPreview.tsx`
 
 - [x] **Step 1: Reorder components in `HearingPacketPreview.tsx` render function.**
