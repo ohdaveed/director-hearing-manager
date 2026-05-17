@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { saveInspection, getComplaintDetail, GetAssignedComplaintsOutputType } from 'zite-endpoints-sdk';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { inspectionService } from '@/services/inspectionService';
+import { complaintService } from '@/services/complaintService';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -23,7 +25,7 @@ import { PhotoEntry } from '@/components/PhotoCard';
 import { VIOLATION_TYPES, ViolationType, calcDueDate } from '@/components/violationTypes';
 import { getFieldValidationError } from '@/utils/validationRules';
 
-type ComplaintDetail = GetAssignedComplaintsOutputType['complaints'][0];
+type ComplaintDetail = any; // Properly type later
 
 // ── Inspection demo data ──────────────────────────────────────────────────────
 function pick<T>(arr: T[]): T { return arr[Math.floor(Math.random() * arr.length)]; }
@@ -288,10 +290,9 @@ export default function InspectionFormPage({ inspectorName }: Props) {
   // ── URL-driven context ────────────────────────────────────────────────────
   const { complaintId } = useParams<{ complaintId?: string }>();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
-  const [selectedComplaint, setSelectedComplaint] = useState<ComplaintDetail | null>(null);
   const [form, setForm] = useState<FormState | null>(null);
-  const [complaintLoading, setComplaintLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<{ inspectionType?: string }>({});
@@ -306,100 +307,48 @@ export default function InspectionFormPage({ inspectorName }: Props) {
   const [isDirty, setIsDirty] = useState(false);
   const [showChangeComplaintDialog, setShowChangeComplaintDialog] = useState(false);
 
-  // ── Action panel keyboard expand triggers (Alt+1 = Owner, Alt+2 = Tenant) ─
-  const [panelExpandTrigger, setPanelExpandTrigger] = useState({ owner: 0, tenant: 0 });
-  const markDirty = () => setIsDirty(true);
-
-  const addGlobalObs = () => {
-    const text = globalObsInput.trim();
-    if (!text || !form) return;
-    setField('globalObservations', [...(form.globalObservations ?? []), text]);
-    setGlobalObsInput('');
-  };
-
-  // Reorder quick-add chips so complaint-matched categories appear first
-  const sortedChipKeys = useMemo(() => {
-    const matchedLabels = new Set((selectedComplaint?.category ?? []).map(c => c.toLowerCase()));
-    if (matchedLabels.size === 0) return COMMON_VIOLATION_KEYS;
-    const matched: string[] = [];
-    const unmatched: string[] = [];
-    COMMON_VIOLATION_KEYS.forEach(key => {
-      const label = COMMON_VIOLATION_LABELS[key] ?? '';
-      if (matchedLabels.has(label.toLowerCase())) matched.push(key);
-      else unmatched.push(key);
-    });
-    return [...matched, ...unmatched];
-  }, [selectedComplaint?.category]);
-
-  const [openSections, setOpenSections] = useState({
-    details: true,
-    areas: true,
-    violations: true,
-    observations: true,
-    photos: false,
-    hearing: false,
-  });
-  const toggleSection = (key: keyof typeof openSections) =>
-    setOpenSections(prev => ({ ...prev, [key]: !prev[key] }));
-
-  // ── Load complaint from URL param ─────────────────────────────────────────
-  useEffect(() => {
-    if (!complaintId) {
-      setSelectedComplaint(null);
-      setForm(null);
-      setSubmitted(false);
-      setShowPrint(false);
-      setIsDirty(false);
-      return;
-    }
-
-    let cancelled = false;
-    const load = async () => {
-      setComplaintLoading(true);
-      try {
-        const detail = await getComplaintDetail({ complaintRecordId: complaintId });
-        if (cancelled) return;
-
-        const complaint: ComplaintDetail = {
-          id: detail.complaint.id,
-          complaintId: detail.complaint.complaintId,
-          address: detail.complaint.address,
-          description: detail.complaint.description,
-          status: detail.complaint.status,
-          category: detail.complaint.category ?? [],
-          reinspectionDueOnAfter: detail.complaint.reinspectionDueOnAfter,
-          draftInspectionId: detail.draftInspectionId,
-          locationRecordId: detail.locationRecordId,
-          locationId: undefined,
-          hearingStatus: undefined,
-        };
-
-        setSelectedComplaint(complaint);
-        setSubmitted(false);
-        setShowPrint(false);
-        setIsDirty(false);
-
-        const key = DRAFT_KEY(complaint.id);
-        const saved = localStorage.getItem(key);
-        if (saved) {
-          try {
-            setForm(JSON.parse(saved) as FormState);
-            setDraftSavedAt(new Date());
-            toast.info('Draft restored from last session.');
-            return;
-          } catch { /* ignore corrupt draft */ }
-        }
-        setForm(makeFormWithAutoViolations(complaint));
-      } catch {
-        if (!cancelled) toast.error('Could not load complaint.');
-      } finally {
-        if (!cancelled) setComplaintLoading(false);
+  const { data: selectedComplaint, isLoading: complaintLoading } = useQuery({
+    queryKey: ['complaint', complaintId],
+    queryFn: async () => {
+      if (!complaintId) return null;
+      const data = await complaintService.getById(complaintId);
+      
+      const key = DRAFT_KEY(complaintId);
+      const saved = localStorage.getItem(key);
+      if (saved) {
+        try {
+          setForm(JSON.parse(saved) as FormState);
+          setDraftSavedAt(new Date());
+          toast.info('Draft restored from last session.');
+        } catch { /* ignore corrupt draft */ }
+      } else {
+        setForm(makeFormWithAutoViolations(data));
       }
-    };
+      
+      return data;
+    },
+    enabled: !!complaintId,
+  });
 
-    load();
-    return () => { cancelled = true; };
-  }, [complaintId]);
+  const saveMutation = useMutation({
+    mutationFn: (data: any) => inspectionService.save(data),
+    onSuccess: (data, variables) => {
+      if (!variables.isDraft) {
+        localStorage.removeItem(DRAFT_KEY(form!.complaintId));
+        setSubmitted(true);
+        setIsDirty(false);
+        toast.success('Inspection saved successfully.');
+      } else {
+        setIsDirty(false);
+        toast.success('Draft saved.');
+      }
+      queryClient.invalidateQueries({ queryKey: ['complaint', complaintId] });
+      queryClient.invalidateQueries({ queryKey: ['inspections'] });
+    },
+    onError: () => {
+      toast.error('Failed to save. Please try again.');
+    }
+  });
 
   // ── Selecting a complaint from the picker navigates to its URL ────────────
   const handleSelectComplaint = useCallback((complaint: ComplaintDetail) => {
@@ -517,51 +466,31 @@ export default function InspectionFormPage({ inspectorName }: Props) {
         toast.error('Please fill in all required fields before submitting.');
         return;
       }
-      setFieldErrors({});
-    }
+    setFieldErrors({});
 
-    setSaving(true);
-    try {
-      await saveInspection({
-        inspector: inspectorName,
-        complaintRecordId: selectedComplaint.id,
-        locationRecordId: selectedComplaint.locationRecordId,
-        complaintId: form.complaintId,
-        inspectionDate: form.inspectionDate,
-        timeIn: form.timeIn,
-        timeOut: form.timeOut,
-        inspectionType: form.inspectionType,
-        inspectionRating: derivedRating,
-        summary: form.summary,
-        globalObservations: form.globalObservations ?? [],
-        areasInspected: form.areasInspected,
-        submitting: !isDraft,
-        violations: form.violations.filter(v => v.violationKey).map(v => ({
-          violationKey: v.violationKey,
-          location: v.location,
-          correctiveAction: v.correctiveAction,
-          responsibleParty: v.responsibleParty as 'Owner' | 'Tenant',
-          dueDate: v.dueDate,
-          status: v.status as 'Violation' | 'Abated' | 'Corrected on Site',
-          ownerActions: v.ownerActions ?? [],
-          tenantActions: v.tenantActions ?? [],
-          selectedObservations: v.selectedObservations ?? [],
-        })),
-      });
-      if (!isDraft) {
-        localStorage.removeItem(DRAFT_KEY(form.complaintId));
-        setSubmitted(true);
-        setIsDirty(false);
-        toast.success('Inspection saved successfully.');
-      } else {
-        setIsDirty(false);
-        toast.success('Draft saved.');
-      }
-    } catch {
-      toast.error('Failed to save. Please try again.');
-    } finally {
-      setSaving(false);
-    }
+    saveMutation.mutate({
+      isDraft,
+      inspector: inspectorName,
+      complaint_id: selectedComplaint.id,
+      location_id: selectedComplaint.location,
+      inspection_date: form.inspectionDate,
+      time_in: form.timeIn,
+      time_out: form.timeOut,
+      inspection_type: form.inspectionType,
+      inspection_rating: derivedRating,
+      summary: form.summary,
+      global_observations: form.globalObservations ?? [],
+      areas_inspected: form.areasInspected,
+      status: isDraft ? 'Draft' : 'Submitted',
+      violations: form.violations.filter(v => v.violationKey).map(v => ({
+        violation_label: v.violationKey.split('||')[1] || v.violationKey,
+        location_in_property: v.location,
+        corrective_action: v.correctiveAction,
+        responsible_party: v.responsibleParty as 'Owner' | 'Tenant',
+        due_date: v.due_date,
+        status: v.status as 'Violation' | 'Abated' | 'Corrected on Site',
+      })),
+    });
   };
 
   const handlePrint = () => {
