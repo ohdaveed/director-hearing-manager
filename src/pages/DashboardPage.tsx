@@ -12,17 +12,19 @@
  *   RIGHT — Upcoming Hearings, chart cards, monthly intake
  */
 
-import { useState, useEffect, useCallback } from 'react';
-import { getAllComplaints, GetAllComplaintsOutputType } from 'zite-endpoints-sdk';
+import { useState, useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { complaintService } from '@/services/complaintService';
 import { toast } from 'sonner';
-import { Loader2, AlertTriangle, CheckCircle2, Users, TrendingUp, Calendar, BarChart3 } from 'lucide-react';
+import { Loader2, AlertTriangle, CheckCircle2, Users, TrendingUp, Calendar, BarChart3, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ALL_COMPLAINT_STATUSES, ACTIVE_STATUSES, isOverdue } from '@/utils/complaintStatuses';
 import { INSPECTORS } from '@/utils/inspectors';
 import StatCard from '@/components/StatCard';
 import { formatDate } from '@/utils/formatDate';
 
-type Complaint = GetAllComplaintsOutputType['complaints'][0];
+type Complaint = any; // Will be properly typed once types are updated
+
 
 // ── Local helper functions ────────────────────────────────────────────────────
 
@@ -69,34 +71,13 @@ function HBar({ label, value, max, color = 'bg-primary' }: {
 export default function DashboardPage({ role = 'Program Manager' }: { role?: string }) {
   const showHearings = role === 'Program Manager' || role === 'Super Admin';
 
-  const [complaints, setComplaints] = useState<Complaint[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const { data: complaints = [], isLoading, isRefetching, refetch, dataUpdatedAt } = useQuery({
+    queryKey: ['complaints'],
+    queryFn: () => complaintService.getAll(),
+    refetchInterval: 60_000, // Refresh every minute
+  });
 
-  const fetchAll = useCallback(async (background = false) => {
-    if (background) setRefreshing(true);
-    else setLoading(true);
-    try {
-      const r = await getAllComplaints({});
-      setComplaints(r.complaints);
-      setLastUpdated(new Date());
-    } catch {
-      if (!background) toast.error('Failed to load dashboard data');
-    } finally {
-      if (background) setRefreshing(false);
-      else setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => { fetchAll(); }, [fetchAll]);
-
-  useEffect(() => {
-    const id = setInterval(() => fetchAll(true), 60_000);
-    return () => clearInterval(id);
-  }, [fetchAll]);
-
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="container mx-auto px-4 sm:px-6 max-w-[1300px]">
         <div className="flex items-center justify-between py-5 border-b border-border">
@@ -301,14 +282,14 @@ export default function DashboardPage({ role = 'Program Manager' }: { role?: str
           </p>
         </div>
         <div className="flex items-center gap-2">
-          {refreshing && <Loader2 className="w-3.5 h-3.5 animate-spin text-muted-foreground" />}
-          {lastUpdated && (
+          {isRefetching && <Loader2 className="w-3.5 h-3.5 animate-spin text-muted-foreground" />}
+          {dataUpdatedAt > 0 && (
             <span className="text-xs text-muted-foreground hidden sm:inline">
-              Updated {lastUpdated.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              Updated {new Date(dataUpdatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
             </span>
           )}
-          <Button variant="outline" size="sm" onClick={() => fetchAll(true)} disabled={refreshing} className="text-xs h-8 gap-1.5">
-            {refreshing && <Loader2 className="w-3 h-3 animate-spin" />}
+          <Button variant="outline" size="sm" onClick={() => refetch()} disabled={isRefetching} className="text-xs h-8 gap-1.5">
+            {isRefetching && <Loader2 className="w-3 h-3 animate-spin" />}
             Refresh
           </Button>
         </div>
