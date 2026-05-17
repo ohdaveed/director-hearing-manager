@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from 'zite-auth-sdk';
+import { AuthProvider, useAuth, Role } from '@/context/AuthContext';
 import {
   BrowserRouter, Routes, Route, Navigate,
   useNavigate, useLocation, useParams, Link,
@@ -17,6 +17,7 @@ import LocationPage from '@/pages/LocationPage';
 import AllLocationsPage from '@/pages/AllLocationsPage';
 import ImportComplaintsPage from '@/pages/ImportComplaintsPage';
 import UserManagementPage from '@/pages/UserManagementPage';
+import LoginPage from '@/pages/LoginPage';
 import { Toaster } from '@/components/ui/sonner';
 import {
   ClipboardList, AlertTriangle,
@@ -24,7 +25,6 @@ import {
   FlaskConical, X, MapPin, Loader2, Gavel,
 } from 'lucide-react';
 
-type Role = 'Inspector' | 'Admin' | 'Program Manager' | 'Super Admin';
 const ALL_ROLES: Role[] = ['Inspector', 'Admin', 'Program Manager', 'Super Admin'];
 
 // ── 5-pillar navigation ───────────────────────────────────────────────────────
@@ -297,7 +297,7 @@ function AppShell() {
 // ── Auth loading screen ───────────────────────────────────────────────────────
 
 function AppContent() {
-  const { isLoading } = useAuth();
+  const { user, isLoading } = useAuth();
   if (isLoading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-6 bg-background">
@@ -320,13 +320,20 @@ function AppContent() {
       </div>
     );
   }
+
+  if (!user) {
+    return <LoginPage />;
+  }
+
   return <AppShell />;
 }
 
 export default function App() {
   return (
     <BrowserRouter>
-      <AppContent />
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
     </BrowserRouter>
   );
 }
