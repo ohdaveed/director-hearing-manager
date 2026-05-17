@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useParams, useNavigate, Navigate } from 'react-router-dom';
-import { getLocationHistory, GetLocationHistoryOutputType } from 'zite-endpoints-sdk';
+import { useQuery } from '@tanstack/react-query';
+import { locationService } from '@/services/locationService';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -14,9 +15,9 @@ import { COMPLAINT_STATUS_THEME } from '@/utils/badgeThemes';
 import ImportedReportsTab from '@/components/ImportedReportsTab';
 import { sanitizeText } from '@/utils/sanitizeText';
 
-type LocationData = GetLocationHistoryOutputType['location'];
-type Inspection = GetLocationHistoryOutputType['inspections'][0];
-type Complaint = GetLocationHistoryOutputType['complaints'][0];
+type LocationData = any;
+type Inspection = any;
+type Complaint = any;
 
 function fmt(dateStr?: string) {
   if (!dateStr) return '—';
@@ -43,27 +44,27 @@ function OwnerTab({ loc }: { loc: LocationData }) {
       <div className="bg-card border border-border rounded-xl p-5 shadow-sm">
         <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-4">Property Info</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <InfoItem icon={<Hash className="w-3.5 h-3.5" />} label="Location ID" value={loc.locationId} />
-          <InfoItem icon={<Building2 className="w-3.5 h-3.5" />} label="Facility Type" value={loc.facilityType} />
-          <InfoItem icon={<Hash className="w-3.5 h-3.5" />} label="Block / Lot" value={loc.blockLot} />
+          <InfoItem icon={<Hash className="w-3.5 h-3.5" />} label="Location ID" value={loc.location_id} />
+          <InfoItem icon={<Building2 className="w-3.5 h-3.5" />} label="Facility Type" value={loc.facility_type} />
+          <InfoItem icon={<Hash className="w-3.5 h-3.5" />} label="Block / Lot" value={loc.block_lot} />
           <InfoItem icon={<Building2 className="w-3.5 h-3.5" />} label="DBA" value={loc.dba} />
-          <InfoItem icon={<Building2 className="w-3.5 h-3.5" />} label="Units" value={loc.numberOfUnits} />
-          <InfoItem icon={<Building2 className="w-3.5 h-3.5" />} label="Rooms" value={loc.numberOfRooms} />
-          <InfoItem icon={<MapPin className="w-3.5 h-3.5" />} label="Census Tract" value={loc.censusTract} />
+          <InfoItem icon={<Building2 className="w-3.5 h-3.5" />} label="Units" value={loc.number_of_units} />
+          <InfoItem icon={<Building2 className="w-3.5 h-3.5" />} label="Rooms" value={loc.number_of_rooms} />
+          <InfoItem icon={<MapPin className="w-3.5 h-3.5" />} label="Census Tract" value={loc.census_tract} />
           <InfoItem icon={<DollarSign className="w-3.5 h-3.5" />} label="Current Fees"
-            value={loc.currentFees !== undefined ? `$${loc.currentFees.toLocaleString('en-US', { minimumFractionDigits: 2 })}` : undefined} />
+            value={loc.current_fees !== undefined ? `$${loc.current_fees.toLocaleString('en-US', { minimumFractionDigits: 2 })}` : undefined} />
         </div>
-        {loc.buildingFeatures && loc.buildingFeatures.length > 0 && (
+        {loc.building_features && loc.building_features.length > 0 && (
           <div className="mt-4">
             <p className="text-xs text-muted-foreground mb-2">Building Features</p>
             <div className="flex flex-wrap gap-1.5">
-              {loc.buildingFeatures.map(f => (
+              {loc.building_features.map((f: string) => (
                 <Badge key={f} variant="secondary" className="text-xs">{f}</Badge>
               ))}
             </div>
           </div>
         )}
-        {loc.healthyHousing && (
+        {loc.healthy_housing && (
           <div className="mt-3 flex items-center gap-1.5 text-xs font-medium text-primary">
             <CheckCircle2 className="w-3.5 h-3.5" /> Healthy Housing Program
           </div>
@@ -74,25 +75,25 @@ function OwnerTab({ loc }: { loc: LocationData }) {
       <div className="bg-card border border-border rounded-xl p-5 shadow-sm">
         <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-4">Owner / Contact</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <InfoItem icon={<User className="w-3.5 h-3.5" />} label="Owner Name" value={loc.ownerName} />
-          <InfoItem icon={<Home className="w-3.5 h-3.5" />} label="Mailing Address" value={loc.ownerAddress} />
-          <InfoItem icon={<Phone className="w-3.5 h-3.5" />} label="Phone" value={loc.ownerPhone} />
-          <InfoItem icon={<Mail className="w-3.5 h-3.5" />} label="Email" value={loc.ownerEmail} />
+          <InfoItem icon={<User className="w-3.5 h-3.5" />} label="Owner Name" value={loc.owner_name} />
+          <InfoItem icon={<Home className="w-3.5 h-3.5" />} label="Mailing Address" value={loc.owner_address} />
+          <InfoItem icon={<Phone className="w-3.5 h-3.5" />} label="Phone" value={loc.owner_phone} />
+          <InfoItem icon={<Mail className="w-3.5 h-3.5" />} label="Email" value={loc.owner_email} />
         </div>
-        {!loc.ownerName && !loc.ownerAddress && !loc.ownerPhone && !loc.ownerEmail && (
+        {!loc.owner_name && !loc.owner_address && !loc.owner_phone && !loc.owner_email && (
           <p className="text-xs text-muted-foreground italic">No owner info on file.</p>
         )}
       </div>
 
       {/* Management */}
-      {(loc.managementName || loc.responsibleParty) && (
+      {(loc.management_name || loc.responsible_party) && (
         <div className="bg-card border border-border rounded-xl p-5 shadow-sm">
           <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-4">Management / Responsible Party</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <InfoItem icon={<Building2 className="w-3.5 h-3.5" />} label="Management Company" value={loc.managementName} />
-            <InfoItem icon={<User className="w-3.5 h-3.5" />} label="Responsible Party" value={loc.responsibleParty} />
-            <InfoItem icon={<Phone className="w-3.5 h-3.5" />} label="RP Phone" value={loc.responsiblePartyPhone} />
-            <InfoItem icon={<Mail className="w-3.5 h-3.5" />} label="RP Email" value={loc.responsiblePartyEmail} />
+            <InfoItem icon={<Building2 className="w-3.5 h-3.5" />} label="Management Company" value={loc.management_name} />
+            <InfoItem icon={<User className="w-3.5 h-3.5" />} label="Responsible Party" value={loc.responsible_party} />
+            <InfoItem icon={<Phone className="w-3.5 h-3.5" />} label="RP Phone" value={loc.responsible_party_phone} />
+            <InfoItem icon={<Mail className="w-3.5 h-3.5" />} label="RP Email" value={loc.responsible_party_email} />
           </div>
         </div>
       )}
@@ -113,19 +114,19 @@ function InspectionsTab({ inspections }: { inspections: Inspection[] }) {
   return (
     <div className="bg-card border border-border rounded-xl overflow-hidden shadow-sm">
       <div className="divide-y divide-border">
-        {inspections.map(ins => (
+        {inspections.map((ins: any) => (
           <div key={ins.id} className="px-5 py-4 flex items-start justify-between gap-3">
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2 flex-wrap mb-1">
-                <span className="text-sm font-semibold text-foreground">{fmt(ins.inspectionDate)}</span>
-                {ins.complaintId && (
+                <span className="text-sm font-semibold text-foreground">{fmt(ins.inspection_date)}</span>
+                {ins.complaintid && (
                   <span className="text-xs font-mono text-primary bg-primary/10 px-1.5 py-0.5 rounded">
-                    #{ins.complaintId}
+                    #{ins.complaintid}
                   </span>
                 )}
               </div>
               <div className="flex items-center gap-2 flex-wrap text-xs text-muted-foreground">
-                {ins.inspectionType && <span>{ins.inspectionType}</span>}
+                {ins.inspection_type && <span>{ins.inspection_type}</span>}
                 {ins.inspector && <span>· {ins.inspector}</span>}
               </div>
               {ins.notes && (
@@ -133,17 +134,17 @@ function InspectionsTab({ inspections }: { inspections: Inspection[] }) {
               )}
             </div>
             <div className="flex items-center gap-1.5 flex-shrink-0 flex-wrap justify-end">
-              {(ins.violationCount ?? 0) > 0 && (
+              {(ins.violation_count ?? 0) > 0 && (
                 <span className="text-xs font-medium bg-destructive/10 text-destructive px-2 py-0.5 rounded-full">
-                  {ins.violationCount} viol.
+                  {ins.violation_count} viol.
                 </span>
               )}
-              {ins.inspectionRating === 'Satisfactory' && (
+              {ins.inspection_rating === 'Satisfactory' && (
                 <span className="flex items-center gap-1 text-xs font-medium text-success bg-success/10 px-2 py-0.5 rounded-full">
                   <CheckCircle2 className="w-3 h-3" /> Sat.
                 </span>
               )}
-              {ins.inspectionRating === 'Unsatisfactory' && (
+              {ins.inspection_rating === 'Unsatisfactory' && (
                 <span className="flex items-center gap-1 text-xs font-medium text-destructive bg-destructive/10 px-2 py-0.5 rounded-full">
                   <XCircle className="w-3 h-3" /> Unsat.
                 </span>
@@ -175,32 +176,32 @@ function ComplaintsTab({ complaints }: { complaints: Complaint[] }) {
   return (
     <div className="bg-card border border-border rounded-xl overflow-hidden shadow-sm">
       <div className="divide-y divide-border">
-        {complaints.map(c => {
+        {complaints.map((c: any) => {
           const badgeCls = COMPLAINT_STATUS_THEME[c.status as keyof typeof COMPLAINT_STATUS_THEME] ?? 'bg-muted text-muted-foreground';
           return (
             <div key={c.id} className="px-5 py-4 flex items-start justify-between gap-3">
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2 flex-wrap mb-1">
-                  {c.complaintId && (
+                  {c.complaintid && (
                     <span className="text-xs font-mono font-semibold text-primary bg-primary/10 px-1.5 py-0.5 rounded">
-                      #{c.complaintId}
+                      #{c.complaintid}
                     </span>
                   )}
-                  <span className="text-sm font-semibold text-foreground">{fmt(c.dateEntered)}</span>
-                  {c.dateClosed && (
-                    <span className="text-xs text-muted-foreground">Closed {fmt(c.dateClosed)}</span>
+                  <span className="text-sm font-semibold text-foreground">{fmt(c.date_entered)}</span>
+                  {c.date_closed && (
+                    <span className="text-xs text-muted-foreground">Closed {fmt(c.date_closed)}</span>
                   )}
                 </div>
                 <div className="flex items-center gap-2 flex-wrap text-xs text-muted-foreground">
-                  {c.complaintType && <span>{c.complaintType}</span>}
-                  {c.assignedTo && <span>· {c.assignedTo.replace(' (DPH)', '')}</span>}
+                  {c.complaint_type && <span>{c.complaint_type}</span>}
+                  {c.assigned_to && <span>· {c.assigned_to.replace(' (DPH)', '')}</span>}
                 </div>
                 {c.description && (
                   <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{sanitizeText(c.description)}</p>
                 )}
                 {c.category && c.category.length > 0 && (
                   <div className="flex flex-wrap gap-1 mt-1.5">
-                    {c.category.map(cat => (
+                    {c.category.map((cat: string) => (
                       <span key={cat} className="text-xs bg-muted text-muted-foreground px-1.5 py-0.5 rounded-full">{cat}</span>
                     ))}
                   </div>
@@ -231,17 +232,10 @@ export default function LocationPage() {
 }
 
 function LocationPageContent({ locationRecordId, onBack }: { locationRecordId: string; onBack: () => void }) {
-  const [data, setData] = useState<GetLocationHistoryOutputType | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    setLoading(true);
-    setData(null);
-    getLocationHistory({ locationRecordId })
-      .then(setData)
-      .catch(() => toast.error('Failed to load location'))
-      .finally(() => setLoading(false));
-  }, [locationRecordId]);
+  const { data, isLoading: loading } = useQuery({
+    queryKey: ['location', locationRecordId],
+    queryFn: () => locationService.getById(locationRecordId),
+  });
 
   return (
     <div className="min-h-screen bg-background">
@@ -269,11 +263,11 @@ function LocationPageContent({ locationRecordId, onBack }: { locationRecordId: s
                 <h1 className="text-xl font-bold text-foreground">{data.location.address ?? 'Unknown Address'}</h1>
               </div>
               <div className="flex items-center gap-3 text-sm text-muted-foreground flex-wrap">
-                {data.location.locationId && (
-                  <span className="font-mono">ID: {data.location.locationId}</span>
+                {data.location.location_id && (
+                  <span className="font-mono">ID: {data.location.location_id}</span>
                 )}
-                {data.location.facilityType && (
-                  <span className="bg-muted px-2 py-0.5 rounded-full text-xs">{data.location.facilityType}</span>
+                {data.location.facility_type && (
+                  <span className="bg-muted px-2 py-0.5 rounded-full text-xs">{data.location.facility_type}</span>
                 )}
                 <span className="flex items-center gap-1">
                   <ClipboardList className="w-3.5 h-3.5" />
