@@ -1,11 +1,11 @@
-import { useEffect, useState } from 'react';
-import { getAssignedComplaints, GetAssignedComplaintsOutputType } from 'zite-endpoints-sdk';
+import { useQuery } from '@tanstack/react-query';
+import { complaintService } from '@/services/complaintService';
 import { FileEdit, FilePlus, AlertCircle } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { COMPLAINT_STATUS_THEME } from '@/utils/badgeThemes';
 import { sanitizeText } from '@/utils/sanitizeText';
 
-type Complaint = GetAssignedComplaintsOutputType['complaints'][0];
+type Complaint = any; // Properly type later
 
 type Props = {
   inspector: string;
@@ -13,17 +13,11 @@ type Props = {
 };
 
 export default function AssignedComplaintsPanel({ inspector, onSelectComplaint }: Props) {
-  const [complaints, setComplaints] = useState<Complaint[]>([]);
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    if (!inspector) return;
-    setLoading(true);
-    getAssignedComplaints({ inspector })
-      .then(r => setComplaints(r.complaints))
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, [inspector]);
+  const { data: complaints = [], isLoading: loading } = useQuery({
+    queryKey: ['complaints', 'assigned', inspector],
+    queryFn: () => complaintService.getAll({ assignedTo: inspector }),
+    enabled: !!inspector,
+  });
 
   if (loading) {
     return (
@@ -80,17 +74,17 @@ export default function AssignedComplaintsPanel({ inspector, onSelectComplaint }
               <div className="flex items-start justify-between gap-3">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-0.5">
-                    {c.complaintId && (
+                    {c.complaintid && (
                       <span className="text-xs font-mono font-semibold text-primary bg-primary/10 px-1.5 py-0.5 rounded">
-                        #{c.complaintId}
+                        #{c.complaintid}
                       </span>
                     )}
-                    {c.draftInspectionId && (
+                    {c.draft_inspection_id && (
                       <span className="inline-flex items-center gap-1 text-xs font-medium text-warning bg-warning/10 px-2 py-0.5 rounded-full">
                         <FileEdit className="w-3 h-3" /> Draft in progress
                       </span>
                     )}
-                    {!c.draftInspectionId && (
+                    {!c.draft_inspection_id && (
                       <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
                         <FilePlus className="w-3 h-3" /> New inspection
                       </span>
@@ -100,9 +94,9 @@ export default function AssignedComplaintsPanel({ inspector, onSelectComplaint }
                   {c.description && (
                     <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{sanitizeText(c.description)}</p>
                   )}
-                  {c.reinspectionDueOnAfter && (
+                  {c.reinspection_due_on_after && (
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      Reinspection due: {new Date(c.reinspectionDueOnAfter).toLocaleDateString()}
+                      Reinspection due: {new Date(c.reinspection_due_on_after).toLocaleDateString()}
                     </p>
                   )}
                 </div>
