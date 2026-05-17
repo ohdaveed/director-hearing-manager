@@ -30,7 +30,7 @@ export const complaintService = {
         hearing_packets (*),
         locations (*)
       `)
-      .eq('record_id', id)
+      .eq('id', id)
       .single()
     
     if (error) throw error
@@ -52,7 +52,7 @@ export const complaintService = {
     const { data, error } = await supabase
       .from('complaints')
       .update(updates)
-      .eq('record_id', id)
+      .eq('id', id)
       .select()
       .single()
     
