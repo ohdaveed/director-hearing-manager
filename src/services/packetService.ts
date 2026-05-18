@@ -397,6 +397,7 @@ export const packetService = {
       .from("hearing_packets")
       .update(
         toLegacyCompatibleUpdates({
+          case_number: complianceData.mappedData?.caseNumber,
           notes: `[COMPLIANCE_ANALYSIS]\nAnalyzed at: ${complianceData.analyzedAt}\nScore: ${complianceData.complianceResult.score}\nStatus: ${complianceData.complianceResult.isCompliant ? "Compliant" : "Non-Compliant"}\nIssues: ${complianceData.complianceResult.issues.length}\n\n${complianceData.complianceResult.summary}`,
           packet_status: complianceData.complianceResult.isCompliant
             ? "In Progress"
