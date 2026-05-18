@@ -1,19 +1,27 @@
 /**
- * packet.ts
- *
- * Domain types for Hearing Packets - single source of truth for packet data structures.
+ * Domain types for Hearing Packets.
  */
 
+import type { PacketStatus } from "@/services/packetService";
 import type { ComplaintSummary } from "./complaint";
 
+export type JsonRecord = Record<string, unknown>;
+
+export interface PacketValidationResult {
+  rule_slug: string;
+  status: "pass" | "warning" | "fail" | string;
+  severity?: "critical" | "major" | "minor" | string;
+  message?: string;
+  [key: string]: unknown;
+}
+
 /**
- * Basic packet data from hearing_packets table (PACKET_LIST_COLUMNS)
- * Plus complaint address and complaintId for UI convenience
+ * Basic packet data from hearing_packets table plus denormalized complaint data.
  */
 export type PacketSummary = {
   id: string;
   hearing_date: string | null;
-  packet_status: string;
+  packet_status: PacketStatus | string;
   assigned_to: string | null;
   case_number: string | null;
   program_code: string | null;
@@ -25,21 +33,22 @@ export type PacketSummary = {
   bates_end: string | null;
   admin_fee: string | null;
   deleted_at: string | null;
-  created_at: string;
-  updated_at: string;
+  created_at?: string | null;
+  updated_at?: string | null;
+  generated_at?: string | null;
+  generated_file_path?: string | null;
+  final_file_path?: string | null;
+  approved_at?: string | null;
+  submitted_at?: string | null;
+  locked_at?: string | null;
 
-  // Denormalized from complaints relation for UI convenience
   address: string | null;
-  complaintId: string | null;
-  hearingStatus: string | null;
+  complaintid?: string | null;
+  complaintId?: string | null;
+  hearingStatus?: string | null;
 };
 
-/**
- * Full packet data including relations (PACKET_FULL_COLUMNS + relations)
- * This matches what packetService.getById returns after mapping
- */
 export type PacketFull = PacketSummary & {
-  generated_at: string | null;
   chronology_snapshot: string | null;
   hearing_order_data: string | null;
   selected_report_ids: string | null;
@@ -52,11 +61,33 @@ export type PacketFull = PacketSummary & {
   manager_signature: string | null;
   revision_notes: string | null;
   status_history: string | null;
+
+  selected_report_ids_json?: string[];
+  selected_photo_ids_json?: string[];
+  packet_snapshot_json?: JsonRecord;
+  validation_results_json?: PacketValidationResult[];
+  checklist_json?: JsonRecord;
+  enforcement_json?: JsonRecord;
+  status_history_json?: StatusHistoryEntry[];
+  page_numbering_complete?: boolean | null;
+  exhibit_labeling_complete?: boolean | null;
+  internal_review_date?: string | null;
+  notice_service_date?: string | null;
+  final_reinspection_date?: string | null;
+  coordinator_submittal_date?: string | null;
+  teams_upload_date?: string | null;
+  post_order_service_date?: string | null;
 };
 
-/**
- * Packet with all relations loaded - used in packet detail view
- */
+export interface PacketDetailData {
+  packet: PacketFull;
+  complaint: any;
+  location: any;
+  inspections: any[];
+  chronology: any[];
+  serviceLog: any[];
+}
+
 export type PacketWithRelations = PacketFull & {
   complaint: ComplaintSummary | null;
   location: {
@@ -64,13 +95,11 @@ export type PacketWithRelations = PacketFull & {
     address: string;
     owner_name: string | null;
     verification_date: string | null;
-    // Add other location fields as needed
   } | null;
   inspector: {
     id: string;
     name: string;
     email: string;
-    // Add other inspector fields as needed
   } | null;
   inspections: Array<{
     id: string;
@@ -78,13 +107,9 @@ export type PacketWithRelations = PacketFull & {
     inspector_id: string;
     inspection_date: string;
     status: string;
-    // Add other inspection fields as needed
   }>;
 };
 
-/**
- * Enforcement flags for legal language checkboxes
- */
 export interface EnforcementFlags {
   nuisanceAbatement: boolean;
   costRecovery: boolean;
@@ -92,19 +117,13 @@ export interface EnforcementFlags {
   appealNonPermitted: boolean;
 }
 
-/**
- * Status history entry for audit trail
- */
 export interface StatusHistoryEntry {
   timestamp: string;
-  userName: string;
-  fromStatus: string;
-  toStatus: string;
-  action: string;
+  userName?: string;
+  fromStatus?: string;
+  toStatus?: string;
+  action?: string;
   notes?: string;
 }
 
-/**
- * Checklist completion status - maps milestone ID to boolean
- */
 export type ChecklistCompletion = Record<number, boolean>;
