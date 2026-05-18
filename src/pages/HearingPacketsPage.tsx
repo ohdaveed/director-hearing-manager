@@ -1,8 +1,8 @@
 import { useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/context/AuthContext";
-import { PACKET_STATUSES, packetService } from "@/services/packetService";
+import { PACKET_STATUSES } from "@/services/packetService";
+import { usePacketListQuery } from "@/hooks/usePacketQueries";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -35,19 +35,15 @@ export default function HearingPacketsPage({
   const currentUserRole = user?.role;
   const [statusFilter, setStatusFilter] = useState("");
 
+  const assignedToFilter = userScopedFilter && inspectorName ? inspectorName : undefined;
   const {
     data: packets = [],
     isLoading,
     refetch,
     isRefetching,
-  } = useQuery({
-    queryKey: ["packets", statusFilter, userScopedFilter, inspectorName],
-    queryFn: () =>
-      packetService.getAll({
-        statusFilter: statusFilter || undefined,
-        assignedToFilter:
-          userScopedFilter && inspectorName ? inspectorName : undefined,
-      }),
+  } = usePacketListQuery({
+    statusFilter: statusFilter || undefined,
+    assignedToFilter,
     enabled: !!user,
   });
 
