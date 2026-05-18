@@ -65,6 +65,18 @@ export const locationService = {
     return result;
   },
 
+  async getRecent(limit: number = 5) {
+    const { data, error } = await supabase
+      .from("locations")
+      .select(LOCATION_LIST_COLUMNS)
+      .is("deleted_at", null)
+      .order("created_at", { ascending: false })
+      .limit(limit);
+
+    if (error) throw error;
+    return data;
+  },
+
   async findByLocationId(locationId: string) {
     const { data, error } = await supabase
       .from("locations")

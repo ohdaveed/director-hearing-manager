@@ -5,12 +5,24 @@
  * or Location ID. Clicking a result navigates to the full LocationPage,
  * which shows Owner Info, Inspections, and Complaints tabs.
  */
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { locationService } from "@/services/locationService";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useDebouncedCallback } from "use-debounce";
+import { toast } from "sonner";
 import {
   Search,
   MapPin,
@@ -21,9 +33,22 @@ import {
   ChevronRight,
   X,
   AlertCircle,
+  Clock,
+  Plus,
+  Loader2,
 } from "lucide-react";
 
 type Location = any; // Properly type later
+
+const FACILITY_TYPES = [
+  "Tourist Hotel",
+  "Residential Hotel",
+  "Apartments",
+  "Residential Property",
+  "Vacant Lot",
+  "City Owned Property",
+  "Other",
+];
 
 function LocationCard({
   loc,
@@ -100,11 +125,45 @@ function SkeletonCard() {
 
 export default function AllLocationsPage() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<Location[]>([]);
+  const [recent, setRecent] = useState<Location[]>([]);
   const [loading, setLoading] = useState(false);
+  const [recentLoading, setRecentLoading] = useState(true);
   const [searched, setSearched] = useState(false);
   const [error, setError] = useState(false);
+
+  // Create-location form state
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [createForm, setCreateForm] = useState({
+    address: "",
+    location_id: "",
+    facility_type: "",
+    owner_name: "",
+    owner_phone: "",
+    owner_email: "",
+    number_of_units: "",
+  });
+
+  // Fetch last 5 added locations on mount
+  useEffect(() => {
+    let cancelled = false;
+    async function loadRecent() {
+      try {
+        const data = await locationService.getRecent(5);
+        if (!cancelled) setRecent(data ?? []);
+      } catch {
+        // silently fail — recent list is non-critical
+      } finally {
+        if (!cancelled) setRecentLoading(false);
+      }
+    }
+    loadRecent();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const doSearch = useDebouncedCallback(async (q: string) => {
     if (!q.trim()) {
@@ -137,7 +196,50 @@ export default function AllLocationsPage() {
     setResults([]);
     setSearched(false);
     setError(false);
+    setShowCreateForm(false);
   };
+
+  const createMutation = useMutation({
+    mutationFn: (data: any) => locationService.create(data),
+    onSuccess: (data) => {
+      toast.success("Location created successfully");
+      queryClient.invalidateQueries({ queryKey: ["locations"] });
+      setShowCreateForm(false);
+      setCreateForm({
+        address: "",
+        location_id: "",
+        facility_type: "",
+        owner_name: "",
+        owner_phone: "",
+        owner_email: "",
+        number_of_units: "",
+      });
+      navigate(`/locations/${data.id}`);
+    },
+    onError: () => {
+      toast.error("Failed to create location. Please try again.");
+    },
+  });
+
+  const handleSaveLocation = () => {
+    if (!createForm.address.trim()) {
+      toast.error("Address is required.");
+      return;
+    }
+    createMutation.mutate({
+      address: createForm.address.trim(),
+      location_id: createForm.location_id || undefined,
+      facility_type: createForm.facility_type || undefined,
+      owner_name: createForm.owner_name || undefined,
+      owner_phone: createForm.owner_phone || undefined,
+      owner_email: createForm.owner_email || undefined,
+      number_of_units: createForm.number_of_units
+        ? Number(createForm.number_of_units)
+        : undefined,
+    });
+  };
+
+  const isSearching = query.trim().length > 0;
 
   return (
     <div className="min-h-screen bg-background">
@@ -203,30 +305,175 @@ export default function AllLocationsPage() {
             <p className="text-sm font-medium text-muted-foreground">
               No locations found
             </p>
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-xs text-muted-foreground mt-1 mb-4">
               Try a different address or Location ID
             </p>
+            {!showCreateForm && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-2"
+                onClick={() => {
+                  setShowCreateForm(true);
+                  setCreateForm((prev) => ({ ...prev, address: query }));
+                }}
+              >
+                <Plus className="w-4 h-4" /> Create New Location
+              </Button>
+            )}
           </div>
         )}
 
-        {/* Empty / idle state */}
-        {!loading && !searched && (
-          <div className="text-center py-20">
-            <div className="w-16 h-16 rounded-2xl bg-muted/50 border border-border flex items-center justify-center mx-auto mb-4">
-              <MapPin className="w-7 h-7 text-muted-foreground opacity-40" />
-            </div>
-            <p className="text-sm font-semibold text-muted-foreground">
-              Search for a location
-            </p>
-            <p className="text-xs text-muted-foreground mt-1.5 max-w-xs mx-auto leading-relaxed">
-              Enter a street address or numeric Location ID to find complaints
-              and inspections at that property.
-            </p>
-          </div>
+        {/* Create location form */}
+        {showCreateForm && (
+          <Card className="mb-6">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-base">
+                  New Location Details
+                </CardTitle>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowCreateForm(false)}
+                >
+                  Cancel
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="sm:col-span-2 space-y-2">
+                  <Label htmlFor="loc-address">
+                    Address <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    id="loc-address"
+                    placeholder="Street address"
+                    value={createForm.address}
+                    onChange={(e) =>
+                      setCreateForm((prev) => ({
+                        ...prev,
+                        address: e.target.value,
+                      }))
+                    }
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="loc-location-id">Location ID</Label>
+                  <Input
+                    id="loc-location-id"
+                    placeholder="e.g. 110881"
+                    value={createForm.location_id}
+                    onChange={(e) =>
+                      setCreateForm((prev) => ({
+                        ...prev,
+                        location_id: e.target.value,
+                      }))
+                    }
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="loc-facility-type">Facility Type</Label>
+                  <Select
+                    value={createForm.facility_type}
+                    onValueChange={(v) =>
+                      setCreateForm((prev) => ({ ...prev, facility_type: v }))
+                    }
+                  >
+                    <SelectTrigger
+                      id="loc-facility-type"
+                      className="text-sm h-9"
+                    >
+                      <SelectValue placeholder="Select type..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {FACILITY_TYPES.map((t) => (
+                        <SelectItem key={t} value={t}>
+                          {t}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="loc-owner-name">Owner Name</Label>
+                  <Input
+                    id="loc-owner-name"
+                    placeholder="Full name"
+                    value={createForm.owner_name}
+                    onChange={(e) =>
+                      setCreateForm((prev) => ({
+                        ...prev,
+                        owner_name: e.target.value,
+                      }))
+                    }
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="loc-owner-phone">Owner Phone</Label>
+                  <Input
+                    id="loc-owner-phone"
+                    placeholder="(415) 555-1234"
+                    value={createForm.owner_phone}
+                    onChange={(e) =>
+                      setCreateForm((prev) => ({
+                        ...prev,
+                        owner_phone: e.target.value,
+                      }))
+                    }
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="loc-owner-email">Owner Email</Label>
+                  <Input
+                    id="loc-owner-email"
+                    type="email"
+                    placeholder="owner@email.com"
+                    value={createForm.owner_email}
+                    onChange={(e) =>
+                      setCreateForm((prev) => ({
+                        ...prev,
+                        owner_email: e.target.value,
+                      }))
+                    }
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="loc-num-units"># Units</Label>
+                  <Input
+                    id="loc-num-units"
+                    type="number"
+                    min="0"
+                    placeholder="0"
+                    value={createForm.number_of_units}
+                    onChange={(e) =>
+                      setCreateForm((prev) => ({
+                        ...prev,
+                        number_of_units: e.target.value,
+                      }))
+                    }
+                  />
+                </div>
+              </div>
+              <div className="flex justify-end mt-6">
+                <Button
+                  onClick={handleSaveLocation}
+                  disabled={createMutation.isPending}
+                  className="gap-2"
+                >
+                  {createMutation.isPending && (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  )}
+                  Save Location
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         )}
 
-        {/* Results */}
-        {!loading && !error && results.length > 0 && (
+        {/* Search results */}
+        {!loading && !error && isSearching && results.length > 0 && (
           <>
             <p className="text-xs text-muted-foreground mb-3 font-medium">
               {results.length} result{results.length !== 1 ? "s" : ""}
@@ -241,6 +488,45 @@ export default function AllLocationsPage() {
               ))}
             </div>
           </>
+        )}
+
+        {/* Recently Added (idle state) */}
+        {!loading && !isSearching && !error && (
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 mb-1">
+              <Clock className="w-3.5 h-3.5 text-muted-foreground" />
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                Recently Added
+              </p>
+            </div>
+            {recentLoading ? (
+              <div className="space-y-3">
+                {[1, 2, 3].map((i) => (
+                  <SkeletonCard key={i} />
+                ))}
+              </div>
+            ) : recent.length > 0 ? (
+              <div className="space-y-3">
+                {recent.map((loc) => (
+                  <LocationCard
+                    key={loc.id}
+                    loc={loc}
+                    onClick={() => navigate(`/locations/${loc.id}`)}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-16">
+                <MapPin className="w-10 h-10 mx-auto mb-3 text-muted-foreground opacity-25" />
+                <p className="text-sm font-medium text-muted-foreground">
+                  No locations yet
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Locations will appear here once they are added.
+                </p>
+              </div>
+            )}
+          </div>
         )}
       </div>
     </div>

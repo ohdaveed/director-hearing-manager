@@ -80,11 +80,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (error) throw error;
 
       if (data) {
+        // Update last_login on every login; sync name from metadata if available
+        const updates: Record<string, any> = {
+          last_login: new Date().toISOString(),
+        };
+        const metaFirst = supabaseUser.user_metadata?.first_name;
+        const metaLast = supabaseUser.user_metadata?.last_name;
+        if (metaFirst) updates.first_name = metaFirst;
+        if (metaLast) updates.last_name = metaLast;
+
+        const { error: updateError } = await supabase
+          .from("users")
+          .update(updates)
+          .eq("id", supabaseUser.id);
+
+        if (updateError) {
+          console.error("Error updating user profile:", updateError);
+        }
+
         setUser({
           id: data.id,
           email: data.email,
-          firstName: data.first_name,
-          lastName: data.last_name,
+          firstName: metaFirst ?? data.first_name ?? undefined,
+          lastName: metaLast ?? data.last_name ?? undefined,
           role: data.role as Role,
           signatureText: data.signature_text,
           signatureStyle: data.signature_style,
@@ -112,6 +130,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               first_name: firstName,
               last_name: lastName,
               role: "Inspector",
+              last_login: new Date().toISOString(),
             })
             .select(
               "id, email, first_name, last_name, role, signature_text, signature_style",

@@ -812,9 +812,15 @@ export default function ComplaintEntryPage({
         complainant_address: state.complainantAddress || undefined,
         complainant_contact_dates: state.complainantContactDates || undefined,
       });
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      toast.error("Failed to save complaint. Please check your inputs.");
+      if (err?.code === "42501") {
+        toast.error(
+          "Permission denied. Please sign out and sign back in to refresh your session.",
+        );
+      } else {
+        toast.error("Failed to save complaint. Please check your inputs.");
+      }
     } finally {
       setIsSubmitting(false);
     }
