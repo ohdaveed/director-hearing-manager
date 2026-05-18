@@ -5,6 +5,7 @@ import {
   PacketValidationResult,
 } from "@/services/packetService";
 import { usePacketForm } from "@/hooks/usePacketForm";
+import { usePacketGeneration } from "@/hooks/usePacketGeneration";
 import {
   usePacketDetailQuery,
   usePacketEventsQuery,
@@ -45,6 +46,7 @@ import {
   BookOpen,
   CheckCircle2,
   Clock,
+  FileDown,
   FileText,
   Gavel,
   History,
@@ -92,6 +94,7 @@ export function PacketDetail({
     isDirty,
   } = usePacketForm(packet);
   const workflow = usePacketWorkflow({ packetId, currentStatus });
+  const generation = usePacketGeneration(packetId);
 
   const [returnNotes, setReturnNotes] = useState("");
   const [activeTab, setActiveTab] = useState("packet");
@@ -218,7 +221,7 @@ export function PacketDetail({
             onClick={workflow.refreshSnapshot}
             variant="outline"
             className="gap-1.5 text-xs h-8"
-            disabled={workflow.isRefreshing}
+            disabled={workflow.isRefreshing || generation.isGenerating}
           >
             {workflow.isRefreshing ? (
               <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -236,6 +239,36 @@ export function PacketDetail({
               <Gavel className="w-3.5 h-3.5" /> Order
             </Button>
           )}
+        </div>
+
+        <div className="grid grid-cols-2 gap-2 mb-4">
+          <Button
+            type="button"
+            variant="outline"
+            className="gap-1.5 text-xs h-8"
+            onClick={generation.generateDraft}
+            disabled={generation.isGenerating}
+          >
+            {generation.isGenerating ? (
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+            ) : (
+              <FileDown className="w-3.5 h-3.5" />
+            )}
+            Generate Draft
+          </Button>
+          <Button
+            type="button"
+            className="gap-1.5 text-xs h-8"
+            onClick={generation.generateFinal}
+            disabled={generation.isGenerating}
+          >
+            {generation.isGenerating ? (
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+            ) : (
+              <FileDown className="w-3.5 h-3.5" />
+            )}
+            Generate Final
+          </Button>
         </div>
 
         {workflow.canTransition("Under Review") && !isManagerRole && (
