@@ -116,7 +116,7 @@ export function PacketActivityPanel({
   history,
 }: {
   events: PacketGenerationEvent[];
-  history: any[];
+  history: StatusHistoryEntry[];
 }) {
   return (
     <div className="space-y-4">
