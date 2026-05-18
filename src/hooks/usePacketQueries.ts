@@ -29,7 +29,7 @@ export function usePacketListQuery({
   statusFilter,
   assignedToFilter,
   enabled = true,
-}: PacketListFilters & { enabled?: boolean }) {
+}: PacketListFilters & { enabled?: boolean } = {}) {
   return useQuery({
     queryKey: keys.list({ statusFilter, assignedToFilter }),
     queryFn: () =>
