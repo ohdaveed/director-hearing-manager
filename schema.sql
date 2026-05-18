@@ -51,6 +51,7 @@ CREATE TYPE users_signature_style_enum AS ENUM ('Style 1 — Classic', 'Style 2 
 CREATE TYPE imported_reports_parsing_status_enum AS ENUM ('Pending', 'Parsed', 'Failed', 'Manual');
 
 CREATE TABLE inspection_photos (
+  id uuid primary key default gen_random_uuid(),
   photo_url text,
   photo_type inspection_photos_photo_type_enum,
   caption text,
@@ -61,7 +62,10 @@ CREATE TABLE inspection_photos (
   exhibits text,
   complaint text,
   inspection text,
-  hearing_packets text[]
+  hearing_packets text[],
+  created_at timestamp with time zone not null default now(),
+  updated_at timestamp with time zone,
+  deleted_at timestamp with time zone
 );
 
 CREATE TABLE complaints (
@@ -112,10 +116,13 @@ CREATE TABLE complaints (
   hearing_rp_address text,
   purpose_of_hearing text,
   notice_of_hearing_date date,
-  hearing_order_date date
+  hearing_order_date date,
+  created_at timestamp with time zone not null default now(),
+  updated_at timestamp with time zone
 );
 
 CREATE TABLE locations (
+  id uuid primary key default gen_random_uuid(),
   address text,
   location_id text,
   owner_name text,
@@ -138,7 +145,10 @@ CREATE TABLE locations (
   responsible_party_email text,
   building_features text[],
   verification_date date,
-  imported_reports text
+  imported_reports text,
+  created_at timestamp with time zone not null default now(),
+  updated_at timestamp with time zone,
+  deleted_at timestamp with time zone
 );
 
 CREATE TABLE inspections (
@@ -168,10 +178,13 @@ CREATE TABLE inspections (
   exhibits text,
   deleted_at timestamp with time zone,
   imported_reports text,
-  inspection_photos text
+  inspection_photos text,
+  created_at timestamp with time zone not null default now(),
+  updated_at timestamp with time zone
 );
 
 CREATE TABLE violations (
+  id uuid primary key default gen_random_uuid(),
   violation_label text,
   inspection text,
   violation_code text,
@@ -184,10 +197,13 @@ CREATE TABLE violations (
   complaint text,
   deleted_at timestamp with time zone,
   observation text,
-  exhibit_refs text
+  exhibit_refs text,
+  created_at timestamp with time zone not null default now(),
+  updated_at timestamp with time zone
 );
 
 CREATE TABLE chronology (
+  id uuid primary key default gen_random_uuid(),
   summary text,
   entry_date date,
   entry_type chronology_entry_type_enum,
@@ -201,19 +217,27 @@ CREATE TABLE chronology (
   exhibit_refs text,
   chronology_order numeric,
   attachment_page_ref text,
-  citation_code chronology_citation_code_enum
+  citation_code chronology_citation_code_enum,
+  created_at timestamp with time zone not null default now(),
+  updated_at timestamp with time zone,
+  deleted_at timestamp with time zone
 );
 
 CREATE TABLE owner_documents (
+  id uuid primary key default gen_random_uuid(),
   document_type text,
   submission_date date,
   notes text,
   received_by text,
   complaint text,
-  category owner_documents_category_enum
+  category owner_documents_category_enum,
+  created_at timestamp with time zone not null default now(),
+  updated_at timestamp with time zone,
+  deleted_at timestamp with time zone
 );
 
 CREATE TABLE exhibits (
+  id uuid primary key default gen_random_uuid(),
   exhibit_label text,
   exhibit_type exhibits_exhibit_type_enum,
   description text,
@@ -226,10 +250,13 @@ CREATE TABLE exhibits (
   category exhibits_category_enum,
   deleted_at timestamp with time zone,
   exhibit_date date,
-  page_count numeric
+  page_count numeric,
+  created_at timestamp with time zone not null default now(),
+  updated_at timestamp with time zone
 );
 
 CREATE TABLE service_log (
+  id uuid primary key default gen_random_uuid(),
   notice_type text,
   service_method service_log_service_method_enum,
   service_date date,
@@ -238,10 +265,14 @@ CREATE TABLE service_log (
   proof_of_service boolean,
   notes text,
   status service_log_status_enum,
-  complaint text
+  complaint text,
+  created_at timestamp with time zone not null default now(),
+  updated_at timestamp with time zone,
+  deleted_at timestamp with time zone
 );
 
 CREATE TABLE hearing_packets (
+  id uuid primary key default gen_random_uuid(),
   hearing_date date,
   packet_status hearing_packets_packet_status_enum,
   assigned_to text,
@@ -268,20 +299,28 @@ CREATE TABLE hearing_packets (
   inspector_signature text,
   manager_signature text,
   revision_notes text,
-  status_history text
+  status_history text,
+  created_at timestamp with time zone not null default now(),
+  updated_at timestamp with time zone,
+  deleted_at timestamp with time zone
 );
 
 CREATE TABLE users (
+  id uuid primary key default gen_random_uuid(),
   email text,
   first_name text,
   last_name text,
   role users_role_enum,
   last_login timestamp with time zone,
   signature_text text,
-  signature_style users_signature_style_enum
+  signature_style users_signature_style_enum,
+  created_at timestamp with time zone not null default now(),
+  updated_at timestamp with time zone,
+  deleted_at timestamp with time zone
 );
 
 CREATE TABLE imported_reports (
+  id uuid primary key default gen_random_uuid(),
   report_title text,
   location text,
   pdf_file jsonb,
@@ -294,5 +333,8 @@ CREATE TABLE imported_reports (
   uploaded_by text,
   uploaded_at timestamp with time zone,
   linked_inspection text,
-  hearing_packets text[]
+  hearing_packets text[],
+  created_at timestamp with time zone not null default now(),
+  updated_at timestamp with time zone,
+  deleted_at timestamp with time zone
 );
