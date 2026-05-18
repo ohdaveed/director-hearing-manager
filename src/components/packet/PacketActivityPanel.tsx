@@ -1,5 +1,6 @@
 import { History } from "lucide-react";
 import { PacketGenerationEvent } from "@/services/packetService";
+import { StatusHistoryEntry } from "@/types/packet";
 
 const EVENT_BADGE: Record<string, string> = {
   success: "bg-success/10 text-success border-success/20",
