@@ -26,9 +26,9 @@ export function PacketList({
   selectedPacketId,
   onSelectPacket,
 }: {
-  packets: any[];
+  packets: import("@/types/packet").PacketSummary[];
   selectedPacketId?: string | null;
-  onSelectPacket: (packet: any | null) => void;
+  onSelectPacket: (packet: import("@/types/packet").PacketSummary | null) => void;
 }) {
   return (
     <div className="bg-card border border-border rounded-xl overflow-hidden shadow-sm">
