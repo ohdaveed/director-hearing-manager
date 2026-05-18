@@ -1,12 +1,15 @@
 import { lazy, Suspense, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import {
   PACKET_STATUSES,
   PacketStatus,
   PacketValidationResult,
-  packetService,
 } from "@/services/packetService";
 import { usePacketForm } from "@/hooks/usePacketForm";
+import {
+  usePacketDetailQuery,
+  usePacketEventsQuery,
+  usePacketFilesQuery,
+} from "@/hooks/usePacketQueries";
 import { usePacketWorkflow } from "@/hooks/usePacketWorkflow";
 import {
   MANAGER_ROLES,
@@ -73,22 +76,9 @@ export function PacketDetail({
 }) {
   const isManagerRole = userRole ? MANAGER_ROLES.includes(userRole as any) : false;
 
-  const { data: detail, isLoading } = useQuery({
-    queryKey: ["packet", packetId],
-    queryFn: () => packetService.getById(packetId),
-  });
-
-  const { data: files = [] } = useQuery({
-    queryKey: ["packet-files", packetId],
-    queryFn: () => packetService.getPacketFiles(packetId),
-    enabled: !!packetId,
-  });
-
-  const { data: events = [] } = useQuery({
-    queryKey: ["packet-events", packetId],
-    queryFn: () => packetService.getPacketEvents(packetId),
-    enabled: !!packetId,
-  });
+  const { data: detail, isLoading } = usePacketDetailQuery(packetId);
+  const { data: files = [] } = usePacketFilesQuery(packetId);
+  const { data: events = [] } = usePacketEventsQuery(packetId);
 
   const packet = detail?.packet;
   const validationResults = (packet?.validation_results_json ??
