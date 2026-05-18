@@ -1,12 +1,15 @@
-import { lazy, Suspense, useEffect, useMemo, useState } from "react";
+import { lazy, Suspense, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/context/AuthContext";
 import {
   PACKET_STATUSES,
+  PacketStatus,
   PacketValidationResult,
   packetService,
 } from "@/services/packetService";
+import { usePacketForm } from "@/hooks/usePacketForm";
+import { usePacketWorkflow } from "@/hooks/usePacketWorkflow";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -42,7 +45,6 @@ import {
   Send,
   X,
 } from "lucide-react";
-import { toast } from "sonner";
 
 const HearingPacketPreview = lazy(
   () => import("@/components/HearingPacketPreview"),
@@ -176,7 +178,6 @@ function PacketDetail({
   onClose: () => void;
   userRole?: string;
 }) {
-  const queryClient = useQueryClient();
   const isManagerRole = userRole ? MANAGER_ROLES.includes(userRole) : false;
 
   const { data: detail, isLoading } = useQuery({
@@ -199,118 +200,37 @@ function PacketDetail({
   const packet = detail?.packet;
   const validationResults = (packet?.validation_results_json ??
     []) as PacketValidationResult[];
+  const currentStatus = (packet?.packet_status ?? "Not Started") as PacketStatus;
+  const {
+    form,
+    setField,
+    toggleProposedAction,
+    buildUpdatePayload,
+    isDirty,
+  } = usePacketForm(packet);
+  const workflow = usePacketWorkflow({ packetId, currentStatus });
 
-  const [status, setStatus] = useState("Not Started");
-  const [notes, setNotes] = useState("");
-  const [caseNumber, setCaseNumber] = useState("");
-  const [programCode, setProgramCode] = useState("");
-  const [hearingTime, setHearingTime] = useState("");
-  const [hearingLocation, setHearingLocation] = useState("");
-  const [adminFee, setAdminFee] = useState("");
   const [returnNotes, setReturnNotes] = useState("");
-  const [proposedActions, setProposedActions] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState("packet");
   const [showFullPacket, setShowFullPacket] = useState(false);
   const [showNOH, setShowNOH] = useState(false);
 
-  useEffect(() => {
-    if (!packet) return;
-    setStatus(packet.packet_status ?? "Not Started");
-    setNotes(packet.notes ?? "");
-    setCaseNumber(packet.case_number ?? "");
-    setProgramCode(packet.program_code ?? "");
-    setHearingTime(packet.hearing_time ?? "");
-    setHearingLocation(packet.hearing_location ?? "");
-    setAdminFee(packet.admin_fee ?? "");
-    setProposedActions(
-      Array.isArray(packet.proposed_actions) ? packet.proposed_actions : [],
-    );
-  }, [packet]);
-
-  const invalidatePacketQueries = async () => {
-    await Promise.all([
-      queryClient.invalidateQueries({ queryKey: ["packet", packetId] }),
-      queryClient.invalidateQueries({ queryKey: ["packets"] }),
-      queryClient.invalidateQueries({ queryKey: ["packet-files", packetId] }),
-      queryClient.invalidateQueries({ queryKey: ["packet-events", packetId] }),
-    ]);
-  };
-
-  const updateMutation = useMutation({
-    mutationFn: (updates: any) => packetService.update(packetId, updates),
-    onSuccess: async () => {
-      await invalidatePacketQueries();
-      toast.success("Packet updated");
-    },
-    onError: (error) => {
-      console.error(error);
-      toast.error("Failed to update packet");
-    },
-  });
-
-  const refreshMutation = useMutation({
-    mutationFn: () => packetService.refreshSnapshot(packetId),
-    onSuccess: async () => {
-      await invalidatePacketQueries();
-      toast.success("Packet snapshot refreshed");
-    },
-    onError: (error) => {
-      console.error(error);
-      toast.error("Failed to refresh packet snapshot");
-    },
-  });
-
   const cachedData = detail;
-  const isComplete = ["Approved", "Complete", "Submitted"].includes(status);
-  const badgeCls = STATUS_BADGE[status] ?? "bg-muted text-muted-foreground";
+  const isComplete = ["Approved", "Complete", "Submitted"].includes(form.status);
+  const badgeCls = STATUS_BADGE[form.status] ?? "bg-muted text-muted-foreground";
   const history = parseHistory(
     packet?.status_history_json ?? packet?.status_history,
   ).reverse();
   const hasRevisionNotes = !!packet?.revision_notes?.trim();
 
   const handleSave = () => {
-    updateMutation.mutate({
-      packet_status: status,
-      notes,
-      case_number: caseNumber,
-      program_code: programCode || null,
-      proposed_actions: proposedActions,
-      hearing_time: hearingTime,
-      hearing_location: hearingLocation,
-      admin_fee: adminFee,
-    });
-  };
-
-  const handleSendToReview = () => {
-    updateMutation.mutate({ packet_status: "Under Review" });
+    workflow.savePacket(buildUpdatePayload());
   };
 
   const handleReturnForRevision = () => {
     if (!returnNotes.trim()) return;
-    updateMutation.mutate({
-      packet_status: "Changes Requested",
-      revision_notes: returnNotes.trim(),
-    });
+    workflow.requestChanges(returnNotes);
     setReturnNotes("");
-  };
-
-  const handleApprove = () => {
-    updateMutation.mutate({
-      packet_status: "Approved",
-      approved_at: new Date().toISOString(),
-    });
-  };
-
-  const handleMarkComplete = () => {
-    updateMutation.mutate({ packet_status: "Complete" });
-  };
-
-  const toggleAction = (value: string) => {
-    setProposedActions((prev) =>
-      prev.includes(value)
-        ? prev.filter((item) => item !== value)
-        : [...prev, value],
-    );
   };
 
   if (showFullPacket && cachedData) {
@@ -355,7 +275,7 @@ function PacketDetail({
           <span
             className={`text-xs px-2 py-0.5 rounded-full font-medium shrink-0 ${badgeCls}`}
           >
-            {status}
+            {form.status}
           </span>
           {packet.generated_at && (
             <span className="text-[10px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded-full hidden sm:inline">
@@ -412,12 +332,12 @@ function PacketDetail({
             <Printer className="w-3.5 h-3.5" /> Notice
           </Button>
           <Button
-            onClick={() => refreshMutation.mutate()}
+            onClick={workflow.refreshSnapshot}
             variant="outline"
             className="gap-1.5 text-xs h-8"
-            disabled={refreshMutation.isPending}
+            disabled={workflow.isRefreshing}
           >
-            {refreshMutation.isPending ? (
+            {workflow.isRefreshing ? (
               <Loader2 className="w-3.5 h-3.5 animate-spin" />
             ) : (
               <RefreshCw className="w-3.5 h-3.5" />
@@ -435,32 +355,28 @@ function PacketDetail({
           )}
         </div>
 
-        {status !== "Under Review" &&
-          status !== "Approved" &&
-          status !== "Complete" &&
-          status !== "Submitted" &&
-          !isManagerRole && (
-            <div className="rounded-lg border border-primary/25 bg-primary/5 px-3 py-2.5 mb-3 flex items-center justify-between gap-3">
-              <div className="min-w-0">
-                <p className="text-xs font-semibold text-foreground leading-none">
-                  Ready for internal review?
-                </p>
-                <p className="text-[11px] text-muted-foreground mt-0.5 leading-none">
-                  Sets status to Under Review
-                </p>
-              </div>
-              <Button
-                onClick={handleSendToReview}
-                disabled={updateMutation.isPending}
-                size="sm"
-                className="gap-1.5 text-xs h-8 px-3"
-              >
-                <Send className="w-3.5 h-3.5" /> Send to Review
-              </Button>
+        {workflow.canTransition("Under Review") && !isManagerRole && (
+          <div className="rounded-lg border border-primary/25 bg-primary/5 px-3 py-2.5 mb-3 flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <p className="text-xs font-semibold text-foreground leading-none">
+                Ready for internal review?
+              </p>
+              <p className="text-[11px] text-muted-foreground mt-0.5 leading-none">
+                Sets status to Under Review
+              </p>
             </div>
-          )}
+            <Button
+              onClick={workflow.sendToReview}
+              disabled={workflow.isUpdating}
+              size="sm"
+              className="gap-1.5 text-xs h-8 px-3"
+            >
+              <Send className="w-3.5 h-3.5" /> Send to Review
+            </Button>
+          </div>
+        )}
 
-        {isManagerRole && status === "Under Review" && (
+        {isManagerRole && form.status === "Under Review" && (
           <div className="rounded-lg border border-border bg-card mb-3 p-3 space-y-3">
             <div className="flex items-center justify-between gap-3">
               <div>
@@ -472,10 +388,10 @@ function PacketDetail({
                 </p>
               </div>
               <Button
-                onClick={handleApprove}
+                onClick={workflow.approvePacket}
                 size="sm"
                 className="gap-1.5 h-8 text-xs"
-                disabled={updateMutation.isPending}
+                disabled={workflow.isUpdating}
               >
                 <CheckCircle2 className="w-3.5 h-3.5" /> Approve
               </Button>
@@ -493,7 +409,7 @@ function PacketDetail({
               size="sm"
               className="h-8 text-xs gap-1.5"
               onClick={handleReturnForRevision}
-              disabled={updateMutation.isPending || !returnNotes.trim()}
+              disabled={workflow.isUpdating || !returnNotes.trim()}
             >
               <RotateCcw className="w-3.5 h-3.5" /> Request Changes
             </Button>
@@ -541,7 +457,7 @@ function PacketDetail({
           value="packet"
           className="p-5 space-y-4 overflow-y-auto max-h-[calc(100vh-320px)] mt-0"
         >
-          {status === "Changes Requested" && hasRevisionNotes && (
+          {form.status === "Changes Requested" && hasRevisionNotes && (
             <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-3 flex gap-3">
               <AlertCircle className="w-4 h-4 text-destructive flex-shrink-0 mt-0.5" />
               <div className="min-w-0 flex-1">
@@ -561,8 +477,8 @@ function PacketDetail({
                 Case Number
               </Label>
               <Input
-                value={caseNumber}
-                onChange={(e) => setCaseNumber(e.target.value)}
+                value={form.caseNumber}
+                onChange={(e) => setField("caseNumber", e.target.value)}
                 placeholder="e.g. HHP-26-08"
                 className="h-8 text-sm"
               />
@@ -572,8 +488,8 @@ function PacketDetail({
                 Program Code
               </Label>
               <Select
-                value={programCode || "none"}
-                onValueChange={(v) => setProgramCode(v === "none" ? "" : v)}
+                value={form.programCode || "none"}
+                onValueChange={(v) => setField("programCode", v === "none" ? "" : v)}
               >
                 <SelectTrigger className="h-8 text-sm">
                   <SelectValue placeholder="Select..." />
@@ -604,8 +520,8 @@ function PacketDetail({
                 Hearing Time
               </Label>
               <Input
-                value={hearingTime}
-                onChange={(e) => setHearingTime(e.target.value)}
+                value={form.hearingTime}
+                onChange={(e) => setField("hearingTime", e.target.value)}
                 placeholder="e.g. 1:00 PM"
                 className="h-8 text-sm"
               />
@@ -617,8 +533,8 @@ function PacketDetail({
               Hearing Location
             </Label>
             <Input
-              value={hearingLocation}
-              onChange={(e) => setHearingLocation(e.target.value)}
+              value={form.hearingLocation}
+              onChange={(e) => setField("hearingLocation", e.target.value)}
               placeholder="49 South Van Ness Ave."
               className="h-8 text-sm"
             />
@@ -636,8 +552,8 @@ function PacketDetail({
                 >
                   <input
                     type="checkbox"
-                    checked={proposedActions.includes(option.value)}
-                    onChange={() => toggleAction(option.value)}
+                    checked={form.proposedActions.includes(option.value)}
+                    onChange={() => toggleProposedAction(option.value)}
                     className="h-4 w-4"
                   />
                   <span>{option.label}</span>
@@ -651,8 +567,8 @@ function PacketDetail({
               Admin Fee
             </Label>
             <Input
-              value={adminFee}
-              onChange={(e) => setAdminFee(e.target.value)}
+              value={form.adminFee}
+              onChange={(e) => setField("adminFee", e.target.value)}
               placeholder="e.g. $500 per week"
               className="h-8 text-sm"
             />
@@ -662,7 +578,7 @@ function PacketDetail({
             <Label className="text-xs font-medium text-muted-foreground mb-1.5 block">
               Packet Status
             </Label>
-            <Select value={status} onValueChange={setStatus}>
+            <Select value={form.status} onValueChange={(value) => setField("status", value as PacketStatus)}>
               <SelectTrigger className="h-9 text-sm">
                 <SelectValue />
               </SelectTrigger>
@@ -681,8 +597,8 @@ function PacketDetail({
               Reviewer Notes
             </Label>
             <Textarea
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
+              value={form.notes}
+              onChange={(e) => setField("notes", e.target.value)}
               placeholder="Add review notes, approval comments, or return instructions..."
               className="text-sm resize-none"
               rows={3}
@@ -690,18 +606,18 @@ function PacketDetail({
           </div>
 
           <div className="grid grid-cols-2 gap-2">
-            <Button onClick={handleSave} disabled={updateMutation.isPending} className="gap-2">
-              {updateMutation.isPending ? (
+            <Button onClick={handleSave} disabled={workflow.isUpdating || !isDirty} className="gap-2">
+              {workflow.isUpdating ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
               ) : (
                 <CheckCircle2 className="w-4 h-4" />
               )}
               Save Changes
             </Button>
-            {status === "Approved" && (
+            {workflow.canTransition("Complete") && (
               <Button
-                onClick={handleMarkComplete}
-                disabled={updateMutation.isPending}
+                onClick={workflow.markComplete}
+                disabled={workflow.isUpdating}
                 variant="outline"
                 className="gap-2"
               >
@@ -718,8 +634,8 @@ function PacketDetail({
           <PacketReadinessPanel
             results={validationResults}
             files={files}
-            onRefresh={() => refreshMutation.mutate()}
-            refreshing={refreshMutation.isPending}
+            onRefresh={workflow.refreshSnapshot}
+            refreshing={workflow.isRefreshing}
           />
         </TabsContent>
 
