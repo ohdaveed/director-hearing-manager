@@ -54,7 +54,7 @@ const HearingOrderEditor = lazy(
   () => import("@/components/HearingOrderEditor"),
 );
 
-type Packet = any;
+type Packet = import("@/types/packet").PacketSummary;
 
 const MANAGER_ROLES = ["Program Manager", "Admin", "Super Admin"];
 const PROGRAM_CODES = ["HHV", "HHP", "VEC", "ENV"];
