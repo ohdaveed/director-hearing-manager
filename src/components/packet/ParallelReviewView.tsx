@@ -6,7 +6,7 @@ import ComplianceReviewView from "./ComplianceReviewView";
 import type { ComplianceResult } from "@/types/compliance";
 
 // Set worker for react-pdf
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/4.8.69/pdf.worker.min.js`;
+pdfjs.GlobalWorkerOptions.workerSrc = `/pdf.worker.min.mjs`;
 
 interface ParallelReviewViewProps {
   complianceResult: ComplianceResult;

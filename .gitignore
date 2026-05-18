@@ -34,3 +34,6 @@ out
 
 # Testing
 coverage
+
+# Generated assets
+public/pdf.worker.min.mjs

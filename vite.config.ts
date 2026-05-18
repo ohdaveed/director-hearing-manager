@@ -3,6 +3,8 @@ import { defineConfig } from "vite-plus";
 import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
+  // Serve static assets (e.g. pdf.worker.min.mjs) from public/
+  publicDir: "public",
   plugins: [tailwindcss()],
   css: {
     minify: "lightningcss",

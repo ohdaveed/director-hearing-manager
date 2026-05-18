@@ -1,7 +1,7 @@
 import * as pdfjs from "pdfjs-dist";
 
 // Set worker path
-pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.8.69/pdf.worker.min.js`;
+pdfjs.GlobalWorkerOptions.workerSrc = `/pdf.worker.min.mjs`;
 
 export const pdfService = {
   async extractText(file: File): Promise<string> {
