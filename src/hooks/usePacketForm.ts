@@ -1,144 +1,95 @@
-import { useCallback, useEffect, useMemo, useReducer } from "react";
-import type {
-  PacketWithRelations,
-  EnforcementFlags,
-  ChecklistCompletion,
-} from "@/types/packet";
+import { useEffect, useMemo, useState } from "react";
+import { PacketStatus } from "@/services/packetService";
 
-type PacketFormState = {
-  status: string;
+export interface PacketFormState {
+  status: PacketStatus;
   notes: string;
   caseNumber: string;
   programCode: string;
   hearingTime: string;
   hearingLocation: string;
-  proposedActions: string[];
   adminFee: string;
-  enforcementFlags: EnforcementFlags;
-  checklistCompletion: ChecklistCompletion;
-};
+  proposedActions: string[];
+}
 
-type PacketFormAction =
-  | { type: "SET_FIELD"; key: keyof PacketFormState; value: any }
-  | { type: "RESET"; packet: PacketWithRelations | undefined }
-  | { type: "TOGGLE_ACTION"; action: string }
-  | { type: "TOGGLE_FLAG"; flag: keyof EnforcementFlags }
-  | { type: "TOGGLE_CHECKLIST"; milestoneId: number };
-
-const initialState: PacketFormState = {
+const DEFAULT_PACKET_FORM: PacketFormState = {
   status: "Not Started",
   notes: "",
   caseNumber: "",
   programCode: "",
   hearingTime: "",
   hearingLocation: "",
-  proposedActions: [],
   adminFee: "",
-  enforcementFlags: {
-    nuisanceAbatement: false,
-    costRecovery: false,
-    appealHealthPermit: false,
-    appealNonPermitted: false,
-  },
-  checklistCompletion: {},
+  proposedActions: [],
 };
 
-function packetFormReducer(
-  state: PacketFormState,
-  action: PacketFormAction,
-): PacketFormState {
-  switch (action.type) {
-    case "SET_FIELD":
-      return {
-        ...state,
-        [action.key]: action.value,
-      };
-    case "RESET":
-      if (!action.packet) {
-        return initialState;
-      }
-      return {
-        status: action.packet.packet_status ?? "Not Started",
-        notes: action.packet.notes ?? "",
-        caseNumber: action.packet.case_number ?? "",
-        programCode: action.packet.program_code ?? "",
-        hearingTime: action.packet.hearing_time ?? "",
-        hearingLocation: action.packet.hearing_location ?? "",
-        proposedActions: (action.packet as any).proposed_actions ?? [],
-        adminFee: action.packet.admin_fee ?? "",
-        enforcementFlags: action.packet.enforcement_flags
-          ? JSON.parse(action.packet.enforcement_flags)
-          : initialState.enforcementFlags,
-        checklistCompletion: action.packet.checklist_data
-          ? JSON.parse(action.packet.checklist_data)
-          : {},
-      };
-    case "TOGGLE_ACTION":
-      return {
-        ...state,
-        proposedActions: state.proposedActions.includes(action.action)
-          ? state.proposedActions.filter((a) => a !== action.action)
-          : [...state.proposedActions, action.action],
-      };
-    case "TOGGLE_FLAG":
-      return {
-        ...state,
-        enforcementFlags: {
-          ...state.enforcementFlags,
-          [action.flag]: !state.enforcementFlags[action.flag],
-        },
-      };
-    case "TOGGLE_CHECKLIST":
-      return {
-        ...state,
-        checklistCompletion: {
-          ...state.checklistCompletion,
-          [action.milestoneId]: !state.checklistCompletion[action.milestoneId],
-        },
-      };
-    default:
-      return state;
-  }
+function normalizeActions(value: unknown): string[] {
+  return Array.isArray(value)
+    ? value.filter((item): item is string => typeof item === "string")
+    : [];
 }
 
-export function usePacketForm(packet: PacketWithRelations | undefined) {
-  const [state, dispatch] = useReducer(packetFormReducer, initialState);
+function fromPacket(packet: any): PacketFormState {
+  if (!packet) return DEFAULT_PACKET_FORM;
+  return {
+    status: packet.packet_status ?? "Not Started",
+    notes: packet.notes ?? "",
+    caseNumber: packet.case_number ?? "",
+    programCode: packet.program_code ?? "",
+    hearingTime: packet.hearing_time ?? "",
+    hearingLocation: packet.hearing_location ?? "",
+    adminFee: packet.admin_fee ?? "",
+    proposedActions: normalizeActions(packet.proposed_actions),
+  };
+}
 
-  // Reset form when packet changes
+function buildPayload(form: PacketFormState) {
+  return {
+    packet_status: form.status,
+    notes: form.notes,
+    case_number: form.caseNumber,
+    program_code: form.programCode || null,
+    proposed_actions: form.proposedActions,
+    hearing_time: form.hearingTime,
+    hearing_location: form.hearingLocation,
+    admin_fee: form.adminFee,
+  };
+}
+
+export function usePacketForm(packet: any) {
+  const initialForm = useMemo(() => fromPacket(packet), [packet]);
+  const [form, setForm] = useState<PacketFormState>(initialForm);
+
   useEffect(() => {
-    dispatch({ type: "RESET", packet });
-  }, [packet]);
+    setForm(initialForm);
+  }, [initialForm]);
 
-  const updateField = useCallback(
-    <K extends keyof PacketFormState>(key: K, value: PacketFormState[K]) => {
-      dispatch({ type: "SET_FIELD", key, value });
-    },
-    [],
-  );
+  const setField = <K extends keyof PacketFormState>(
+    field: K,
+    value: PacketFormState[K],
+  ) => {
+    setForm((current) => ({ ...current, [field]: value }));
+  };
 
-  const toggleAction = useCallback((action: string) => {
-    dispatch({ type: "TOGGLE_ACTION", action });
-  }, []);
+  const toggleProposedAction = (value: string) => {
+    setForm((current) => ({
+      ...current,
+      proposedActions: current.proposedActions.includes(value)
+        ? current.proposedActions.filter((item) => item !== value)
+        : [...current.proposedActions, value],
+    }));
+  };
 
-  const toggleFlag = useCallback((flag: keyof EnforcementFlags) => {
-    dispatch({ type: "TOGGLE_FLAG", flag });
-  }, []);
+  const reset = () => setForm(initialForm);
 
-  const toggleChecklist = useCallback((milestoneId: number) => {
-    dispatch({ type: "TOGGLE_CHECKLIST", milestoneId });
-  }, []);
+  const isDirty = JSON.stringify(form) !== JSON.stringify(initialForm);
 
-  // Memoize the return object to prevent unnecessary re-renders
-  return useMemo(
-    () => ({
-      formState: state,
-      updateField,
-      toggleAction,
-      toggleFlag,
-      toggleChecklist,
-      resetForm: (p: PacketWithRelations | undefined) =>
-        dispatch({ type: "RESET", packet: p }),
-    }),
-    [state, updateField, toggleAction, toggleFlag, toggleChecklist],
-  );
+  return {
+    form,
+    setField,
+    toggleProposedAction,
+    reset,
+    isDirty,
+    buildUpdatePayload: () => buildPayload(form),
+  };
 }
