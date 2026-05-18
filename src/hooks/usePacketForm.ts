@@ -139,21 +139,6 @@ export function usePacketForm(packet: PacketWithRelations | undefined) {
       resetForm: (p: PacketWithRelations | undefined) =>
         dispatch({ type: "RESET", packet: p }),
     }),
-    [
-      state.status,
-      state.notes,
-      state.caseNumber,
-      state.programCode,
-      state.hearingTime,
-      state.hearingLocation,
-      state.proposedActions,
-      state.adminFee,
-      state.enforcementFlags,
-      state.checklistCompletion,
-      updateField,
-      toggleAction,
-      toggleFlag,
-      toggleChecklist,
-    ],
+    [state, updateField, toggleAction, toggleFlag, toggleChecklist],
   );
 }

@@ -287,7 +287,8 @@ export default function HearingPacketPreview({ data, onClose }: Props) {
           <p className="text-xs text-muted-foreground hidden lg:block">
             {inspections.length} insp · {totalPhotos} photo
             {totalPhotos !== 1 ? "s" : ""} · {chronology.length} chrono ·{" "}
-            {exhibits.length} exhibit{exhibits.length !== 1 ? "s" : ""}
+            {exhibits.length} exhibit
+            {exhibits.length !== 1 ? "s" : ""}
           </p>
           <Button
             onClick={handlePrint}

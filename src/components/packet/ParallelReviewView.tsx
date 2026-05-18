@@ -6,7 +6,7 @@ import ComplianceReviewView from "./ComplianceReviewView";
 import type { ComplianceResult } from "@/types/compliance";
 
 // Set worker for react-pdf
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
+pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/4.8.69/pdf.worker.min.js`;
 
 interface ParallelReviewViewProps {
   complianceResult: ComplianceResult;
@@ -16,6 +16,7 @@ interface ParallelReviewViewProps {
   onEdit: () => void;
   onBack: () => void;
   onDownload?: () => void;
+  onGenerateCorrected?: () => void;
 }
 
 export default function ParallelReviewView({
@@ -26,6 +27,7 @@ export default function ParallelReviewView({
   onEdit,
   onBack,
   onDownload,
+  onGenerateCorrected,
 }: ParallelReviewViewProps) {
   const [numPages, setNumPages] = useState<number>(0);
   const [pageNumber, setPageNumber] = useState<number>(1);
@@ -121,6 +123,7 @@ export default function ParallelReviewView({
           onEdit={onEdit}
           onBack={onBack}
           onDownload={onDownload}
+          onGenerateCorrected={onGenerateCorrected}
         />
       </div>
     </div>

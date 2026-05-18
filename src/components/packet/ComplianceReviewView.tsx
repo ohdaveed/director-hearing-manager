@@ -19,6 +19,7 @@ interface ComplianceReviewViewProps {
   onEdit: () => void;
   onBack: () => void;
   onDownload?: () => void;
+  onGenerateCorrected?: () => void;
   isLoading?: boolean;
   partial?: boolean;
 }
@@ -50,6 +51,7 @@ export default function ComplianceReviewView({
   onEdit,
   onBack,
   onDownload,
+  onGenerateCorrected,
   isLoading = false,
   partial = false,
 }: ComplianceReviewViewProps) {
@@ -231,6 +233,15 @@ export default function ComplianceReviewView({
 
       <div className="flex gap-4 justify-between">
         <div>
+          {onGenerateCorrected && (
+            <Button
+              variant="default"
+              onClick={onGenerateCorrected}
+              className="mr-2 border-primary bg-primary text-primary-foreground hover:bg-primary/90"
+            >
+              ✨ Generate Corrected Packet
+            </Button>
+          )}
           {onDownload && (
             <Button variant="outline" onClick={onDownload}>
               <Download className="w-4 h-4 mr-2" />

@@ -1,6 +1,6 @@
 import { BarChart3 } from "lucide-react";
-import MetricBar from "@/components/MetricBar";
-import SectionHeader from "./SectionHeader";
+import { MetricProgress } from "@/components/ui/metric-progress";
+import { SectionHeader } from "@/components/ui/section-header";
 
 type CategoryItem = {
   cat: string;
@@ -21,7 +21,7 @@ export default function TopCategoriesWidget({ categories, maxCount }: Props) {
       />
       <div>
         {categories.map((c) => (
-          <MetricBar
+          <MetricProgress
             key={c.cat}
             label={c.cat}
             value={c.count}

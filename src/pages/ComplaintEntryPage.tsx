@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
@@ -26,8 +26,6 @@ import {
   Plus,
   CheckCircle2,
   AlertCircle,
-  AlertTriangle,
-  Link2,
   FileText,
   Phone,
   Mail,
@@ -695,20 +693,8 @@ export default function ComplaintEntryPage({
     assignedTo: string;
   } | null>(null);
   const [submitAttempted, setSubmitAttempted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [touched, setTouched] = useState<Record<string, boolean>>({});
-  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
-  useEffect(() => {
-    const errors: Record<string, string> = {};
-    Object.entries(formState.errors).forEach(([key, value]) => {
-      if (value?.message) errors[key] = value.message as string;
-    });
-    setFormErrors(errors);
-  }, [formState.errors]);
-  const [duplicateComplaints, setDuplicateComplaints] = useState<any[]>([]);
-  const [duplicateAction, setDuplicateAction] = useState<string | null>(null);
-  const [linkedToComplaintId, setLinkedToComplaintId] = useState<string | null>(
-    null,
-  );
 
   const hasLocation = !!selectedLocation || !!state.locAddress;
   const hasComplainant = !!state.complainantName || state.complainantAnonymous;
@@ -723,16 +709,6 @@ export default function ComplaintEntryPage({
   const handleCreateNew = () => {
     setSelectedLocation(null);
     setCreatingNewLocation(true);
-  };
-
-  const isDuplicateChecking = false;
-
-  const clearError = (field: string) => {
-    setFormErrors((prev) => {
-      const next = { ...prev };
-      delete next[field];
-      return next;
-    });
   };
 
   const blurField = (field: string) => {
@@ -786,10 +762,11 @@ export default function ComplaintEntryPage({
       return;
     }
 
+    setIsSubmitting(true);
     try {
       let locationId: string | undefined;
       if (selectedLocation) {
-        locationId = (selectedLocation as any).location_id;
+        locationId = (selectedLocation as any).id;
       } else if (state.locAddress) {
         const newLocation = await locationService.create({
           address: state.locAddress,
@@ -806,10 +783,10 @@ export default function ComplaintEntryPage({
           census_tract: state.locCensusTract || undefined,
           block_lot: state.locBlockLot || undefined,
         });
-        locationId = (newLocation as any).location_id;
+        locationId = (newLocation as any).id;
       }
 
-      createMutation.mutate({
+      await createMutation.mutateAsync({
         complaintid: state.complaintId || undefined,
         address: selectedLocation?.address || state.locAddress,
         locationid: locationId || undefined,
@@ -835,8 +812,11 @@ export default function ComplaintEntryPage({
         complainant_address: state.complainantAddress || undefined,
         complainant_contact_dates: state.complainantContactDates || undefined,
       });
-    } catch (_err) {
-      toast.error("Failed to create location for complaint");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to save complaint. Please check your inputs.");
+    } finally {
+      setIsSubmitting(false);
     }
   });
 
@@ -853,9 +833,6 @@ export default function ComplaintEntryPage({
       setSelectedLocation(null);
       setCreatingNewLocation(true);
       setLocationResults([]);
-      setDuplicateComplaints([]);
-      setDuplicateAction(null);
-      setLinkedToComplaintId(null);
       setSubmitAttempted(false);
       setTouched({});
     }, 0);
@@ -867,9 +844,6 @@ export default function ComplaintEntryPage({
     setSelectedLocation(null);
     setCreatingNewLocation(false);
     setLocationResults([]);
-    setDuplicateComplaints([]);
-    setDuplicateAction(null);
-    setLinkedToComplaintId(null);
     setSubmitted(false);
     setSubmitAttempted(false);
     setTouched({});
@@ -955,10 +929,14 @@ export default function ComplaintEntryPage({
         />
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-1">
-            <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1">
+            <label
+              htmlFor="complaintId"
+              className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1"
+            >
               <Hash className="w-3 h-3" /> Complaint ID
             </label>
             <Input
+              id="complaintId"
               placeholder="e.g. 419076 — leave blank to auto-generate"
               value={state.complaintId}
               onChange={(e) => set("complaintId", e.target.value)}
@@ -968,34 +946,45 @@ export default function ComplaintEntryPage({
             </p>
           </div>
           <div className="space-y-1">
-            <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+            <label
+              htmlFor="caseNumber311"
+              className="text-xs font-medium text-muted-foreground uppercase tracking-wide"
+            >
               311 Case #
             </label>
             <Input
+              id="caseNumber311"
               placeholder="e.g. 101003863368"
               value={state.caseNumber311}
               onChange={(e) => set("caseNumber311", e.target.value)}
             />
           </div>
           <div className="space-y-1">
-            <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+            <label
+              htmlFor="dateReceived"
+              className="text-xs font-medium text-muted-foreground uppercase tracking-wide"
+            >
               Date Received
             </label>
             <Input
+              id="dateReceived"
               type="date"
               value={state.dateReceived}
               onChange={(e) => set("dateReceived", e.target.value)}
             />
           </div>
           <div className="space-y-1">
-            <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+            <label
+              htmlFor="methodReceived"
+              className="text-xs font-medium text-muted-foreground uppercase tracking-wide"
+            >
               Method Received
             </label>
             <Select
               value={state.methodReceived}
               onValueChange={(v) => set("methodReceived", v)}
             >
-              <SelectTrigger className="text-sm h-9">
+              <SelectTrigger id="methodReceived" className="text-sm h-9">
                 <SelectValue placeholder="How was this received?" />
               </SelectTrigger>
               <SelectContent>
@@ -1008,14 +997,17 @@ export default function ComplaintEntryPage({
             </Select>
           </div>
           <div className="space-y-1">
-            <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+            <label
+              htmlFor="assignedProgram"
+              className="text-xs font-medium text-muted-foreground uppercase tracking-wide"
+            >
               Assigned Program
             </label>
             <Select
               value={state.assignedProgram}
               onValueChange={(v) => set("assignedProgram", v)}
             >
-              <SelectTrigger className="text-sm h-9">
+              <SelectTrigger id="assignedProgram" className="text-sm h-9">
                 <SelectValue placeholder="Select program..." />
               </SelectTrigger>
               <SelectContent>
@@ -1028,14 +1020,17 @@ export default function ComplaintEntryPage({
             </Select>
           </div>
           <div className="space-y-1">
-            <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+            <label
+              htmlFor="assignedTo"
+              className="text-xs font-medium text-muted-foreground uppercase tracking-wide"
+            >
               Assigned Inspector
             </label>
             <Select
               value={state.assignedTo}
               onValueChange={(v) => set("assignedTo", v)}
             >
-              <SelectTrigger className="text-sm h-9">
+              <SelectTrigger id="assignedTo" className="text-sm h-9">
                 <SelectValue placeholder="Assign inspector..." />
               </SelectTrigger>
               <SelectContent>
@@ -1048,10 +1043,14 @@ export default function ComplaintEntryPage({
             </Select>
           </div>
           <div className="space-y-1">
-            <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1">
+            <label
+              htmlFor="dateAssigned"
+              className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1"
+            >
               <Calendar className="w-3 h-3" /> Date Assigned
             </label>
             <Input
+              id="dateAssigned"
               type="date"
               value={state.dateAssigned}
               onChange={(e) => set("dateAssigned", e.target.value)}
@@ -1117,6 +1116,8 @@ export default function ComplaintEntryPage({
             )}
             <div className="relative">
               <Input
+                id="locationSearch"
+                aria-label="Search by address"
                 placeholder="Search by address..."
                 value={locationQuery}
                 onChange={(e) => {
@@ -1221,10 +1222,14 @@ export default function ComplaintEntryPage({
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="sm:col-span-2 space-y-1">
-                <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                <label
+                  htmlFor="locAddress"
+                  className="text-xs font-medium text-muted-foreground uppercase tracking-wide"
+                >
                   Address <span className="text-destructive">*</span>
                 </label>
                 <Input
+                  id="locAddress"
                   placeholder="Street address"
                   value={state.locAddress}
                   onChange={(e) => {
@@ -1241,27 +1246,38 @@ export default function ComplaintEntryPage({
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                <label
+                  htmlFor="locLocationId"
+                  className="text-xs font-medium text-muted-foreground uppercase tracking-wide"
+                >
                   Location ID
                 </label>
                 <Input
+                  id="locLocationId"
                   placeholder="e.g. 110881"
                   value={state.locLocationId}
                   onChange={(e) => set("locLocationId", e.target.value)}
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                <label
+                  htmlFor="locBlockLot"
+                  className="text-xs font-medium text-muted-foreground uppercase tracking-wide"
+                >
                   Block / Lot
                 </label>
                 <Input
+                  id="locBlockLot"
                   placeholder="e.g. 1234 / 056"
                   value={state.locBlockLot}
                   onChange={(e) => set("locBlockLot", e.target.value)}
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                <label
+                  htmlFor="locFacilityType"
+                  className="text-xs font-medium text-muted-foreground uppercase tracking-wide"
+                >
                   Facility Type
                 </label>
                 <Select
@@ -1277,7 +1293,7 @@ export default function ComplaintEntryPage({
                     }
                   }}
                 >
-                  <SelectTrigger className="text-sm h-9">
+                  <SelectTrigger id="locFacilityType" className="text-sm h-9">
                     <SelectValue placeholder="Select type..." />
                   </SelectTrigger>
                   <SelectContent>
@@ -1290,50 +1306,70 @@ export default function ComplaintEntryPage({
                 </Select>
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                <label
+                  htmlFor="locCensusTract"
+                  className="text-xs font-medium text-muted-foreground uppercase tracking-wide"
+                >
                   Census Tract
                 </label>
                 <Input
+                  id="locCensusTract"
                   placeholder="e.g. 027.00"
                   value={state.locCensusTract}
                   onChange={(e) => set("locCensusTract", e.target.value)}
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1">
+                <label
+                  htmlFor="locOwnerName"
+                  className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1"
+                >
                   <Building2 className="w-3 h-3" /> Owner Name
                 </label>
                 <Input
+                  id="locOwnerName"
                   placeholder="Full name"
                   value={state.locOwnerName}
                   onChange={(e) => set("locOwnerName", e.target.value)}
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                <label
+                  htmlFor="locOwnerAddress"
+                  className="text-xs font-medium text-muted-foreground uppercase tracking-wide"
+                >
                   Owner Address
                 </label>
                 <Input
+                  id="locOwnerAddress"
                   placeholder="Mailing address"
                   value={state.locOwnerAddress}
                   onChange={(e) => set("locOwnerAddress", e.target.value)}
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1">
+                <label
+                  htmlFor="locOwnerPhone"
+                  className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1"
+                >
                   <Phone className="w-3 h-3" /> Owner Phone
                 </label>
                 <Input
+                  id="locOwnerPhone"
                   placeholder="(415) 555-1234"
                   value={state.locOwnerPhone}
                   onChange={(e) => set("locOwnerPhone", e.target.value)}
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1">
+                <label
+                  htmlFor="locOwnerEmail"
+                  className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1"
+                >
                   <Mail className="w-3 h-3" /> Owner Email
                 </label>
                 <Input
+                  id="locOwnerEmail"
                   type="email"
                   placeholder="owner@email.com"
                   value={state.locOwnerEmail}
@@ -1341,10 +1377,14 @@ export default function ComplaintEntryPage({
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                <label
+                  htmlFor="locNumUnits"
+                  className="text-xs font-medium text-muted-foreground uppercase tracking-wide"
+                >
                   # Units
                 </label>
                 <Input
+                  id="locNumUnits"
                   type="number"
                   min="0"
                   placeholder="0"
@@ -1363,6 +1403,7 @@ export default function ComplaintEntryPage({
               <div className="sm:col-span-2">
                 <label className="flex items-center gap-2 cursor-pointer text-sm select-none">
                   <Checkbox
+                    id="locHealthyHousing"
                     checked={state.locHealthyHousing}
                     onCheckedChange={(v) => set("locHealthyHousing", !!v)}
                   />
@@ -1376,30 +1417,42 @@ export default function ComplaintEntryPage({
         {hasLocation && (
           <div className="pt-4 border-t border-border mt-4 grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="space-y-1">
-              <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+              <label
+                htmlFor="unitNumber"
+                className="text-xs font-medium text-muted-foreground uppercase tracking-wide"
+              >
                 Unit #
               </label>
               <Input
+                id="unitNumber"
                 placeholder="e.g. 3B"
                 value={state.unitNumber}
                 onChange={(e) => set("unitNumber", e.target.value)}
               />
             </div>
             <div className="space-y-1">
-              <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+              <label
+                htmlFor="facilityName"
+                className="text-xs font-medium text-muted-foreground uppercase tracking-wide"
+              >
                 Facility Name
               </label>
               <Input
+                id="facilityName"
                 placeholder="Optional"
                 value={state.facilityName}
                 onChange={(e) => set("facilityName", e.target.value)}
               />
             </div>
             <div className="space-y-1">
-              <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+              <label
+                htmlFor="facilityOwnership"
+                className="text-xs font-medium text-muted-foreground uppercase tracking-wide"
+              >
                 Facility Ownership
               </label>
               <Input
+                id="facilityOwnership"
                 placeholder="Owner / management"
                 value={state.facilityOwnership}
                 onChange={(e) => set("facilityOwnership", e.target.value)}
@@ -1408,130 +1461,6 @@ export default function ComplaintEntryPage({
           </div>
         )}
       </SectionCard>
-
-      {/* ── Duplicate Detection ───────────────────────────────────────────── */}
-      <AnimatePresence>
-        {(isDuplicateChecking || duplicateComplaints.length > 0) && (
-          <motion.div
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0 }}
-            className="mb-4 sm:mb-6"
-          >
-            {isDuplicateChecking ? (
-              <div className="flex items-center gap-2 text-sm text-muted-foreground px-1">
-                <Loader2 className="w-4 h-4 animate-spin" /> Checking for
-                existing complaints...
-              </div>
-            ) : duplicateComplaints.length > 0 && duplicateAction === null ? (
-              <div className="bg-warning/10 border border-warning/30 rounded-xl p-4 sm:p-5">
-                <div className="flex items-start gap-3 mb-4">
-                  <AlertTriangle className="w-5 h-5 text-warning flex-shrink-0 mt-0.5" />
-                  <div>
-                    <p className="font-semibold text-foreground text-sm">
-                      Open complaint already on file at this address
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      Link this intake to it, or save as a separate record.
-                    </p>
-                  </div>
-                </div>
-                <div className="space-y-2 mb-4">
-                  {duplicateComplaints.map((c) => (
-                    <div
-                      key={c.id}
-                      onClick={() => setLinkedToComplaintId(c.id)}
-                      className={`p-3 rounded-lg border cursor-pointer transition-all ${linkedToComplaintId === c.id ? "border-primary bg-primary/5" : "border-border bg-card hover:bg-muted/40"}`}
-                    >
-                      <div className="flex items-center gap-2 mb-1">
-                        {c.complaintid && (
-                          <span className="text-xs font-mono font-semibold text-primary bg-primary/10 px-1.5 py-0.5 rounded">
-                            #{c.complaintid}
-                          </span>
-                        )}
-                        {c.status && (
-                          <span className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded-full">
-                            {c.status}
-                          </span>
-                        )}
-                        {c.date_entered && (
-                          <span className="text-xs text-muted-foreground ml-auto">
-                            {new Date(
-                              c.date_entered + "T00:00:00",
-                            ).toLocaleDateString()}
-                          </span>
-                        )}
-                      </div>
-                      {c.description && (
-                        <p className="text-xs text-muted-foreground line-clamp-2">
-                          {c.description}
-                        </p>
-                      )}
-                    </div>
-                  ))}
-                </div>
-                <div className="flex flex-col sm:flex-row gap-2">
-                  <Button
-                    size="sm"
-                    className="gap-2"
-                    onClick={() => setDuplicateAction("link")}
-                  >
-                    <Link2 className="w-4 h-4" /> Link to Existing
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="gap-2"
-                    onClick={() => setDuplicateAction("standalone")}
-                  >
-                    <FileText className="w-4 h-4" /> Save as Standalone
-                  </Button>
-                </div>
-              </div>
-            ) : duplicateComplaints.length > 0 && duplicateAction === "link" ? (
-              <div className="flex items-center justify-between bg-primary/5 border border-primary/20 rounded-xl px-4 py-3">
-                <div className="flex items-center gap-2">
-                  <Link2 className="w-4 h-4 text-primary" />
-                  <span className="text-sm font-medium">
-                    Linked to #
-                    {
-                      duplicateComplaints.find(
-                        (c) => c.id === linkedToComplaintId,
-                      )?.complaintid
-                    }
-                  </span>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-xs"
-                  onClick={() => setDuplicateAction(null)}
-                >
-                  Change
-                </Button>
-              </div>
-            ) : duplicateComplaints.length > 0 &&
-              duplicateAction === "standalone" ? (
-              <div className="flex items-center justify-between bg-muted border border-border rounded-xl px-4 py-3">
-                <div className="flex items-center gap-2">
-                  <FileText className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-sm text-muted-foreground">
-                    Will be saved as a standalone complaint
-                  </span>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-xs"
-                  onClick={() => setDuplicateAction(null)}
-                >
-                  Change
-                </Button>
-              </div>
-            ) : null}
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* ── Section 3: Complainant Information ───────────────────────────── */}
       <SectionCard>
@@ -1544,8 +1473,18 @@ export default function ComplaintEntryPage({
         />
         <label className="flex items-center gap-2.5 cursor-pointer select-none mb-4 p-3 rounded-lg bg-muted/50 border border-border">
           <Checkbox
+            id="complainantAnonymous"
             checked={state.complainantAnonymous}
-            onCheckedChange={(v) => set("complainantAnonymous", !!v)}
+            onCheckedChange={(v) => {
+              set("complainantAnonymous", !!v);
+              if (v) {
+                set("complainantName", "");
+                set("complainantPhone", "");
+                set("complainantEmail", "");
+                set("complainantAddress", "");
+                set("complainantContactDates", "");
+              }
+            }}
           />
           <span className="text-sm font-medium">Anonymous Complainant</span>
           {state.complainantAnonymous && (
@@ -1564,66 +1503,88 @@ export default function ComplaintEntryPage({
             >
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="sm:col-span-2 space-y-1">
-                  <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1">
+                  <label
+                    htmlFor="complainantName"
+                    className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1"
+                  >
                     <User className="w-3 h-3" /> Name
                   </label>
                   <Input
+                    id="complainantName"
                     placeholder="Full name"
                     value={state.complainantName}
                     onChange={(e) => set("complainantName", e.target.value)}
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1">
+                  <label
+                    htmlFor="complainantPhone"
+                    className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1"
+                  >
                     <Phone className="w-3 h-3" /> Phone
                   </label>
                   <Input
+                    id="complainantPhone"
                     placeholder="(415) 555-5678"
                     value={state.complainantPhone}
                     onChange={(e) => set("complainantPhone", e.target.value)}
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1">
+                  <label
+                    htmlFor="complainantEmail"
+                    className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1"
+                  >
                     <Mail className="w-3 h-3" /> Email
                   </label>
                   <Input
+                    id="complainantEmail"
                     type="email"
                     placeholder="complainant@email.com"
                     value={state.complainantEmail}
                     onChange={(e) => {
                       set("complainantEmail", e.target.value);
                       if (validateEmail(e.target.value))
-                        clearError("complainantEmail");
+                        form.clearErrors("complainantEmail");
                     }}
                     onBlur={() => blurField("complainantEmail")}
                     className={
-                      touched.complainantEmail && formErrors.complainantEmail
+                      touched.complainantEmail &&
+                      formState.errors.complainantEmail
                         ? "border-destructive"
                         : ""
                     }
                   />
-                  {touched.complainantEmail && formErrors.complainantEmail && (
-                    <p className="text-xs text-destructive mt-1">
-                      {formErrors.complainantEmail}
-                    </p>
-                  )}
+                  {touched.complainantEmail &&
+                    formState.errors.complainantEmail && (
+                      <p className="text-xs text-destructive mt-1">
+                        {formState.errors.complainantEmail.message as string}
+                      </p>
+                    )}
                 </div>
                 <div className="sm:col-span-2 space-y-1">
-                  <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1">
+                  <label
+                    htmlFor="complainantAddress"
+                    className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1"
+                  >
                     <MapPin className="w-3 h-3" /> Address
                   </label>
                   <Input
+                    id="complainantAddress"
                     placeholder="Mailing address"
                     value={state.complainantAddress}
                     onChange={(e) => set("complainantAddress", e.target.value)}
                   />
                 </div>
                 <div className="sm:col-span-2 space-y-1">
-                  <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1">
+                  <label
+                    htmlFor="complainantContactDates"
+                    className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1"
+                  >
                     <Calendar className="w-3 h-3" /> Contact Dates
                   </label>
                   <Input
+                    id="complainantContactDates"
                     placeholder="e.g. 4/2/26, 4/15/26"
                     value={state.complainantContactDates}
                     onChange={(e) =>
@@ -1648,7 +1609,10 @@ export default function ComplaintEntryPage({
         <div className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1">
-              <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+              <label
+                htmlFor="complaintType"
+                className="text-xs font-medium text-muted-foreground uppercase tracking-wide"
+              >
                 Complaint Type
               </label>
               <Select
@@ -1662,7 +1626,7 @@ export default function ComplaintEntryPage({
                   else if (prog) set("assignedProgram", prog);
                 }}
               >
-                <SelectTrigger className="text-sm h-9">
+                <SelectTrigger id="complaintType" className="text-sm h-9">
                   <SelectValue placeholder="Select type..." />
                 </SelectTrigger>
                 <SelectContent>
@@ -1675,10 +1639,14 @@ export default function ComplaintEntryPage({
               </Select>
             </div>
             <div className="space-y-1">
-              <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+              <label
+                htmlFor="complaintSubtype"
+                className="text-xs font-medium text-muted-foreground uppercase tracking-wide"
+              >
                 Complaint Subtype
               </label>
               <Input
+                id="complaintSubtype"
                 placeholder="e.g. Rodent infestation"
                 value={state.complaintSubtype}
                 onChange={(e) => {
@@ -1697,11 +1665,15 @@ export default function ComplaintEntryPage({
             </div>
           </div>
           <div className="space-y-1">
-            <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+            <label
+              htmlFor="description"
+              className="text-xs font-medium text-muted-foreground uppercase tracking-wide"
+            >
               Complaint Details / Description{" "}
               <span className="text-destructive">*</span>
             </label>
             <Textarea
+              id="description"
               placeholder="Describe the complaint in detail..."
               value={state.description}
               onChange={(e) => set("description", e.target.value)}
@@ -1715,10 +1687,14 @@ export default function ComplaintEntryPage({
             )}
           </div>
           <div className="space-y-1">
-            <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+            <label
+              htmlFor="inspectorNotes"
+              className="text-xs font-medium text-muted-foreground uppercase tracking-wide"
+            >
               Inspector Notes
             </label>
             <Textarea
+              id="inspectorNotes"
               placeholder="Internal notes (not part of the complaint description)..."
               className="min-h-[72px] resize-none"
               disabled
@@ -1744,6 +1720,7 @@ export default function ComplaintEntryPage({
                         className="flex items-center gap-2 cursor-pointer text-sm select-none"
                       >
                         <Checkbox
+                          id={cat}
                           checked={state.categories.includes(cat)}
                           onCheckedChange={(checked) =>
                             set(
@@ -1772,14 +1749,17 @@ export default function ComplaintEntryPage({
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-1">
-            <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+            <label
+              htmlFor="status"
+              className="text-xs font-medium text-muted-foreground uppercase tracking-wide"
+            >
               Status
             </label>
             <Select
               value={state.status}
               onValueChange={(v) => set("status", v)}
             >
-              <SelectTrigger className="text-sm h-9">
+              <SelectTrigger id="status" className="text-sm h-9">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -1799,10 +1779,14 @@ export default function ComplaintEntryPage({
                 exit={{ opacity: 0, x: -8 }}
                 className="space-y-1"
               >
-                <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                <label
+                  htmlFor="inspectorNotes"
+                  className="text-xs font-medium text-muted-foreground uppercase tracking-wide"
+                >
                   Date Closed
                 </label>
                 <Input
+                  id="dateClosed"
                   type="date"
                   value={state.dateClosed}
                   onChange={(e) => set("dateClosed", e.target.value)}
@@ -1822,14 +1806,14 @@ export default function ComplaintEntryPage({
           size="lg"
           className="gap-2 px-8"
           onClick={onSubmit}
-          disabled={createMutation.isPending}
+          disabled={isSubmitting}
         >
-          {createMutation.isPending ? (
+          {isSubmitting ? (
             <Loader2 className="w-4 h-4 animate-spin" />
           ) : (
             <CheckCircle2 className="w-4 h-4" />
           )}
-          {createMutation.isPending ? "Saving..." : "Save Complaint"}
+          {isSubmitting ? "Saving..." : "Save Complaint"}
         </Button>
       </div>
     </div>

@@ -5,7 +5,7 @@ export const EXHIBIT_COLUMNS = `
   id, exhibit_label, exhibit_type, description, sort_order,
   caption, category, file, exhibit_date, page_count,
   complaint, source_inspection, source_photo,
-  deleted_at, created_at, updated_at
+  deleted_at
 `;
 
 export const exhibitService = {
@@ -15,7 +15,6 @@ export const exhibitService = {
       .insert([
         {
           ...exhibit,
-          created_at: new Date().toISOString(),
         },
       ])
       .select(EXHIBIT_COLUMNS)

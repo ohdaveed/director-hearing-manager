@@ -34,6 +34,7 @@ const LocationPage = lazy(() => import("@/pages/LocationPage"));
 const AllLocationsPage = lazy(() => import("@/pages/AllLocationsPage"));
 const ImportComplaintsPage = lazy(() => import("@/pages/ImportComplaintsPage"));
 const UserManagementPage = lazy(() => import("@/pages/UserManagementPage"));
+const DocumentLibraryPage = lazy(() => import("@/pages/DocumentLibraryPage"));
 
 import { Toaster } from "@/components/ui/sonner";
 import {
@@ -47,6 +48,8 @@ import {
   MapPin,
   Loader2,
   Gavel,
+  FileText,
+  BookOpen,
 } from "lucide-react";
 
 const ALL_ROLES: Role[] = [
@@ -87,6 +90,18 @@ const ALL_NAV = [
     path: "/hearings",
     label: "Director's Hearings",
     icon: <Gavel className="w-3.5 h-3.5" />,
+    roles: ALL_ROLES,
+  },
+  {
+    path: "/draft-analysis",
+    label: "Draft Analysis",
+    icon: <FileText className="w-3.5 h-3.5" />,
+    roles: ALL_ROLES,
+  },
+  {
+    path: "/documents",
+    label: "Documents",
+    icon: <BookOpen className="w-3.5 h-3.5" />,
     roles: ALL_ROLES,
   },
   {
@@ -430,11 +445,12 @@ function AppShell() {
               }
             />
 
-            {/* Draft Packet Analysis */}
             <Route
               path="/draft-analysis"
               element={<DraftPacketAnalysisPage />}
             />
+
+            <Route path="/documents" element={<DocumentLibraryPage />} />
 
             {/* Locations */}
             <Route path="/all-locations" element={<AllLocationsPage />} />

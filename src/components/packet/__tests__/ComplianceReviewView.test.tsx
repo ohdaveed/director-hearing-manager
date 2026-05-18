@@ -1,6 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom";
+import { describe, it, expect, vi, beforeEach } from "vite-plus/test";
+import { render, screen, fireEvent } from "@testing-library/react";
 import ComplianceReviewView from "../ComplianceReviewView";
 import type { ComplianceResult } from "@/types/compliance";
 

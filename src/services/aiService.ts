@@ -11,7 +11,8 @@ import type { ComplianceResult } from "@/types/compliance";
 
 const anthropic = new Anthropic({
   apiKey: import.meta.env.VITE_ANTHROPIC_API_KEY || "mock_key",
-});
+  dangerouslyAllowBrowser: true,
+} as any);
 
 export const aiService = {
   async extractViolations(reportText: string) {
@@ -33,7 +34,7 @@ Return a JSON array of objects:
 `;
 
     const response = await anthropic.messages.create({
-      model: "claude-haiku-4-5-20251001",
+      model: "claude-3-haiku-20240307",
       max_tokens: 1000,
       system: systemPrompt,
       messages: [{ role: "user", content: reportText }],
@@ -118,7 +119,7 @@ Be thorough - check every required section and element.
 
     try {
       const response = await anthropic.messages.create({
-        model: "claude-haiku-4-5-20251001",
+        model: "claude-3-haiku-20240307",
         max_tokens: 2000,
         system: systemPrompt,
         messages: [
@@ -149,5 +150,43 @@ Be thorough - check every required section and element.
       missingSections: [],
       recommendations: ["Please try again or manually verify compliance"],
     };
+  },
+
+  async generateCorrectedPacket(
+    text: string,
+    complianceResult: ComplianceResult,
+  ): Promise<string> {
+    const systemPrompt = `
+You are an expert at editing Director Hearing Packets to ensure they comply with SF Health Department Standard Operating Procedures.
+
+You will be provided with the original text of a draft hearing packet and a list of compliance issues and recommendations identified by an auditor.
+Your job is to rewrite the hearing packet text, incorporating the recommended changes, fixing formatting, and adding any missing elements or sections as instructed.
+
+Return the fully corrected hearing packet text in clean markdown. 
+Do not include conversational preamble. Just the raw, corrected document text.
+`;
+
+    try {
+      const response = await anthropic.messages.create({
+        model: "claude-3-haiku-20240307",
+        max_tokens: 4000,
+        system: systemPrompt,
+        messages: [
+          {
+            role: "user",
+            content: `Original Document Text:\n\n${text}\n\nCompliance Report:\n\n${JSON.stringify(complianceResult, null, 2)}\n\nPlease provide the corrected document text.`,
+          },
+        ],
+      });
+
+      const content = response.content[0];
+      if (content.type === "text") {
+        return content.text;
+      }
+    } catch (error) {
+      console.error("Error generating corrected packet:", error);
+    }
+
+    throw new Error("Failed to generate corrected packet.");
   },
 };

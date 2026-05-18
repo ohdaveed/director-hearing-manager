@@ -22,7 +22,7 @@ import {
   isOverdue,
 } from "@/utils/complaintStatuses";
 import { INSPECTORS } from "@/utils/inspectors";
-import StatCard from "@/components/StatCard";
+import { StatCard } from "@/components/ui/stat-card";
 import QualityChecksPanel from "@/components/dashboard/QualityChecksPanel";
 import UpcomingHearingsPanel from "@/components/dashboard/UpcomingHearingsPanel";
 import {

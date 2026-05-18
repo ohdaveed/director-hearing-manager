@@ -4,7 +4,7 @@ import { normalizeAddressQuery } from "@/utils/normalizeAddressQuery";
 export const LOCATION_LIST_COLUMNS = `
   id, address, location_id, owner_name, owner_address,
   owner_phone, owner_email, facility_type, dba,
-  number_of_units, number_of_rooms, deleted_at, created_at, updated_at
+  number_of_units, number_of_rooms, deleted_at
 `;
 
 export const LOCATION_FULL_COLUMNS = `
@@ -81,7 +81,6 @@ export const locationService = {
       .from("locations")
       .update({
         ...updates,
-        updated_at: new Date().toISOString(),
       })
       .eq("id", id)
       .select(LOCATION_LIST_COLUMNS)

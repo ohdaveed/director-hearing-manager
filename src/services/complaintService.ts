@@ -22,7 +22,7 @@ export const COMPLAINT_FULL_COLUMNS = `
   facility_name, facility_ownership,
   hearing_rp_name, hearing_rp_phone, hearing_rp_email, hearing_rp_address,
   purpose_of_hearing, notice_of_hearing_date, hearing_order_date,
-  thread_parent, created_at, updated_at
+  thread_parent
 `;
 
 export const complaintService = {
@@ -47,28 +47,28 @@ export const complaintService = {
       .from("complaints")
       .select(
         `
-        ${COMPLAINT_FULL_COLUMNS},
-        inspections (
-          inspection_id, inspection_date, inspector, inspection_type,
-          inspection_rating, status, notes, deleted_at,
-          violations (
-            id, violation_label, violation_code, category,
-            location_in_property, corrective_action, due_date,
-            responsible_party, status, observation, deleted_at
-          ),
-          inspection_photos (
-            id, photo_url, photo_type, caption, violation_label, deleted_at
-          )
-        ),
-        chronology (
-          id, summary, entry_date, entry_type, created_by,
-          visibility, chronology_order, citation_code, deleted_at
-        ),
-        hearing_packets (
-          id, hearing_date, packet_status, assigned_to, case_number,
-          program_code, packet_type, created_at
-        )
-      `,
+         ${COMPLAINT_FULL_COLUMNS},
+         inspections (
+           inspection_id, inspection_date, inspector, inspection_type,
+           inspection_rating, status, notes, deleted_at,
+           violations (
+             id, violation_label, violation_code, category,
+             location_in_property, corrective_action, due_date,
+             responsible_party, status, observation, deleted_at
+           ),
+           inspection_photos (
+             id, photo_url, photo_type, caption, violation_label, deleted_at
+           )
+         ),
+         chronology (
+           id, summary, entry_date, entry_type, created_by,
+           visibility, chronology_order, citation_code, deleted_at
+         ),
+         hearing_packets (
+           id, hearing_date, packet_status, assigned_to, case_number,
+           program_code, packet_type
+         )
+       `,
       )
       .eq("id", id)
       .is("inspections.deleted_at", null)
@@ -85,7 +85,6 @@ export const complaintService = {
       .insert([
         {
           ...complaint,
-          created_at: new Date().toISOString(),
         },
       ])
       .select(COMPLAINT_LIST_COLUMNS)

@@ -1,5 +1,9 @@
 import { ChevronDown } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import {
+  Collapsible,
+  CollapsibleTrigger,
+  CollapsibleContent,
+} from "@/components/ui/collapsible";
 
 interface Props {
   title: string;
@@ -27,14 +31,12 @@ export default function CollapsibleSection({
   children,
 }: Props) {
   return (
-    <div
+    <Collapsible
+      open={open}
+      onOpenChange={onToggle}
       className={`bg-card rounded-xl shadow-sm mb-4 sm:mb-6 overflow-hidden transition-shadow duration-200 hover:shadow-md ${printHidden ? "print:hidden" : ""} ${borderHighlight ? "border-2 border-primary/30" : "border border-border"}`}
     >
-      <button
-        type="button"
-        onClick={onToggle}
-        className="w-full flex items-center justify-between px-4 sm:px-6 py-4 hover:bg-muted/20 transition-colors text-left"
-      >
+      <CollapsibleTrigger className="w-full flex items-center justify-between px-4 sm:px-6 py-4 hover:bg-muted/20 transition-colors text-left">
         <div className="flex items-center gap-2 flex-1 min-w-0">
           {icon}
           <h2 className="font-semibold text-foreground text-base">{title}</h2>
@@ -48,26 +50,16 @@ export default function CollapsibleSection({
         <ChevronDown
           className={`w-4 h-4 text-muted-foreground transition-transform duration-200 flex-shrink-0 ml-2 ${open ? "rotate-180" : ""}`}
         />
-      </button>
-      <AnimatePresence initial={false}>
-        {open && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.2, ease: "easeOut" }}
-            className="overflow-hidden"
-          >
-            {noPadding ? (
-              <div className="border-t border-border">{children}</div>
-            ) : (
-              <div className="px-4 sm:px-6 pb-5 pt-4 border-t border-border">
-                {children}
-              </div>
-            )}
-          </motion.div>
+      </CollapsibleTrigger>
+      <CollapsibleContent className="overflow-hidden">
+        {noPadding ? (
+          <div className="border-t border-border">{children}</div>
+        ) : (
+          <div className="px-4 sm:px-6 pb-5 pt-4 border-t border-border">
+            {children}
+          </div>
         )}
-      </AnimatePresence>
-    </div>
+      </CollapsibleContent>
+    </Collapsible>
   );
 }

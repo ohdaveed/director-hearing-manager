@@ -1,6 +1,6 @@
 import { Users } from "lucide-react";
-import MetricBar from "@/components/MetricBar";
-import SectionHeader from "./SectionHeader";
+import { MetricProgress } from "@/components/ui/metric-progress";
+import { SectionHeader } from "@/components/ui/section-header";
 
 type InspectorData = {
   name: string;
@@ -29,7 +29,7 @@ export default function InspectorWorkloadWidget({
         <div>
           {inspectors.map((i) => (
             <div key={i.name}>
-              <MetricBar
+              <MetricProgress
                 label={i.name.replace(" (DPH)", "")}
                 value={i.count}
                 max={maxCount}

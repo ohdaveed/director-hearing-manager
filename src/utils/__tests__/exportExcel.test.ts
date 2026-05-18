@@ -1,4 +1,11 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import {
+  describe,
+  it,
+  expect,
+  vi,
+  beforeEach,
+  afterEach,
+} from "vite-plus/test";
 import { exportToExcel, exportToCSV } from "@/utils/exportExcel";
 
 interface TestRow extends Record<string, unknown> {

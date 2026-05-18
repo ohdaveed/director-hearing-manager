@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi } from "vite-plus/test";
 import { aiService } from "../aiService";
 
 // Mock Anthropic
@@ -193,5 +193,40 @@ describe("aiService", () => {
         "Please try again or manually verify compliance",
       );
     });
+  });
+});
+
+describe("generateCorrectedPacket", () => {
+  it("should return the corrected packet text", async () => {
+    const mockResult = {
+      isCompliant: false,
+      score: 50,
+      issues: [],
+      summary: "Needs work",
+      missingSections: [],
+      recommendations: ["Fix the cover page"],
+    };
+
+    mockMessagesCreate.mockResolvedValue({
+      id: "msg_789",
+      type: "message",
+      role: "assistant",
+      model: "claude-3-haiku-20240307",
+      content: [
+        {
+          type: "text",
+          text: "This is the corrected packet text.",
+        },
+      ],
+      stop_reason: "end_turn",
+      stop_sequence: null,
+      usage: { input_tokens: 10, output_tokens: 20 },
+    } as any);
+
+    const result = await aiService.generateCorrectedPacket(
+      "original text",
+      mockResult,
+    );
+    expect(result).toBe("This is the corrected packet text.");
   });
 });

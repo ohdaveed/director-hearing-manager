@@ -1,6 +1,6 @@
 import { BarChart3 } from "lucide-react";
-import MetricBar from "@/components/MetricBar";
-import SectionHeader from "./SectionHeader";
+import { MetricProgress } from "@/components/ui/metric-progress";
+import { SectionHeader } from "@/components/ui/section-header";
 
 type StatusItem = {
   status: string;
@@ -24,7 +24,7 @@ export default function StatusDistributionWidget({
       />
       <div>
         {statuses.map((s) => (
-          <MetricBar
+          <MetricProgress
             key={s.status}
             label={s.status}
             value={s.count}

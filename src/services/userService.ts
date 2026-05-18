@@ -3,7 +3,7 @@ import { supabase } from "@/lib/supabase";
 /** Column selections to avoid SELECT * */
 export const USER_LIST_COLUMNS = `
   id, email, first_name, last_name, role, last_login,
-  signature_text, signature_style, deleted_at, created_at, updated_at
+  signature_text, signature_style, deleted_at
 `;
 
 export const USER_PUBLIC_COLUMNS = `

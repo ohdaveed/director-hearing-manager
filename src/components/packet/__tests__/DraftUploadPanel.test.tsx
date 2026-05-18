@@ -1,6 +1,6 @@
-import { render, screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom";
-import { vi, describe, it, expect } from "vitest";
+import { render, screen, fireEvent } from "@testing-library/react";
+import { vi, describe, it, expect } from "vite-plus/test";
 import DraftUploadPanel from "../DraftUploadPanel";
 
 vi.mock("@/services/pdfService", () => ({

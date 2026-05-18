@@ -4,7 +4,7 @@ import { supabase } from "@/lib/supabase";
 export const INSPECTION_LIST_COLUMNS = `
   inspection_id, inspection_date, inspector, inspection_type,
   inspection_rating, status, dba, facility_address, notes,
-  complaint_id, location_id, submitted_at, deleted_at, created_at, updated_at
+  complaint_id, location_id, submitted_at, deleted_at
 `;
 
 export const INSPECTION_FULL_COLUMNS = `
@@ -17,12 +17,12 @@ export const VIOLATION_COLUMNS = `
   id, violation_label, violation_code, category,
   location_in_property, corrective_action, due_date,
   responsible_party, status, observation, exhibit_refs,
-  complaint, deleted_at, created_at, updated_at
+  complaint, deleted_at
 `;
 
 export const PHOTO_COLUMNS = `
   id, photo_url, photo_type, caption, violation_label,
-  complaint_id, inspector, deleted_at, created_at
+  complaint_id, inspector, deleted_at
 `;
 
 export const inspectionService = {
@@ -32,7 +32,7 @@ export const inspectionService = {
       .select(
         `
         ${INSPECTION_LIST_COLUMNS},
-        locations ( id, address, location_id )
+        locations ( address, location_id )
       `,
       )
       .is("deleted_at", null)

@@ -154,8 +154,8 @@ function applyEvent(snapshot, entry, inheritedDiagnostics = []) {
   const event = entry.event || entry;
   const next = {
     ...snapshot,
-    paramValues: { ...(snapshot.paramValues || {}) },
-    sourceMarkers: { ...(snapshot.sourceMarkers || {}) },
+    paramValues: { ...snapshot.paramValues },
+    sourceMarkers: { ...snapshot.sourceMarkers },
     annotationArtifacts: [...(snapshot.annotationArtifacts || [])],
     diagnostics: [...(snapshot.diagnostics || [])],
     updatedAt: entry.ts || new Date().toISOString(),

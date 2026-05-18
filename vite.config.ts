@@ -1,10 +1,16 @@
-import { defineConfig } from "vite";
+import path from "path";
+import { defineConfig } from "vite-plus";
 import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
   plugins: [tailwindcss()],
   css: {
     minify: "lightningcss",
+  },
+  resolve: {
+    alias: {
+      "@": path.resolve(import.meta.dirname, "./src"),
+    },
   },
   build: {
     chunkSizeWarningLimit: 600,
@@ -44,5 +50,16 @@ export default defineConfig({
         },
       },
     },
+  },
+  test: {
+    globals: true,
+    environment: "jsdom",
+    setupFiles: ["./src/test/setup.ts"],
+  },
+  lint: {
+    ignorePatterns: [
+      ".agents/**", // Blocks the linter from looking inside the .agents folder
+      "dist/**",
+    ],
   },
 });

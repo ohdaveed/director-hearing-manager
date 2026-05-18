@@ -46,6 +46,7 @@ import {
   ChevronUp as ChevronUpIcon,
   Download,
   FileDown,
+  UploadCloud,
 } from "lucide-react";
 import { PacketDownloadLink } from "@/components/packet/PacketPdfDocument";
 import { PdfViewerModal } from "@/components/packet/PdfViewerModal";
@@ -1391,6 +1392,15 @@ export default function HearingPacketsPage({
           >
             <Download className="w-3.5 h-3.5" />
             Export
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => navigate("/draft-analysis")}
+            className="gap-1.5 h-8 bg-primary/5 text-primary border-primary/20 hover:bg-primary/10"
+          >
+            <UploadCloud className="w-3.5 h-3.5" />
+            Analyze Draft
           </Button>
         </div>
       </div>

@@ -6,7 +6,7 @@ export const CHRONOLOGY_LIST_COLUMNS = `
   related_inspection, visibility, chronology_order,
   citation_code, violations_observed, exhibit_refs,
   attachment_page_ref, frozen_at, source_record,
-  deleted_at, created_at, updated_at
+  deleted_at
 `;
 
 export const chronoService = {
@@ -36,7 +36,6 @@ export const chronoService = {
       .insert([
         {
           ...entry,
-          created_at: new Date().toISOString(),
         },
       ])
       .select(CHRONOLOGY_LIST_COLUMNS)

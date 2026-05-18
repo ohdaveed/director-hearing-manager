@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vite-plus/test";
 import { importService } from "../importService";
 import { supabase } from "@/lib/supabase";
 import { aiService } from "../aiService";
@@ -6,10 +6,8 @@ import { aiService } from "../aiService";
 vi.mock("@/lib/supabase", () => {
   let lastOperation: string | null = null;
 
-  const createThenable = (data: any, error: any = null) => ({
-    then: (resolve: (value: { data: any; error: any }) => void) =>
-      resolve({ data, error }),
-  });
+  const createThenable = (data: any, error: any = null) =>
+    Promise.resolve({ data, error });
 
   const chain = {
     from: vi.fn(() => {

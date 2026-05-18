@@ -4,7 +4,7 @@ import { supabase } from "@/lib/supabase";
 export const PACKET_LIST_COLUMNS = `
   id, hearing_date, packet_status, assigned_to, case_number,
   program_code, packet_type, notes, hearing_time, hearing_location,
-  bates_start, bates_end, admin_fee, deleted_at, created_at, updated_at
+  bates_start, bates_end, admin_fee, deleted_at
 `;
 
 export const PACKET_FULL_COLUMNS = `
@@ -111,7 +111,6 @@ export const packetService = {
         {
           complaint: complaintId,
           packet_status: "Not Started",
-          created_at: new Date().toISOString(),
         },
       ])
       .select(PACKET_LIST_COLUMNS)
@@ -126,7 +125,6 @@ export const packetService = {
       .from("hearing_packets")
       .update({
         ...updates,
-        updated_at: new Date().toISOString(),
       })
       .eq("id", id)
       .select(PACKET_LIST_COLUMNS)
@@ -150,8 +148,8 @@ export const packetService = {
       .update({
         notes: `[COMPLIANCE_ANALYSIS]\nAnalyzed at: ${complianceData.analyzedAt}\nScore: ${complianceData.complianceResult.score}\nStatus: ${complianceData.complianceResult.isCompliant ? "Compliant" : "Non-Compliant"}\nIssues: ${complianceData.complianceResult.issues.length}\n\n${complianceData.complianceResult.summary}`,
         packet_status: complianceData.complianceResult.isCompliant
-          ? "Analysis Complete - Approved"
-          : "Analysis Complete - Needs Review",
+          ? "In Progress"
+          : "Under Review",
         updated_at: new Date().toISOString(),
       })
       .eq("id", packetId)

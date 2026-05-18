@@ -45,7 +45,6 @@ export const importService = {
         entry_type: "Inspection",
         summary: `Imported from draft: ${file.name}. ${extractedViolations.length} violations found.`,
         violations_observed: JSON.stringify(extractedViolations),
-        created_at: new Date().toISOString(),
       },
     ]);
 
@@ -147,7 +146,6 @@ export const importService = {
       entry_date: insp.inspection_date,
       entry_type: "Inspection" as const,
       summary: `Inspection conducted by ${insp.inspector}.`,
-      created_at: new Date().toISOString(),
     }));
 
     const { data: createdChronology, error: chronoBatchError } = await supabase
@@ -164,7 +162,6 @@ export const importService = {
       category: "Inspection Report" as const,
       description: `Inspection Report - ${insp.inspection_date}`,
       exhibit_date: insp.inspection_date,
-      created_at: new Date().toISOString(),
     }));
 
     const { error: exhibitBatchError } = await supabase

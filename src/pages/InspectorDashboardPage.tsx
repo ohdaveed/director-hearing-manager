@@ -33,7 +33,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { ACTIVE_STATUSES, isOverdue } from "@/utils/complaintStatuses";
 import { COMPLAINT_STATUS_THEME } from "@/utils/badgeThemes";
-import StatCard from "@/components/StatCard";
+import { StatCard } from "@/components/ui/stat-card";
 import { formatDate } from "@/utils/formatDate";
 
 type Complaint = any;
