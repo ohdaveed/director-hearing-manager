@@ -3,9 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/context/AuthContext";
 import {
-  GeneratedPacketFile,
   PACKET_STATUSES,
-  PacketGenerationEvent,
   PacketValidationResult,
   packetService,
 } from "@/services/packetService";
@@ -24,15 +22,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import AttachmentsEvidenceTab from "@/components/AttachmentsEvidenceTab";
 import ChronologyEditorTab from "@/components/ChronologyEditorTab";
+import { PacketActivityPanel } from "@/components/packet/PacketActivityPanel";
+import { PacketReadinessPanel } from "@/components/packet/PacketReadinessPanel";
 import {
   AlertCircle,
-  AlertTriangle,
   BookOpen,
   CheckCircle2,
   ChevronRight,
   Clock,
-  DatabaseZap,
-  FileDown,
   FileText,
   Gavel,
   History,
@@ -74,20 +71,6 @@ const STATUS_BADGE: Record<string, string> = {
   Submitted: "bg-primary/10 text-primary",
 };
 
-const VALIDATION_BADGE: Record<string, string> = {
-  pass: "bg-success/10 text-success border-success/20",
-  fail: "bg-destructive/10 text-destructive border-destructive/20",
-  warning: "bg-warning/10 text-warning border-warning/20",
-};
-
-const EVENT_BADGE: Record<string, string> = {
-  success: "bg-success/10 text-success border-success/20",
-  error: "bg-destructive/10 text-destructive border-destructive/20",
-  warning: "bg-warning/10 text-warning border-warning/20",
-  blocked: "bg-destructive/10 text-destructive border-destructive/20",
-  info: "bg-muted text-muted-foreground border-border",
-};
-
 const PROPOSED_ACTION_OPTIONS = [
   { label: "Declare Nuisance", value: "declare_nuisance" },
   { label: "Assess Fines", value: "assess_fines" },
@@ -99,7 +82,9 @@ const PROPOSED_ACTION_OPTIONS = [
 function formatDate(value?: string | null) {
   if (!value) return "—";
   try {
-    return new Date(value.includes("T") ? value : `${value}T00:00:00`).toLocaleDateString();
+    return new Date(
+      value.includes("T") ? value : `${value}T00:00:00`,
+    ).toLocaleDateString();
   } catch {
     return value;
   }
@@ -134,211 +119,6 @@ function parseHistory(raw: unknown): any[] {
   return [];
 }
 
-function validationSummary(results: PacketValidationResult[]) {
-  return results.reduce(
-    (acc, result) => {
-      if (result.status === "pass") acc.pass += 1;
-      else if (result.status === "warning") acc.warning += 1;
-      else acc.fail += 1;
-      return acc;
-    },
-    { pass: 0, warning: 0, fail: 0 },
-  );
-}
-
-function ValidationResultsPanel({
-  results,
-  onRefresh,
-  refreshing,
-}: {
-  results: PacketValidationResult[];
-  onRefresh: () => void;
-  refreshing: boolean;
-}) {
-  const summary = validationSummary(results);
-  const hasResults = results.length > 0;
-
-  return (
-    <div className="rounded-xl border border-border overflow-hidden">
-      <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-muted/30">
-        <div className="flex items-center gap-2">
-          <DatabaseZap className="w-4 h-4 text-primary" />
-          <div>
-            <h3 className="text-sm font-bold text-foreground">Packet Readiness</h3>
-            <p className="text-xs text-muted-foreground">
-              Uses SOP validation results from the database.
-            </p>
-          </div>
-        </div>
-        <Button
-          type="button"
-          size="sm"
-          variant="outline"
-          onClick={onRefresh}
-          disabled={refreshing}
-          className="gap-1.5 h-8 text-xs"
-        >
-          {refreshing ? (
-            <Loader2 className="w-3.5 h-3.5 animate-spin" />
-          ) : (
-            <RefreshCw className="w-3.5 h-3.5" />
-          )}
-          Refresh Snapshot
-        </Button>
-      </div>
-
-      {hasResults ? (
-        <>
-          <div className="grid grid-cols-3 gap-2 px-4 py-3 border-b border-border bg-card">
-            <div className="rounded-lg bg-success/10 px-3 py-2 text-center">
-              <p className="text-sm font-bold text-success">{summary.pass}</p>
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Pass</p>
-            </div>
-            <div className="rounded-lg bg-warning/10 px-3 py-2 text-center">
-              <p className="text-sm font-bold text-warning">{summary.warning}</p>
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Warnings</p>
-            </div>
-            <div className="rounded-lg bg-destructive/10 px-3 py-2 text-center">
-              <p className="text-sm font-bold text-destructive">{summary.fail}</p>
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Fail</p>
-            </div>
-          </div>
-          <div className="divide-y divide-border max-h-80 overflow-y-auto">
-            {results.map((result) => {
-              const badge = VALIDATION_BADGE[result.status] ?? VALIDATION_BADGE.warning;
-              return (
-                <div key={result.rule_slug} className="px-4 py-3 flex items-start gap-3">
-                  <div className="pt-0.5">
-                    {result.status === "pass" ? (
-                      <CheckCircle2 className="w-4 h-4 text-success" />
-                    ) : result.status === "fail" ? (
-                      <AlertTriangle className="w-4 h-4 text-destructive" />
-                    ) : (
-                      <AlertCircle className="w-4 h-4 text-warning" />
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <p className="text-xs font-semibold text-foreground">
-                        {String(result.rule_slug).replaceAll("_", " ")}
-                      </p>
-                      <span className={`text-[10px] px-1.5 py-0.5 rounded-full border font-medium ${badge}`}>
-                        {result.status}
-                      </span>
-                      {result.severity && (
-                        <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground">
-                          {result.severity}
-                        </span>
-                      )}
-                    </div>
-                    {result.message && (
-                      <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                        {result.message}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </>
-      ) : (
-        <div className="px-4 py-6 text-center text-xs text-muted-foreground">
-          No validation results yet. Refresh the packet snapshot to run readiness checks.
-        </div>
-      )}
-    </div>
-  );
-}
-
-function GeneratedFilesPanel({ files }: { files: GeneratedPacketFile[] }) {
-  return (
-    <div className="rounded-xl border border-border overflow-hidden">
-      <div className="px-4 py-3 border-b border-border bg-muted/30 flex items-center gap-2">
-        <FileDown className="w-4 h-4 text-primary" />
-        <div>
-          <h3 className="text-sm font-bold text-foreground">Generated Files</h3>
-          <p className="text-xs text-muted-foreground">Drafts, final packets, JSON snapshots, and indexes.</p>
-        </div>
-      </div>
-      {files.length === 0 ? (
-        <div className="px-4 py-6 text-center text-xs text-muted-foreground">
-          No generated files have been registered for this packet.
-        </div>
-      ) : (
-        <div className="divide-y divide-border">
-          {files.map((file) => (
-            <div key={file.id} className="px-4 py-3 flex items-center justify-between gap-3">
-              <div className="min-w-0">
-                <p className="text-xs font-semibold text-foreground truncate">
-                  {file.file_name || file.file_path}
-                </p>
-                <p className="text-[10px] text-muted-foreground mt-0.5">
-                  {file.file_type} · v{file.version_number} · {formatDateTime(file.generated_at)}
-                  {file.is_final ? " · final" : ""}
-                </p>
-              </div>
-              <a
-                href={file.file_path}
-                target="_blank"
-                rel="noreferrer"
-                className="text-xs text-primary hover:underline shrink-0"
-              >
-                Open
-              </a>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-function PacketEventsPanel({ events }: { events: PacketGenerationEvent[] }) {
-  return (
-    <div className="rounded-xl border border-border overflow-hidden">
-      <div className="px-4 py-3 border-b border-border bg-muted/30 flex items-center gap-2">
-        <History className="w-4 h-4 text-primary" />
-        <div>
-          <h3 className="text-sm font-bold text-foreground">Packet Event Log</h3>
-          <p className="text-xs text-muted-foreground">Audit trail for packet refreshes, generation, and workflow events.</p>
-        </div>
-      </div>
-      {events.length === 0 ? (
-        <div className="px-4 py-6 text-center text-xs text-muted-foreground">
-          No packet generation events yet.
-        </div>
-      ) : (
-        <div className="divide-y divide-border max-h-72 overflow-y-auto">
-          {events.map((event) => {
-            const badge = EVENT_BADGE[event.event_status] ?? EVENT_BADGE.info;
-            return (
-              <div key={event.id} className="px-4 py-3">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <p className="text-xs font-semibold text-foreground">
-                    {event.event_type.replaceAll("_", " ")}
-                  </p>
-                  <span className={`text-[10px] px-1.5 py-0.5 rounded-full border font-medium ${badge}`}>
-                    {event.event_status}
-                  </span>
-                </div>
-                {event.event_message && (
-                  <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                    {event.event_message}
-                  </p>
-                )}
-                <p className="text-[10px] text-muted-foreground mt-1">
-                  {formatDateTime(event.created_at)}
-                </p>
-              </div>
-            );
-          })}
-        </div>
-      )}
-    </div>
-  );
-}
-
 function NoticeOfHearingPrint({ data, onClose }: { data: any; onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-50 bg-black/60 overflow-auto">
@@ -355,7 +135,10 @@ function NoticeOfHearingPrint({ data, onClose }: { data: any; onClose: () => voi
         }
       `}</style>
       <div className="print-toolbar sticky top-0 z-10 bg-card border-b border-border shadow-md px-6 py-3 flex items-center justify-between">
-        <button onClick={onClose} className="text-muted-foreground hover:text-foreground transition-colors text-sm">
+        <button
+          onClick={onClose}
+          className="text-muted-foreground hover:text-foreground transition-colors text-sm"
+        >
           ← Back
         </button>
         <h2 className="text-sm font-bold text-foreground">Notice of Hearing</h2>
@@ -364,7 +147,13 @@ function NoticeOfHearingPrint({ data, onClose }: { data: any; onClose: () => voi
         </Button>
       </div>
       <div className="py-8 px-4" id="noh-print">
-        <Suspense fallback={<div className="text-center py-12 text-muted-foreground">Loading Notice of Hearing…</div>}>
+        <Suspense
+          fallback={
+            <div className="text-center py-12 text-muted-foreground">
+              Loading Notice of Hearing…
+            </div>
+          }
+        >
           <PacketNoticeOfHearing
             packet={data.packet}
             complaint={data.complaint}
@@ -390,10 +179,7 @@ function PacketDetail({
   const queryClient = useQueryClient();
   const isManagerRole = userRole ? MANAGER_ROLES.includes(userRole) : false;
 
-  const {
-    data: detail,
-    isLoading,
-  } = useQuery({
+  const { data: detail, isLoading } = useQuery({
     queryKey: ["packet", packetId],
     queryFn: () => packetService.getById(packetId),
   });
@@ -411,7 +197,8 @@ function PacketDetail({
   });
 
   const packet = detail?.packet;
-  const validationResults = (packet?.validation_results_json ?? []) as PacketValidationResult[];
+  const validationResults = (packet?.validation_results_json ??
+    []) as PacketValidationResult[];
 
   const [status, setStatus] = useState("Not Started");
   const [notes, setNotes] = useState("");
@@ -435,7 +222,9 @@ function PacketDetail({
     setHearingTime(packet.hearing_time ?? "");
     setHearingLocation(packet.hearing_location ?? "");
     setAdminFee(packet.admin_fee ?? "");
-    setProposedActions(Array.isArray(packet.proposed_actions) ? packet.proposed_actions : []);
+    setProposedActions(
+      Array.isArray(packet.proposed_actions) ? packet.proposed_actions : [],
+    );
   }, [packet]);
 
   const invalidatePacketQueries = async () => {
@@ -474,7 +263,9 @@ function PacketDetail({
   const cachedData = detail;
   const isComplete = ["Approved", "Complete", "Submitted"].includes(status);
   const badgeCls = STATUS_BADGE[status] ?? "bg-muted text-muted-foreground";
-  const history = parseHistory(packet?.status_history_json ?? packet?.status_history).reverse();
+  const history = parseHistory(
+    packet?.status_history_json ?? packet?.status_history,
+  ).reverse();
   const hasRevisionNotes = !!packet?.revision_notes?.trim();
 
   const handleSave = () => {
@@ -516,14 +307,25 @@ function PacketDetail({
 
   const toggleAction = (value: string) => {
     setProposedActions((prev) =>
-      prev.includes(value) ? prev.filter((item) => item !== value) : [...prev, value],
+      prev.includes(value)
+        ? prev.filter((item) => item !== value)
+        : [...prev, value],
     );
   };
 
   if (showFullPacket && cachedData) {
     return (
-      <Suspense fallback={<div className="p-8 text-center text-muted-foreground">Loading packet preview…</div>}>
-        <HearingPacketPreview data={cachedData} onClose={() => setShowFullPacket(false)} />
+      <Suspense
+        fallback={
+          <div className="p-8 text-center text-muted-foreground">
+            Loading packet preview…
+          </div>
+        }
+      >
+        <HearingPacketPreview
+          data={cachedData}
+          onClose={() => setShowFullPacket(false)}
+        />
       </Suspense>
     );
   }
@@ -547,8 +349,12 @@ function PacketDetail({
       <div className="flex items-center justify-between px-5 py-3.5 border-b border-border bg-muted/30">
         <div className="flex items-center gap-2.5 min-w-0">
           <Package className="w-4 h-4 text-muted-foreground shrink-0" />
-          <h2 className="text-sm font-semibold text-foreground truncate">Hearing Packet</h2>
-          <span className={`text-xs px-2 py-0.5 rounded-full font-medium shrink-0 ${badgeCls}`}>
+          <h2 className="text-sm font-semibold text-foreground truncate">
+            Hearing Packet
+          </h2>
+          <span
+            className={`text-xs px-2 py-0.5 rounded-full font-medium shrink-0 ${badgeCls}`}
+          >
             {status}
           </span>
           {packet.generated_at && (
@@ -581,19 +387,28 @@ function PacketDetail({
                 <Clock className="w-3 h-3" /> Hearing: {formatDate(packet.hearing_date)}
               </p>
             </div>
-            {detail.complaint?.hearing_status && detail.complaint.hearing_status !== "None" && (
-              <span className="text-xs px-2 py-0.5 rounded-full bg-accent/50 text-accent-foreground font-medium whitespace-nowrap">
-                {detail.complaint.hearing_status}
-              </span>
-            )}
+            {detail.complaint?.hearing_status &&
+              detail.complaint.hearing_status !== "None" && (
+                <span className="text-xs px-2 py-0.5 rounded-full bg-accent/50 text-accent-foreground font-medium whitespace-nowrap">
+                  {detail.complaint.hearing_status}
+                </span>
+              )}
           </div>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4">
-          <Button onClick={() => setShowFullPacket(true)} variant="outline" className="gap-1.5 text-xs h-8">
+          <Button
+            onClick={() => setShowFullPacket(true)}
+            variant="outline"
+            className="gap-1.5 text-xs h-8"
+          >
             <FileText className="w-3.5 h-3.5" /> Full Packet
           </Button>
-          <Button onClick={() => setShowNOH(true)} variant="outline" className="gap-1.5 text-xs h-8">
+          <Button
+            onClick={() => setShowNOH(true)}
+            variant="outline"
+            className="gap-1.5 text-xs h-8"
+          >
             <Printer className="w-3.5 h-3.5" /> Notice
           </Button>
           <Button
@@ -610,32 +425,58 @@ function PacketDetail({
             Refresh
           </Button>
           {isComplete && (
-            <Button onClick={() => setActiveTab("order")} variant="outline" className="gap-1.5 text-xs h-8">
+            <Button
+              onClick={() => setActiveTab("order")}
+              variant="outline"
+              className="gap-1.5 text-xs h-8"
+            >
               <Gavel className="w-3.5 h-3.5" /> Order
             </Button>
           )}
         </div>
 
-        {status !== "Under Review" && status !== "Approved" && status !== "Complete" && status !== "Submitted" && !isManagerRole && (
-          <div className="rounded-lg border border-primary/25 bg-primary/5 px-3 py-2.5 mb-3 flex items-center justify-between gap-3">
-            <div className="min-w-0">
-              <p className="text-xs font-semibold text-foreground leading-none">Ready for internal review?</p>
-              <p className="text-[11px] text-muted-foreground mt-0.5 leading-none">Sets status to Under Review</p>
+        {status !== "Under Review" &&
+          status !== "Approved" &&
+          status !== "Complete" &&
+          status !== "Submitted" &&
+          !isManagerRole && (
+            <div className="rounded-lg border border-primary/25 bg-primary/5 px-3 py-2.5 mb-3 flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-xs font-semibold text-foreground leading-none">
+                  Ready for internal review?
+                </p>
+                <p className="text-[11px] text-muted-foreground mt-0.5 leading-none">
+                  Sets status to Under Review
+                </p>
+              </div>
+              <Button
+                onClick={handleSendToReview}
+                disabled={updateMutation.isPending}
+                size="sm"
+                className="gap-1.5 text-xs h-8 px-3"
+              >
+                <Send className="w-3.5 h-3.5" /> Send to Review
+              </Button>
             </div>
-            <Button onClick={handleSendToReview} disabled={updateMutation.isPending} size="sm" className="gap-1.5 text-xs h-8 px-3">
-              <Send className="w-3.5 h-3.5" /> Send to Review
-            </Button>
-          </div>
-        )}
+          )}
 
         {isManagerRole && status === "Under Review" && (
           <div className="rounded-lg border border-border bg-card mb-3 p-3 space-y-3">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <p className="text-xs font-semibold text-foreground">Manager review actions</p>
-                <p className="text-[11px] text-muted-foreground">Approve packet or request changes.</p>
+                <p className="text-xs font-semibold text-foreground">
+                  Manager review actions
+                </p>
+                <p className="text-[11px] text-muted-foreground">
+                  Approve packet or request changes.
+                </p>
               </div>
-              <Button onClick={handleApprove} size="sm" className="gap-1.5 h-8 text-xs" disabled={updateMutation.isPending}>
+              <Button
+                onClick={handleApprove}
+                size="sm"
+                className="gap-1.5 h-8 text-xs"
+                disabled={updateMutation.isPending}
+              >
                 <CheckCircle2 className="w-3.5 h-3.5" /> Approve
               </Button>
             </div>
@@ -662,47 +503,88 @@ function PacketDetail({
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="w-full rounded-none border-b border-border bg-muted/30 h-10 px-4 justify-start gap-0.5 overflow-x-auto scrollbar-none">
-          <TabsTrigger value="packet" className="text-xs h-7 rounded-md px-3 shrink-0">Packet Details</TabsTrigger>
-          <TabsTrigger value="readiness" className="text-xs h-7 rounded-md px-3 shrink-0">Readiness</TabsTrigger>
-          <TabsTrigger value="chrono" className="text-xs h-7 rounded-md px-3 shrink-0 flex items-center gap-1">
+          <TabsTrigger value="packet" className="text-xs h-7 rounded-md px-3 shrink-0">
+            Packet Details
+          </TabsTrigger>
+          <TabsTrigger value="readiness" className="text-xs h-7 rounded-md px-3 shrink-0">
+            Readiness
+          </TabsTrigger>
+          <TabsTrigger
+            value="chrono"
+            className="text-xs h-7 rounded-md px-3 shrink-0 flex items-center gap-1"
+          >
             <BookOpen className="w-3 h-3" /> Chronology
           </TabsTrigger>
-          <TabsTrigger value="evidence" className="text-xs h-7 rounded-md px-3 shrink-0 flex items-center gap-1">
+          <TabsTrigger
+            value="evidence"
+            className="text-xs h-7 rounded-md px-3 shrink-0 flex items-center gap-1"
+          >
             <Paperclip className="w-3 h-3" /> Attachments
           </TabsTrigger>
-          <TabsTrigger value="activity" className="text-xs h-7 rounded-md px-3 shrink-0 flex items-center gap-1">
+          <TabsTrigger
+            value="activity"
+            className="text-xs h-7 rounded-md px-3 shrink-0 flex items-center gap-1"
+          >
             <History className="w-3 h-3" /> Activity
           </TabsTrigger>
           {isComplete && (
-            <TabsTrigger value="order" className="text-xs h-7 rounded-md px-3 shrink-0 flex items-center gap-1">
+            <TabsTrigger
+              value="order"
+              className="text-xs h-7 rounded-md px-3 shrink-0 flex items-center gap-1"
+            >
               <Gavel className="w-3 h-3" /> Hearing Order
             </TabsTrigger>
           )}
         </TabsList>
 
-        <TabsContent value="packet" className="p-5 space-y-4 overflow-y-auto max-h-[calc(100vh-320px)] mt-0">
+        <TabsContent
+          value="packet"
+          className="p-5 space-y-4 overflow-y-auto max-h-[calc(100vh-320px)] mt-0"
+        >
           {status === "Changes Requested" && hasRevisionNotes && (
             <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-3 flex gap-3">
               <AlertCircle className="w-4 h-4 text-destructive flex-shrink-0 mt-0.5" />
               <div className="min-w-0 flex-1">
-                <p className="text-xs font-semibold text-foreground leading-none mb-1">Changes requested</p>
-                <p className="text-xs text-muted-foreground leading-relaxed">{packet.revision_notes}</p>
+                <p className="text-xs font-semibold text-foreground leading-none mb-1">
+                  Changes requested
+                </p>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  {packet.revision_notes}
+                </p>
               </div>
             </div>
           )}
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label className="text-xs font-medium text-muted-foreground mb-1 block">Case Number</Label>
-              <Input value={caseNumber} onChange={(e) => setCaseNumber(e.target.value)} placeholder="e.g. HHP-26-08" className="h-8 text-sm" />
+              <Label className="text-xs font-medium text-muted-foreground mb-1 block">
+                Case Number
+              </Label>
+              <Input
+                value={caseNumber}
+                onChange={(e) => setCaseNumber(e.target.value)}
+                placeholder="e.g. HHP-26-08"
+                className="h-8 text-sm"
+              />
             </div>
             <div>
-              <Label className="text-xs font-medium text-muted-foreground mb-1 block">Program Code</Label>
-              <Select value={programCode || "none"} onValueChange={(v) => setProgramCode(v === "none" ? "" : v)}>
-                <SelectTrigger className="h-8 text-sm"><SelectValue placeholder="Select..." /></SelectTrigger>
+              <Label className="text-xs font-medium text-muted-foreground mb-1 block">
+                Program Code
+              </Label>
+              <Select
+                value={programCode || "none"}
+                onValueChange={(v) => setProgramCode(v === "none" ? "" : v)}
+              >
+                <SelectTrigger className="h-8 text-sm">
+                  <SelectValue placeholder="Select..." />
+                </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="none">—</SelectItem>
-                  {PROGRAM_CODES.map((code) => <SelectItem key={code} value={code}>{code}</SelectItem>)}
+                  {PROGRAM_CODES.map((code) => (
+                    <SelectItem key={code} value={code}>
+                      {code}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -710,25 +592,48 @@ function PacketDetail({
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label className="text-xs font-medium text-muted-foreground mb-1 block">Hearing Date</Label>
-              <p className="text-sm font-medium text-foreground py-1">{formatDate(packet.hearing_date)}</p>
+              <Label className="text-xs font-medium text-muted-foreground mb-1 block">
+                Hearing Date
+              </Label>
+              <p className="text-sm font-medium text-foreground py-1">
+                {formatDate(packet.hearing_date)}
+              </p>
             </div>
             <div>
-              <Label className="text-xs font-medium text-muted-foreground mb-1 block">Hearing Time</Label>
-              <Input value={hearingTime} onChange={(e) => setHearingTime(e.target.value)} placeholder="e.g. 1:00 PM" className="h-8 text-sm" />
+              <Label className="text-xs font-medium text-muted-foreground mb-1 block">
+                Hearing Time
+              </Label>
+              <Input
+                value={hearingTime}
+                onChange={(e) => setHearingTime(e.target.value)}
+                placeholder="e.g. 1:00 PM"
+                className="h-8 text-sm"
+              />
             </div>
           </div>
 
           <div>
-            <Label className="text-xs font-medium text-muted-foreground mb-1 block">Hearing Location</Label>
-            <Input value={hearingLocation} onChange={(e) => setHearingLocation(e.target.value)} placeholder="49 South Van Ness Ave." className="h-8 text-sm" />
+            <Label className="text-xs font-medium text-muted-foreground mb-1 block">
+              Hearing Location
+            </Label>
+            <Input
+              value={hearingLocation}
+              onChange={(e) => setHearingLocation(e.target.value)}
+              placeholder="49 South Van Ness Ave."
+              className="h-8 text-sm"
+            />
           </div>
 
           <div>
-            <Label className="text-xs font-medium text-muted-foreground mb-2 block">Proposed Enforcement Actions</Label>
+            <Label className="text-xs font-medium text-muted-foreground mb-2 block">
+              Proposed Enforcement Actions
+            </Label>
             <div className="space-y-2 border border-border rounded-lg p-3 bg-muted/20">
               {PROPOSED_ACTION_OPTIONS.map((option) => (
-                <label key={option.value} className="flex items-center gap-2 text-sm cursor-pointer">
+                <label
+                  key={option.value}
+                  className="flex items-center gap-2 text-sm cursor-pointer"
+                >
                   <input
                     type="checkbox"
                     checked={proposedActions.includes(option.value)}
@@ -742,45 +647,80 @@ function PacketDetail({
           </div>
 
           <div>
-            <Label className="text-xs font-medium text-muted-foreground mb-1 block">Admin Fee</Label>
-            <Input value={adminFee} onChange={(e) => setAdminFee(e.target.value)} placeholder="e.g. $500 per week" className="h-8 text-sm" />
+            <Label className="text-xs font-medium text-muted-foreground mb-1 block">
+              Admin Fee
+            </Label>
+            <Input
+              value={adminFee}
+              onChange={(e) => setAdminFee(e.target.value)}
+              placeholder="e.g. $500 per week"
+              className="h-8 text-sm"
+            />
           </div>
 
           <div>
-            <Label className="text-xs font-medium text-muted-foreground mb-1.5 block">Packet Status</Label>
+            <Label className="text-xs font-medium text-muted-foreground mb-1.5 block">
+              Packet Status
+            </Label>
             <Select value={status} onValueChange={setStatus}>
-              <SelectTrigger className="h-9 text-sm"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="h-9 text-sm">
+                <SelectValue />
+              </SelectTrigger>
               <SelectContent>
-                {PACKET_STATUSES.map((item) => <SelectItem key={item} value={item}>{item}</SelectItem>)}
+                {PACKET_STATUSES.map((item) => (
+                  <SelectItem key={item} value={item}>
+                    {item}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
 
           <div>
-            <Label className="text-xs font-medium text-muted-foreground mb-1.5 block">Reviewer Notes</Label>
-            <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Add review notes, approval comments, or return instructions..." className="text-sm resize-none" rows={3} />
+            <Label className="text-xs font-medium text-muted-foreground mb-1.5 block">
+              Reviewer Notes
+            </Label>
+            <Textarea
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="Add review notes, approval comments, or return instructions..."
+              className="text-sm resize-none"
+              rows={3}
+            />
           </div>
 
           <div className="grid grid-cols-2 gap-2">
             <Button onClick={handleSave} disabled={updateMutation.isPending} className="gap-2">
-              {updateMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
+              {updateMutation.isPending ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <CheckCircle2 className="w-4 h-4" />
+              )}
               Save Changes
             </Button>
             {status === "Approved" && (
-              <Button onClick={handleMarkComplete} disabled={updateMutation.isPending} variant="outline" className="gap-2">
+              <Button
+                onClick={handleMarkComplete}
+                disabled={updateMutation.isPending}
+                variant="outline"
+                className="gap-2"
+              >
                 <CheckCircle2 className="w-4 h-4" /> Mark Complete
               </Button>
             )}
           </div>
         </TabsContent>
 
-        <TabsContent value="readiness" className="p-5 space-y-4 mt-0 overflow-y-auto max-h-[calc(100vh-320px)]">
-          <ValidationResultsPanel
+        <TabsContent
+          value="readiness"
+          className="p-5 mt-0 overflow-y-auto max-h-[calc(100vh-320px)]"
+        >
+          <PacketReadinessPanel
             results={validationResults}
+            files={files}
             onRefresh={() => refreshMutation.mutate()}
             refreshing={refreshMutation.isPending}
           />
-          <GeneratedFilesPanel files={files} />
         </TabsContent>
 
         <TabsContent value="chrono" className="mt-0">
@@ -791,36 +731,25 @@ function PacketDetail({
           <AttachmentsEvidenceTab packetId={packet.id} data={detail} />
         </TabsContent>
 
-        <TabsContent value="activity" className="p-5 space-y-4 mt-0 overflow-y-auto max-h-[calc(100vh-320px)]">
-          <PacketEventsPanel events={events} />
-          <div className="rounded-xl border border-border overflow-hidden">
-            <div className="px-4 py-3 border-b border-border bg-muted/30 flex items-center gap-2">
-              <History className="w-4 h-4 text-primary" />
-              <h3 className="text-sm font-bold text-foreground">Status History</h3>
-            </div>
-            {history.length === 0 ? (
-              <div className="px-4 py-6 text-center text-xs text-muted-foreground">No status history recorded yet.</div>
-            ) : (
-              <div className="divide-y divide-border">
-                {history.map((entry, index) => (
-                  <div key={index} className="px-4 py-3">
-                    <p className="text-xs text-foreground">
-                      <span className="font-medium">{entry.userName ?? "User"}</span> {entry.action ?? "changed status"}
-                    </p>
-                    <p className="text-[10px] text-muted-foreground mt-0.5">
-                      {entry.fromStatus} → {entry.toStatus} · {formatDateTime(entry.timestamp)}
-                    </p>
-                    {entry.notes && <p className="text-[10px] text-muted-foreground mt-1 italic">“{entry.notes}”</p>}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+        <TabsContent
+          value="activity"
+          className="p-5 mt-0 overflow-y-auto max-h-[calc(100vh-320px)]"
+        >
+          <PacketActivityPanel events={events} history={history} />
         </TabsContent>
 
         {isComplete && (
-          <TabsContent value="order" className="p-5 mt-0 overflow-y-auto max-h-[calc(100vh-320px)]">
-            <Suspense fallback={<div className="text-center py-12 text-muted-foreground">Loading Hearing Order editor…</div>}>
+          <TabsContent
+            value="order"
+            className="p-5 mt-0 overflow-y-auto max-h-[calc(100vh-320px)]"
+          >
+            <Suspense
+              fallback={
+                <div className="text-center py-12 text-muted-foreground">
+                  Loading Hearing Order editor…
+                </div>
+              }
+            >
               <HearingOrderEditor
                 packet={detail.packet}
                 complaint={detail.complaint}
@@ -862,7 +791,8 @@ export default function HearingPacketsPage({
     queryFn: () =>
       packetService.getAll({
         statusFilter: statusFilter || undefined,
-        assignedToFilter: userScopedFilter && inspectorName ? inspectorName : undefined,
+        assignedToFilter:
+          userScopedFilter && inspectorName ? inspectorName : undefined,
       }),
     enabled: !!user,
   });
@@ -889,14 +819,31 @@ export default function HearingPacketsPage({
           )}
         </div>
         <div className="flex items-center gap-2">
-          <Select value={statusFilter || "all"} onValueChange={(value) => setStatusFilter(value === "all" ? "" : value)}>
-            <SelectTrigger className="w-44 h-8 text-sm"><SelectValue placeholder="All statuses" /></SelectTrigger>
+          <Select
+            value={statusFilter || "all"}
+            onValueChange={(value) =>
+              setStatusFilter(value === "all" ? "" : value)
+            }
+          >
+            <SelectTrigger className="w-44 h-8 text-sm">
+              <SelectValue placeholder="All statuses" />
+            </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Statuses</SelectItem>
-              {PACKET_STATUSES.map((status) => <SelectItem key={status} value={status}>{status}</SelectItem>)}
+              {PACKET_STATUSES.map((status) => (
+                <SelectItem key={status} value={status}>
+                  {status}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
-          <Button variant="outline" size="sm" onClick={() => refetch()} disabled={isRefetching || isLoading} className="gap-1.5 h-8">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => refetch()}
+            disabled={isRefetching || isLoading}
+            className="gap-1.5 h-8"
+          >
             {isRefetching && <Loader2 className="w-3 h-3 animate-spin" />}
             Refresh
           </Button>
@@ -905,13 +852,17 @@ export default function HearingPacketsPage({
 
       {isLoading ? (
         <div className="bg-card border border-border rounded-xl overflow-hidden shadow-sm p-4 space-y-3">
-          {Array.from({ length: 5 }).map((_, index) => <Skeleton key={index} className="h-14 w-full" />)}
+          {Array.from({ length: 5 }).map((_, index) => (
+            <Skeleton key={index} className="h-14 w-full" />
+          ))}
         </div>
       ) : packets.length === 0 ? (
         <div className="text-center py-24 text-muted-foreground">
           <Package className="w-12 h-12 mx-auto mb-3 opacity-20" />
           <p className="font-medium">No hearing packets found</p>
-          <p className="text-sm mt-1">Packets are created when complaints are escalated to hearing.</p>
+          <p className="text-sm mt-1">
+            Packets are created when complaints are escalated to hearing.
+          </p>
         </div>
       ) : (
         <div className={`flex gap-6 ${selected ? "flex-col xl:flex-row" : ""}`}>
@@ -926,42 +877,80 @@ export default function HearingPacketsPage({
               </div>
               <div className="divide-y divide-border">
                 {packets.map((packet: Packet) => {
-                  const badgeCls = STATUS_BADGE[packet.packet_status ?? ""] ?? "bg-muted text-muted-foreground";
+                  const badgeCls =
+                    STATUS_BADGE[packet.packet_status ?? ""] ??
+                    "bg-muted text-muted-foreground";
                   return (
                     <button
                       key={packet.id}
                       type="button"
-                      onClick={() => handleSelectPacket(selected?.id === packet.id ? null : packet)}
-                      className={`w-full text-left hover:bg-muted/40 transition-colors ${selected?.id === packet.id ? "bg-primary/5 border-l-2 border-l-primary" : ""}`}
+                      onClick={() =>
+                        handleSelectPacket(selected?.id === packet.id ? null : packet)
+                      }
+                      className={`w-full text-left hover:bg-muted/40 transition-colors ${
+                        selected?.id === packet.id
+                          ? "bg-primary/5 border-l-2 border-l-primary"
+                          : ""
+                      }`}
                     >
                       <div className="md:hidden px-4 py-3.5">
                         <div className="flex items-start justify-between gap-2 mb-1.5">
                           <div>
-                            <p className="text-sm font-semibold text-foreground truncate">{packet.address ?? "—"}</p>
-                            {packet.complaintid && <p className="text-xs text-muted-foreground font-mono">#{packet.complaintid}</p>}
+                            <p className="text-sm font-semibold text-foreground truncate">
+                              {packet.address ?? "—"}
+                            </p>
+                            {packet.complaintid && (
+                              <p className="text-xs text-muted-foreground font-mono">
+                                #{packet.complaintid}
+                              </p>
+                            )}
                           </div>
-                          <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium whitespace-nowrap ${badgeCls}`}>
+                          <span
+                            className={`text-xs px-1.5 py-0.5 rounded-full font-medium whitespace-nowrap ${badgeCls}`}
+                          >
                             {packet.packet_status}
                           </span>
                         </div>
-                        <p className="text-xs text-muted-foreground">{formatDate(packet.hearing_date)}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {formatDate(packet.hearing_date)}
+                        </p>
                       </div>
                       <div className="hidden md:grid grid-cols-12 px-4 py-3 items-center gap-1">
                         <div className="col-span-2 text-xs text-muted-foreground flex items-center gap-1">
                           <Clock className="w-3 h-3" /> {formatDate(packet.hearing_date)}
                         </div>
-                        <div className="col-span-2 text-xs font-mono text-foreground truncate">{packet.case_number ?? "—"}</div>
+                        <div className="col-span-2 text-xs font-mono text-foreground truncate">
+                          {packet.case_number ?? "—"}
+                        </div>
                         <div className="col-span-4">
-                          <p className="text-sm font-medium truncate">{packet.address ?? "—"}</p>
-                          {packet.complaintid && <p className="text-xs text-muted-foreground font-mono">#{packet.complaintid}</p>}
+                          <p className="text-sm font-medium truncate">
+                            {packet.address ?? "—"}
+                          </p>
+                          {packet.complaintid && (
+                            <p className="text-xs text-muted-foreground font-mono">
+                              #{packet.complaintid}
+                            </p>
+                          )}
                         </div>
                         <div className="col-span-2 flex items-center gap-1.5 flex-wrap">
-                          <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${badgeCls}`}>{packet.packet_status ?? "—"}</span>
-                          {packet.final_file_path && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-success/10 text-success">Final</span>}
+                          <span
+                            className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${badgeCls}`}
+                          >
+                            {packet.packet_status ?? "—"}
+                          </span>
+                          {packet.final_file_path && (
+                            <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-success/10 text-success">
+                              Final
+                            </span>
+                          )}
                         </div>
                         <div className="col-span-2 flex justify-end items-center gap-2">
                           <FileText className="w-4 h-4 text-muted-foreground" />
-                          <ChevronRight className={`w-4 h-4 text-muted-foreground transition-transform ${selected?.id === packet.id ? "rotate-90" : ""}`} />
+                          <ChevronRight
+                            className={`w-4 h-4 text-muted-foreground transition-transform ${
+                              selected?.id === packet.id ? "rotate-90" : ""
+                            }`}
+                          />
                         </div>
                       </div>
                     </button>
@@ -973,7 +962,11 @@ export default function HearingPacketsPage({
 
           {selected && (
             <div className="xl:w-1/2 min-w-0">
-              <PacketDetail packetId={selected.id} onClose={() => handleSelectPacket(null)} userRole={currentUserRole} />
+              <PacketDetail
+                packetId={selected.id}
+                onClose={() => handleSelectPacket(null)}
+                userRole={currentUserRole}
+              />
             </div>
           )}
         </div>
