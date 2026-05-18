@@ -12,8 +12,10 @@ export function packetQueryKeys() {
     list: (filters: PacketListFilters = {}) =>
       [
         "packets",
-        filters.statusFilter ?? "",
-        filters.assignedToFilter ?? "",
+        {
+          statusFilter: filters.statusFilter || undefined,
+          assignedToFilter: filters.assignedToFilter || undefined,
+        },
       ] as const,
     detail: (packetId: string) => ["packet", packetId] as const,
     files: (packetId: string) => ["packet-files", packetId] as const,
