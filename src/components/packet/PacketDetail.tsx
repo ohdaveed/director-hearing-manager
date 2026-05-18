@@ -8,6 +8,17 @@ import {
 } from "@/services/packetService";
 import { usePacketForm } from "@/hooks/usePacketForm";
 import { usePacketWorkflow } from "@/hooks/usePacketWorkflow";
+import {
+  MANAGER_ROLES,
+  PROGRAM_CODES,
+  PROPOSED_ACTION_OPTIONS,
+  STATUS_BADGE,
+} from "@/constants/packet";
+import {
+  formatPacketDate,
+  formatPacketDateTime,
+  parsePacketHistory,
+} from "@/utils/packetFormat";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -51,67 +62,6 @@ const HearingOrderEditor = lazy(
   () => import("@/components/HearingOrderEditor"),
 );
 
-const MANAGER_ROLES = ["Program Manager", "Admin", "Super Admin"];
-const PROGRAM_CODES = ["HHV", "HHP", "VEC", "ENV"];
-
-const STATUS_BADGE: Record<string, string> = {
-  "Not Started": "bg-muted text-muted-foreground",
-  "In Progress": "bg-primary/10 text-primary",
-  "Under Review": "bg-warning/10 text-warning",
-  "Changes Requested": "bg-destructive/10 text-destructive",
-  Approved: "bg-success/10 text-success",
-  Complete: "bg-success/10 text-success",
-  Submitted: "bg-primary/10 text-primary",
-};
-
-const PROPOSED_ACTION_OPTIONS = [
-  { label: "Declare Nuisance", value: "declare_nuisance" },
-  { label: "Assess Fines", value: "assess_fines" },
-  { label: "Permit Suspension", value: "permit_suspension" },
-  { label: "Permit Revocation", value: "permit_revocation" },
-  { label: "Other", value: "other" },
-];
-
-function formatDate(value?: string | null) {
-  if (!value) return "—";
-  try {
-    return new Date(
-      value.includes("T") ? value : `${value}T00:00:00`,
-    ).toLocaleDateString();
-  } catch {
-    return value;
-  }
-}
-
-function formatDateTime(value?: string | null) {
-  if (!value) return "—";
-  try {
-    return new Date(value).toLocaleString(undefined, {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-      hour: "numeric",
-      minute: "2-digit",
-    });
-  } catch {
-    return value;
-  }
-}
-
-function parseHistory(raw: unknown): any[] {
-  if (!raw) return [];
-  if (Array.isArray(raw)) return raw;
-  if (typeof raw === "string") {
-    try {
-      const parsed = JSON.parse(raw);
-      return Array.isArray(parsed) ? parsed : [];
-    } catch {
-      return [];
-    }
-  }
-  return [];
-}
-
 export function PacketDetail({
   packetId,
   onClose,
@@ -121,7 +71,7 @@ export function PacketDetail({
   onClose: () => void;
   userRole?: string;
 }) {
-  const isManagerRole = userRole ? MANAGER_ROLES.includes(userRole) : false;
+  const isManagerRole = userRole ? MANAGER_ROLES.includes(userRole as any) : false;
 
   const { data: detail, isLoading } = useQuery({
     queryKey: ["packet", packetId],
@@ -161,7 +111,7 @@ export function PacketDetail({
   const cachedData = detail;
   const isComplete = ["Approved", "Complete", "Submitted"].includes(form.status);
   const badgeCls = STATUS_BADGE[form.status] ?? "bg-muted text-muted-foreground";
-  const history = parseHistory(
+  const history = parsePacketHistory(
     packet?.status_history_json ?? packet?.status_history,
   ).reverse();
   const hasRevisionNotes = !!packet?.revision_notes?.trim();
@@ -222,7 +172,7 @@ export function PacketDetail({
           </span>
           {packet.generated_at && (
             <span className="text-[10px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded-full hidden sm:inline">
-              Snapshot {formatDateTime(packet.generated_at)}
+              Snapshot {formatPacketDateTime(packet.generated_at)}
             </span>
           )}
         </div>
@@ -247,7 +197,7 @@ export function PacketDetail({
                 {detail.complaint?.address ?? detail.location?.address ?? "—"}
               </p>
               <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1">
-                <Clock className="w-3 h-3" /> Hearing: {formatDate(packet.hearing_date)}
+                <Clock className="w-3 h-3" /> Hearing: {formatPacketDate(packet.hearing_date)}
               </p>
             </div>
             {detail.complaint?.hearing_status &&
@@ -455,7 +405,7 @@ export function PacketDetail({
                 Hearing Date
               </Label>
               <p className="text-sm font-medium text-foreground py-1">
-                {formatDate(packet.hearing_date)}
+                {formatPacketDate(packet.hearing_date)}
               </p>
             </div>
             <div>

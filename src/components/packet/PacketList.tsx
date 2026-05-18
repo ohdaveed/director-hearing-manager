@@ -1,25 +1,6 @@
 import { ChevronRight, Clock, FileText } from "lucide-react";
-
-const STATUS_BADGE: Record<string, string> = {
-  "Not Started": "bg-muted text-muted-foreground",
-  "In Progress": "bg-primary/10 text-primary",
-  "Under Review": "bg-warning/10 text-warning",
-  "Changes Requested": "bg-destructive/10 text-destructive",
-  Approved: "bg-success/10 text-success",
-  Complete: "bg-success/10 text-success",
-  Submitted: "bg-primary/10 text-primary",
-};
-
-function formatDate(value?: string | null) {
-  if (!value) return "—";
-  try {
-    return new Date(
-      value.includes("T") ? value : `${value}T00:00:00`,
-    ).toLocaleDateString();
-  } catch {
-    return value;
-  }
-}
+import { STATUS_BADGE } from "@/constants/packet";
+import { formatPacketDate } from "@/utils/packetFormat";
 
 export function PacketList({
   packets,
@@ -73,12 +54,12 @@ export function PacketList({
                   </span>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  {formatDate(packet.hearing_date)}
+                  {formatPacketDate(packet.hearing_date)}
                 </p>
               </div>
               <div className="hidden md:grid grid-cols-12 px-4 py-3 items-center gap-1">
                 <div className="col-span-2 text-xs text-muted-foreground flex items-center gap-1">
-                  <Clock className="w-3 h-3" /> {formatDate(packet.hearing_date)}
+                  <Clock className="w-3 h-3" /> {formatPacketDate(packet.hearing_date)}
                 </div>
                 <div className="col-span-2 text-xs font-mono text-foreground truncate">
                   {packet.case_number ?? "—"}
