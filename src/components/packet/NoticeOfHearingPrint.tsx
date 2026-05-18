@@ -1,19 +1,20 @@
-import { Suspense } from "react";
-import { Loader2, Printer, FileDown } from "lucide-react";
+import { lazy, Suspense } from "react";
+import { Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { elementToPdf } from "@/utils/pdfExport";
-import type { PacketWithRelations } from "@/types/packet";
-import { PacketNoticeOfHearing } from "@/components/packet/PacketNoticeOfHearing";
 
-interface NoticeOfHearingPrintProps {
-  data: PacketWithRelations;
-  onClose: () => void;
-}
+const PacketNoticeOfHearing = lazy(() =>
+  import("@/components/packet/PacketNoticeOfHearing").then((m) => ({
+    default: m.PacketNoticeOfHearing,
+  })),
+);
 
 export function NoticeOfHearingPrint({
   data,
   onClose,
-}: NoticeOfHearingPrintProps) {
+}: {
+  data: any;
+  onClose: () => void;
+}) {
   return (
     <div className="fixed inset-0 z-50 bg-black/60 overflow-auto">
       <style>{`
@@ -22,7 +23,6 @@ export function NoticeOfHearingPrint({
           #noh-print, #noh-print * { visibility: visible; }
           #noh-print { position: fixed; top: 0; left: 0; width: 100%; }
           .print-toolbar { display: none !important; }
-          .print-page-break { page-break-after: always; break-after: page; }
           .packet-page { padding: 0.75in; min-height: 10.5in; box-sizing: border-box; }
         }
         @media screen {
@@ -30,42 +30,27 @@ export function NoticeOfHearingPrint({
         }
       `}</style>
       <div className="print-toolbar sticky top-0 z-10 bg-card border-b border-border shadow-md px-6 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <button
-            onClick={onClose}
-            className="text-muted-foreground hover:text-foreground transition-colors text-sm"
-          >
-            ← Back
-          </button>
-          <h2 className="text-sm font-bold text-foreground">
-            Notice of Hearing — Standalone Print
-          </h2>
-        </div>
+        <button
+          onClick={onClose}
+          className="text-muted-foreground hover:text-foreground transition-colors text-sm"
+        >
+          ← Back
+        </button>
+        <h2 className="text-sm font-bold text-foreground">Notice of Hearing</h2>
         <Button size="sm" className="gap-2" onClick={() => window.print()}>
           <Printer className="w-4 h-4" /> Print / Save PDF
-        </Button>
-        <Button
-          size="sm"
-          variant="outline"
-          className="gap-2"
-          onClick={() =>
-            elementToPdf("noh-print", `notice-of-hearing-${Date.now()}`)
-          }
-        >
-          <FileDown className="w-4 h-4" /> Download PDF
         </Button>
       </div>
       <div className="py-8 px-4" id="noh-print">
         <Suspense
           fallback={
-            <div className="flex items-center justify-center py-12 text-muted-foreground gap-2">
-              <Loader2 className="w-4 h-4 animate-spin" />
-              <span className="text-sm">Loading Notice of Hearing…</span>
+            <div className="text-center py-12 text-muted-foreground">
+              Loading Notice of Hearing…
             </div>
           }
         >
           <PacketNoticeOfHearing
-            packet={data}
+            packet={data.packet}
             complaint={data.complaint}
             location={data.location}
             inspector={data.inspector}
