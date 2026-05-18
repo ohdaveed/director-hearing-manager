@@ -315,6 +315,41 @@ export const packetService = {
     return (data ?? []) as PacketGenerationEvent[];
   },
 
+  async logPacketEvent({
+    packetId,
+    complaintUuid,
+    eventType,
+    eventStatus = "success",
+    eventMessage,
+    eventData = {},
+  }: {
+    packetId: string;
+    complaintUuid?: string | null;
+    eventType: string;
+    eventStatus?: "info" | "success" | "warning" | "error" | "blocked";
+    eventMessage?: string;
+    eventData?: Record<string, unknown>;
+  }) {
+    const { data, error } = await supabase
+      .from("packet_generation_events")
+      .insert({
+        hearing_packet_id: packetId,
+        complaint_uuid: complaintUuid ?? null,
+        event_type: eventType,
+        event_status: eventStatus,
+        event_message: eventMessage ?? null,
+        event_data: eventData,
+      })
+      .select(
+        `id, hearing_packet_id, complaint_uuid, event_type, event_status,
+         event_message, event_data, created_by, created_at`,
+      )
+      .single();
+
+    if (error) throw error;
+    return data as PacketGenerationEvent;
+  },
+
   async saveComplianceAnalysis(
     packetId: string,
     complianceData: {
