@@ -21,8 +21,12 @@ export function canTransitionPacket(
 
 function requireTransition(fromStatus: PacketStatus, toStatus: PacketStatus) {
   if (!canTransitionPacket(fromStatus, toStatus)) {
-    throw new Error(`Invalid packet transition: ${fromStatus} → ${toStatus}`);
+    throw new Error(`Invalid packet transition: ${fromStatus} to ${toStatus}`);
   }
+}
+
+function getEventType(status: PacketStatus) {
+  return `packet_status_${status.toLowerCase().replaceAll(" ", "_")}`;
 }
 
 export function usePacketWorkflow({
@@ -56,6 +60,39 @@ export function usePacketWorkflow({
     },
   });
 
+  const transitionMutation = useMutation({
+    mutationFn: async (args: {
+      toStatus: PacketStatus;
+      updates: Record<string, unknown>;
+      message: string;
+      eventData?: Record<string, unknown>;
+    }) => {
+      requireTransition(currentStatus, args.toStatus);
+      const updatedPacket = await packetService.update(packetId, args.updates);
+      await packetService.logPacketEvent({
+        packetId,
+        complaintUuid: updatedPacket?.complaint_uuid ?? null,
+        eventType: getEventType(args.toStatus),
+        eventStatus: "success",
+        eventMessage: args.message,
+        eventData: {
+          fromStatus: currentStatus,
+          toStatus: args.toStatus,
+          ...(args.eventData ?? {}),
+        },
+      });
+      return updatedPacket;
+    },
+    onSuccess: async () => {
+      await invalidatePacketQueries();
+      toast.success("Packet workflow updated");
+    },
+    onError: (error) => {
+      console.error(error);
+      toast.error(error instanceof Error ? error.message : "Failed to update packet workflow");
+    },
+  });
+
   const refreshSnapshotMutation = useMutation({
     mutationFn: () => packetService.refreshSnapshot(packetId),
     onSuccess: async () => {
@@ -73,48 +110,67 @@ export function usePacketWorkflow({
   };
 
   const sendToReview = () => {
-    requireTransition(currentStatus, "Under Review");
-    updatePacketMutation.mutate({ packet_status: "Under Review" });
+    transitionMutation.mutate({
+      toStatus: "Under Review",
+      updates: { packet_status: "Under Review" },
+      message: "Packet sent to internal review.",
+    });
   };
 
   const requestChanges = (revisionNotes: string) => {
-    requireTransition(currentStatus, "Changes Requested");
-    updatePacketMutation.mutate({
-      packet_status: "Changes Requested",
-      revision_notes: revisionNotes.trim(),
+    transitionMutation.mutate({
+      toStatus: "Changes Requested",
+      updates: {
+        packet_status: "Changes Requested",
+        revision_notes: revisionNotes.trim(),
+      },
+      message: "Packet changes requested.",
+      eventData: { revisionNotes: revisionNotes.trim() },
     });
   };
 
   const moveBackToProgress = () => {
-    requireTransition(currentStatus, "In Progress");
-    updatePacketMutation.mutate({ packet_status: "In Progress" });
+    transitionMutation.mutate({
+      toStatus: "In Progress",
+      updates: { packet_status: "In Progress" },
+      message: "Packet moved back to in progress.",
+    });
   };
 
   const approvePacket = () => {
-    requireTransition(currentStatus, "Approved");
-    updatePacketMutation.mutate({
-      packet_status: "Approved",
-      approved_at: new Date().toISOString(),
+    transitionMutation.mutate({
+      toStatus: "Approved",
+      updates: {
+        packet_status: "Approved",
+        approved_at: new Date().toISOString(),
+      },
+      message: "Packet approved.",
     });
   };
 
   const markComplete = () => {
-    requireTransition(currentStatus, "Complete");
-    updatePacketMutation.mutate({ packet_status: "Complete" });
+    transitionMutation.mutate({
+      toStatus: "Complete",
+      updates: { packet_status: "Complete" },
+      message: "Packet marked complete.",
+    });
   };
 
   const submitPacket = () => {
-    requireTransition(currentStatus, "Submitted");
-    updatePacketMutation.mutate({
-      packet_status: "Submitted",
-      submitted_at: new Date().toISOString(),
+    transitionMutation.mutate({
+      toStatus: "Submitted",
+      updates: {
+        packet_status: "Submitted",
+        submitted_at: new Date().toISOString(),
+      },
+      message: "Packet submitted.",
     });
   };
 
   return {
     canTransition: (toStatus: PacketStatus) =>
       canTransitionPacket(currentStatus, toStatus),
-    isUpdating: updatePacketMutation.isPending,
+    isUpdating: updatePacketMutation.isPending || transitionMutation.isPending,
     isRefreshing: refreshSnapshotMutation.isPending,
     savePacket,
     sendToReview,
