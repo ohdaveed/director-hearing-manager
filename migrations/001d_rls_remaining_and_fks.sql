@@ -98,13 +98,13 @@ CREATE POLICY "Auth can insert imported reports"
 -- Add new UUID FK columns alongside existing text references.
 -- (Existing text cols preserved for backward compatibility.)
 
-ALTER TABLE inspections ADD COLUMN IF NOT EXISTS complaint_id UUID
+ALTER TABLE inspections ADD COLUMN IF NOT EXISTS complaint_uuid UUID
   REFERENCES complaints(id) ON DELETE SET NULL;
 
-ALTER TABLE inspections ADD COLUMN IF NOT EXISTS location_id_uuid UUID
+ALTER TABLE inspections ADD COLUMN IF NOT EXISTS location_uuid UUID
   REFERENCES locations(id) ON DELETE SET NULL;
 
-ALTER TABLE violations ADD COLUMN IF NOT EXISTS inspection_uuid UUID
+ALTER TABLE violations ADD COLUMN IF NOT EXISTS inspection_id_fk BIGINT
   REFERENCES inspections(inspection_id) ON DELETE CASCADE;
 
 ALTER TABLE chronology ADD COLUMN IF NOT EXISTS complaint_uuid UUID
@@ -113,7 +113,7 @@ ALTER TABLE chronology ADD COLUMN IF NOT EXISTS complaint_uuid UUID
 ALTER TABLE exhibits ADD COLUMN IF NOT EXISTS complaint_uuid UUID
   REFERENCES complaints(id) ON DELETE CASCADE;
 
-ALTER TABLE exhibits ADD COLUMN IF NOT EXISTS source_inspection_uuid UUID
+ALTER TABLE exhibits ADD COLUMN IF NOT EXISTS source_inspection_id_fk BIGINT
   REFERENCES inspections(inspection_id) ON DELETE SET NULL;
 
 ALTER TABLE service_log ADD COLUMN IF NOT EXISTS complaint_uuid UUID
@@ -128,8 +128,8 @@ ALTER TABLE hearing_packets ADD COLUMN IF NOT EXISTS complaint_uuid UUID
 ALTER TABLE imported_reports ADD COLUMN IF NOT EXISTS location_uuid UUID
   REFERENCES locations(id) ON DELETE SET NULL;
 
-ALTER TABLE imported_reports ADD COLUMN IF NOT EXISTS linked_inspection_uuid UUID
+ALTER TABLE imported_reports ADD COLUMN IF NOT EXISTS linked_inspection_id_fk BIGINT
   REFERENCES inspections(inspection_id) ON DELETE SET NULL;
 
-ALTER TABLE inspection_photos ADD COLUMN IF NOT EXISTS inspection_uuid UUID
+ALTER TABLE inspection_photos ADD COLUMN IF NOT EXISTS inspection_id_fk BIGINT
   REFERENCES inspections(inspection_id) ON DELETE CASCADE;

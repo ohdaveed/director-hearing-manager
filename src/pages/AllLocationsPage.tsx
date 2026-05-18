@@ -11,6 +11,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { locationService } from "@/services/locationService";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -38,7 +39,9 @@ import {
   Loader2,
 } from "lucide-react";
 
-type Location = any; // Properly type later
+import { Database } from "@/types/database";
+
+type Location = Database["public"]["Tables"]["locations"]["Row"];
 
 const FACILITY_TYPES = [
   "Tourist Hotel",
@@ -141,9 +144,20 @@ export default function AllLocationsPage() {
     location_id: "",
     facility_type: "",
     owner_name: "",
+    owner_address: "",
     owner_phone: "",
     owner_email: "",
     number_of_units: "",
+    number_of_rooms: "",
+    healthy_housing: false,
+    census_tract: "",
+    block_lot: "",
+    dba: "",
+    management_name: "",
+    responsible_party: "",
+    responsible_party_phone: "",
+    responsible_party_email: "",
+    building_features: [] as string[],
   });
 
   // Fetch last 5 added locations on mount
@@ -210,9 +224,20 @@ export default function AllLocationsPage() {
         location_id: "",
         facility_type: "",
         owner_name: "",
+        owner_address: "",
         owner_phone: "",
         owner_email: "",
         number_of_units: "",
+        number_of_rooms: "",
+        healthy_housing: false,
+        census_tract: "",
+        block_lot: "",
+        dba: "",
+        management_name: "",
+        responsible_party: "",
+        responsible_party_phone: "",
+        responsible_party_email: "",
+        building_features: [],
       });
       navigate(`/locations/${data.id}`);
     },
@@ -231,10 +256,25 @@ export default function AllLocationsPage() {
       location_id: createForm.location_id || undefined,
       facility_type: createForm.facility_type || undefined,
       owner_name: createForm.owner_name || undefined,
+      owner_address: createForm.owner_address || undefined,
       owner_phone: createForm.owner_phone || undefined,
       owner_email: createForm.owner_email || undefined,
       number_of_units: createForm.number_of_units
         ? Number(createForm.number_of_units)
+        : undefined,
+      number_of_rooms: createForm.number_of_rooms
+        ? Number(createForm.number_of_rooms)
+        : undefined,
+      healthy_housing: createForm.healthy_housing || undefined,
+      census_tract: createForm.census_tract || undefined,
+      block_lot: createForm.block_lot || undefined,
+      dba: createForm.dba || undefined,
+      management_name: createForm.management_name || undefined,
+      responsible_party: createForm.responsible_party || undefined,
+      responsible_party_phone: createForm.responsible_party_phone || undefined,
+      responsible_party_email: createForm.responsible_party_email || undefined,
+      building_features: createForm.building_features.length
+        ? createForm.building_features
         : undefined,
     });
   };
@@ -411,6 +451,20 @@ export default function AllLocationsPage() {
                   />
                 </div>
                 <div className="space-y-2">
+                  <Label htmlFor="loc-owner-address">Owner Address</Label>
+                  <Input
+                    id="loc-owner-address"
+                    placeholder="Mailing address"
+                    value={createForm.owner_address}
+                    onChange={(e) =>
+                      setCreateForm((prev) => ({
+                        ...prev,
+                        owner_address: e.target.value,
+                      }))
+                    }
+                  />
+                </div>
+                <div className="space-y-2">
                   <Label htmlFor="loc-owner-phone">Owner Phone</Label>
                   <Input
                     id="loc-owner-phone"
@@ -454,6 +508,139 @@ export default function AllLocationsPage() {
                       }))
                     }
                   />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="loc-num-rooms"># Rooms</Label>
+                  <Input
+                    id="loc-num-rooms"
+                    type="number"
+                    min="0"
+                    placeholder="0"
+                    value={createForm.number_of_rooms}
+                    onChange={(e) =>
+                      setCreateForm((prev) => ({
+                        ...prev,
+                        number_of_rooms: e.target.value,
+                      }))
+                    }
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="loc-census-tract">Census Tract</Label>
+                  <Input
+                    id="loc-census-tract"
+                    placeholder="e.g. 0123.01"
+                    value={createForm.census_tract}
+                    onChange={(e) =>
+                      setCreateForm((prev) => ({
+                        ...prev,
+                        census_tract: e.target.value,
+                      }))
+                    }
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="loc-block-lot">Block / Lot</Label>
+                  <Input
+                    id="loc-block-lot"
+                    placeholder="e.g. 1234 / 001"
+                    value={createForm.block_lot}
+                    onChange={(e) =>
+                      setCreateForm((prev) => ({
+                        ...prev,
+                        block_lot: e.target.value,
+                      }))
+                    }
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="loc-dba">DBA / Facility Name</Label>
+                  <Input
+                    id="loc-dba"
+                    placeholder="e.g. Joe's Market"
+                    value={createForm.dba}
+                    onChange={(e) =>
+                      setCreateForm((prev) => ({
+                        ...prev,
+                        dba: e.target.value,
+                      }))
+                    }
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="loc-management-name">Management Co.</Label>
+                  <Input
+                    id="loc-management-name"
+                    placeholder="e.g. XYZ Management"
+                    value={createForm.management_name}
+                    onChange={(e) =>
+                      setCreateForm((prev) => ({
+                        ...prev,
+                        management_name: e.target.value,
+                      }))
+                    }
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="loc-rp">Responsible Party</Label>
+                  <Input
+                    id="loc-rp"
+                    placeholder="Full name of RP"
+                    value={createForm.responsible_party}
+                    onChange={(e) =>
+                      setCreateForm((prev) => ({
+                        ...prev,
+                        responsible_party: e.target.value,
+                      }))
+                    }
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="loc-rp-phone">RP Phone</Label>
+                  <Input
+                    id="loc-rp-phone"
+                    placeholder="(415) 000-0000"
+                    value={createForm.responsible_party_phone}
+                    onChange={(e) =>
+                      setCreateForm((prev) => ({
+                        ...prev,
+                        responsible_party_phone: e.target.value,
+                      }))
+                    }
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="loc-rp-email">RP Email</Label>
+                  <Input
+                    id="loc-rp-email"
+                    type="email"
+                    placeholder="rp@example.com"
+                    value={createForm.responsible_party_email}
+                    onChange={(e) =>
+                      setCreateForm((prev) => ({
+                        ...prev,
+                        responsible_party_email: e.target.value,
+                      }))
+                    }
+                  />
+                </div>
+                <div className="flex items-center gap-2 pt-4">
+                  <Checkbox
+                    id="loc-hh"
+                    checked={createForm.healthy_housing}
+                    onCheckedChange={(checked) =>
+                      setCreateForm((prev) => ({
+                        ...prev,
+                        healthy_housing: !!checked,
+                      }))
+                    }
+                  />
+                  <Label
+                    htmlFor="loc-hh"
+                    className="cursor-pointer text-xs uppercase tracking-wide font-semibold text-muted-foreground"
+                  >
+                    Healthy Housing Program
+                  </Label>
                 </div>
               </div>
               <div className="flex justify-end mt-6">

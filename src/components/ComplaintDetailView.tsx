@@ -183,22 +183,24 @@ export default function ComplaintDetailView({
       setRpAddress(d.hearing_rp_address ?? "");
       setRpPhone(d.hearing_rp_phone ?? "");
       setRpEmail(d.hearing_rp_email ?? "");
-      setCurrentStatus(d.status ?? "");
+      setCurrentStatus((d.status as any) ?? "");
       return d;
     },
   });
 
   const updateStatusMutation = useMutation({
     mutationFn: (newStatus: string) =>
-      complaintService.update(complaint.id, { status: newStatus }),
+      complaintService.update(complaint.id, { status: newStatus as any }),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["complaint", complaint.id] });
       queryClient.invalidateQueries({ queryKey: ["complaints"] });
-      onStatusUpdate(data.status);
+      onStatusUpdate(data.status as any);
       toast.success("Status updated");
     },
     onError: () => {
-      setCurrentStatus(detail?.status || complaint.status || "");
+      setCurrentStatus(
+        (detail?.status as any) || (complaint.status as any) || "",
+      );
       toast.error("Failed to update status");
     },
   });
@@ -220,7 +222,7 @@ export default function ComplaintDetailView({
 
   const linkLocationMutation = useMutation({
     mutationFn: (locationId: string) =>
-      complaintService.update(complaint.id, { location_id: locationId }),
+      complaintService.update(complaint.id, { locationid: locationId }),
     onMutate: () => {
       setOptimisticallyLinked(true);
     },
@@ -300,7 +302,7 @@ export default function ComplaintDetailView({
   };
 
   const hasDraft =
-    detail?.inspections?.some((i: any) => i.draft_inspection_id) ?? false;
+    detail?.inspections?.some((i: any) => i.status === "Draft") ?? false;
   const statusBadgeCls =
     COMPLAINT_STATUS_THEME[
       currentStatus as keyof typeof COMPLAINT_STATUS_THEME

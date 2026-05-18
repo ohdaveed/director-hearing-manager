@@ -30,8 +30,9 @@ import {
   DashboardPieChart,
   DashboardLineChart,
 } from "@/components/ui/Charts";
+import { Database } from "@/types/database";
 
-type Complaint = any;
+type Complaint = Database["public"]["Tables"]["complaints"]["Row"];
 
 function isHearingReady(c: Complaint): boolean {
   return (
@@ -39,7 +40,7 @@ function isHearingReady(c: Complaint): boolean {
   );
 }
 
-function monthKey(dateStr?: string): string {
+function monthKey(dateStr?: string | null): string {
   if (!dateStr) return "Unknown";
   const d = new Date(dateStr + "T00:00:00");
   return d.toLocaleDateString("en-US", { year: "numeric", month: "short" });
@@ -84,7 +85,7 @@ export default function DashboardPage({
   );
 
   const missingReinspDate = complaints.filter(
-    (c) => c.status === "Re-Inspection Due" && !c.reinspectionDueOnAfter,
+    (c) => c.status === "Re-Inspection Due" && !c.reinspection_due_on_after,
   );
   const missingAssignment = complaints.filter(
     (c) =>
@@ -234,8 +235,8 @@ export default function DashboardPage({
         <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-1 gap-3 content-start">
           {statCards}
           <QualityChecksPanel
-            missingReinspDate={missingReinspDate}
-            missingAssignment={missingAssignment}
+            missingReinspDate={missingReinspDate as any}
+            missingAssignment={missingAssignment as any}
           />
         </div>
 
@@ -243,7 +244,10 @@ export default function DashboardPage({
         <div className="space-y-4 min-w-0">
           {/* Upcoming Hearings */}
           {showHearings && (
-            <UpcomingHearingsPanel hearings={upcomingHearings} today={today} />
+            <UpcomingHearingsPanel
+              hearings={upcomingHearings as any}
+              today={today}
+            />
           )}
 
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">

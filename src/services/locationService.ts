@@ -1,5 +1,10 @@
 import { supabase } from "@/lib/supabase";
 import { normalizeAddressQuery } from "@/utils/normalizeAddressQuery";
+import { Database } from "@/types/database";
+
+type Location = Database["public"]["Tables"]["locations"]["Row"];
+type LocationInsert = Database["public"]["Tables"]["locations"]["Insert"];
+type LocationUpdate = Database["public"]["Tables"]["locations"]["Update"];
 
 export const LOCATION_LIST_COLUMNS = `
   id, address, location_id, owner_name, owner_address,
@@ -16,7 +21,7 @@ export const LOCATION_FULL_COLUMNS = `
 `;
 
 export const locationService = {
-  async search(query: string) {
+  async search(query: string): Promise<Location[]> {
     const normalized = normalizeAddressQuery(query);
     if (!normalized) return [];
 
@@ -28,16 +33,18 @@ export const locationService = {
       .limit(20);
 
     if (error) throw error;
-    return data;
+    return data as Location[];
   },
 
-  async getById(id: string) {
+  async getById(
+    id: string,
+  ): Promise<{ location: Location; inspections: any[]; complaints: any[] }> {
     const { data, error } = await supabase
       .from("locations")
       .select(
         `
         ${LOCATION_FULL_COLUMNS},
-        inspections (
+        inspections!location_uuid (
           inspection_id, inspection_date, inspector, inspection_type,
           inspection_rating, status, deleted_at
         )
@@ -48,13 +55,13 @@ export const locationService = {
 
     if (error) throw error;
     return {
-      location: data,
-      inspections: data.inspections || [],
+      location: data as any as Location,
+      inspections: (data as any).inspections || [],
       complaints: [],
     };
   },
 
-  async create(data: any) {
+  async create(data: LocationInsert): Promise<Location> {
     const { data: result, error } = await supabase
       .from("locations")
       .insert([data])
@@ -62,10 +69,10 @@ export const locationService = {
       .single();
 
     if (error) throw error;
-    return result;
+    return result as Location;
   },
 
-  async getRecent(limit: number = 5) {
+  async getRecent(limit: number = 5): Promise<Location[]> {
     const { data, error } = await supabase
       .from("locations")
       .select(LOCATION_LIST_COLUMNS)
@@ -74,10 +81,10 @@ export const locationService = {
       .limit(limit);
 
     if (error) throw error;
-    return data;
+    return data as Location[];
   },
 
-  async findByLocationId(locationId: string) {
+  async findByLocationId(locationId: string): Promise<{ id: string } | null> {
     const { data, error } = await supabase
       .from("locations")
       .select("id")
@@ -88,7 +95,7 @@ export const locationService = {
     return data;
   },
 
-  async update(id: string, updates: any) {
+  async update(id: string, updates: LocationUpdate): Promise<Location> {
     const { data, error } = await supabase
       .from("locations")
       .update({
@@ -99,6 +106,6 @@ export const locationService = {
       .single();
 
     if (error) throw error;
-    return data;
+    return data as Location;
   },
 };

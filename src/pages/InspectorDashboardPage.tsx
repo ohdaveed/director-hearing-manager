@@ -36,8 +36,11 @@ import { COMPLAINT_STATUS_THEME } from "@/utils/badgeThemes";
 import { StatCard } from "@/components/ui/stat-card";
 import { formatDate } from "@/utils/formatDate";
 
-type Complaint = any;
-type AlertComplaint = any;
+import { Database } from "@/types/database";
+
+type Complaint = Database["public"]["Tables"]["complaints"]["Row"];
+type AlertComplaint = Database["public"]["Tables"]["complaints"]["Row"];
+type Inspection = Database["public"]["Tables"]["inspections"]["Row"];
 
 const PANEL_CAP = 5;
 
@@ -306,14 +309,14 @@ export default function InspectorDashboardPage({
 
   const upcomingReinspections = active
     .filter((c) => {
-      if (!c.reinspectionDueOnAfter) return false;
-      const d = new Date(c.reinspectionDueOnAfter + "T00:00:00");
+      if (!c.reinspection_due_on_after) return false;
+      const d = new Date(c.reinspection_due_on_after + "T00:00:00");
       const diff = (d.getTime() - today.getTime()) / (1000 * 60 * 60 * 24);
       return diff >= 0 && diff <= 14;
     })
     .sort((a, b) =>
-      (a.reinspectionDueOnAfter ?? "").localeCompare(
-        b.reinspectionDueOnAfter ?? "",
+      (a.reinspection_due_on_after ?? "").localeCompare(
+        b.reinspection_due_on_after ?? "",
       ),
     );
 
@@ -343,14 +346,14 @@ export default function InspectorDashboardPage({
   const newAssignmentRows = newAssignments.map((c: AlertComplaint) => (
     <FeedRow
       key={c.id}
-      address={c.address ?? "—"}
-      complaintId={c.complaintid}
+      address={(c.address as any) ?? "—"}
+      complaintId={(c.complaintid as any) || undefined}
       meta={
-        c.dateAssigned
-          ? `Assigned ${formatDate(c.dateAssigned)}`
+        c.date_assigned
+          ? `Assigned ${formatDate(c.date_assigned)}`
           : "Recently assigned"
       }
-      statusLabel={c.status ?? undefined}
+      statusLabel={(c.status as any) ?? undefined}
       statusCls={
         COMPLAINT_STATUS_THEME[c.status as keyof typeof COMPLAINT_STATUS_THEME]
       }
@@ -359,12 +362,12 @@ export default function InspectorDashboardPage({
   ));
 
   const noContactRows = noContactAttempt.map((c: AlertComplaint) => {
-    const days = daysSince(c.date_entered);
+    const days = daysSince(c.date_entered || undefined);
     return (
       <FeedRow
         key={c.id}
-        address={c.address ?? "—"}
-        complaintId={c.complaintid}
+        address={(c.address as any) ?? "—"}
+        complaintId={(c.complaintid as any) || undefined}
         meta={
           days > 0
             ? `Entered ${days} day${days !== 1 ? "s" : ""} ago · No contact logged`
@@ -377,7 +380,7 @@ export default function InspectorDashboardPage({
 
   const reinspectRows = upcomingReinspections.map((c: Complaint) => {
     const daysOut = Math.round(
-      (new Date(c.reinspectionDueOnAfter! + "T00:00:00").getTime() -
+      (new Date(c.reinspection_due_on_after! + "T00:00:00").getTime() -
         today.getTime()) /
         (1000 * 60 * 60 * 24),
     );
@@ -385,10 +388,10 @@ export default function InspectorDashboardPage({
     return (
       <FeedRow
         key={c.id}
-        address={c.address ?? "—"}
-        complaintId={c.complaintid}
-        meta={`Due ${formatDate(c.reinspectionDueOnAfter)}`}
-        statusLabel={c.status ?? undefined}
+        address={(c.address as any) ?? "—"}
+        complaintId={(c.complaintid as any) || undefined}
+        meta={`Due ${formatDate(c.reinspection_due_on_after!)}`}
+        statusLabel={(c.status as any) ?? undefined}
         statusCls={
           COMPLAINT_STATUS_THEME[
             c.status as keyof typeof COMPLAINT_STATUS_THEME
@@ -415,15 +418,15 @@ export default function InspectorDashboardPage({
   const overdueRows = overdue.map((c: Complaint) => {
     const daysPast = Math.round(
       (today.getTime() -
-        new Date(c.reinspectionDueOnAfter! + "T00:00:00").getTime()) /
+        new Date(c.reinspection_due_on_after! + "T00:00:00").getTime()) /
         (1000 * 60 * 60 * 24),
     );
     return (
       <FeedRow
         key={c.id}
-        address={c.address ?? "—"}
-        complaintId={c.complaintid}
-        meta={`Was due ${formatDate(c.reinspectionDueOnAfter)}`}
+        address={(c.address as any) ?? "—"}
+        complaintId={(c.complaintid as any) || undefined}
+        meta={`Was due ${formatDate(c.reinspection_due_on_after!)}`}
         urgent
         leftSlot={
           <div className="text-destructive">
@@ -651,21 +654,21 @@ export default function InspectorDashboardPage({
               </p>
             ) : (
               <div className="divide-y divide-border/40">
-                {_allInspections.map((insp: any) => (
+                {(_allInspections as Inspection[]).map((insp) => (
                   <div
-                    key={insp.id}
+                    key={insp.inspection_id}
                     className="flex items-center gap-4 px-5 py-3.5"
                   >
                     <div className="min-w-0 flex-1">
                       {/* Tier 1 */}
                       <p className="text-sm font-semibold text-foreground truncate">
-                        {insp.facilityAddress ?? "—"}
+                        {insp.facility_address ?? "—"}
                       </p>
                       {/* Tiers 2 & 3 */}
                       <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-                        {insp.complaintid && (
+                        {insp.complaint_id && (
                           <span className="text-[10px] font-mono font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded shrink-0">
-                            #{insp.complaintid}
+                            #{insp.complaint_id}
                           </span>
                         )}
                         <span className="text-[10px] text-muted-foreground">

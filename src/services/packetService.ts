@@ -24,7 +24,7 @@ export const packetService = {
       .select(
         `
         ${PACKET_LIST_COLUMNS},
-        complaints ( id, address, complaintid, hearing_status )
+        complaints!complaint_uuid ( id, address, complaintid, hearing_status )
       `,
       )
       .is("deleted_at", null)
@@ -56,31 +56,31 @@ export const packetService = {
       .select(
         `
         ${PACKET_FULL_COLUMNS},
-        complaint:complaints (
+        complaint:complaints!complaint_uuid (
           id, complaintid, address, status, description, assigned_to,
           date_entered, hearing_status, hearing_date, locationid,
           category, deleted_at,
-          inspections (
+          inspections!complaint_uuid (
             inspection_id, inspection_date, inspector, inspection_type,
             inspection_rating, status, notes, deleted_at,
-            violations (
+            violations!inspection_id_fk (
               id, violation_label, violation_code, category,
               location_in_property, corrective_action, due_date,
               responsible_party, status, observation, deleted_at
             ),
-            inspection_photos (
+            inspection_photos!inspection_id_fk (
               id, photo_url, photo_type, caption, violation_label, deleted_at
             )
           ),
-          locations (
+          locations!location_uuid (
             id, address, location_id, owner_name, owner_address,
             owner_phone, owner_email, facility_type
           ),
-          chronology (
+          chronology!complaint_uuid (
             id, summary, entry_date, entry_type, created_by,
             visibility, chronology_order, citation_code, deleted_at
           ),
-          service_log (
+          service_log!complaint_uuid (
             id, notice_type, service_method, service_date, recipient,
             tracking_number, proof_of_service, status, notes, deleted_at
           )
@@ -110,6 +110,7 @@ export const packetService = {
       .insert([
         {
           complaint: complaintId,
+          complaint_uuid: complaintId,
           packet_status: "Not Started",
         },
       ])

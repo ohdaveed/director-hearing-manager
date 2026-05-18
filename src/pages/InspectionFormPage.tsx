@@ -38,8 +38,9 @@ import {
   calcDueDate,
 } from "@/components/violationTypes";
 import { getFieldValidationError } from "@/utils/validationRules";
+import { Database } from "@/types/database";
 
-type ComplaintDetail = any;
+type ComplaintDetail = Database["public"]["Tables"]["complaints"]["Row"];
 
 const INSPECTION_TYPES = [
   "Routine",
@@ -98,6 +99,10 @@ type FormState = {
   timeOut: string;
   inspection_type: string;
   rating: string;
+  access_granted_by: string;
+  contact_phone: string;
+  contact_email: string;
+  dba: string;
   areasInspected: string[];
   violations: Violation[];
   summary: string;
@@ -175,6 +180,10 @@ function makeDefaultState(complaintId: string): FormState {
     timeOut,
     inspection_type: "",
     rating: "Satisfactory",
+    access_granted_by: "",
+    contact_phone: "",
+    contact_email: "",
+    dba: "",
     areasInspected: [],
     violations: [],
     summary: "",
@@ -219,7 +228,7 @@ function buildPrintProps(
     facilityName: detail.address ?? "",
     contactPhone: "",
     contactEmail: "",
-    locationId: detail.location_id ?? "",
+    locationId: detail.locationid ?? "",
     complaintId: detail.complaintid ?? "",
     reportTitle: "",
     ownerName: "",
@@ -368,7 +377,7 @@ export default function InspectionFormPage({ inspectorName }: Props) {
   }, [selectedComplaint?.category]);
 
   const handleSelectComplaint = useCallback(
-    (complaint: any) => {
+    (complaint: ComplaintDetail) => {
       navigate(`/inspections/${complaint.id}`);
     },
     [navigate],
@@ -511,6 +520,11 @@ export default function InspectionFormPage({ inspectorName }: Props) {
       time_out: form.timeOut,
       inspection_type: form.inspection_type,
       inspection_rating: derivedRating,
+      access_granted_by: form.access_granted_by || undefined,
+      contact_phone: form.contact_phone || undefined,
+      contact_email: form.contact_email || undefined,
+      dba: form.dba || undefined,
+      facility_address: selectedComplaint.address || undefined,
       summary: form.summary,
       global_observations: form.globalObservations ?? [],
       areas_inspected: form.areasInspected,
@@ -830,6 +844,65 @@ export default function InspectionFormPage({ inspectorName }: Props) {
                 title="When the inspection ended"
                 value={form.timeOut}
                 onChange={(e) => setField("timeOut", e.target.value)}
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                Access Granted By
+              </label>
+              <Select
+                value={form.access_granted_by}
+                onValueChange={(v) => setField("access_granted_by", v)}
+              >
+                <SelectTrigger className="h-9 text-sm">
+                  <SelectValue placeholder="Select who granted access..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {[
+                    "Tenant",
+                    "Owner",
+                    "Property Manager",
+                    "Could Not Access",
+                    "Memo of Visit Left on Site",
+                    "Observed from Adjacent Lot",
+                    "Observed from Public Right of Way",
+                  ].map((val) => (
+                    <SelectItem key={val} value={val}>
+                      {val}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                DBA / Facility Name
+              </label>
+              <Input
+                placeholder="e.g. Joe's Market"
+                value={form.dba}
+                onChange={(e) => setField("dba", e.target.value)}
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                Contact Phone
+              </label>
+              <Input
+                placeholder="(415) 000-0000"
+                value={form.contact_phone}
+                onChange={(e) => setField("contact_phone", e.target.value)}
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                Contact Email
+              </label>
+              <Input
+                type="email"
+                placeholder="email@example.com"
+                value={form.contact_email}
+                onChange={(e) => setField("contact_email", e.target.value)}
               />
             </div>
           </div>

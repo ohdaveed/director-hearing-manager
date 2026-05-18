@@ -4,8 +4,9 @@ import { FileEdit, FilePlus, AlertCircle } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { COMPLAINT_STATUS_THEME } from "@/utils/badgeThemes";
 import { sanitizeText } from "@/utils/sanitizeText";
+import { Database } from "@/types/database";
 
-type Complaint = any; // Properly type later
+type Complaint = Database["public"]["Tables"]["complaints"]["Row"];
 
 type Props = {
   inspector: string;
@@ -91,12 +92,12 @@ export default function AssignedComplaintsPanel({
                         #{c.complaintid}
                       </span>
                     )}
-                    {c.draft_inspection_id && (
+                    {c.status === "Inspection Scheduled" && (
                       <span className="inline-flex items-center gap-1 text-xs font-medium text-warning bg-warning/10 px-2 py-0.5 rounded-full">
-                        <FileEdit className="w-3 h-3" /> Draft in progress
+                        <FileEdit className="w-3 h-3" /> Scheduled
                       </span>
                     )}
-                    {!c.draft_inspection_id && (
+                    {c.status === "New" && (
                       <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
                         <FilePlus className="w-3 h-3" /> New inspection
                       </span>

@@ -96,10 +96,10 @@ export const isClosedStatus = (s: string): boolean =>
  * Returns true when a complaint is past its re-inspection due date.
  */
 export function isOverdue(c: {
-  status?: string;
-  reinspectionDueOnAfter?: string;
+  status?: string | null;
+  reinspection_due_on_after?: string | null;
 }): boolean {
   if (c.status !== "Re-Inspection Due") return false;
-  if (!c.reinspectionDueOnAfter) return false;
-  return new Date(c.reinspectionDueOnAfter + "T00:00:00") < new Date();
+  if (!c.reinspection_due_on_after) return false;
+  return new Date(c.reinspection_due_on_after + "T00:00:00") < new Date();
 }

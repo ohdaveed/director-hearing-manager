@@ -1,4 +1,9 @@
 import { supabase } from "@/lib/supabase";
+import { Database } from "@/types/database";
+
+type Complaint = Database["public"]["Tables"]["complaints"]["Row"];
+type ComplaintInsert = Database["public"]["Tables"]["complaints"]["Insert"];
+type ComplaintUpdate = Database["public"]["Tables"]["complaints"]["Update"];
 
 /**
  * Column selection constants to avoid SELECT * anti-pattern.
@@ -17,7 +22,7 @@ export const COMPLAINT_FULL_COLUMNS = `
   date_last_report_sent, attachments, complainant_name,
   complainant_phone, complainant_email, complainant_address,
   complainant_anonymous, complainant_contact_dates,
-  311_case_number, unit_number, complaint_type, complaint_subtype,
+  "311_case_number", unit_number, complaint_type, complaint_subtype,
   method_received, assigned_program, date_assigned, date_closed,
   facility_name, facility_ownership,
   hearing_rp_name, hearing_rp_phone, hearing_rp_email, hearing_rp_address,
@@ -26,7 +31,7 @@ export const COMPLAINT_FULL_COLUMNS = `
 `;
 
 export const complaintService = {
-  async getAll(filters: { assigned_to?: string } = {}) {
+  async getAll(filters: { assigned_to?: string } = {}): Promise<Complaint[]> {
     let query = supabase
       .from("complaints")
       .select(COMPLAINT_LIST_COLUMNS)
@@ -39,32 +44,32 @@ export const complaintService = {
 
     const { data, error } = await query;
     if (error) throw error;
-    return data as any[];
+    return data as Complaint[];
   },
 
-  async getById(id: string) {
+  async getById(id: string): Promise<any> {
     const { data, error } = await supabase
       .from("complaints")
       .select(
         `
          ${COMPLAINT_FULL_COLUMNS},
-         inspections (
+         inspections!complaint_uuid (
            inspection_id, inspection_date, inspector, inspection_type,
            inspection_rating, status, notes, deleted_at,
-           violations (
+           violations!inspection_id_fk (
              id, violation_label, violation_code, category,
              location_in_property, corrective_action, due_date,
              responsible_party, status, observation, deleted_at
            ),
-           inspection_photos (
+           inspection_photos!inspection_id_fk (
              id, photo_url, photo_type, caption, violation_label, deleted_at
            )
          ),
-         chronology (
+         chronology!complaint_uuid (
            id, summary, entry_date, entry_type, created_by,
            visibility, chronology_order, citation_code, deleted_at
          ),
-         hearing_packets (
+         hearing_packets!complaint_uuid (
            id, hearing_date, packet_status, assigned_to, case_number,
            program_code, packet_type
          )
@@ -79,7 +84,7 @@ export const complaintService = {
     return data;
   },
 
-  async create(complaint: any) {
+  async create(complaint: ComplaintInsert): Promise<Complaint> {
     const { data, error } = await supabase
       .from("complaints")
       .insert([
@@ -91,10 +96,10 @@ export const complaintService = {
       .single();
 
     if (error) throw error;
-    return data;
+    return data as Complaint;
   },
 
-  async update(id: string, updates: any) {
+  async update(id: string, updates: ComplaintUpdate): Promise<Complaint> {
     const { data, error } = await supabase
       .from("complaints")
       .update({
@@ -106,21 +111,21 @@ export const complaintService = {
       .single();
 
     if (error) throw error;
-    return data;
+    return data as Complaint;
   },
 
-  async softDelete(id: string) {
+  async softDelete(id: string): Promise<Complaint> {
     const { data, error } = await supabase
       .from("complaints")
       .update({
         deleted_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
-      })
+      } as ComplaintUpdate)
       .eq("id", id)
       .select(COMPLAINT_LIST_COLUMNS)
       .single();
 
     if (error) throw error;
-    return data;
+    return data as Complaint;
   },
 };

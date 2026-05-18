@@ -211,4 +211,58 @@ describe("AllLocationsPage", () => {
       ).not.toBeInTheDocument();
     });
   });
+
+  it("submits all location metadata fields when filled", async () => {
+    mockFns.search.mockResolvedValue([]);
+    mockFns.create.mockResolvedValue({
+      id: "loc-999",
+      address: "456 Metadata Ave",
+    });
+
+    render(<AllLocationsPage />, { wrapper: Wrapper });
+
+    const input = screen.getByPlaceholderText(
+      /Search by address or Location ID/i,
+    );
+    const user = userEvent.setup();
+    await user.type(input, "456 Metadata Ave");
+
+    await waitFor(() =>
+      expect(screen.getByText(/No locations found/i)).toBeInTheDocument(),
+    );
+    await user.click(
+      screen.getByRole("button", { name: /Create New Location/i }),
+    );
+
+    // Fill new fields
+    await user.type(screen.getByLabelText(/Owner Address/i), "789 Owner St");
+    await user.type(screen.getByLabelText(/# Rooms/i), "20");
+    await user.type(screen.getByLabelText(/Census Tract/i), "123.45");
+    await user.type(screen.getByLabelText(/Block \/ Lot/i), "9999/001");
+    await user.type(
+      screen.getByLabelText(/DBA \/ Facility Name/i),
+      "Metadata Market",
+    );
+    await user.type(screen.getByLabelText(/Management Co\./i), "Mega Mgmt");
+    await user.type(screen.getByLabelText(/Responsible Party/i), "John Doe");
+    await user.click(screen.getByLabelText(/Healthy Housing Program/i));
+
+    await user.click(screen.getByRole("button", { name: /Save Location/i }));
+
+    await waitFor(() => {
+      expect(mockFns.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          address: "456 Metadata Ave",
+          owner_address: "789 Owner St",
+          number_of_rooms: 20,
+          census_tract: "123.45",
+          block_lot: "9999/001",
+          dba: "Metadata Market",
+          management_name: "Mega Mgmt",
+          responsible_party: "John Doe",
+          healthy_housing: true,
+        }),
+      );
+    });
+  });
 });

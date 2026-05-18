@@ -39,6 +39,7 @@ import {
 import { useDebouncedCallback } from "use-debounce";
 import { ALL_COMPLAINT_STATUSES } from "@/utils/complaintStatuses";
 import { INSPECTORS } from "@/utils/inspectors";
+import { Database } from "@/types/database";
 
 // ── Demo data generator ───────────────────────────────────────────────────────
 function pick<T>(arr: T[]): T {
@@ -346,7 +347,7 @@ function generateDemoData(
   };
 }
 
-type Location = any["locations"][0];
+type Location = Database["public"]["Tables"]["locations"]["Row"];
 // ── Constants ────────────────────────────────────────────────────────────────
 const FACILITY_TYPES = [
   "Tourist Hotel",
@@ -529,6 +530,14 @@ type FormState = {
   complainantContactDates: string;
   status: string;
   dateClosed: string;
+  // Hearing Information
+  hearing_rp_name: string;
+  hearing_rp_phone: string;
+  hearing_rp_email: string;
+  hearing_rp_address: string;
+  purpose_of_hearing: string;
+  notice_of_hearing_date: string;
+  hearing_order_date: string;
 };
 
 const today = new Date().toISOString().split("T")[0];
@@ -568,6 +577,14 @@ function makeInitialState(inspectorName?: string): FormState {
     complainantContactDates: "",
     status: "New",
     dateClosed: "",
+    // Hearing Information
+    hearing_rp_name: "",
+    hearing_rp_phone: "",
+    hearing_rp_email: "",
+    hearing_rp_address: "",
+    purpose_of_hearing: "",
+    notice_of_hearing_date: "",
+    hearing_order_date: "",
   };
 }
 
@@ -700,7 +717,7 @@ export default function ComplaintEntryPage({
   const hasComplainant = !!state.complainantName || state.complainantAnonymous;
   const hasDetails = !!state.description;
 
-  const handleSelectLocation = (loc: any) => {
+  const handleSelectLocation = (loc: Location) => {
     setSelectedLocation(loc);
     setLocationQuery(loc?.address || "");
     setValue("locAddress", loc?.address || "");
@@ -716,7 +733,8 @@ export default function ComplaintEntryPage({
   };
 
   const createMutation = useMutation({
-    mutationFn: (data: any) => complaintService.create(data),
+    mutationFn: (data: Database["public"]["Tables"]["complaints"]["Insert"]) =>
+      complaintService.create(data),
     onSuccess: (data) => {
       toast.success("Complaint created successfully!");
       queryClient.invalidateQueries({ queryKey: ["complaints"] });
@@ -727,7 +745,7 @@ export default function ComplaintEntryPage({
           id: data.id,
           address:
             selectedLocation?.address || state.locAddress || "Unknown address",
-          complaintId: data.complaintid,
+          complaintId: data.complaintid || "Unknown",
           assignedTo: state.assignedTo || "Unassigned",
         });
         setSubmitted(true);
@@ -766,7 +784,7 @@ export default function ComplaintEntryPage({
     try {
       let locationId: string | undefined;
       if (selectedLocation) {
-        locationId = (selectedLocation as any).id;
+        locationId = selectedLocation.id;
       } else if (state.locAddress) {
         const newLocation = await locationService.create({
           address: state.locAddress,
@@ -775,15 +793,16 @@ export default function ComplaintEntryPage({
           owner_address: state.locOwnerAddress || undefined,
           owner_phone: state.locOwnerPhone || undefined,
           owner_email: state.locOwnerEmail || undefined,
-          facility_type: state.locFacilityType || undefined,
+          facility_type: (state.locFacilityType as any) || undefined,
           number_of_units: state.locNumUnits
             ? Number(state.locNumUnits)
             : undefined,
+
           healthy_housing: state.locHealthyHousing || undefined,
           census_tract: state.locCensusTract || undefined,
           block_lot: state.locBlockLot || undefined,
         });
-        locationId = (newLocation as any).id;
+        locationId = newLocation.id;
       }
 
       await createMutation.mutateAsync({
@@ -791,7 +810,7 @@ export default function ComplaintEntryPage({
         address: selectedLocation?.address || state.locAddress,
         locationid: locationId || undefined,
         description: state.description,
-        status: state.status,
+        status: state.status as any,
         assigned_to: state.assignedTo,
         date_entered: state.dateReceived || undefined,
         date_assigned: state.dateAssigned || undefined,
@@ -799,8 +818,8 @@ export default function ComplaintEntryPage({
         category: state.categories?.length ? state.categories : undefined,
         complaint_type: state.complaintType || undefined,
         complaint_subtype: state.complaintSubtype || undefined,
-        method_received: state.methodReceived || undefined,
-        assigned_program: state.assignedProgram || undefined,
+        method_received: state.methodReceived as any,
+        assigned_program: state.assignedProgram as any,
         "311_case_number": state.caseNumber311 || undefined,
         unit_number: state.unitNumber || undefined,
         facility_name: state.facilityName || undefined,
@@ -811,6 +830,13 @@ export default function ComplaintEntryPage({
         complainant_email: state.complainantEmail || undefined,
         complainant_address: state.complainantAddress || undefined,
         complainant_contact_dates: state.complainantContactDates || undefined,
+        hearing_rp_name: state.hearing_rp_name || undefined,
+        hearing_rp_phone: state.hearing_rp_phone || undefined,
+        hearing_rp_email: state.hearing_rp_email || undefined,
+        hearing_rp_address: state.hearing_rp_address || undefined,
+        purpose_of_hearing: state.purpose_of_hearing || undefined,
+        notice_of_hearing_date: state.notice_of_hearing_date || undefined,
+        hearing_order_date: state.hearing_order_date || undefined,
       });
     } catch (err: any) {
       console.error(err);
@@ -1097,10 +1123,10 @@ export default function ComplaintEntryPage({
                         handleSelectLocation({
                           id: loc.id,
                           address: loc.address,
-                          facilityType: (loc as any).facility_type,
-                          ownerName: (loc as any).owner_name,
-                          locationId: undefined,
-                        })
+                          facility_type: (loc as any).facility_type,
+                          owner_name: (loc as any).owner_name,
+                          location_id: undefined,
+                        } as any)
                       }
                       className="w-full text-left px-3 py-2 rounded-lg border border-border bg-muted/30 hover:bg-muted transition-colors"
                     >
@@ -1800,6 +1826,86 @@ export default function ComplaintEntryPage({
               </motion.div>
             )}
           </AnimatePresence>
+        </div>
+      </SectionCard>
+
+      {/* ── Section 6: Hearing Information ───────────────────────────────── */}
+      <SectionCard>
+        <h2 className="font-semibold text-foreground text-base mb-4">
+          Hearing Information (Optional)
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="space-y-1">
+            <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+              Hearing Responsible Party
+            </label>
+            <Input
+              placeholder="Full name of RP for hearing"
+              value={state.hearing_rp_name}
+              onChange={(e) => set("hearing_rp_name", e.target.value)}
+            />
+          </div>
+          <div className="space-y-1">
+            <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+              RP Phone
+            </label>
+            <Input
+              placeholder="(415) 000-0000"
+              value={state.hearing_rp_phone}
+              onChange={(e) => set("hearing_rp_phone", e.target.value)}
+            />
+          </div>
+          <div className="space-y-1">
+            <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+              RP Email
+            </label>
+            <Input
+              type="email"
+              placeholder="email@example.com"
+              value={state.hearing_rp_email}
+              onChange={(e) => set("hearing_rp_email", e.target.value)}
+            />
+          </div>
+          <div className="space-y-1">
+            <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+              RP Mailing Address
+            </label>
+            <Input
+              placeholder="Street, City, Zip"
+              value={state.hearing_rp_address}
+              onChange={(e) => set("hearing_rp_address", e.target.value)}
+            />
+          </div>
+          <div className="col-span-full space-y-1">
+            <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+              Purpose of Hearing
+            </label>
+            <Textarea
+              placeholder="e.g. Failure to abate violations identified in NOV..."
+              value={state.purpose_of_hearing}
+              onChange={(e) => set("purpose_of_hearing", e.target.value)}
+            />
+          </div>
+          <div className="space-y-1">
+            <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+              Notice of Hearing Date
+            </label>
+            <Input
+              type="date"
+              value={state.notice_of_hearing_date}
+              onChange={(e) => set("notice_of_hearing_date", e.target.value)}
+            />
+          </div>
+          <div className="space-y-1">
+            <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+              Hearing Order Date
+            </label>
+            <Input
+              type="date"
+              value={state.hearing_order_date}
+              onChange={(e) => set("hearing_order_date", e.target.value)}
+            />
+          </div>
         </div>
       </SectionCard>
 

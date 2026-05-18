@@ -4,12 +4,13 @@ import { pdfService } from "./pdfService";
 import { wordService } from "./wordService";
 
 /** Column selections to avoid SELECT * */
-const PACKET_COMPLAINT_COLUMNS = "id, complaint";
+const PACKET_COMPLAINT_COLUMNS = "id, complaint, complaint_uuid";
 const INSPECTION_IMPORT_COLUMNS = `
   inspection_id, inspection_date, inspector, inspection_type,
   status, notes, deleted_at
 `;
-const CHRONO_RELATED_COLUMNS = "id, related_inspection, complaint, deleted_at";
+const CHRONO_RELATED_COLUMNS =
+  "id, related_inspection, complaint, complaint_uuid, deleted_at";
 
 export const importService = {
   async importDraftPacket({
@@ -41,6 +42,7 @@ export const importService = {
     const { error: chronoError } = await supabase.from("chronology").insert([
       {
         complaint: packet.complaint,
+        complaint_uuid: packet.complaint_uuid,
         entry_date: new Date().toISOString().split("T")[0],
         entry_type: "Inspection",
         summary: `Imported from draft: ${file.name}. ${extractedViolations.length} violations found.`,
@@ -70,8 +72,8 @@ export const importService = {
       .select(
         `
         ${INSPECTION_IMPORT_COLUMNS},
-        violations ( id, violation_label, violation_code, status, deleted_at ),
-        inspection_photos ( id, photo_url, caption, deleted_at )
+        violations!inspection_id_fk ( id, violation_label, violation_code, status, deleted_at ),
+        inspection_photos!inspection_id_fk ( id, photo_url, caption, deleted_at )
       `,
       )
       .eq("complaint", packet.complaint)
@@ -142,6 +144,7 @@ export const importService = {
 
     const chronologyEntries = inspections.map((insp: any) => ({
       complaint: packet.complaint,
+      complaint_uuid: packet.complaint_uuid,
       related_inspection: String(insp.inspection_id),
       entry_date: insp.inspection_date,
       entry_type: "Inspection" as const,
@@ -157,7 +160,9 @@ export const importService = {
 
     const exhibitEntries = inspections.map((insp: any) => ({
       complaint: packet.complaint,
+      complaint_uuid: packet.complaint_uuid,
       source_inspection: String(insp.inspection_id),
+      source_inspection_id_fk: insp.inspection_id,
       exhibit_type: "Inspection Report" as const,
       category: "Inspection Report" as const,
       description: `Inspection Report - ${insp.inspection_date}`,

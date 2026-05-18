@@ -31,8 +31,9 @@ import { exportToExcel } from "@/utils/exportExcel";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import type { DateRange } from "react-day-picker";
+import { Database } from "@/types/database";
 
-type Complaint = any; // Properly type later
+type Complaint = Database["public"]["Tables"]["complaints"]["Row"];
 
 const ADMIN_ROLES = ["Admin", "Program Manager", "Super Admin"];
 const CAN_CREATE_ROLES = ["Inspector", "Admin", "Super Admin"];
@@ -107,7 +108,7 @@ export default function ComplaintsPage() {
 
   const updateStatusMutation = useMutation({
     mutationFn: ({ id, status }: { id: string; status: string }) =>
-      complaintService.update(id, { status }),
+      complaintService.update(id, { status: status as any }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["complaints"] });
     },

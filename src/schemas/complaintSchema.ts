@@ -26,6 +26,21 @@ export const complaintFormSchema = z.object({
     )
     .optional()
     .default(""),
+  // Hearing Information
+  hearing_rp_name: z.string().optional().default(""),
+  hearing_rp_phone: z.string().optional().default(""),
+  hearing_rp_email: z
+    .string()
+    .refine(
+      (v) => !v || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v),
+      "Invalid email format",
+    )
+    .optional()
+    .default(""),
+  hearing_rp_address: z.string().optional().default(""),
+  purpose_of_hearing: z.string().optional().default(""),
+  notice_of_hearing_date: z.string().optional().default(""),
+  hearing_order_date: z.string().optional().default(""),
 });
 
 export type ComplaintFormData = z.infer<typeof complaintFormSchema>;
