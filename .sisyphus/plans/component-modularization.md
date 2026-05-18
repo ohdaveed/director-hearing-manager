@@ -66,6 +66,30 @@ Transform custom UI components into modular, composable shadcn-style components 
 
 Every task includes agent-executed QA scenarios using Playwright or manual checks via screenshots.
 
+### Vite+ (vp) Toolchain
+
+**CRITICAL**: This project uses Vite+ (`vp`) as its unified toolchain. All verification commands MUST use `vp`, NOT `npx` or direct tool invocations.
+
+| Command    | Purpose          | Notes                                           |
+| ---------- | ---------------- | ----------------------------------------------- |
+| `vp test`  | Run tests        | Uses bundled vitest with jsdom, globals enabled |
+| `vp lint`  | Lint code        | Oxlint with type-aware checks                   |
+| `vp fmt`   | Format code      | Oxfmt                                           |
+| `vp build` | Production build | Rolldown-based bundler                          |
+| `vp dev`   | Dev server       | HMR-enabled                                     |
+
+**FORBIDDEN**: `npx vitest`, `npx eslint`, `npx tsc` — these pull wrong versions and break.
+
+**Verification Commands** (use these in QA scenarios):
+
+```bash
+vp test                    # Run all tests
+vp test -- src/path/to/file.test.tsx  # Single test file
+vp lint                    # Lint check
+vp fmt                     # Format code
+vp build                   # Production build
+```
+
 ---
 
 ## Execution Strategy
@@ -106,8 +130,18 @@ Wave FINAL (After ALL tasks — 4 parallel reviews):
 
 ## Success Criteria
 
+### Verification Commands
+
+```bash
+vp build    # Expected: ✓ built in Xs (no errors)
+vp lint     # Expected: 0 warnings, 0 errors
+vp test     # Expected: all tests pass (jsdom environment)
+```
+
 ### Final Checklist
 
 - [ ] Components are modular and reusable.
 - [ ] Visual regression check passed.
-- [ ] Build and Lint clean.
+- [ ] `vp build` succeeds with no errors.
+- [ ] `vp lint` passes clean.
+- [ ] `vp test` runs without environment failures.
