@@ -12,27 +12,8 @@ import {
   GeneratedPacketFile,
   PacketValidationResult,
 } from "@/services/packetService";
-
-const VALIDATION_BADGE: Record<string, string> = {
-  pass: "bg-success/10 text-success border-success/20",
-  fail: "bg-destructive/10 text-destructive border-destructive/20",
-  warning: "bg-warning/10 text-warning border-warning/20",
-};
-
-function formatDateTime(value?: string | null) {
-  if (!value) return "—";
-  try {
-    return new Date(value).toLocaleString(undefined, {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-      hour: "numeric",
-      minute: "2-digit",
-    });
-  } catch {
-    return value;
-  }
-}
+import { VALIDATION_BADGE } from "@/constants/packet";
+import { formatPacketDateTime } from "@/utils/packetFormat";
 
 function validationSummary(results: PacketValidationResult[]) {
   return results.reduce(
@@ -201,7 +182,7 @@ function GeneratedFilesPanel({ files }: { files: GeneratedPacketFile[] }) {
                 </p>
                 <p className="text-[10px] text-muted-foreground mt-0.5">
                   {file.file_type} · v{file.version_number} ·{" "}
-                  {formatDateTime(file.generated_at)}
+                  {formatPacketDateTime(file.generated_at)}
                   {file.is_final ? " · final" : ""}
                 </p>
               </div>
