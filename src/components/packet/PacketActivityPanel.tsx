@@ -1,29 +1,8 @@
 import { History } from "lucide-react";
 import { PacketGenerationEvent } from "@/services/packetService";
+import { EVENT_BADGE } from "@/constants/packet";
+import { formatPacketDateTime } from "@/utils/packetFormat";
 import { StatusHistoryEntry } from "@/types/packet";
-
-const EVENT_BADGE: Record<string, string> = {
-  success: "bg-success/10 text-success border-success/20",
-  error: "bg-destructive/10 text-destructive border-destructive/20",
-  warning: "bg-warning/10 text-warning border-warning/20",
-  blocked: "bg-destructive/10 text-destructive border-destructive/20",
-  info: "bg-muted text-muted-foreground border-border",
-};
-
-function formatDateTime(value?: string | null) {
-  if (!value) return "—";
-  try {
-    return new Date(value).toLocaleString(undefined, {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-      hour: "numeric",
-      minute: "2-digit",
-    });
-  } catch {
-    return value;
-  }
-}
 
 function PacketEventsPanel({ events }: { events: PacketGenerationEvent[] }) {
   return (
@@ -65,7 +44,7 @@ function PacketEventsPanel({ events }: { events: PacketGenerationEvent[] }) {
                   </p>
                 )}
                 <p className="text-[10px] text-muted-foreground mt-1">
-                  {formatDateTime(event.created_at)}
+                  {formatPacketDateTime(event.created_at)}
                 </p>
               </div>
             );
@@ -76,7 +55,7 @@ function PacketEventsPanel({ events }: { events: PacketGenerationEvent[] }) {
   );
 }
 
-function StatusHistoryPanel({ history }: { history: any[] }) {
+function StatusHistoryPanel({ history }: { history: StatusHistoryEntry[] }) {
   return (
     <div className="rounded-xl border border-border overflow-hidden">
       <div className="px-4 py-3 border-b border-border bg-muted/30 flex items-center gap-2">
@@ -97,7 +76,7 @@ function StatusHistoryPanel({ history }: { history: any[] }) {
               </p>
               <p className="text-[10px] text-muted-foreground mt-0.5">
                 {entry.fromStatus} → {entry.toStatus} ·{" "}
-                {formatDateTime(entry.timestamp)}
+                {formatPacketDateTime(entry.timestamp)}
               </p>
               {entry.notes && (
                 <p className="text-[10px] text-muted-foreground mt-1 italic">
