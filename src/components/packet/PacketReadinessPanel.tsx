@@ -8,6 +8,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useGeneratedPacketFile } from "@/hooks/useGeneratedPacketFile";
 import {
   GeneratedPacketFile,
   PacketValidationResult,
@@ -152,6 +153,8 @@ function ValidationResultsPanel({
 }
 
 function GeneratedFilesPanel({ files }: { files: GeneratedPacketFile[] }) {
+  const generatedFile = useGeneratedPacketFile();
+
   return (
     <div className="rounded-xl border border-border overflow-hidden">
       <div className="px-4 py-3 border-b border-border bg-muted/30 flex items-center gap-2">
@@ -186,14 +189,16 @@ function GeneratedFilesPanel({ files }: { files: GeneratedPacketFile[] }) {
                   {file.is_final ? " · final" : ""}
                 </p>
               </div>
-              <a
-                href={file.file_path}
-                target="_blank"
-                rel="noreferrer"
-                className="text-xs text-primary hover:underline shrink-0"
+              <Button
+                type="button"
+                variant="link"
+                size="sm"
+                className="text-xs text-primary shrink-0 px-0"
+                onClick={() => generatedFile.openFile(file.id)}
+                disabled={generatedFile.isOpening}
               >
-                Open
-              </a>
+                {generatedFile.isOpening ? "Opening…" : "Open"}
+              </Button>
             </div>
           ))}
         </div>

@@ -81,6 +81,11 @@ export interface GenerateHearingPacketResult {
   validationResults: PacketValidationResult[];
 }
 
+export interface GeneratedFileUrlResult {
+  signedUrl: string;
+  file: Pick<GeneratedPacketFile, "id" | "file_path" | "file_name" | "metadata">;
+}
+
 function parseJsonField<T>(value: unknown, fallback: T): T {
   if (value === null || value === undefined || value === "") return fallback;
   if (typeof value === "string") {
@@ -304,6 +309,15 @@ export const packetService = {
     });
     if (error) throw error;
     return data as GenerateHearingPacketResult;
+  },
+
+  async getGeneratedFileUrl(fileId: string): Promise<GeneratedFileUrlResult> {
+    const { data, error } = await supabase.functions.invoke(
+      "get-hearing-packet-file-url",
+      { body: { fileId } },
+    );
+    if (error) throw error;
+    return data as GeneratedFileUrlResult;
   },
 
   async getPacketFiles(packetId: string): Promise<GeneratedPacketFile[]> {
