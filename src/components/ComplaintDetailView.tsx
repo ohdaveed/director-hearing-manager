@@ -2,10 +2,19 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDebouncedCallback } from "use-debounce";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { cn } from "@/lib/utils";
 import { complaintService } from "@/services/complaintService";
 import { locationService } from "@/services/locationService";
 import type { ComplaintSummary } from "@/types/complaint";
 import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+  CardAction,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -131,18 +140,23 @@ function SectionHeader({
   right?: React.ReactNode;
 }) {
   return (
-    <div className="px-5 py-3 bg-muted/40 border-b border-border flex items-center justify-between gap-2">
+    <CardHeader className="border-b border-border/60 py-3 px-5">
       <div className="flex items-center gap-2">
-        <span className="text-muted-foreground">{icon}</span>
-        <h3 className="text-sm font-semibold text-foreground">{title}</h3>
+        <span className="text-primary/70 shrink-0">{icon}</span>
+        <CardTitle className="text-xs tracking-widest font-bold text-foreground uppercase">
+          {title}
+        </CardTitle>
         {count !== undefined && (
-          <span className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded-full">
+          <Badge
+            variant="secondary"
+            className="text-[10px] h-4 px-1.5 font-bold bg-muted/80 text-muted-foreground border-none"
+          >
             {count}
-          </span>
+          </Badge>
         )}
       </div>
-      {right}
-    </div>
+      {right && <CardAction>{right}</CardAction>}
+    </CardHeader>
   );
 }
 
@@ -361,7 +375,7 @@ export default function ComplaintDetailView({
   const locationLinked = !!complaint.locationid || optimisticallyLinked;
 
   const locationSectionContent = (
-    <div className="bg-card border border-border rounded-xl overflow-hidden shadow-sm">
+    <Card className="overflow-hidden shadow-sm">
       <SectionHeader
         icon={<MapPin className="w-4 h-4" />}
         title="Location"
@@ -394,7 +408,7 @@ export default function ComplaintDetailView({
           )
         }
       />
-      <div className="p-5">
+      <CardContent className="p-5">
         {!locationLinked && (
           <div className="space-y-3 print:hidden">
             <div className="flex items-center gap-2 text-xs font-medium text-warning bg-warning/10 border border-warning/30 rounded-md px-3 py-2">
@@ -520,14 +534,14 @@ export default function ComplaintDetailView({
             )}
           </div>
         )}
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 
   // ── Responsible Party section ──────────────────────────────────────────────
 
   const responsiblePartyContent = (
-    <div className="bg-card border border-border rounded-xl overflow-hidden shadow-sm">
+    <Card className="overflow-hidden shadow-sm">
       <SectionHeader
         icon={<Home className="w-4 h-4" />}
         title="Responsible Party"
@@ -552,7 +566,7 @@ export default function ComplaintDetailView({
           </div>
         }
       />
-      <div className="p-5">
+      <CardContent className="p-5">
         {/* Location not linked — prompt to link first */}
         {!locationLinked && (
           <p className="text-xs text-muted-foreground italic">
@@ -684,96 +698,109 @@ export default function ComplaintDetailView({
             </div>
           </div>
         )}
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 
   // ── Inspection history section ─────────────────────────────────────────────
 
   const inspectionHistory = loading ? (
-    <div className="bg-card border border-border rounded-xl overflow-hidden">
-      <div className="px-5 py-3 bg-muted/40 border-b border-border">
+    <Card className="overflow-hidden">
+      <CardHeader className="border-b border-border/60 py-3 px-5">
         <Skeleton className="h-4 w-40" />
-      </div>
-      <div className="p-5 space-y-2">
+      </CardHeader>
+      <CardContent className="p-5 space-y-2">
         <Skeleton className="h-10 w-full" />
         <Skeleton className="h-10 w-full" />
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   ) : detail && detail.inspections.length > 0 ? (
-    <div className="bg-card border border-border rounded-xl overflow-hidden shadow-sm">
+    <Card className="overflow-hidden shadow-sm">
       <SectionHeader
         icon={<ClipboardList className="w-4 h-4" />}
         title="Inspection History"
         count={detail.inspections.length}
       />
-      <div className="divide-y divide-border">
-        {detail.inspections.map((ins: any) => (
-          <div
-            key={ins.id}
-            className="px-5 py-3.5 flex items-center justify-between gap-3"
-          >
-            <div className="min-w-0">
-              <div className="flex items-center gap-2 mb-0.5 flex-wrap">
-                <span className="text-sm font-medium text-foreground">
-                  {ins.inspection_date
-                    ? new Date(
-                        ins.inspection_date + "T00:00:00",
-                      ).toLocaleDateString()
-                    : "No date"}
-                </span>
-                {ins.inspection_type && (
-                  <span className="text-xs text-muted-foreground">
-                    {ins.inspection_type}
+      <CardContent className="p-0">
+        <div className="divide-y divide-border/60">
+          {detail.inspections.map((ins: any) => (
+            <div
+              key={ins.id}
+              className="px-5 py-3.5 flex items-center justify-between gap-3"
+            >
+              <div className="min-w-0">
+                <div className="flex items-center gap-2 mb-0.5 flex-wrap">
+                  <span className="text-sm font-medium text-foreground">
+                    {ins.inspection_date
+                      ? new Date(
+                          ins.inspection_date + "T00:00:00",
+                        ).toLocaleDateString()
+                      : "No date"}
                   </span>
-                )}
+                  {ins.inspection_type && (
+                    <span className="text-xs text-muted-foreground">
+                      {ins.inspection_type}
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  {ins.inspector && (
+                    <span className="text-xs text-muted-foreground">
+                      {ins.inspector}
+                    </span>
+                  )}
+                  {(ins.violation_count ?? 0) > 0 && (
+                    <Badge
+                      variant="destructive"
+                      className="text-[10px] h-4.5 px-1.5 font-bold bg-destructive/10 text-destructive border-none shadow-none"
+                    >
+                      {ins.violation_count} violation
+                      {ins.violation_count !== 1 ? "s" : ""}
+                    </Badge>
+                  )}
+                </div>
               </div>
-              <div className="flex items-center gap-2 flex-wrap">
-                {ins.inspector && (
-                  <span className="text-xs text-muted-foreground">
-                    {ins.inspector}
-                  </span>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                {ins.inspection_rating === "Satisfactory" && (
+                  <Badge
+                    variant="outline"
+                    className="text-[10px] h-4.5 px-2 font-bold bg-success/10 text-success border-success/20"
+                  >
+                    <CheckCircle2 className="w-3 h-3 mr-1" /> Sat.
+                  </Badge>
                 )}
-                {(ins.violation_count ?? 0) > 0 && (
-                  <span className="text-xs bg-destructive/10 text-destructive px-1.5 py-0.5 rounded font-medium">
-                    {ins.violation_count} violation
-                    {ins.violation_count !== 1 ? "s" : ""}
-                  </span>
+                {ins.inspection_rating === "Unsatisfactory" && (
+                  <Badge
+                    variant="outline"
+                    className="text-[10px] h-4.5 px-2 font-bold bg-destructive/10 text-destructive border-destructive/20"
+                  >
+                    <XCircle className="w-3 h-3 mr-1" /> Unsat.
+                  </Badge>
                 )}
+                {/* Draft: dashed border neutral; Submitted: primary tint */}
+                <Badge
+                  variant="outline"
+                  className={cn(
+                    "text-[10px] h-4.5 px-2 flex items-center gap-1 font-bold",
+                    INSPECTION_STATUS_THEME[ins.status ?? ""] ??
+                      "bg-muted text-muted-foreground",
+                  )}
+                >
+                  {ins.status === "Submitted" ? (
+                    <CheckCircle2 className="w-3 h-3" />
+                  ) : (
+                    <Clock className="w-3 h-3" />
+                  )}
+                  {ins.status}
+                </Badge>
               </div>
             </div>
-            <div className="flex items-center gap-2 flex-shrink-0">
-              {ins.inspection_rating === "Satisfactory" && (
-                <span className="flex items-center gap-1 text-xs font-semibold text-success bg-success/10 px-2 py-0.5 rounded-full">
-                  <CheckCircle2 className="w-3 h-3" /> Sat.
-                </span>
-              )}
-              {ins.inspection_rating === "Unsatisfactory" && (
-                <span className="flex items-center gap-1 text-xs font-semibold text-destructive bg-destructive/10 px-2 py-0.5 rounded-full">
-                  <XCircle className="w-3 h-3" /> Unsat.
-                </span>
-              )}
-              {/* Draft: dashed border neutral; Submitted: primary tint */}
-              <span
-                className={`text-xs px-2 py-0.5 rounded-full flex items-center gap-1 font-semibold ${
-                  INSPECTION_STATUS_THEME[ins.status ?? ""] ??
-                  "bg-muted text-muted-foreground"
-                }`}
-              >
-                {ins.status === "Submitted" ? (
-                  <CheckCircle2 className="w-3 h-3" />
-                ) : (
-                  <Clock className="w-3 h-3" />
-                )}
-                {ins.status}
-              </span>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
   ) : !loading ? (
-    <div className="bg-card border border-border rounded-xl p-8 text-center text-muted-foreground shadow-sm">
+    <Card className="p-8 text-center text-muted-foreground shadow-sm">
       <ClipboardList className="w-8 h-8 mx-auto mb-2 opacity-30" />
       <p className="text-sm font-medium">No inspections yet</p>
       {canStartInspection && (
@@ -781,7 +808,7 @@ export default function ComplaintDetailView({
           Click &ldquo;Start Inspection&rdquo; to begin.
         </p>
       )}
-    </div>
+    </Card>
   ) : null;
 
   // ── Desktop actions card ───────────────────────────────────────────────────
@@ -789,13 +816,11 @@ export default function ComplaintDetailView({
 
   const actionsCard =
     canShowActions || actionsSlot ? (
-      <div className="bg-card border border-border rounded-xl overflow-hidden shadow-sm print:hidden">
-        <div className="px-5 py-3 bg-muted/40 border-b border-border">
-          <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
-            Actions
-          </h3>
-        </div>
-        <div className="p-5 space-y-5">
+      <Card className="overflow-hidden shadow-sm print:hidden">
+        <CardHeader className="px-5 py-3 bg-muted/40 border-b border-border">
+          <CardTitle className="text-xs tracking-widest">Actions</CardTitle>
+        </CardHeader>
+        <CardContent className="p-5 space-y-5">
           {canEditStatus && (
             <div className="space-y-2">
               <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
@@ -835,12 +860,10 @@ export default function ComplaintDetailView({
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <Button
-                variant="destructive"
-                size="sm"
-                className="gap-2 w-full mt-4 border-t border-border pt-4"
+                variant="outline"
+                className="w-full justify-start text-destructive hover:text-destructive hover:bg-destructive/5 border-destructive/20 gap-2 h-9 text-xs"
               >
-                <Trash2 className="w-4 h-4" />
-                Delete Complaint
+                <Trash2 className="w-3.5 h-3.5" /> Delete Complaint
               </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
@@ -856,17 +879,18 @@ export default function ComplaintDetailView({
                 <AlertDialogAction
                   onClick={() => deleteMutation.mutate()}
                   disabled={deleteMutation.isPending}
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                 >
                   {deleteMutation.isPending ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
                   ) : null}
                   Delete
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     ) : null;
 
   // ── Main render ────────────────────────────────────────────────────────────
@@ -876,153 +900,176 @@ export default function ComplaintDetailView({
       {/* Two-column grid on desktop */}
       <div className="grid gap-4 lg:grid-cols-12 items-start">
         <div className="space-y-4 lg:col-span-8">
-          <div className="bg-card border-primary/30 rounded-xl p-5 shadow-lg">
-            <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2 mb-2 flex-wrap">
-                  {complaint.complaintid && (
-                    <span className="text-xs font-mono font-bold text-primary bg-primary/10 px-2 py-0.5 rounded">
-                      #{complaint.complaintid}
-                    </span>
+          <Card className="border-primary/20 shadow-md">
+            <CardContent className="p-5">
+              <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2 mb-2 flex-wrap">
+                    {complaint.complaintid && (
+                      <Badge
+                        variant="secondary"
+                        className="text-[10px] font-mono font-bold bg-primary/10 text-primary border-none h-4 px-1"
+                      >
+                        #{complaint.complaintid}
+                      </Badge>
+                    )}
+                    {complaint.category && complaint.category.length > 0 && (
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        {complaint.category.map((cat: string) => (
+                          <Badge
+                            key={cat}
+                            variant="outline"
+                            className="text-[10px] font-semibold h-4 px-2 bg-primary/5 text-primary border-primary/20"
+                          >
+                            {cat}
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h2 className="text-lg font-bold text-foreground leading-snug">
+                      {complaint.address}
+                    </h2>
+                  </div>
+                  {detail?.description && (
+                    <DescriptionText text={sanitizeText(detail.description)} />
                   )}
-                  {complaint.category && complaint.category.length > 0 && (
-                    <div className="flex items-center gap-1.5 flex-wrap">
-                      {complaint.category.map((cat: string) => (
-                        <span
-                          key={cat}
-                          className="text-xs font-semibold px-2.5 py-1 rounded-full bg-primary/15 text-primary border border-primary/20"
-                        >
-                          {cat}
-                        </span>
-                      ))}
-                    </div>
+                  {viewMode !== "inspector" && complaint.assigned_to && (
+                    <p className="text-[11px] text-muted-foreground mt-1.5 font-medium uppercase tracking-wider">
+                      Assigned: {complaint.assigned_to.replace(" (DPH)", "")}
+                    </p>
                   )}
                 </div>
-                <div className="flex items-center gap-2 flex-wrap">
-                  <h2 className="text-lg font-bold text-foreground leading-snug">
-                    {complaint.address}
-                  </h2>
-                </div>
-                {detail?.description && (
-                  <DescriptionText text={sanitizeText(detail.description)} />
-                )}
-                {viewMode !== "inspector" && complaint.assigned_to && (
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Assigned: {complaint.assigned_to.replace(" (DPH)", "")}
-                  </p>
+                {canStartInspection && (
+                  <Button
+                    onClick={handleStartInspection}
+                    title={
+                      hasDraft
+                        ? "Resume your draft inspection for this complaint"
+                        : "Start a new inspection for this complaint"
+                    }
+                    className="gap-2 flex-shrink-0 h-10 px-5 text-sm font-bold shadow-sm"
+                  >
+                    {hasDraft ? (
+                      <>
+                        <FileEdit className="w-4 h-4" /> Resume Draft
+                      </>
+                    ) : (
+                      <>
+                        <FilePlus className="w-4 h-4" /> Start Inspection
+                      </>
+                    )}
+                  </Button>
                 )}
               </div>
-              {canStartInspection && (
-                <Button
-                  onClick={handleStartInspection}
-                  title={
-                    hasDraft
-                      ? "Resume your draft inspection for this complaint"
-                      : "Start a new inspection for this complaint"
-                  }
-                  className="gap-2 flex-shrink-0 h-11 px-6 text-base font-semibold shadow-md"
-                >
-                  {hasDraft ? (
-                    <>
-                      <FileEdit className="w-5 h-5" /> Resume Draft
-                    </>
-                  ) : (
-                    <>
-                      <FilePlus className="w-5 h-5" /> Start Inspection
-                    </>
+              <div className="flex items-center gap-2 pt-3 border-t border-border/40">
+                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+                  Status
+                </span>
+                <Badge
+                  variant="outline"
+                  className={cn(
+                    "text-[10px] h-5 px-2 font-bold",
+                    statusBadgeCls,
                   )}
-                </Button>
-              )}
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                Status
-              </span>
-              <span
-                className={`text-xs font-semibold px-2.5 py-1 rounded-full ${statusBadgeCls}`}
-              >
-                {currentStatus || "—"}
-              </span>
-              {updateStatusMutation.isPending && (
-                <Loader2 className="w-3 h-3 animate-spin text-muted-foreground" />
-              )}
-            </div>
-          </div>
+                >
+                  {currentStatus || "—"}
+                </Badge>
+                {updateStatusMutation.isPending && (
+                  <Loader2 className="w-3 h-3 animate-spin text-muted-foreground" />
+                )}
+              </div>
+            </CardContent>
+          </Card>
 
           {/* Complaint Info */}
           {loading ? (
-            <div className="bg-card border border-border rounded-xl p-5 space-y-3">
-              <Skeleton className="h-4 w-1/3" />
-              <Skeleton className="h-4 w-1/2" />
-              <Skeleton className="h-4 w-2/5" />
-            </div>
+            <Card className="overflow-hidden shadow-sm">
+              <CardHeader className="border-b border-border/60 py-3 px-5">
+                <Skeleton className="h-4 w-40" />
+              </CardHeader>
+              <CardContent className="p-5 space-y-3">
+                <Skeleton className="h-4 w-1/3" />
+                <Skeleton className="h-4 w-1/2" />
+                <Skeleton className="h-4 w-2/5" />
+              </CardContent>
+            </Card>
           ) : (
             detail && (
-              <div className="bg-card border border-border/60 rounded-xl p-5 shadow-sm">
-                <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-4 pb-3 border-b border-border/40">
-                  Complaint Info
-                </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <InfoRow
-                    icon={<Calendar className="w-3.5 h-3.5" />}
-                    label="Date Entered"
-                    value={
-                      detail.date_entered
-                        ? new Date(
-                            detail.date_entered + "T00:00:00",
-                          ).toLocaleDateString()
-                        : undefined
-                    }
-                  />
-                  <InfoRow
-                    icon={<AlertCircle className="w-3.5 h-3.5" />}
-                    label="Reinspection Due"
-                    value={
-                      detail.reinspection_due_on_after
-                        ? new Date(
-                            detail.reinspection_due_on_after + "T00:00:00",
-                          ).toLocaleDateString()
-                        : undefined
-                    }
-                  />
-                  <InfoRow
-                    icon={<Calendar className="w-3.5 h-3.5" />}
-                    label="Last Report Sent"
-                    value={
-                      detail.date_last_report_sent
-                        ? new Date(
-                            detail.date_last_report_sent + "T00:00:00",
-                          ).toLocaleDateString()
-                        : undefined
-                    }
-                  />
-                  <InfoRow
-                    icon={<User className="w-3.5 h-3.5" />}
-                    label="Complainant"
-                    value={detail.complainant_name}
-                  />
-                  <InfoRow
-                    icon={<Phone className="w-3.5 h-3.5" />}
-                    label="Phone"
-                    value={detail.complainant_phone}
-                  />
-                  <InfoRow
-                    icon={<Mail className="w-3.5 h-3.5" />}
-                    label="Email"
-                    value={detail.complainant_email}
-                  />
-                </div>
-              </div>
+              <Card className="overflow-hidden shadow-sm">
+                <SectionHeader
+                  icon={<ClipboardList className="w-4 h-4" />}
+                  title="Complaint Info"
+                />
+                <CardContent className="p-5">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <InfoRow
+                      icon={<Calendar className="w-3.5 h-3.5" />}
+                      label="Date Entered"
+                      value={
+                        detail.date_entered
+                          ? new Date(
+                              detail.date_entered + "T00:00:00",
+                            ).toLocaleDateString()
+                          : undefined
+                      }
+                    />
+                    <InfoRow
+                      icon={<AlertCircle className="w-3.5 h-3.5" />}
+                      label="Reinspection Due"
+                      value={
+                        detail.reinspection_due_on_after
+                          ? new Date(
+                              detail.reinspection_due_on_after + "T00:00:00",
+                            ).toLocaleDateString()
+                          : undefined
+                      }
+                    />
+                    <InfoRow
+                      icon={<Calendar className="w-3.5 h-3.5" />}
+                      label="Last Report Sent"
+                      value={
+                        detail.date_last_report_sent
+                          ? new Date(
+                              detail.date_last_report_sent + "T00:00:00",
+                            ).toLocaleDateString()
+                          : undefined
+                      }
+                    />
+                    <InfoRow
+                      icon={<User className="w-3.5 h-3.5" />}
+                      label="Complainant"
+                      value={detail.complainant_name}
+                    />
+                    <InfoRow
+                      icon={<Phone className="w-3.5 h-3.5" />}
+                      label="Phone"
+                      value={detail.complainant_phone}
+                    />
+                    <InfoRow
+                      icon={<Mail className="w-3.5 h-3.5" />}
+                      label="Email"
+                      value={detail.complainant_email}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
             )
           )}
 
           {/* Responsible Party */}
           {loading ? (
-            <div className="bg-card border border-border rounded-xl p-5 space-y-3">
-              <Skeleton className="h-4 w-1/3" />
-              <Skeleton className="h-4 w-1/2" />
-              <Skeleton className="h-4 w-2/5" />
-            </div>
+            <Card className="overflow-hidden shadow-sm">
+              <CardHeader className="border-b border-border/60 py-3 px-5">
+                <Skeleton className="h-4 w-40" />
+              </CardHeader>
+              <CardContent className="p-5 space-y-3">
+                <Skeleton className="h-4 w-1/3" />
+                <Skeleton className="h-4 w-1/2" />
+                <Skeleton className="h-4 w-2/5" />
+              </CardContent>
+            </Card>
           ) : (
             <ErrorBoundary title="Responsible Party Error">
               {responsiblePartyContent}

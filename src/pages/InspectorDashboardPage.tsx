@@ -16,6 +16,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { useQuery } from "@tanstack/react-query";
+import { cn } from "@/lib/utils";
 import { complaintService } from "@/services/complaintService";
 import { inspectionService } from "@/services/inspectionService";
 import {
@@ -31,6 +32,15 @@ import {
   PhoneOff,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+  CardFooter,
+  CardAction,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { ACTIVE_STATUSES, isOverdue } from "@/utils/complaintStatuses";
 import { COMPLAINT_STATUS_THEME } from "@/utils/badgeThemes";
 import { StatCard } from "@/components/ui/stat-card";
@@ -44,9 +54,9 @@ type Inspection = Database["public"]["Tables"]["inspections"]["Row"];
 
 const PANEL_CAP = 5;
 
-// ── Shared row component — full-width click target, three-tier typography ──────
+// ── Shared row components — semantic, modular, three-tier typography ──────────
 
-function FeedRow({
+function ComplaintRow({
   address,
   complaintId,
   meta,
@@ -66,43 +76,112 @@ function FeedRow({
   onClick: () => void;
 }) {
   return (
-    <div
-      role="button"
-      tabIndex={0}
+    <button
+      type="button"
       onClick={onClick}
-      onKeyDown={(e) => e.key === "Enter" && onClick()}
-      className={`flex items-center gap-4 px-5 py-3.5 cursor-pointer transition-colors group
-        ${urgent ? "hover:bg-destructive/5" : "hover:bg-muted/40"} active:bg-muted/60
-        focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-inset`}
+      className={cn(
+        "w-full flex items-center gap-4 px-5 py-3.5 text-left transition-colors group",
+        urgent ? "hover:bg-destructive/5" : "hover:bg-muted/40",
+        "active:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-inset",
+      )}
     >
       {leftSlot && <div className="shrink-0 w-9 text-center">{leftSlot}</div>}
       <div className="min-w-0 flex-1">
-        {/* Tier 1 — address: dominant, semibold */}
         <p className="text-sm font-semibold text-foreground group-hover:text-primary truncate transition-colors">
           {address}
         </p>
-        {/* Tiers 2 & 3 — ID badge + metadata on one line */}
         <div className="flex items-center gap-2 mt-0.5 flex-wrap">
           {complaintId && (
-            <span className="text-[10px] font-mono font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded shrink-0">
+            <Badge
+              variant="secondary"
+              className="text-[10px] font-mono font-bold bg-primary/10 text-primary border-none h-4 px-1"
+            >
               #{complaintId}
-            </span>
+            </Badge>
           )}
           <span className="text-[10px] text-muted-foreground">{meta}</span>
         </div>
       </div>
       {statusLabel && (
-        <span
-          className={`text-[10px] px-2 py-0.5 rounded-full font-semibold whitespace-nowrap shrink-0 ${statusCls ?? "bg-muted text-muted-foreground"}`}
+        <Badge
+          variant="outline"
+          className={cn(
+            "text-[10px] h-4.5 px-2 font-semibold whitespace-nowrap shrink-0",
+            statusCls ?? "bg-muted text-muted-foreground",
+          )}
         >
           {statusLabel}
-        </span>
+        </Badge>
       )}
-      {/* Chevron pill — visual affordance only; entire row is the true target */}
       <div className="w-7 h-7 rounded-full bg-muted/60 flex items-center justify-center shrink-0 transition-all group-hover:bg-primary group-hover:translate-x-0.5">
         <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary-foreground transition-colors" />
       </div>
-    </div>
+    </button>
+  );
+}
+
+function InspectionRow({
+  inspection,
+  onClick,
+}: {
+  inspection: Inspection;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="w-full flex items-center gap-4 px-5 py-3.5 text-left hover:bg-muted/40 transition-colors group active:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-inset"
+    >
+      <div className="min-w-0 flex-1">
+        <p className="text-sm font-semibold text-foreground group-hover:text-primary truncate transition-colors">
+          {inspection.facility_address ?? "—"}
+        </p>
+        <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+          {inspection.complaint_id && (
+            <Badge
+              variant="secondary"
+              className="text-[10px] font-mono font-bold bg-primary/10 text-primary border-none h-4 px-1"
+            >
+              #{inspection.complaint_id}
+            </Badge>
+          )}
+          <span className="text-[10px] text-muted-foreground">
+            {[
+              inspection.inspection_type,
+              inspection.inspection_date && formatDate(inspection.inspection_date),
+            ]
+              .filter(Boolean)
+              .join(" · ")}
+          </span>
+        </div>
+      </div>
+      <div className="flex items-center gap-2 shrink-0">
+        {inspection.inspection_rating && (
+          <Badge
+            variant="outline"
+            className={cn(
+              "text-[10px] h-4.5 px-2 font-semibold",
+              inspection.inspection_rating === "Satisfactory"
+                ? "bg-success/10 text-success border-success/20"
+                : inspection.inspection_rating === "Unsatisfactory"
+                  ? "bg-destructive/10 text-destructive border-destructive/20"
+                  : "bg-muted text-muted-foreground",
+            )}
+          >
+            {inspection.inspection_rating}
+          </Badge>
+        )}
+        {inspection.violation_count != null && inspection.violation_count > 0 && (
+          <span className="text-[10px] text-muted-foreground tabular-nums">
+            {inspection.violation_count}v
+          </span>
+        )}
+        <div className="w-7 h-7 rounded-full bg-muted/60 flex items-center justify-center shrink-0 transition-all group-hover:bg-primary group-hover:translate-x-0.5 ml-1">
+          <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary-foreground transition-colors" />
+        </div>
+      </div>
+    </button>
   );
 }
 
@@ -144,57 +223,57 @@ function FeedPanel({
   const hasMore = allRows.length > PANEL_CAP;
 
   return (
-    <div
-      className={`rounded-xl border bg-card overflow-hidden shadow-sm ${borderCls ?? "border-border"}`}
-    >
-      {/* Panel header */}
-      <div
-        className={`flex items-center gap-2 px-5 py-3 border-b ${borderCls ? "border-destructive/10" : "border-border/60"}`}
-      >
-        <span className="shrink-0 text-primary/70">{icon}</span>
-        <h2 className="text-xs font-bold text-foreground uppercase tracking-widest">
-          {title}
-        </h2>
+    <Card size="sm" className={cn("overflow-hidden", borderCls)}>
+      <CardHeader className="border-b border-border/60 py-3">
+        <div className="flex items-center gap-2">
+          <span className="shrink-0 text-primary/70">{icon}</span>
+          <CardTitle className="text-xs tracking-widest">{title}</CardTitle>
+        </div>
         {badge && (
-          <span
-            className={`ml-auto text-[10px] px-1.5 py-0.5 rounded-full font-bold border ${badgeCls ?? "bg-primary/10 text-primary border-primary/20"}`}
-          >
-            {badge}
-          </span>
+          <CardAction>
+            <Badge
+              variant="outline"
+              className={cn("text-[10px] font-bold px-1.5 py-0", badgeCls)}
+            >
+              {badge}
+            </Badge>
+          </CardAction>
         )}
-      </div>
+      </CardHeader>
 
-      {/* Rows or empty state */}
-      {allRows.length === 0 ? (
-        <div className="px-5 py-4">{emptyContent}</div>
-      ) : (
-        <>
-          {showAll && allRows.length > 8 ? (
-            /* Expanded + long list — height-capped scroll region with fade */
-            <div className="relative">
-              <div className="divide-y divide-border/40 max-h-[480px] overflow-y-auto pr-2 feed-scroll">
-                {visibleRows}
+      <CardContent className="p-0">
+        {allRows.length === 0 ? (
+          <div className="px-5 py-4">{emptyContent}</div>
+        ) : (
+          <>
+            {showAll && allRows.length > 8 ? (
+              /* Expanded + long list — height-capped scroll region with fade */
+              <div className="relative">
+                <div className="divide-y divide-border/40 max-h-[480px] overflow-y-auto pr-2 feed-scroll">
+                  {visibleRows}
+                </div>
+                <div className="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-t from-card to-transparent pointer-events-none" />
               </div>
-              <div className="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-t from-card to-transparent pointer-events-none" />
-            </div>
-          ) : (
-            /* Collapsed or short list — flat rendering, no scroll */
-            <div className="divide-y divide-border/40">{visibleRows}</div>
-          )}
-          {hasMore && (
-            <div className="px-5 py-2.5 border-t border-border/60 bg-muted/20 text-center">
-              <button
-                type="button"
-                onClick={onToggleShowAll}
-                className="text-xs font-semibold text-primary hover:text-primary/70 transition-colors"
-              >
-                {showAll ? `↑ Show fewer` : `Show all ${allRows.length} →`}
-              </button>
-            </div>
-          )}
-        </>
+            ) : (
+              /* Collapsed or short list — flat rendering, no scroll */
+              <div className="divide-y divide-border/40">{visibleRows}</div>
+            )}
+          </>
+        )}
+      </CardContent>
+
+      {hasMore && (
+        <CardFooter className="p-0 border-t border-border/60 bg-muted/20">
+          <button
+            type="button"
+            onClick={onToggleShowAll}
+            className="w-full py-2.5 text-xs font-semibold text-primary hover:text-primary/70 transition-colors"
+          >
+            {showAll ? `↑ Show fewer` : `Show all ${allRows.length} →`}
+          </button>
+        </CardFooter>
       )}
-    </div>
+    </Card>
   );
 }
 
@@ -244,6 +323,7 @@ export default function InspectorDashboardPage({
   const [showAllNoContact, setShowAllNoContact] = useState(false);
   const [showAllReinspect, setShowAllReinspect] = useState(false);
   const [showAllOverdue, setShowAllOverdue] = useState(false);
+  const [showAllInspections, setShowAllInspections] = useState(false);
 
   if (loading) {
     return (
@@ -344,7 +424,7 @@ export default function InspectorDashboardPage({
   // ── Pre-render all rows for each panel (keys live here) ──────────────────
 
   const newAssignmentRows = newAssignments.map((c: AlertComplaint) => (
-    <FeedRow
+    <ComplaintRow
       key={c.id}
       address={(c.address as any) ?? "—"}
       complaintId={(c.complaintid as any) || undefined}
@@ -364,7 +444,7 @@ export default function InspectorDashboardPage({
   const noContactRows = noContactAttempt.map((c: AlertComplaint) => {
     const days = daysSince(c.date_entered || undefined);
     return (
-      <FeedRow
+      <ComplaintRow
         key={c.id}
         address={(c.address as any) ?? "—"}
         complaintId={(c.complaintid as any) || undefined}
@@ -386,7 +466,7 @@ export default function InspectorDashboardPage({
     );
     const urgent = daysOut <= 3;
     return (
-      <FeedRow
+      <ComplaintRow
         key={c.id}
         address={(c.address as any) ?? "—"}
         complaintId={(c.complaintid as any) || undefined}
@@ -422,7 +502,7 @@ export default function InspectorDashboardPage({
         (1000 * 60 * 60 * 24),
     );
     return (
-      <FeedRow
+      <ComplaintRow
         key={c.id}
         address={(c.address as any) ?? "—"}
         complaintId={(c.complaintid as any) || undefined}
@@ -442,6 +522,14 @@ export default function InspectorDashboardPage({
       />
     );
   });
+
+  const inspectionRows = (_allInspections as Inspection[]).map((insp) => (
+    <InspectionRow
+      key={insp.inspection_id}
+      inspection={insp}
+      onClick={() => navigate(`/inspections/${insp.inspection_id}`)}
+    />
+  ));
 
   // ── Stat rail (reused on both mobile and desktop) ─────────────────────────
 
@@ -631,83 +719,18 @@ export default function InspectorDashboardPage({
           />
 
           {/* Recent Submitted Inspections */}
-          <div className="rounded-xl border border-border bg-card overflow-hidden shadow-sm">
-            <div className="flex items-center justify-between px-5 py-3 border-b border-border/60">
-              <div className="flex items-center gap-2">
-                <ClipboardCheck className="w-3.5 h-3.5 text-primary/70 shrink-0" />
-                <h2 className="text-xs font-bold text-foreground uppercase tracking-widest">
-                  Recent Inspections
-                </h2>
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-xs h-7 px-2 -mr-1"
-                onClick={() => navigate("/inspections")}
-              >
-                View all →
-              </Button>
-            </div>
-            {_allInspections.length === 0 ? (
-              <p className="px-5 py-4 text-sm text-muted-foreground">
+          <FeedPanel
+            icon={<ClipboardCheck className="w-3.5 h-3.5" />}
+            title="Recent Inspections"
+            allRows={inspectionRows}
+            showAll={showAllInspections}
+            onToggleShowAll={() => setShowAllInspections((v) => !v)}
+            emptyContent={
+              <p className="text-sm text-muted-foreground">
                 No submitted inspections yet.
               </p>
-            ) : (
-              <div className="divide-y divide-border/40">
-                {(_allInspections as Inspection[]).map((insp) => (
-                  <div
-                    key={insp.inspection_id}
-                    className="flex items-center gap-4 px-5 py-3.5"
-                  >
-                    <div className="min-w-0 flex-1">
-                      {/* Tier 1 */}
-                      <p className="text-sm font-semibold text-foreground truncate">
-                        {insp.facility_address ?? "—"}
-                      </p>
-                      {/* Tiers 2 & 3 */}
-                      <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-                        {insp.complaint_id && (
-                          <span className="text-[10px] font-mono font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded shrink-0">
-                            #{insp.complaint_id}
-                          </span>
-                        )}
-                        <span className="text-[10px] text-muted-foreground">
-                          {[
-                            insp.inspection_type,
-                            insp.inspection_date &&
-                              formatDate(insp.inspection_date),
-                          ]
-                            .filter(Boolean)
-                            .join(" · ")}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2 shrink-0">
-                      {insp.inspection_rating && (
-                        <span
-                          className={`text-[10px] px-2 py-0.5 rounded-full font-semibold ${
-                            insp.inspection_rating === "Satisfactory"
-                              ? "bg-success/10 text-success"
-                              : insp.inspection_rating === "Unsatisfactory"
-                                ? "bg-destructive/10 text-destructive"
-                                : "bg-muted text-muted-foreground"
-                          }`}
-                        >
-                          {insp.inspection_rating}
-                        </span>
-                      )}
-                      {insp.violation_count != null &&
-                        insp.violation_count > 0 && (
-                          <span className="text-[10px] text-muted-foreground tabular-nums">
-                            {insp.violation_count}v
-                          </span>
-                        )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+            }
+          />
         </div>
       </div>
     </div>

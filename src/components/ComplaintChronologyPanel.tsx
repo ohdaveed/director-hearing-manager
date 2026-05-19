@@ -1,6 +1,15 @@
 import { useState } from "react";
-
 import { BookOpen, User, ChevronDown, ChevronUp } from "lucide-react";
+import { cn } from "@/lib/utils";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { sanitizeText } from "@/utils/sanitizeText";
 
 type ChronologyEntry = any["chronology"][0];
@@ -17,12 +26,12 @@ function fmtDate(d?: string) {
 }
 
 const TYPE_BADGE: Record<string, string> = {
-  Inspection: "bg-primary/10 text-primary",
-  NOV: "bg-destructive/10 text-destructive",
-  "Re-inspection": "bg-accent/20 text-accent-foreground",
-  "Contact Attempt": "bg-muted text-muted-foreground",
-  "Hearing Referral": "bg-accent/10 text-accent-foreground",
-  Other: "bg-muted text-muted-foreground",
+  Inspection: "bg-primary/10 text-primary border-primary/20",
+  NOV: "bg-destructive/10 text-destructive border-destructive/20",
+  "Re-inspection": "bg-accent/20 text-accent-foreground border-accent/30",
+  "Contact Attempt": "bg-muted text-muted-foreground border-border",
+  "Hearing Referral": "bg-accent/10 text-accent-foreground border-accent/20",
+  Other: "bg-muted text-muted-foreground border-border",
 };
 
 const PREVIEW_COUNT = 5;
@@ -42,67 +51,73 @@ export default function ComplaintChronologyPanel({
 
   if (loading) {
     return (
-      <div className="bg-card border border-border rounded-xl overflow-hidden shadow-sm">
-        <div className="px-5 py-3 bg-muted/40 border-b border-border flex items-center gap-2">
-          <BookOpen className="w-4 h-4 text-muted-foreground" />
-          <h3 className="text-sm font-semibold text-foreground">
-            Case Chronology
-          </h3>
-        </div>
-        <div className="p-5 space-y-2">
+      <Card className="overflow-hidden shadow-sm">
+        <CardHeader className="px-5 py-3 bg-muted/40 border-b border-border">
+          <div className="flex items-center gap-2">
+            <BookOpen className="w-4 h-4 text-primary/70" />
+            <CardTitle className="text-xs tracking-widest">
+              Case Chronology
+            </CardTitle>
+          </div>
+        </CardHeader>
+        <CardContent className="p-5 space-y-2">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-10 bg-muted/40 rounded animate-pulse" />
+            <Skeleton key={i} className="h-10 w-full" />
           ))}
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     );
   }
 
   return (
-    <div className="bg-card border border-border rounded-xl overflow-hidden shadow-sm">
-      {/* Header */}
-      <div className="px-5 py-3 bg-muted/40 border-b border-border flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2">
-          <BookOpen className="w-4 h-4 text-muted-foreground" />
-          <h3 className="text-sm font-semibold text-foreground">
-            Case Chronology
-          </h3>
-          {chronology.length > 0 && (
-            <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
-              {chronology.length}
-            </span>
-          )}
+    <Card className="overflow-hidden shadow-sm">
+      <CardHeader className="px-5 py-3 bg-muted/40 border-b border-border">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <BookOpen className="w-4 h-4 text-primary/70" />
+            <CardTitle className="text-xs tracking-widest">
+              Case Chronology
+            </CardTitle>
+            {chronology.length > 0 && (
+              <Badge
+                variant="secondary"
+                className="text-[10px] h-4 px-1.5 font-bold bg-muted text-muted-foreground border-none shadow-none"
+              >
+                {chronology.length}
+              </Badge>
+            )}
+          </div>
+          <span className="text-[10px] text-muted-foreground italic uppercase tracking-wider font-semibold hidden sm:inline">
+            Hearing Preview
+          </span>
         </div>
-        <span className="text-xs text-muted-foreground italic hidden sm:inline">
-          Director's Hearing preview
-        </span>
-      </div>
+      </CardHeader>
 
-      {chronology.length === 0 ? (
-        <div className="p-8 text-center text-muted-foreground">
-          <BookOpen className="w-8 h-8 mx-auto mb-2 opacity-30" />
-          <p className="text-sm font-medium">No chronology entries yet</p>
-          <p className="text-xs mt-1 max-w-xs mx-auto">
-            Entries are added automatically as inspections, NOVs, and other
-            actions are recorded.
-          </p>
-        </div>
-      ) : (
-        <>
+      <CardContent className="p-0">
+        {chronology.length === 0 ? (
+          <div className="p-8 text-center text-muted-foreground">
+            <BookOpen className="w-8 h-8 mx-auto mb-2 opacity-30" />
+            <p className="text-sm font-medium">No chronology entries yet</p>
+            <p className="text-xs mt-1 max-w-xs mx-auto">
+              Entries are added automatically as inspections, NOVs, and other
+              actions are recorded.
+            </p>
+          </div>
+        ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-xs border-collapse">
+            <table className="w-full text-[11px] border-collapse">
               <thead>
                 <tr className="bg-muted/50 border-b border-border">
-                  <th className="text-left px-3 py-2.5 font-bold text-foreground uppercase tracking-wide text-[10px] whitespace-nowrap w-20 border-r border-border">
+                  <th className="text-left px-3 py-2 font-bold text-muted-foreground uppercase tracking-wider w-20 border-r border-border">
                     Date
                   </th>
-                  <th className="text-left px-3 py-2.5 font-bold text-foreground uppercase tracking-wide text-[10px] w-28 border-r border-border">
+                  <th className="text-left px-3 py-2 font-bold text-muted-foreground uppercase tracking-wider w-28 border-r border-border">
                     Type
                   </th>
-                  <th className="text-left px-3 py-2.5 font-bold text-foreground uppercase tracking-wide text-[10px] border-r border-border">
+                  <th className="text-left px-3 py-2 font-bold text-muted-foreground uppercase tracking-wider border-r border-border">
                     Summary
                   </th>
-                  <th className="text-left px-3 py-2.5 font-bold text-foreground uppercase tracking-wide text-[10px] w-24">
+                  <th className="text-left px-3 py-2 font-bold text-muted-foreground uppercase tracking-wider w-24">
                     Exhibits
                   </th>
                 </tr>
@@ -111,18 +126,26 @@ export default function ComplaintChronologyPanel({
                 {visible.map((entry, i) => (
                   <tr
                     key={entry.id}
-                    className={`border-b border-border align-top ${i % 2 === 0 ? "bg-background" : "bg-muted/30"}`}
+                    className={cn(
+                      "border-b border-border last:border-0 align-top",
+                      i % 2 === 0 ? "bg-background" : "bg-muted/10",
+                    )}
                   >
                     <td className="px-3 py-2.5 border-r border-border whitespace-nowrap text-foreground font-medium">
                       {fmtDate(entry.entryDate)}
                     </td>
                     <td className="px-3 py-2.5 border-r border-border">
                       {entry.entryType ? (
-                        <span
-                          className={`inline-block px-1.5 py-0.5 rounded text-[10px] font-semibold whitespace-nowrap ${TYPE_BADGE[entry.entryType] ?? "bg-muted text-muted-foreground"}`}
+                        <Badge
+                          variant="outline"
+                          className={cn(
+                            "text-[10px] h-4.5 px-1.5 font-bold whitespace-nowrap",
+                            TYPE_BADGE[entry.entryType] ??
+                              "bg-muted text-muted-foreground",
+                          )}
                         >
                           {entry.entryType}
-                        </span>
+                        </Badge>
                       ) : (
                         <span className="text-muted-foreground">—</span>
                       )}
@@ -146,7 +169,7 @@ export default function ComplaintChronologyPanel({
                           <span className="text-muted-foreground">—</span>
                         )}
                         {entry.createdBy && (
-                          <p className="flex items-center gap-1 text-muted-foreground mt-1">
+                          <p className="flex items-center gap-1 text-muted-foreground mt-1 font-medium">
                             <User className="w-2.5 h-2.5 flex-shrink-0" />
                             {entry.createdBy}
                           </p>
@@ -155,7 +178,7 @@ export default function ComplaintChronologyPanel({
                     </td>
                     <td className="px-3 py-2.5">
                       {entry.exhibit_refs ? (
-                        <span className="text-primary font-medium leading-snug">
+                        <span className="text-primary font-bold leading-snug">
                           {entry.exhibit_refs}
                         </span>
                       ) : (
@@ -172,19 +195,22 @@ export default function ComplaintChronologyPanel({
               </tbody>
             </table>
           </div>
+        )}
+      </CardContent>
 
-          {/* Footer with count + expand toggle */}
-          <div className="px-4 py-2.5 bg-muted/20 border-t border-border flex items-center justify-between gap-2">
-            <p className="text-[10px] text-muted-foreground italic">
+      {chronology.length > 0 && (
+        <CardFooter className="p-0 border-t border-border/60 bg-muted/20">
+          <div className="w-full px-4 py-2 flex items-center justify-between gap-2">
+            <p className="text-[10px] text-muted-foreground italic font-medium">
               {hasMore && !showAll
-                ? `Showing ${PREVIEW_COUNT} of ${sorted.length} entries (newest first)`
-                : `${sorted.length} ${sorted.length === 1 ? "entry" : "entries"} — newest first`}
+                ? `Showing ${PREVIEW_COUNT} of ${sorted.length} entries`
+                : `${sorted.length} entries — newest first`}
             </p>
             {hasMore && (
               <button
                 type="button"
                 onClick={() => setShowAll((v) => !v)}
-                className="flex items-center gap-1 text-xs text-primary font-semibold hover:underline"
+                className="flex items-center gap-1 text-[11px] text-primary font-bold hover:underline"
               >
                 {showAll ? (
                   <>
@@ -192,15 +218,14 @@ export default function ComplaintChronologyPanel({
                   </>
                 ) : (
                   <>
-                    <ChevronDown className="w-3.5 h-3.5" /> View all{" "}
-                    {sorted.length}
+                    <ChevronDown className="w-3.5 h-3.5" /> View all
                   </>
                 )}
               </button>
             )}
           </div>
-        </>
+        </CardFooter>
       )}
-    </div>
+    </Card>
   );
 }

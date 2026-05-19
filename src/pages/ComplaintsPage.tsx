@@ -16,6 +16,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { complaintService } from "@/services/complaintService";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Loader2,
   ClipboardList,
@@ -206,30 +207,26 @@ export default function ComplaintsPage() {
       {showMineToggle && (
         <div className="border-b border-border/60 bg-card/80 backdrop-blur-sm">
           <div className="container mx-auto px-4 sm:px-6 max-w-7xl py-2 flex items-center gap-3">
-            <div className="flex items-center bg-muted/60 border border-border rounded-lg p-0.5 gap-0.5">
-              <button
-                type="button"
-                onClick={() => handleScopeChange("mine")}
-                className={`px-3 py-1.5 text-[12px] font-semibold rounded-md transition-all ${
-                  scope === "mine"
-                    ? "bg-card text-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                My Complaints
-              </button>
-              <button
-                type="button"
-                onClick={() => handleScopeChange("all")}
-                className={`px-3 py-1.5 text-[12px] font-semibold rounded-md transition-all ${
-                  scope === "all"
-                    ? "bg-card text-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                All Complaints
-              </button>
-            </div>
+            <Tabs
+              value={scope}
+              onValueChange={(v) => handleScopeChange(v as "mine" | "all")}
+              className="w-auto"
+            >
+              <TabsList className="h-8 p-0.5 bg-muted/60 border border-border">
+                <TabsTrigger
+                  value="mine"
+                  className="text-[12px] h-7 px-3 data-[state=active]:bg-card data-[state=active]:shadow-sm"
+                >
+                  My Complaints
+                </TabsTrigger>
+                <TabsTrigger
+                  value="all"
+                  className="text-[12px] h-7 px-3 data-[state=active]:bg-card data-[state=active]:shadow-sm"
+                >
+                  All Complaints
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
             {scope === "all" && (
               <span className="text-[11px] text-muted-foreground hidden sm:inline">
                 Read-only view · all inspectors

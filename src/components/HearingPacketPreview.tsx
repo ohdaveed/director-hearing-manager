@@ -9,8 +9,10 @@ import {
   CheckCircle2,
   PenLine,
   Loader2,
+  Save,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 import { PacketCoverPage } from "./packet/PacketCoverPage";
 import { PacketEnforcementSummary } from "./packet/PacketEnforcementSummary";
 import { PacketChronology } from "./packet/PacketChronology";
@@ -21,6 +23,7 @@ import {
   tryParseSignature,
   type ParsedSignature,
 } from "./packet/SignatureBlock";
+import { elementToPdfBlob } from "./packet/printUtils";
 
 type Props = {
   data: any; // Properly type later
@@ -62,6 +65,7 @@ export default function HearingPacketPreview({ data, onClose }: Props) {
   );
   const [managerSig, setManagerSig] = useState<ParsedSignature | null>(null);
   const [sigSaving, setSigSaving] = useState(false);
+  const [isSavingPdf, setIsSavingPdf] = useState(false);
 
   // Initialize signatures from saved packet data, or auto-fill from user profile
   useEffect(() => {
@@ -116,6 +120,25 @@ export default function HearingPacketPreview({ data, onClose }: Props) {
       await packetService.update(packet.id, { manager_signature: "" });
     } catch {
       /* ignore */
+    }
+  };
+
+  const handleSaveFinalPdf = async () => {
+    if (!printRef.current) return;
+    setIsSavingPdf(true);
+    toast.loading("Generating PDF...", { id: "save-pdf" });
+
+    try {
+      const blob = await elementToPdfBlob("hearing-packet-print");
+      toast.loading("Uploading to storage...", { id: "save-pdf" });
+      const url = await packetService.generateAndStorePdf(packet.id, blob);
+      toast.success("Final PDF saved successfully!", { id: "save-pdf" });
+      window.open(url, "_blank");
+    } catch (err) {
+      console.error("Failed to save PDF:", err);
+      toast.error("Failed to save final PDF", { id: "save-pdf" });
+    } finally {
+      setIsSavingPdf(false);
     }
   };
 
@@ -290,6 +313,20 @@ export default function HearingPacketPreview({ data, onClose }: Props) {
             {exhibits.length} exhibit
             {exhibits.length !== 1 ? "s" : ""}
           </p>
+          <Button
+            onClick={handleSaveFinalPdf}
+            variant="outline"
+            size="sm"
+            className="gap-2"
+            disabled={renderStage !== "ready" || isSavingPdf}
+          >
+            {isSavingPdf ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Save className="w-4 h-4" />
+            )}
+            {isSavingPdf ? "Saving..." : "Save Final PDF"}
+          </Button>
           <Button
             onClick={handlePrint}
             size="sm"

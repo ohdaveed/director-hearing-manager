@@ -29,11 +29,13 @@
 
 ## Phase 4: Document Generation and Storage
 
-- [ ] Task: Map the approved, structured data to the existing packet generation templates.
-  - [ ] Task: Write failing tests for the data mapper function.
-  - [ ] Task: Implement the mapping logic.
-- [ ] Task: Generate final PDF and handle Supabase Storage upload.
-  - [ ] Task: Write failing tests for storage service interaction.
-  - [ ] Task: Update `packetService.ts` to handle saving the generated PDF and linking to the DB record.
-- [ ] Task: Add "Download Final" action to the UI upon successful generation.
+*Detailed implementation plan written: `conductor/tracks/draft_compliance_20260516/phase-4-implementation-plan.md`*
+
+- [x] Task: Map the approved, structured data to the existing packet generation templates.
+  - [x] Task: Write failing tests for the data mapper function.
+  - [x] Task: Implement the mapping logic.
+- [x] Task: Generate final PDF and handle Supabase Storage upload.
+  - [x] Task: Write failing tests for storage service interaction.
+  - [x] Task: Update `packetService.ts` to handle saving the generated PDF and linking to the DB record.
+- [x] Task: Add "Download Final" action to the UI upon successful generation.
 - [ ] Task: Conductor - User Manual Verification 'Phase 4: Document Generation and Storage' (Protocol in workflow.md)

@@ -1,4 +1,6 @@
 import { supabase } from "@/lib/supabase";
+import type { ComplianceResult } from "@/types/compliance";
+import type { PacketData } from "./packetMapperService";
 
 /** Column selections to avoid SELECT * */
 export const PACKET_LIST_COLUMNS = `
@@ -388,8 +390,8 @@ export const packetService = {
     packetId: string,
     complianceData: {
       extractedText: string;
-      complianceResult: any;
-      mappedData: any;
+      complianceResult: ComplianceResult;
+      mappedData: PacketData;
       analyzedAt: string;
     },
   ) {
@@ -412,14 +414,47 @@ export const packetService = {
     return normalizePacketRow(data as any);
   },
 
-  async generateAndStorePdf(
-    _packetId: string,
-    content: string,
-  ): Promise<string> {
-    return new Promise((resolve) => {
-      const blob = new Blob([content], { type: "text/plain" });
-      const url = URL.createObjectURL(blob);
-      resolve(url);
-    });
+  async generateAndStorePdf(packetId: string, pdfBlob: Blob): Promise<string> {
+    const fileName = `final_packet_${Date.now()}.pdf`;
+    const filePath = `packets/${packetId}/${fileName}`;
+
+    // 1. Upload the Blob to Supabase Storage
+    const { error: uploadError } = await supabase.storage
+      .from("documents")
+      .upload(filePath, pdfBlob, {
+        contentType: "application/pdf",
+        upsert: true,
+      });
+
+    if (uploadError) throw uploadError;
+
+    // 2. Get the public URL
+    const {
+      data: { publicUrl },
+    } = supabase.storage.from("documents").getPublicUrl(filePath);
+
+    // 3. Update the hearing_packets record's notes with the storage URL
+    // We'll append it to existing notes if possible
+    const { data: currentPacket } = await supabase
+      .from("hearing_packets")
+      .select("notes")
+      .eq("id", packetId)
+      .single();
+
+    const updatedNotes = currentPacket?.notes
+      ? `${currentPacket.notes}\n\n[FINAL_PDF_URL]\n${publicUrl}`
+      : `[FINAL_PDF_URL]\n${publicUrl}`;
+
+    const { error: updateError } = await supabase
+      .from("hearing_packets")
+      .update({
+        notes: updatedNotes,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", packetId);
+
+    if (updateError) throw updateError;
+
+    return publicUrl;
   },
 };

@@ -7,7 +7,51 @@
  */
 
 import type { CSSProperties } from "react";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 import { STATIC_BLOCKS } from "../../config/documentTemplates";
+
+// ─── PDF Generation ──────────────────────────────────────────────────────────
+
+/**
+ * Generates a multi-page PDF Blob from an HTML element.
+ * @param elementId The ID of the HTML element to capture.
+ * @returns A Promise that resolves to a PDF Blob.
+ */
+export async function elementToPdfBlob(elementId: string): Promise<Blob> {
+  const element = document.getElementById(elementId);
+  if (!element) {
+    throw new Error(`Element with id "${elementId}" not found`);
+  }
+
+  const canvas = await html2canvas(element, {
+    scale: 2,
+    useCORS: true,
+    logging: false,
+    backgroundColor: "#ffffff",
+  });
+
+  const imgData = canvas.toDataURL("image/png");
+  const imgWidth = 190;
+  const pageHeight = 277;
+  const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+  const pdf = new jsPDF("p", "mm", "a4");
+  let heightLeft = imgHeight;
+  let position = 10;
+
+  pdf.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight);
+  heightLeft -= pageHeight;
+
+  while (heightLeft > 0) {
+    position = heightLeft - imgHeight + 10;
+    pdf.addPage();
+    pdf.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight);
+    heightLeft -= pageHeight;
+  }
+
+  return pdf.output("blob");
+}
 
 // ─── Official seal ────────────────────────────────────────────────────────────
 
