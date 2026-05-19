@@ -30,6 +30,32 @@ export const COMPLAINT_FULL_COLUMNS = `
   thread_parent
 `;
 
+function toTitleCase(value: string) {
+  return value
+    .split(/[.\s_-]+/)
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+    .join(" ");
+}
+
+function getAssigneeVariants(value: string) {
+  const normalized = value.trim();
+  const variants = new Set<string>();
+  if (!normalized) return [];
+
+  variants.add(normalized);
+
+  if (normalized.includes("@")) {
+    const [localPart] = normalized.split("@");
+    variants.add(toTitleCase(localPart));
+  } else if (normalized.includes(" ")) {
+    const emailLocal = normalized.toLowerCase().replace(/\s+/g, ".");
+    variants.add(`${emailLocal}@sfdph.org`);
+  }
+
+  return Array.from(variants);
+}
+
 export const complaintService = {
   async getAll(filters: { assigned_to?: string } = {}): Promise<Complaint[]> {
     let query = supabase
@@ -39,7 +65,10 @@ export const complaintService = {
       .order("date_entered", { ascending: false });
 
     if (filters.assigned_to) {
-      query = query.eq("assigned_to", filters.assigned_to);
+      const assigneeVariants = getAssigneeVariants(filters.assigned_to);
+      query = assigneeVariants.length > 1
+        ? query.in("assigned_to", assigneeVariants)
+        : query.eq("assigned_to", filters.assigned_to);
     }
 
     const { data, error } = await query;
