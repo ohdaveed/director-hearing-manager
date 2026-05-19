@@ -72,6 +72,15 @@ export interface GeneratedPacketFile {
   metadata: Record<string, unknown> | null;
 }
 
+export interface GenerateHearingPacketResult {
+  ok: boolean;
+  packetId: string;
+  packetType: "draft" | "final";
+  file: GeneratedPacketFile;
+  signedUrl: string | null;
+  validationResults: PacketValidationResult[];
+}
+
 function parseJsonField<T>(value: unknown, fallback: T): T {
   if (value === null || value === undefined || value === "") return fallback;
   if (typeof value === "string") {
@@ -284,6 +293,17 @@ export const packetService = {
     });
     if (error) throw error;
     return data;
+  },
+
+  async generateHearingPacket(
+    packetId: string,
+    packetType: "draft" | "final" = "draft",
+  ): Promise<GenerateHearingPacketResult> {
+    const { data, error } = await supabase.functions.invoke("generate-hearing-packet", {
+      body: { packetId, packetType },
+    });
+    if (error) throw error;
+    return data as GenerateHearingPacketResult;
   },
 
   async getPacketFiles(packetId: string): Promise<GeneratedPacketFile[]> {
