@@ -20,6 +20,8 @@ import {
   CardAction,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -421,27 +423,35 @@ export default function ComplaintDetailView({
       />
       <CardContent className="p-5">
         {!locationLinked && (
-          <div className="space-y-3 print:hidden">
-            <div className="flex items-center gap-2 text-xs font-medium text-warning bg-warning/10 border border-warning/30 rounded-md px-3 py-2">
-              <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
-              No location linked — required before assigning an inspector
-            </div>
+          <div className="flex flex-col gap-3 print:hidden">
+            <Alert variant="warning" className="px-3 py-2">
+              <AlertCircle />
+              <AlertDescription className="text-xs font-medium">
+                No location linked — required before assigning an inspector
+              </AlertDescription>
+            </Alert>
             {canEditStatus && (
-              <div className="space-y-2">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
-                  <Input
-                    value={locationSearch}
-                    onChange={(e) => {
-                      setLocationSearch(e.target.value);
-                      debouncedLocationSearch(e.target.value);
-                    }}
-                    placeholder="Type an address to search…"
-                    className="pl-9 h-9 text-sm"
-                  />
-                  {locationSearching && (
-                    <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 animate-spin text-muted-foreground" />
-                  )}
+              <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="location-search" className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground ml-1">
+                    Search Location
+                  </Label>
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+                    <Input
+                      id="location-search"
+                      value={locationSearch}
+                      onChange={(e) => {
+                        setLocationSearch(e.target.value);
+                        debouncedLocationSearch(e.target.value);
+                      }}
+                      placeholder="Type an address to search…"
+                      className="pl-9 h-9 text-sm"
+                    />
+                    {locationSearching && (
+                      <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 animate-spin text-muted-foreground" />
+                    )}
+                  </div>
                 </div>
 
                 {/* Skeleton loading state during search */}
@@ -452,7 +462,7 @@ export default function ComplaintDetailView({
                         key={i}
                         className="px-3 py-2.5 flex items-center justify-between border-b border-border last:border-b-0"
                       >
-                        <div className="space-y-1.5 flex-1">
+                        <div className="flex flex-col gap-1.5 flex-1">
                           <Skeleton className="h-3.5 w-3/5" />
                           <Skeleton className="h-3 w-2/5" />
                         </div>
@@ -502,7 +512,7 @@ export default function ComplaintDetailView({
                 {locationSearch.length >= 2 &&
                   !locationSearching &&
                   locationResults.length === 0 && (
-                    <div className="space-y-2">
+                    <div className="flex flex-col gap-2">
                       <p className="text-xs text-muted-foreground italic">
                         No locations found for &ldquo;{locationSearch}&rdquo;
                       </p>
