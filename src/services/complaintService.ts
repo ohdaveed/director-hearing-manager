@@ -3,7 +3,7 @@ import { Database } from "@/types/database";
 
 type Complaint = Database["public"]["Tables"]["complaints"]["Row"];
 type ComplaintInsert = Database["public"]["Tables"]["complaints"]["Insert"];
-type ComplaintUpdate = Database["public"]["Tables"]["Update"];
+type ComplaintUpdate = Database["public"]["Tables"]["complaints"]["Update"];
 
 /**
  * Column selection constants to avoid SELECT * anti-pattern.
