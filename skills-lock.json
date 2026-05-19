@@ -1,11 +1,76 @@
 {
   "version": 1,
   "skills": {
+    "a11y-debugging": {
+      "source": "chromedevtools/chrome-devtools-mcp",
+      "sourceType": "github",
+      "skillPath": "skills/a11y-debugging/SKILL.md",
+      "computedHash": "0cfdaa59d1a21f94509d2633a81735f57812c06661b1645a7a7b9dc778e6e0f7"
+    },
+    "chrome-devtools": {
+      "source": "chromedevtools/chrome-devtools-mcp",
+      "sourceType": "github",
+      "skillPath": "skills/chrome-devtools/SKILL.md",
+      "computedHash": "5260f8bf2b080592eec1a381cbe381e6a5ba52cbc7d374ed97df588872afb2ad"
+    },
+    "chrome-devtools-cli": {
+      "source": "chromedevtools/chrome-devtools-mcp",
+      "sourceType": "github",
+      "skillPath": "skills/chrome-devtools-cli/SKILL.md",
+      "computedHash": "17cb3fc4a4c2dce77f5dadd8c7f906f286ea0903e051535814daa7fd7e3161c4"
+    },
+    "context7-cli": {
+      "source": "upstash/context7",
+      "sourceType": "github",
+      "skillPath": "skills/context7-cli/SKILL.md",
+      "computedHash": "6077b3c638fb7efb31d9b2c815436650de4aef73e7b671edec2f1c63f6a1e105"
+    },
+    "context7-mcp": {
+      "source": "upstash/context7",
+      "sourceType": "github",
+      "skillPath": "skills/context7-mcp/SKILL.md",
+      "computedHash": "6b02383f86f87e81a722b3b6c6d6e06efa5c72f23bc87bb02599e3d499ca2c58"
+    },
+    "debug-optimize-lcp": {
+      "source": "chromedevtools/chrome-devtools-mcp",
+      "sourceType": "github",
+      "skillPath": "skills/debug-optimize-lcp/SKILL.md",
+      "computedHash": "dd3ee7c42f0f4c5c12f852188ad7f04ca4289129dc5e3d9bd0cc25e3f2e4c68c"
+    },
+    "dev": {
+      "source": "microsoft/playwright-cli",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/dev/SKILL.md",
+      "computedHash": "da14d3749ab3f65b479db8b056ab64cd262ce15d07dd642f7d3263ad10708c1b"
+    },
+    "find-docs": {
+      "source": "upstash/context7",
+      "sourceType": "github",
+      "skillPath": "skills/find-docs/SKILL.md",
+      "computedHash": "0210767e57873317edc8b91783a2f1b74eb9bbdd2139bd14e9129e9a0bbc2dd6"
+    },
     "impeccable": {
       "source": "pbakaus/impeccable",
       "sourceType": "github",
       "skillPath": "skill/SKILL.md",
       "computedHash": "ada9c434d56c794352ccd5c7a6901e5ebb4b7f3b7fe42e8c17c2c4b96c3735c8"
+    },
+    "memory-leak-debugging": {
+      "source": "chromedevtools/chrome-devtools-mcp",
+      "sourceType": "github",
+      "skillPath": "skills/memory-leak-debugging/SKILL.md",
+      "computedHash": "25ff728d6eed6dd6810c0f1eba306613e019613ac709e1797482b4450b71e1d2"
+    },
+    "playwright-cli": {
+      "source": "microsoft/playwright-cli",
+      "sourceType": "github",
+      "skillPath": "skills/playwright-cli/SKILL.md",
+      "computedHash": "84495cfda62b6c012afc4cc34a0c35bfc7923ba35983b8c04ce4cace0f35a5d8"
+    },
+    "sequential-thinking": {
+      "source": "smithery.ai",
+      "sourceType": "well-known",
+      "computedHash": "2d772aca1eab9aa266fb1ab50455febb571fb2a409ad6be90302a345da40a880"
     },
     "shadcn": {
       "source": "shadcn/ui",
@@ -13,11 +78,28 @@
       "skillPath": "skills/shadcn/SKILL.md",
       "computedHash": "80a6226e78f6d1fe464214ae0ef449d49d8ffaa3e7704f011e9b418c678ad4d1"
     },
+    "smithery-ai-cli": {
+      "source": "smithery.ai",
+      "sourceType": "well-known",
+      "computedHash": "dc17f090c975afe1d96a25dbe843fc9c978e96d5699eed1bb7c12b411e10b830"
+    },
+    "supabase": {
+      "source": "supabase/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/supabase/SKILL.md",
+      "computedHash": "45a3cdccc364a4bbd6cdf700fc069e9f24ebc0428098746cbfbf8b18a5e160d2"
+    },
     "supabase-postgres-best-practices": {
       "source": "supabase/agent-skills",
       "sourceType": "github",
       "skillPath": "skills/supabase-postgres-best-practices/SKILL.md",
       "computedHash": "d606a1146be6d54fb9e73f718b5320b9acac5ff2ba2d7230a555df4b5a923b4a"
+    },
+    "troubleshooting": {
+      "source": "chromedevtools/chrome-devtools-mcp",
+      "sourceType": "github",
+      "skillPath": "skills/troubleshooting/SKILL.md",
+      "computedHash": "4b0faa18305bd71d4a1b22bc4ad739d13e20645d5b8484d3c8cf285a1efa7865"
     },
     "using-superpowers": {
       "source": "obra/superpowers",

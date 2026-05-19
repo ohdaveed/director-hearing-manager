@@ -6,19 +6,12 @@
   "scripts": {
     "dev": "vp dev",
     "build": "tsc && vp build",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "lint": "vp lint . --report-unused-disable-directives --max-warnings 0",
     "test": "vp test",
     "preview": "vp preview",
-    "prepare": "husky",
+    "prepare": "vp config",
     "sync:pdf-worker": "cp node_modules/pdfjs-dist/build/pdf.worker.min.mjs public/pdf.worker.min.mjs",
     "postinstall": "npm run sync:pdf-worker"
-  },
-  "lint-staged": {
-    "*.{ts,tsx}": [
-      "eslint --fix",
-      "prettier --write"
-    ],
-    "*.{json,css,md}": "prettier --write"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.20.9",
@@ -49,10 +42,8 @@
     "eslint-config-prettier": "^10.1.8",
     "framer-motion": "^12.38.0",
     "html2canvas": "^1.4.1",
-    "husky": "^9.1.7",
     "idb": "^8.0.3",
     "jspdf": "^4.2.1",
-    "lint-staged": "^17.0.5",
     "lucide-react": "^0.344.0",
     "mammoth": "^1.12.0",
     "next-themes": "^0.2.1",
@@ -88,7 +79,6 @@
     "@vitejs/plugin-react": "^5.2.0",
     "@vitest/coverage-v8": "^4.1.6",
     "autoprefixer": "^10.5.0",
-    "eslint": "^9.39.4",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.2",

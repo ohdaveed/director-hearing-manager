@@ -85,7 +85,7 @@ export default function HearingPacketPreview({ data, onClose }: Props) {
         })
         .catch(() => {});
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
   }, [packet.id]);
 
   const isManagerRole = user?.role && MANAGER_ROLES.includes(user.role);
