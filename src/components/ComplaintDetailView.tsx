@@ -639,7 +639,7 @@ export default function ComplaintDetailView({
 
         {/* Edit form */}
         {detail && rpEditing && locationLinked && (
-          <div className="space-y-3">
+          <div className="flex flex-col gap-3">
             <p className="text-xs text-muted-foreground mb-3">
               Enter owner info from{" "}
               <a
@@ -654,9 +654,9 @@ export default function ComplaintDetailView({
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-1">
-                <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
                   Owner / Responsible Party
-                </label>
+                </Label>
                 <Input
                   value={rpName}
                   onChange={(e) => setRpName(e.target.value)}
@@ -664,9 +664,9 @@ export default function ComplaintDetailView({
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
                   Mailing Address
-                </label>
+                </Label>
                 <Input
                   value={rpAddress}
                   onChange={(e) => setRpAddress(e.target.value)}
@@ -674,9 +674,9 @@ export default function ComplaintDetailView({
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
                   Phone
-                </label>
+                </Label>
                 <Input
                   value={rpPhone}
                   onChange={(e) => setRpPhone(e.target.value)}
@@ -684,9 +684,9 @@ export default function ComplaintDetailView({
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
                   Email
-                </label>
+                </Label>
                 <Input
                   value={rpEmail}
                   onChange={(e) => setRpEmail(e.target.value)}
