@@ -10,8 +10,7 @@ type Photo = Database["public"]["Tables"]["inspection_photos"]["Row"];
 export const INSPECTION_LIST_COLUMNS = `
   inspection_id, inspection_date, inspector, inspection_type,
   inspection_rating, status, dba, facility_address, notes,
-  complaint_id, location_id, submitted_at, deleted_at,
-  global_observations, areas_inspected
+  complaint_id, location_id, submitted_at, deleted_at
 `;
 
 export const INSPECTION_FULL_COLUMNS = `
@@ -36,17 +35,12 @@ export const inspectionService = {
   async getAll(): Promise<Inspection[]> {
     const { data, error } = await supabase
       .from("inspections")
-      .select(
-        `
-        ${INSPECTION_LIST_COLUMNS},
-        locations!location_uuid ( address, location_id )
-      `,
-      )
+      .select(INSPECTION_LIST_COLUMNS)
       .is("deleted_at", null)
       .order("inspection_date", { ascending: false });
 
     if (error) throw error;
-    return data as any; // Cast because of the join
+    return data as Inspection[];
   },
 
   async getById(
