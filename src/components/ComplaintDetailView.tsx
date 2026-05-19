@@ -8,6 +8,11 @@ import { locationService } from "@/services/locationService";
 import type { ComplaintSummary } from "@/types/complaint";
 import { Button } from "@/components/ui/button";
 import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import {
   Card,
   CardHeader,
   CardTitle,
@@ -75,24 +80,30 @@ import { sanitizeText } from "@/utils/sanitizeText";
 
 const DESC_THRESHOLD = 200;
 
-function DescriptionText({ text }: { text: string }) {
-  const [expanded, setExpanded] = useState(false);
+export function DescriptionText({ text }: { text: string }) {
+  const [open, setOpen] = useState(false);
   const isLong = text.length > DESC_THRESHOLD;
-  const display =
-    isLong && !expanded ? text.slice(0, DESC_THRESHOLD) + "…" : text;
+
+  if (!isLong) {
+    return (
+      <div className="mt-1">
+        <p className="text-sm text-muted-foreground leading-relaxed">{text}</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="mt-1">
-      <p className="text-sm text-muted-foreground leading-relaxed">{display}</p>
-      {isLong && (
-        <button
-          type="button"
-          onClick={() => setExpanded((v) => !v)}
-          className="text-xs text-primary hover:underline mt-0.5 font-medium"
-        >
-          {expanded ? "Show less" : "Show more"}
-        </button>
-      )}
-    </div>
+    <Collapsible open={open} onOpenChange={setOpen} className="mt-1">
+      <div className="text-sm text-muted-foreground leading-relaxed">
+        {!open && <p>{text.slice(0, DESC_THRESHOLD)}…</p>}
+        <CollapsibleContent>
+          <p>{text}</p>
+        </CollapsibleContent>
+      </div>
+      <CollapsibleTrigger className="text-xs text-primary hover:underline mt-0.5 font-medium block">
+        {open ? "Show less" : "Show more"}
+      </CollapsibleTrigger>
+    </Collapsible>
   );
 }
 
