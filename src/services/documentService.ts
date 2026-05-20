@@ -56,9 +56,7 @@ export const documentService = {
 
     if (storageError) {
       console.error("Storage upload error:", storageError);
-      throw new Error(
-        `Failed to upload file to storage: ${storageError.message}`,
-      );
+      throw new Error(`Failed to upload file to storage: ${storageError.message}`);
     }
 
     const {
@@ -133,9 +131,7 @@ export const documentService = {
   },
 
   getDocumentUrl(filePath: string) {
-    const { data } = supabase.storage
-      .from("hearing-documents")
-      .getPublicUrl(filePath);
+    const { data } = supabase.storage.from("hearing-documents").getPublicUrl(filePath);
 
     return data.publicUrl;
   },
@@ -143,9 +139,7 @@ export const documentService = {
   /**
    * Fetches regulatory references matching a violation code.
    */
-  async getRegulatoryReferences(
-    violationCode: string,
-  ): Promise<RegulatoryReference[]> {
+  async getRegulatoryReferences(violationCode: string): Promise<RegulatoryReference[]> {
     const { data, error } = await supabase
       .from("regulatory_reference")
       .select("*")
@@ -159,9 +153,7 @@ export const documentService = {
   /**
    * Search regulatory references by keyword.
    */
-  async searchRegulatoryReferences(
-    query: string,
-  ): Promise<RegulatoryReference[]> {
+  async searchRegulatoryReferences(query: string): Promise<RegulatoryReference[]> {
     const { data, error } = await supabase
       .from("regulatory_reference")
       .select("*")

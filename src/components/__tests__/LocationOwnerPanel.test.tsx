@@ -21,9 +21,7 @@ function Wrapper({ children }: { children: React.ReactNode }) {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   });
-  return (
-    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-  );
+  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
 }
 
 describe("LocationOwnerPanel", () => {
@@ -39,7 +37,7 @@ describe("LocationOwnerPanel", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    mockFns.getById.mockResolvedValue(mockLocation);
+    mockFns.getById.mockResolvedValue({ location: mockLocation });
   });
 
   it("renders location details in read-only mode initially", async () => {
@@ -59,9 +57,7 @@ describe("LocationOwnerPanel", () => {
     });
     const user = userEvent.setup();
 
-    await waitFor(() =>
-      expect(screen.getByText("Old Owner")).toBeInTheDocument(),
-    );
+    await waitFor(() => expect(screen.getByText("Old Owner")).toBeInTheDocument());
 
     const editBtn = screen.getByRole("button", { name: /edit/i });
     await user.click(editBtn);

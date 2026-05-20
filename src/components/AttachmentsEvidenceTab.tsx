@@ -1,18 +1,14 @@
 import { useState, useMemo } from "react";
-
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Card, CardHeader, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import {
-  Loader2,
-  CheckCircle2,
-  FileText,
-  Image,
-  ExternalLink,
-  ClipboardList,
-} from "lucide-react";
+import { Loader2, CheckCircle2, FileText, Image, ExternalLink, ClipboardList } from "lucide-react";
 import InspectionImportWizard from "@/components/InspectionImportWizard";
 import { packetService } from "@/services/packetService";
+import { SectionHeader } from "@/components/ComplaintDetailView";
 
 type PacketData = any;
 
@@ -42,21 +38,18 @@ function EvidenceRow({
 }) {
   return (
     <label
-      className={`flex items-start gap-3 p-3 border border-border rounded-lg cursor-pointer transition-colors ${checked ? "bg-primary/5 border-primary/20" : "hover:bg-muted/40"}`}
+      className={cn(
+        "flex items-start gap-3 p-3 border border-border rounded-lg cursor-pointer transition-colors",
+        checked ? "bg-primary/5 border-primary/20" : "hover:bg-muted/40",
+      )}
     >
-      <Checkbox
-        checked={checked}
-        onCheckedChange={onToggle}
-        className="mt-0.5 flex-shrink-0"
-      />
+      <Checkbox checked={checked} onCheckedChange={onToggle} className="mt-0.5 flex-shrink-0" />
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 flex-wrap mb-0.5">
-          <span className="text-sm font-medium text-foreground">
-            {item.title}
-          </span>
-          <span className="text-xs bg-muted text-muted-foreground px-1.5 py-0.5 rounded-full flex-shrink-0">
+          <span className="text-sm font-medium text-foreground">{item.title}</span>
+          <Badge variant="secondary" className="text-[10px] font-normal px-1.5 h-4">
             {item.tag}
-          </span>
+          </Badge>
         </div>
         <p className="text-xs text-muted-foreground">{item.subtitle}</p>
       </div>
@@ -87,7 +80,10 @@ function PhotoThumb({
   return (
     <label className="relative cursor-pointer group">
       <div
-        className={`aspect-square rounded-lg overflow-hidden border-2 transition-colors ${checked ? "border-primary" : "border-transparent"}`}
+        className={cn(
+          "aspect-square rounded-lg overflow-hidden border-2 transition-colors",
+          checked ? "border-primary" : "border-transparent",
+        )}
       >
         {photo.photo_url ? (
           <img
@@ -100,9 +96,7 @@ function PhotoThumb({
             <Image className="w-5 h-5 text-muted-foreground opacity-40" />
           </div>
         )}
-        <div
-          className={`absolute inset-0 rounded-lg ${checked ? "bg-primary/10" : ""}`}
-        />
+        <div className={cn("absolute inset-0 rounded-lg", checked ? "bg-primary/10" : "")} />
       </div>
       <div className="absolute top-1.5 left-1.5">
         <Checkbox
@@ -125,7 +119,6 @@ export default function AttachmentsEvidenceTab({
   packetId: string;
   data: PacketData;
 }) {
-  // selectedReportIds / selectedPhotoIds are now typed arrays from linked record fields
   const savedReportIds = data.packet.selected_report_ids ?? [];
   const savedPhotoIds = data.packet.selected_photo_ids ?? [];
 
@@ -138,7 +131,6 @@ export default function AttachmentsEvidenceTab({
   const [saving, setSaving] = useState(false);
   const [importWizardOpen, setImportWizardOpen] = useState(false);
 
-  // Build evidence items: imported reports + exhibits
   const evidenceItems: EvidenceItem[] = useMemo(() => {
     const items: EvidenceItem[] = [];
     for (const r of data.importedReports) {
@@ -173,7 +165,6 @@ export default function AttachmentsEvidenceTab({
     return items;
   }, [data.importedReports, data.exhibits]);
 
-  // Group photos by inspection date
   const photoGroups: PhotoGroup[] = useMemo(() => {
     const groups = new Map<string, PacketData["allPhotos"]>();
     for (const p of data.allPhotos) {
@@ -225,119 +216,119 @@ export default function AttachmentsEvidenceTab({
   return (
     <div className="p-5 space-y-5 overflow-y-auto max-h-[calc(100vh-320px)]">
       {/* Import Inspections */}
-      <div className="flex items-center justify-between rounded-lg border border-border bg-muted/30 px-3 py-2.5">
-        <div className="min-w-0">
-          <p className="text-xs font-semibold text-foreground leading-none">
-            Import Inspection Reports
-          </p>
-          <p className="text-[11px] text-muted-foreground mt-0.5 leading-none">
-            Add submitted inspections with photos to this packet
-          </p>
-        </div>
-        <Button
-          size="sm"
-          variant="outline"
-          className="shrink-0 gap-1.5 text-xs h-8 ml-3"
-          onClick={() => setImportWizardOpen(true)}
-        >
-          <ClipboardList className="w-3 h-3" />
-          Import
-        </Button>
-      </div>
+      <Card>
+        <CardContent className="flex items-center justify-between p-3">
+          <div className="min-w-0">
+            <p className="text-xs font-semibold text-foreground leading-none">
+              Import Inspection Reports
+            </p>
+            <p className="text-[11px] text-muted-foreground mt-0.5 leading-none">
+              Add submitted inspections with photos to this packet
+            </p>
+          </div>
+          <Button
+            size="sm"
+            variant="outline"
+            className="shrink-0 gap-1.5 text-xs h-8 ml-3"
+            onClick={() => setImportWizardOpen(true)}
+          >
+            <ClipboardList className="w-3 h-3" />
+            Import
+          </Button>
+        </CardContent>
+      </Card>
 
       {/* Evidence & Reports */}
-      <div>
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
-            <FileText className="w-4 h-4 text-primary" />
-            <span className="text-sm font-semibold text-foreground">
-              Evidence &amp; Reports
-            </span>
-            <span className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded-full">
-              {evidenceItems.length}
-            </span>
-          </div>
-          <span className="text-xs text-muted-foreground">
-            Select to include in packet
-          </span>
-        </div>
-        {evidenceItems.length === 0 ? (
-          <p className="text-xs text-muted-foreground italic bg-muted/30 rounded-lg px-3 py-4 text-center">
-            No imported reports or exhibits found for this location
-          </p>
-        ) : (
-          <div className="space-y-2">
-            {evidenceItems.map((item) => (
-              <EvidenceRow
-                key={item.id}
-                item={item}
-                checked={selectedReportIds.has(item.id)}
-                onToggle={() => toggleReport(item.id)}
-              />
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Photos */}
-      <div>
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
-            <Image className="w-4 h-4 text-primary" />
-            <span className="text-sm font-semibold text-foreground">
-              Photos
-            </span>
-            <span className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded-full">
-              {data.allPhotos.length}
-            </span>
-          </div>
-          {data.allPhotos.length > 0 && (
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => setSelectedPhotoIds(new Set(allPhotoIds))}
-                className="text-xs text-primary hover:underline"
-              >
-                Select all
-              </button>
-              <button
-                onClick={() => setSelectedPhotoIds(new Set())}
-                className="text-xs text-muted-foreground hover:underline"
-              >
-                Deselect all
-              </button>
+      <Card>
+        <CardHeader className="p-5 pb-0">
+          <SectionHeader
+            icon={<FileText className="w-4 h-4" />}
+            title="Evidence & Reports"
+            count={evidenceItems.length}
+            right={
+              <span className="text-xs text-muted-foreground">Select to include in packet</span>
+            }
+          />
+        </CardHeader>
+        <CardContent className="p-5 pt-2">
+          {evidenceItems.length === 0 ? (
+            <p className="text-xs text-muted-foreground italic bg-muted/30 rounded-lg px-3 py-4 text-center">
+              No imported reports or exhibits found for this location
+            </p>
+          ) : (
+            <div className="space-y-2">
+              {evidenceItems.map((item) => (
+                <EvidenceRow
+                  key={item.id}
+                  item={item}
+                  checked={selectedReportIds.has(item.id)}
+                  onToggle={() => toggleReport(item.id)}
+                />
+              ))}
             </div>
           )}
-        </div>
-        {data.allPhotos.length === 0 ? (
-          <p className="text-xs text-muted-foreground italic bg-muted/30 rounded-lg px-3 py-4 text-center">
-            No photos on file for this complaint
-          </p>
-        ) : (
-          <div className="space-y-4">
-            {photoGroups.map((group, gi) => (
-              <div key={gi}>
-                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
-                  {group.inspectionDate
-                    ? `Inspection — ${fmt(group.inspectionDate)}`
-                    : "Unassigned"}{" "}
-                  ({group.photos.length} photo
-                  {group.photos.length !== 1 ? "s" : ""})
-                </p>
-                <div className="grid grid-cols-4 gap-2">
-                  {group.photos.map((p: any) => (
-                    <PhotoThumb
-                      key={p.id}
-                      photo={p}
-                      checked={selectedPhotoIds.has(p.id)}
-                      onToggle={() => togglePhoto(p.id)}
-                    />
-                  ))}
+        </CardContent>
+      </Card>
+
+      {/* Photos */}
+      <Card>
+        <CardHeader className="p-5 pb-0">
+          <SectionHeader
+            icon={<Image className="w-4 h-4" />}
+            title="Photos"
+            count={data.allPhotos.length}
+            right={
+              data.allPhotos.length > 0 && (
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => setSelectedPhotoIds(new Set(allPhotoIds))}
+                    className="text-xs text-primary hover:underline"
+                  >
+                    Select all
+                  </button>
+                  <button
+                    onClick={() => setSelectedPhotoIds(new Set())}
+                    className="text-xs text-muted-foreground hover:underline"
+                  >
+                    Deselect all
+                  </button>
                 </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+              )
+            }
+          />
+        </CardHeader>
+        <CardContent className="p-5 pt-2">
+          {data.allPhotos.length === 0 ? (
+            <p className="text-xs text-muted-foreground italic bg-muted/30 rounded-lg px-3 py-4 text-center">
+              No photos on file for this complaint
+            </p>
+          ) : (
+            <div className="space-y-4">
+              {photoGroups.map((group, gi) => (
+                <div key={gi}>
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
+                    {group.inspectionDate
+                      ? `Inspection — ${fmt(group.inspectionDate)}`
+                      : "Unassigned"}{" "}
+                    ({group.photos.length} photo
+                    {group.photos.length !== 1 ? "s" : ""})
+                  </p>
+                  <div className="grid grid-cols-4 gap-2">
+                    {group.photos.map((p: any) => (
+                      <PhotoThumb
+                        key={p.id}
+                        photo={p}
+                        checked={selectedPhotoIds.has(p.id)}
+                        onToggle={() => togglePhoto(p.id)}
+                      />
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       <Button onClick={handleSave} disabled={saving} className="w-full gap-2">
         {saving ? (
@@ -354,9 +345,7 @@ export default function AttachmentsEvidenceTab({
         onClose={() => setImportWizardOpen(false)}
         onImportComplete={() => {
           setImportWizardOpen(false);
-          toast.success(
-            "Inspections imported — refresh to see updated exhibits",
-          );
+          toast.success("Inspections imported — refresh to see updated exhibits");
         }}
       />
     </div>

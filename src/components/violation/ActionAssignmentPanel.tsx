@@ -67,8 +67,7 @@ export default function ActionAssignmentPanel({
   const hasCustom = customText.trim().length > 0;
   const hasContent = selectedCount > 0 || hasCustom;
   const allSelected =
-    predefinedActions.length > 0 &&
-    predefinedActions.every((a) => selectedTexts.has(a.text));
+    predefinedActions.length > 0 && predefinedActions.every((a) => selectedTexts.has(a.text));
 
   useEffect(() => {
     if (customText.trim().length > 0) setShowCustom(true);
@@ -99,9 +98,7 @@ export default function ActionAssignmentPanel({
     });
 
   const handleSnippet = (snippet: string) => {
-    const next = customText.trim()
-      ? `${customText.trim()}\n${snippet}`
-      : snippet;
+    const next = customText.trim() ? `${customText.trim()}\n${snippet}` : snippet;
     onCustomChange(next);
     setCustomError(getBiohazardViolationError(next));
   };
@@ -120,9 +117,7 @@ export default function ActionAssignmentPanel({
         disabled={readOnly}
         onClick={() => onToggle(action.text)}
         className={`w-full text-left flex items-start gap-3 px-3.5 py-2.5 transition-colors group ${
-          checked
-            ? "bg-primary/6 hover:bg-primary/10"
-            : "bg-card hover:bg-muted/50"
+          checked ? "bg-primary/6 hover:bg-primary/10" : "bg-card hover:bg-muted/50"
         } ${readOnly ? "pointer-events-none" : "cursor-pointer"}`}
       >
         <span
@@ -130,11 +125,7 @@ export default function ActionAssignmentPanel({
             checked ? "text-primary" : "text-muted-foreground"
           }`}
         >
-          {checked ? (
-            <CheckCircle2 className="w-4 h-4" />
-          ) : (
-            <Circle className="w-4 h-4" />
-          )}
+          {checked ? <CheckCircle2 className="w-4 h-4" /> : <Circle className="w-4 h-4" />}
         </span>
         <span
           className={`flex-1 text-xs leading-relaxed ${
@@ -167,11 +158,7 @@ export default function ActionAssignmentPanel({
         onClick={() => !readOnly && setCollapsed((v) => !v)}
       >
         <div className={`p-1 rounded-md ${ACTION_PARTY_THEME[party].icon}`}>
-          {isOwner ? (
-            <Building2 className="w-3.5 h-3.5" />
-          ) : (
-            <User className="w-3.5 h-3.5" />
-          )}
+          {isOwner ? <Building2 className="w-3.5 h-3.5" /> : <User className="w-3.5 h-3.5" />}
         </div>
         <div className="flex-1 min-w-0 flex items-center gap-2">
           <span className="text-xs font-bold text-foreground">
@@ -204,11 +191,7 @@ export default function ActionAssignmentPanel({
             }}
             className="text-muted-foreground hover:text-foreground transition-colors"
           >
-            {collapsed ? (
-              <ChevronDown className="w-4 h-4" />
-            ) : (
-              <ChevronUp className="w-4 h-4" />
-            )}
+            {collapsed ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
           </button>
         )}
       </div>
@@ -248,9 +231,7 @@ export default function ActionAssignmentPanel({
             <div className="max-h-72 overflow-y-auto">
               {selectedItems.length > 0 && (
                 <div className="divide-y divide-border/50">
-                  {selectedItems.map((action) =>
-                    renderActionItem(action, true),
-                  )}
+                  {selectedItems.map((action) => renderActionItem(action, true))}
                 </div>
               )}
               {showDivider && (
@@ -262,9 +243,7 @@ export default function ActionAssignmentPanel({
               )}
               {unselectedItems.length > 0 && (
                 <div className="divide-y divide-border/50">
-                  {unselectedItems.map((action) =>
-                    renderActionItem(action, false),
-                  )}
+                  {unselectedItems.map((action) => renderActionItem(action, false))}
                 </div>
               )}
             </div>
@@ -309,10 +288,7 @@ export default function ActionAssignmentPanel({
                         <span className="text-[10px] text-muted-foreground font-semibold shrink-0">
                           Snippets:
                         </span>
-                        {(showAllSnippets
-                          ? SNIPPETS
-                          : SNIPPETS.slice(0, 3)
-                        ).map((snippet) => (
+                        {(showAllSnippets ? SNIPPETS : SNIPPETS.slice(0, 3)).map((snippet) => (
                           <button
                             key={snippet}
                             type="button"

@@ -1,10 +1,6 @@
 import { useState, useRef } from "react";
 import { Input } from "@/components/ui/input";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ChevronDown, Search } from "lucide-react";
 import { VIOLATION_TYPES, VIOLATION_CATEGORIES } from "../violationTypes";
 
@@ -14,17 +10,11 @@ interface Props {
   readOnly?: boolean;
 }
 
-export default function ViolationTypeSelector({
-  value,
-  onChange,
-  readOnly,
-}: Props) {
+export default function ViolationTypeSelector({ value, onChange, readOnly }: Props) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
-  const selected = VIOLATION_TYPES.find(
-    (v) => `${v.category}||${v.label}` === value,
-  );
+  const selected = VIOLATION_TYPES.find((v) => `${v.category}||${v.label}` === value);
 
   const filtered = VIOLATION_TYPES.filter(
     (v) =>
@@ -56,13 +46,7 @@ export default function ViolationTypeSelector({
               : "border-border hover:border-primary/40 bg-card"
           } ${readOnly ? "opacity-70 cursor-default" : "cursor-pointer"}`}
         >
-          <span
-            className={
-              selected
-                ? "font-semibold text-foreground"
-                : "text-muted-foreground"
-            }
-          >
+          <span className={selected ? "font-semibold text-foreground" : "text-muted-foreground"}>
             {selected?.label ?? "Select violation type…"}
           </span>
           <ChevronDown

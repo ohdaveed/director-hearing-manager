@@ -2,15 +2,7 @@ import { useRef, useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { packetService } from "@/services/packetService";
 import { Button } from "@/components/ui/button";
-import {
-  Printer,
-  X,
-  AlertTriangle,
-  CheckCircle2,
-  PenLine,
-  Loader2,
-  Save,
-} from "lucide-react";
+import { Printer, X, AlertTriangle, CheckCircle2, PenLine, Loader2, Save } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { PacketCoverPage } from "./packet/PacketCoverPage";
@@ -19,10 +11,7 @@ import { PacketChronology } from "./packet/PacketChronology";
 import { PacketInspectionReport } from "./packet/PacketInspectionReport";
 import { PacketPhotoAppendix } from "./packet/PacketPhotoAppendix";
 import { PacketExhibitEBundle } from "./packet/PacketExhibitEBundle";
-import {
-  tryParseSignature,
-  type ParsedSignature,
-} from "./packet/SignatureBlock";
+import { tryParseSignature, type ParsedSignature } from "./packet/SignatureBlock";
 import { elementToPdfBlob } from "./packet/printUtils";
 
 type Props = {
@@ -37,21 +26,11 @@ export default function HearingPacketPreview({ data, onClose }: Props) {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  const {
-    packet,
-    complaint,
-    location,
-    inspector,
-    inspections,
-    chronology,
-    exhibits,
-    serviceLog,
-  } = data;
+  const { packet, complaint, location, inspector, inspections, chronology, exhibits, serviceLog } =
+    data;
 
   // ── Compilation stage progress ───────────────────────────────────────────
-  const [renderStage, setRenderStage] = useState<
-    "rendering" | "numbering" | "ready"
-  >("rendering");
+  const [renderStage, setRenderStage] = useState<"rendering" | "numbering" | "ready">("rendering");
 
   useEffect(() => {
     setRenderStage("rendering");
@@ -60,9 +39,7 @@ export default function HearingPacketPreview({ data, onClose }: Props) {
   }, [data.packet.id]);
 
   // ── Signature state ─────────────────────────────────────────────────────
-  const [inspectorSig, setInspectorSig] = useState<ParsedSignature | null>(
-    null,
-  );
+  const [inspectorSig, setInspectorSig] = useState<ParsedSignature | null>(null);
   const [managerSig, setManagerSig] = useState<ParsedSignature | null>(null);
   const [sigSaving, setSigSaving] = useState(false);
   const [isSavingPdf, setIsSavingPdf] = useState(false);
@@ -224,9 +201,7 @@ export default function HearingPacketPreview({ data, onClose }: Props) {
             <X className="w-5 h-5" />
           </button>
           <div>
-            <h2 className="text-sm font-bold text-foreground">
-              Director's Hearing Packet
-            </h2>
+            <h2 className="text-sm font-bold text-foreground">Director's Hearing Packet</h2>
             <p className="text-xs text-muted-foreground">
               {complaint?.complaintid ? `#${complaint.complaintid} — ` : ""}
               {complaint?.address ?? ""}
@@ -309,8 +284,7 @@ export default function HearingPacketPreview({ data, onClose }: Props) {
           )}
           <p className="text-xs text-muted-foreground hidden lg:block">
             {inspections.length} insp · {totalPhotos} photo
-            {totalPhotos !== 1 ? "s" : ""} · {chronology.length} chrono ·{" "}
-            {exhibits.length} exhibit
+            {totalPhotos !== 1 ? "s" : ""} · {chronology.length} chrono · {exhibits.length} exhibit
             {exhibits.length !== 1 ? "s" : ""}
           </p>
           <Button
@@ -344,17 +318,9 @@ export default function HearingPacketPreview({ data, onClose }: Props) {
       </div>
 
       {/* Packet document order */}
-      <div
-        className="py-8 px-4 print:p-0"
-        id="hearing-packet-print"
-        ref={printRef}
-      >
+      <div className="py-8 px-4 print:p-0" id="hearing-packet-print" ref={printRef}>
         {/* 1. Cover Page */}
-        <PacketCoverPage
-          packet={packet}
-          complaint={complaint}
-          location={location}
-        />
+        <PacketCoverPage packet={packet} complaint={complaint} location={location} />
 
         {/* 2. Environmental Health Basis for Proposed Enforcement Action */}
         <PacketEnforcementSummary

@@ -1,8 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
-import {
-  SFHC_ARTICLE_11_CODES,
-  isValidArticle11Code,
-} from "@/utils/sfhcArticle11";
+import { SFHC_ARTICLE_11_CODES, isValidArticle11Code } from "@/utils/sfhcArticle11";
 import {
   getStandardsForViolationCode,
   buildStandardsPromptBlock,
@@ -49,9 +46,7 @@ Return a JSON array of objects:
           const rawViolations = JSON.parse(jsonMatch[0]);
 
           // Filter for valid Article 11 codes only
-          const validViolations = rawViolations.filter((v: any) =>
-            isValidArticle11Code(v.code),
-          );
+          const validViolations = rawViolations.filter((v: any) => isValidArticle11Code(v.code));
 
           // Post-process to add standards
           return validViolations.map((v: any) => {
@@ -71,10 +66,7 @@ Return a JSON array of objects:
     return [];
   },
 
-  async analyzePacketCompliance(
-    text: string,
-    fileName: string,
-  ): Promise<ComplianceResult> {
+  async analyzePacketCompliance(text: string, fileName: string): Promise<ComplianceResult> {
     const systemPrompt = `
 You are an expert at analyzing Director Hearing Packets for compliance with SF Health Department Standard Operating Procedures.
 
@@ -154,10 +146,7 @@ Be thorough - check every required section and element.
     };
   },
 
-  async generateCorrectedPacket(
-    text: string,
-    complianceResult: ComplianceResult,
-  ): Promise<string> {
+  async generateCorrectedPacket(text: string, complianceResult: ComplianceResult): Promise<string> {
     const systemPrompt = `
 You are an expert at editing Director Hearing Packets to ensure they comply with SF Health Department Standard Operating Procedures.
 

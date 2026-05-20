@@ -22,11 +22,7 @@ function formatElapsedTime(seconds: number): string {
   return `${mins}:${secs.toString().padStart(2, "0")}`;
 }
 
-export default function AnalysisProgress({
-  stage,
-  progress,
-  elapsedTime,
-}: AnalysisProgressProps) {
+export default function AnalysisProgress({ stage, progress, elapsedTime }: AnalysisProgressProps) {
   return (
     <div className="w-full max-w-md space-y-4">
       <div className="flex items-center justify-between">

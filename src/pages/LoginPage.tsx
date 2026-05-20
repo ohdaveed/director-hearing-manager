@@ -62,9 +62,7 @@ export default function LoginPage() {
               <Mail className="w-7 h-7 text-primary-foreground" />
             </div>
             <div className="space-y-1.5">
-              <h1 className="text-2xl font-bold tracking-tight">
-                Check your email
-              </h1>
+              <h1 className="text-2xl font-bold tracking-tight">Check your email</h1>
               <p className="text-sm text-muted-foreground">
                 We sent a password reset link to{" "}
                 <strong className="text-foreground">{email}</strong>
@@ -74,8 +72,7 @@ export default function LoginPage() {
 
           <div className="bg-card border border-border rounded-2xl shadow-sm p-6 text-center space-y-4">
             <p className="text-sm text-muted-foreground">
-              Click the link in the email to reset your password. The link
-              expires in 1 hour.
+              Click the link in the email to reset your password. The link expires in 1 hour.
             </p>
             <Button
               variant="outline"
@@ -100,14 +97,10 @@ export default function LoginPage() {
         <div className="w-full max-w-[400px] space-y-6">
           <div className="flex flex-col items-center gap-4 text-center">
             <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center shadow-xl">
-              <span className="text-primary-foreground font-black text-xl tracking-wide">
-                EHD
-              </span>
+              <span className="text-primary-foreground font-black text-xl tracking-wide">EHD</span>
             </div>
             <div className="space-y-1.5">
-              <h1 className="text-2xl font-bold tracking-tight">
-                Reset your password
-              </h1>
+              <h1 className="text-2xl font-bold tracking-tight">Reset your password</h1>
               <p className="text-sm text-muted-foreground">
                 Enter your email and we'll send you a reset link
               </p>
@@ -127,11 +120,7 @@ export default function LoginPage() {
                   required
                 />
               </div>
-              <Button
-                type="submit"
-                className="w-full h-10 gap-2"
-                disabled={loading}
-              >
+              <Button type="submit" className="w-full h-10 gap-2" disabled={loading}>
                 {loading ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
                 ) : (
@@ -162,17 +151,11 @@ export default function LoginPage() {
       <div className="w-full max-w-[400px] space-y-6">
         <div className="flex flex-col items-center gap-4 text-center">
           <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center shadow-xl">
-            <span className="text-primary-foreground font-black text-xl tracking-wide">
-              EHD
-            </span>
+            <span className="text-primary-foreground font-black text-xl tracking-wide">EHD</span>
           </div>
           <div className="space-y-1.5">
-            <h1 className="text-2xl font-bold tracking-tight">
-              Environmental Health Division
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              Sign in to your workspace
-            </p>
+            <h1 className="text-2xl font-bold tracking-tight">Environmental Health Division</h1>
+            <p className="text-sm text-muted-foreground">Sign in to your workspace</p>
           </div>
         </div>
 
@@ -208,11 +191,7 @@ export default function LoginPage() {
                 required
               />
             </div>
-            <Button
-              type="submit"
-              className="w-full h-10 gap-2"
-              disabled={loading}
-            >
+            <Button type="submit" className="w-full h-10 gap-2" disabled={loading}>
               {loading ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
               ) : (

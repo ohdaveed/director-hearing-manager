@@ -16,8 +16,7 @@ interface TaskResponse {
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
 Deno.serve(async (req: Request) => {
@@ -38,24 +37,18 @@ Deno.serve(async (req: Request) => {
 
     if (!supabaseUrl || !supabaseServiceKey) {
       console.error("Missing environment variables");
-      return new Response(
-        JSON.stringify({ error: "Server configuration error" }),
-        {
-          status: 500,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        },
-      );
+      return new Response(JSON.stringify({ error: "Server configuration error" }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     const authHeader = req.headers.get("authorization");
     if (!authHeader) {
-      return new Response(
-        JSON.stringify({ error: "Missing authorization header" }),
-        {
-          status: 401,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        },
-      );
+      return new Response(JSON.stringify({ error: "Missing authorization header" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey, {
@@ -72,13 +65,10 @@ Deno.serve(async (req: Request) => {
 
     if (authError || !user) {
       console.error("Auth error:", authError);
-      return new Response(
-        JSON.stringify({ error: "Invalid or expired token" }),
-        {
-          status: 401,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        },
-      );
+      return new Response(JSON.stringify({ error: "Invalid or expired token" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     let body: RequestBody;
@@ -94,23 +84,17 @@ Deno.serve(async (req: Request) => {
     const { text, fileName, fileType, metadata = {} } = body;
 
     if (!text || typeof text !== "string") {
-      return new Response(
-        JSON.stringify({ error: "Missing or invalid text field" }),
-        {
-          status: 400,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        },
-      );
+      return new Response(JSON.stringify({ error: "Missing or invalid text field" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     if (!fileName || typeof fileName !== "string") {
-      return new Response(
-        JSON.stringify({ error: "Missing or invalid fileName field" }),
-        {
-          status: 400,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        },
-      );
+      return new Response(JSON.stringify({ error: "Missing or invalid fileName field" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     if (!fileType || !["pdf", "docx"].includes(fileType)) {
@@ -150,9 +134,7 @@ Deno.serve(async (req: Request) => {
       });
     }
 
-    console.log(
-      `Created packet analysis task: ${task.id} for user: ${user.id}`,
-    );
+    console.log(`Created packet analysis task: ${task.id} for user: ${user.id}`);
 
     const response: TaskResponse = {
       taskId: task.id,

@@ -14,11 +14,7 @@ export interface NarrativeSectionProps {
   observations: Observation[];
   onAddObservation: () => void;
   onRemoveObservation: (id: string) => void;
-  onObservationChange: (
-    id: string,
-    field: keyof Observation,
-    value: string,
-  ) => void;
+  onObservationChange: (id: string, field: keyof Observation, value: string) => void;
   filledViolations: Violation[];
   violations: Violation[];
   inspectionDate: string;
@@ -26,17 +22,9 @@ export interface NarrativeSectionProps {
   standardCADetails: Record<string, { date: string; notes: string }>;
   customCAs: CustomCA[];
   onToggleStandardCA: (key: string, checked: boolean) => void;
-  onUpdateStandardCADetail: (
-    key: string,
-    field: "date" | "notes",
-    value: string,
-  ) => void;
+  onUpdateStandardCADetail: (key: string, field: "date" | "notes", value: string) => void;
   onAddCustomCA: () => void;
-  onUpdateCustomCA: (
-    id: string,
-    field: "text" | "date" | "notes",
-    value: string,
-  ) => void;
+  onUpdateCustomCA: (id: string, field: "text" | "date" | "notes", value: string) => void;
   onRemoveCustomCA: (id: string) => void;
   isSubmitted: boolean;
   onAnyChange: () => void;

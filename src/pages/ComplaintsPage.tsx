@@ -17,13 +17,7 @@ import { complaintService } from "@/services/complaintService";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Loader2,
-  ClipboardList,
-  ChevronLeft,
-  FilePlus,
-  Upload,
-} from "lucide-react";
+import { Loader2, ClipboardList, ChevronLeft, FilePlus, Upload } from "lucide-react";
 import ComplaintDetailView from "@/components/ComplaintDetailView";
 import ComplaintSummaryCards from "@/components/ComplaintSummaryCards";
 import ComplaintFilterBar from "@/components/ComplaintFilterBar";
@@ -52,13 +46,9 @@ export default function ComplaintsPage() {
   const canCreate = CAN_CREATE_ROLES.includes(activeRole);
   const isAdmin = ADMIN_ROLES.includes(activeRole);
   const inspectorName =
-    [user?.firstName, user?.lastName].filter(Boolean).join(" ") ||
-    user?.email ||
-    "";
+    [user?.firstName, user?.lastName].filter(Boolean).join(" ") || user?.email || "";
 
-  const [scope, setScope] = useState<"mine" | "all">(
-    showMineToggle ? "mine" : "all",
-  );
+  const [scope, setScope] = useState<"mine" | "all">(showMineToggle ? "mine" : "all");
   const [statusFilter, setStatusFilter] = useState("");
   const [hearingStatusFilter, setHearingStatusFilter] = useState(
     searchParams.get("hearingStatus") ?? "",
@@ -71,16 +61,11 @@ export default function ComplaintsPage() {
 
   const { data: complaints = [], isLoading } = useQuery({
     queryKey: ["complaints", scope, inspectorName],
-    queryFn: () =>
-      complaintService.getAll(
-        scope === "mine" ? { assigned_to: inspectorName } : {},
-      ),
+    queryFn: () => complaintService.getAll(scope === "mine" ? { assigned_to: inspectorName } : {}),
     enabled: !!user,
   });
 
-  const [selectedId, setSelectedId] = useState<string | null>(
-    urlComplaintId || null,
-  );
+  const [selectedId, setSelectedId] = useState<string | null>(urlComplaintId || null);
   const [showDetail, setShowDetail] = useState(!!urlComplaintId);
 
   const selected = useMemo(() => {
@@ -119,29 +104,19 @@ export default function ComplaintsPage() {
 
   const filtered = complaints.filter((c) => {
     if (statusFilter && c.status !== statusFilter) return false;
-    if (
-      hearingStatusFilter &&
-      (c.hearing_status ?? "None") !== hearingStatusFilter
-    )
-      return false;
-    if (scope === "all" && inspectorFilter && c.assigned_to !== inspectorFilter)
-      return false;
+    if (hearingStatusFilter && (c.hearing_status ?? "None") !== hearingStatusFilter) return false;
+    if (scope === "all" && inspectorFilter && c.assigned_to !== inspectorFilter) return false;
     if (dateRange?.from) {
-      const entered = c.date_entered
-        ? new Date(c.date_entered + "T00:00:00")
-        : null;
+      const entered = c.date_entered ? new Date(c.date_entered + "T00:00:00") : null;
       if (entered && entered < dateRange.from) return false;
     }
     if (dateRange?.to) {
-      const entered = c.date_entered
-        ? new Date(c.date_entered + "T00:00:00")
-        : null;
+      const entered = c.date_entered ? new Date(c.date_entered + "T00:00:00") : null;
       if (entered && entered > dateRange.to) return false;
     }
     if (search) {
       const q = search.toLowerCase();
-      if (!c.address?.toLowerCase().includes(q) && !c.complaintid?.includes(q))
-        return false;
+      if (!c.address?.toLowerCase().includes(q) && !c.complaintid?.includes(q)) return false;
     }
     return true;
   });
@@ -248,9 +223,7 @@ export default function ComplaintsPage() {
         loading={isLoading}
         dateRange={dateRange}
         onDateRangeChange={setDateRange}
-        {...(scope === "all"
-          ? { inspectorFilter, onInspectorChange: setInspectorFilter }
-          : {})}
+        {...(scope === "all" ? { inspectorFilter, onInspectorChange: setInspectorFilter } : {})}
         actions={actionButtons}
       />
 
@@ -261,9 +234,7 @@ export default function ComplaintsPage() {
 
         <div className="flex flex-col lg:flex-row gap-6">
           {/* Complaint table */}
-          <div
-            className={`flex-1 min-w-0 ${showDetail ? "hidden lg:block" : ""}`}
-          >
+          <div className={`flex-1 min-w-0 ${showDetail ? "hidden lg:block" : ""}`}>
             {isLoading ? (
               <div className="flex items-center justify-center py-20 text-muted-foreground gap-2">
                 <Loader2 className="w-5 h-5 animate-spin" />
@@ -287,12 +258,7 @@ export default function ComplaintsPage() {
                     key: "date_entered",
                     header: "Date",
                     render: (v) =>
-                      v
-                        ? format(
-                            new Date((v as string) + "T00:00:00"),
-                            "MMM d, yyyy",
-                          )
-                        : "-",
+                      v ? format(new Date((v as string) + "T00:00:00"), "MMM d, yyyy") : "-",
                   },
                   { key: "hearing_status", header: "Hearing" },
                 ]}
@@ -319,9 +285,7 @@ export default function ComplaintsPage() {
           </div>
 
           {/* Detail panel */}
-          <div
-            className={`flex-1 min-w-0 ${showDetail ? "block" : "hidden md:block"}`}
-          >
+          <div className={`flex-1 min-w-0 ${showDetail ? "block" : "hidden md:block"}`}>
             {effectiveSelected ? (
               <div>
                 <Button
@@ -340,13 +304,7 @@ export default function ComplaintsPage() {
                   key={effectiveSelected.id}
                   complaint={effectiveSelected}
                   onStatusUpdate={handleStatusUpdate}
-                  viewMode={
-                    isAdmin
-                      ? "admin"
-                      : scope === "mine"
-                        ? "inspector"
-                        : "readonly"
-                  }
+                  viewMode={isAdmin ? "admin" : scope === "mine" ? "inspector" : "readonly"}
                 />
               </div>
             ) : (
@@ -354,12 +312,9 @@ export default function ComplaintsPage() {
                 <div className="w-16 h-16 rounded-2xl bg-muted/50 flex items-center justify-center mb-4 border border-border">
                   <ClipboardList className="w-7 h-7 opacity-30" />
                 </div>
-                <p className="font-semibold text-foreground">
-                  Select a complaint
-                </p>
+                <p className="font-semibold text-foreground">Select a complaint</p>
                 <p className="text-sm mt-1.5 max-w-xs">
-                  Click any complaint to view details, inspection history, and
-                  documents.
+                  Click any complaint to view details, inspection history, and documents.
                 </p>
               </div>
             )}

@@ -123,44 +123,36 @@
     --shadow-color: #000000;
     --shadow-rgb: 0 0 0;
 
-    --shadow-2xs: var(--shadow-x) var(--shadow-y) var(--shadow-blur)
-      var(--shadow-spread)
+    --shadow-2xs: var(--shadow-x) var(--shadow-y) var(--shadow-blur) var(--shadow-spread)
       rgb(var(--shadow-rgb) / calc(var(--shadow-opacity) * 0.5));
-    --shadow-xs: var(--shadow-x) var(--shadow-y) var(--shadow-blur)
-      var(--shadow-spread)
+    --shadow-xs: var(--shadow-x) var(--shadow-y) var(--shadow-blur) var(--shadow-spread)
       rgb(var(--shadow-rgb) / calc(var(--shadow-opacity) * 0.5));
     --shadow-sm:
       var(--shadow-x) var(--shadow-y) var(--shadow-blur) var(--shadow-spread)
         rgb(var(--shadow-rgb) / var(--shadow-opacity)),
       var(--shadow-x) calc(var(--shadow-y) / 4) calc(var(--shadow-blur) / 2)
-        calc(var(--shadow-spread) - 1px)
-        rgb(var(--shadow-rgb) / var(--shadow-opacity));
+        calc(var(--shadow-spread) - 1px) rgb(var(--shadow-rgb) / var(--shadow-opacity));
     --shadow:
       var(--shadow-x) var(--shadow-y) var(--shadow-blur) var(--shadow-spread)
         rgb(var(--shadow-rgb) / var(--shadow-opacity)),
       var(--shadow-x) calc(var(--shadow-y) / 2) calc(var(--shadow-blur) / 2)
-        calc(var(--shadow-spread) - 1px)
-        rgb(var(--shadow-rgb) / var(--shadow-opacity));
+        calc(var(--shadow-spread) - 1px) rgb(var(--shadow-rgb) / var(--shadow-opacity));
     --shadow-md:
       var(--shadow-x) var(--shadow-y) var(--shadow-blur) var(--shadow-spread)
         rgb(var(--shadow-rgb) / var(--shadow-opacity)),
       var(--shadow-x) calc(var(--shadow-y) / 2) calc(var(--shadow-blur) * 2)
-        calc(var(--shadow-spread) - 1px)
-        rgb(var(--shadow-rgb) / var(--shadow-opacity));
+        calc(var(--shadow-spread) - 1px) rgb(var(--shadow-rgb) / var(--shadow-opacity));
     --shadow-lg:
       var(--shadow-x) var(--shadow-y) var(--shadow-blur) var(--shadow-spread)
         rgb(var(--shadow-rgb) / var(--shadow-opacity)),
-      var(--shadow-x) var(--shadow-y) calc(var(--shadow-blur) * 3)
-        calc(var(--shadow-spread) - 1px)
+      var(--shadow-x) var(--shadow-y) calc(var(--shadow-blur) * 3) calc(var(--shadow-spread) - 1px)
         rgb(var(--shadow-rgb) / var(--shadow-opacity));
     --shadow-xl:
       var(--shadow-x) var(--shadow-y) var(--shadow-blur) var(--shadow-spread)
         rgb(var(--shadow-rgb) / var(--shadow-opacity)),
       var(--shadow-x) calc(var(--shadow-y) * 2) calc(var(--shadow-blur) * 5)
-        calc(var(--shadow-spread) - 1px)
-        rgb(var(--shadow-rgb) / var(--shadow-opacity));
-    --shadow-2xl: var(--shadow-x) var(--shadow-y) var(--shadow-blur)
-      var(--shadow-spread)
+        calc(var(--shadow-spread) - 1px) rgb(var(--shadow-rgb) / var(--shadow-opacity));
+    --shadow-2xl: var(--shadow-x) var(--shadow-y) var(--shadow-blur) var(--shadow-spread)
       rgb(var(--shadow-rgb) / calc(var(--shadow-opacity) * 2.5));
     --sidebar: oklch(0.986 0.002 67.8);
   }
@@ -264,11 +256,7 @@
   border-radius: 9999px;
 }
 .feed-scroll::-webkit-scrollbar-thumb:hover {
-  background-color: color-mix(
-    in oklch,
-    var(--muted-foreground) 40%,
-    transparent
-  );
+  background-color: color-mix(in oklch, var(--muted-foreground) 40%, transparent);
 }
 
 @media print {

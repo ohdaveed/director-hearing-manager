@@ -39,10 +39,7 @@ export const CLOSURE_STATUSES = [
 ] as const;
 
 /** All valid complaint statuses in workflow order (active first, then closures). */
-export const ALL_COMPLAINT_STATUSES = [
-  ...ACTIVE_STATUSES,
-  ...CLOSURE_STATUSES,
-] as const;
+export const ALL_COMPLAINT_STATUSES = [...ACTIVE_STATUSES, ...CLOSURE_STATUSES] as const;
 
 export type ComplaintStatus = (typeof ALL_COMPLAINT_STATUSES)[number];
 

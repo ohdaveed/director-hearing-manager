@@ -1,9 +1,7 @@
 export function formatPacketDate(value?: string | null) {
   if (!value) return "—";
   try {
-    return new Date(
-      value.includes("T") ? value : `${value}T00:00:00`,
-    ).toLocaleDateString();
+    return new Date(value.includes("T") ? value : `${value}T00:00:00`).toLocaleDateString();
   } catch {
     return value;
   }

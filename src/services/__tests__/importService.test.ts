@@ -6,8 +6,7 @@ import { aiService } from "../aiService";
 vi.mock("@/lib/supabase", () => {
   let lastOperation: string | null = null;
 
-  const createThenable = (data: any, error: any = null) =>
-    Promise.resolve({ data, error });
+  const createThenable = (data: any, error: any = null) => Promise.resolve({ data, error });
 
   const chain = {
     from: vi.fn(() => {

@@ -47,17 +47,9 @@ export interface CorrectiveActionsFormProps {
   standardCADetails: Record<string, { date: string; notes: string }>;
   customCAs: CustomCA[];
   onToggleStandardCA: (key: string, checked: boolean) => void;
-  onUpdateStandardCADetail: (
-    key: string,
-    field: "date" | "notes",
-    value: string,
-  ) => void;
+  onUpdateStandardCADetail: (key: string, field: "date" | "notes", value: string) => void;
   onAddCustomCA: () => void;
-  onUpdateCustomCA: (
-    id: string,
-    field: "text" | "date" | "notes",
-    value: string,
-  ) => void;
+  onUpdateCustomCA: (id: string, field: "text" | "date" | "notes", value: string) => void;
   onRemoveCustomCA: (id: string) => void;
   onChangeAny: () => void;
   disabled?: boolean;
@@ -82,25 +74,21 @@ export function CorrectiveActionsForm({
         .filter((v) => v.violationKey)
         .map(
           (v) =>
-            VIOLATION_TYPES.find(
-              (t) => `${t.category}||${t.label}` === v.violationKey,
-            )?.category ?? "",
+            VIOLATION_TYPES.find((t) => `${t.category}||${t.label}` === v.violationKey)?.category ??
+            "",
         )
         .filter(Boolean),
     ),
   );
 
-  const checkedCount =
-    Object.values(checkedStandardCAs).filter(Boolean).length + customCAs.length;
+  const checkedCount = Object.values(checkedStandardCAs).filter(Boolean).length + customCAs.length;
 
   return (
     <div className="bg-card border border-border rounded-xl shadow-sm overflow-hidden">
       <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-border bg-muted/30">
         <div className="flex items-center gap-2">
           <ClipboardList className="w-5 h-5 text-primary" />
-          <h2 className="font-semibold text-foreground text-lg">
-            Corrective Actions
-          </h2>
+          <h2 className="font-semibold text-foreground text-lg">Corrective Actions</h2>
         </div>
         {checkedCount > 0 && (
           <span className="bg-primary/10 text-primary text-sm font-semibold px-3 py-1 rounded-full">
@@ -111,8 +99,7 @@ export function CorrectiveActionsForm({
       <div className="p-4 sm:p-6 space-y-6">
         {activeCategories.length === 0 ? (
           <p className="text-sm text-muted-foreground text-center py-4">
-            Add violations above to see suggested corrective actions, or add a
-            custom one below.
+            Add violations above to see suggested corrective actions, or add a custom one below.
           </p>
         ) : (
           activeCategories.map((cat) => {
@@ -170,11 +157,7 @@ export function CorrectiveActionsForm({
                                   type="date"
                                   value={details.date}
                                   onChange={(e) => {
-                                    onUpdateStandardCADetail(
-                                      key,
-                                      "date",
-                                      e.target.value,
-                                    );
+                                    onUpdateStandardCADetail(key, "date", e.target.value);
                                     onChangeAny();
                                   }}
                                   disabled={disabled}
@@ -189,11 +172,7 @@ export function CorrectiveActionsForm({
                                   placeholder="Additional notes..."
                                   value={details.notes}
                                   onChange={(e) => {
-                                    onUpdateStandardCADetail(
-                                      key,
-                                      "notes",
-                                      e.target.value,
-                                    );
+                                    onUpdateStandardCADetail(key, "notes", e.target.value);
                                     onChangeAny();
                                   }}
                                   disabled={disabled}

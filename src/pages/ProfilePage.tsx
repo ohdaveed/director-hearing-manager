@@ -88,13 +88,10 @@ export default function ProfilePage() {
 
   if (!user) return null;
 
-  const displayName =
-    [user.firstName, user.lastName].filter(Boolean).join(" ") || user.email;
+  const displayName = [user.firstName, user.lastName].filter(Boolean).join(" ") || user.email;
   const initials =
-    [user.firstName?.[0], user.lastName?.[0]]
-      .filter(Boolean)
-      .join("")
-      .toUpperCase() || user.email[0].toUpperCase();
+    [user.firstName?.[0], user.lastName?.[0]].filter(Boolean).join("").toUpperCase() ||
+    user.email[0].toUpperCase();
 
   return (
     <div className="min-h-screen bg-background">
@@ -107,9 +104,7 @@ export default function ProfilePage() {
           {initials}
         </div>
         <div className="min-w-0">
-          <p className="text-base font-semibold text-foreground leading-snug">
-            {displayName}
-          </p>
+          <p className="text-base font-semibold text-foreground leading-snug">{displayName}</p>
           <p className="text-xs text-muted-foreground mt-0.5">{user.email}</p>
           {user.role && (
             <span className="inline-block mt-1.5 text-[10px] font-semibold uppercase tracking-wide px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
@@ -134,9 +129,7 @@ export default function ProfilePage() {
                 <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide">
                   Full Name
                 </p>
-                <p className="text-sm text-foreground font-medium">
-                  {displayName}
-                </p>
+                <p className="text-sm text-foreground font-medium">{displayName}</p>
               </div>
             </div>
             <div className="flex items-center gap-3 px-4 py-3.5 rounded-xl bg-card border border-border">
@@ -159,9 +152,7 @@ export default function ProfilePage() {
                   <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide">
                     Role
                   </p>
-                  <p className="text-sm text-foreground font-medium">
-                    {user.role}
-                  </p>
+                  <p className="text-sm text-foreground font-medium">{user.role}</p>
                 </div>
               </div>
             )}
@@ -178,10 +169,7 @@ export default function ProfilePage() {
           </div>
 
           <div className="space-y-2">
-            <Label
-              htmlFor="sig-text"
-              className="text-xs font-medium text-muted-foreground"
-            >
+            <Label htmlFor="sig-text" className="text-xs font-medium text-muted-foreground">
               Signature name
             </Label>
             <Input
@@ -197,9 +185,7 @@ export default function ProfilePage() {
           </div>
 
           <div className="space-y-2">
-            <Label className="text-xs font-medium text-muted-foreground">
-              Choose a style
-            </Label>
+            <Label className="text-xs font-medium text-muted-foreground">Choose a style</Label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {SIGNATURE_STYLES.map((style) => {
                 const isActive = sigStyle === style.key;
@@ -218,9 +204,7 @@ export default function ProfilePage() {
                       <p className="text-[10px] font-semibold text-muted-foreground tracking-wide uppercase">
                         {style.label}
                       </p>
-                      {isActive && (
-                        <Check className="w-3.5 h-3.5 text-primary shrink-0" />
-                      )}
+                      {isActive && <Check className="w-3.5 h-3.5 text-primary shrink-0" />}
                     </div>
                     <p
                       className="text-foreground leading-none"
@@ -236,16 +220,8 @@ export default function ProfilePage() {
           </div>
 
           <div className="flex items-center gap-3 pt-1">
-            <Button
-              onClick={handleSave}
-              disabled={saving || !sigText.trim()}
-              className="gap-2"
-            >
-              {saved ? (
-                <Check className="w-4 h-4" />
-              ) : (
-                <Pen className="w-4 h-4" />
-              )}
+            <Button onClick={handleSave} disabled={saving || !sigText.trim()} className="gap-2">
+              {saved ? <Check className="w-4 h-4" /> : <Pen className="w-4 h-4" />}
               {saved ? "Saved!" : saving ? "Saving…" : "Save Signature"}
             </Button>
             {!user.signatureText && (
@@ -269,12 +245,8 @@ export default function ProfilePage() {
             >
               <Users2 className="w-4 h-4 text-muted-foreground shrink-0" />
               <div>
-                <p className="text-sm font-medium text-foreground">
-                  User Management
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  Assign roles to team members
-                </p>
+                <p className="text-sm font-medium text-foreground">User Management</p>
+                <p className="text-xs text-muted-foreground">Assign roles to team members</p>
               </div>
             </button>
           </section>

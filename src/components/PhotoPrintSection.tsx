@@ -16,12 +16,7 @@ type Props = {
   complaintId: string;
 };
 
-export default function PhotoPrintSection({
-  photos,
-  address,
-  inspectionDate,
-  complaintId,
-}: Props) {
+export default function PhotoPrintSection({ photos, address, inspectionDate, complaintId }: Props) {
   const uploaded = photos.filter((p) => p.uploadedUrl);
   if (uploaded.length === 0) return null;
 
@@ -36,11 +31,7 @@ export default function PhotoPrintSection({
     pages.push(sorted.slice(i, i + 3));
   }
 
-  const headerText = [
-    address,
-    inspectionDate,
-    complaintId ? `Complaint #${complaintId}` : "",
-  ]
+  const headerText = [address, inspectionDate, complaintId ? `Complaint #${complaintId}` : ""]
     .filter(Boolean)
     .join("  ·  ");
 
@@ -74,23 +65,15 @@ export default function PhotoPrintSection({
             >
               Photo Documentation
             </div>
-            <div
-              style={{ fontSize: "12px", color: "#374151", marginTop: "2px" }}
-            >
-              {headerText}
-            </div>
-            <div
-              style={{ fontSize: "10px", color: "#6b7280", marginTop: "1px" }}
-            >
+            <div style={{ fontSize: "12px", color: "#374151", marginTop: "2px" }}>{headerText}</div>
+            <div style={{ fontSize: "10px", color: "#6b7280", marginTop: "1px" }}>
               Page {pi + 1} of {pages.length} (Photos {pi * 3 + 1}–
               {Math.min((pi + 1) * 3, sorted.length)} of {sorted.length})
             </div>
           </div>
 
           {/* 3 photos stacked vertically */}
-          <div
-            style={{ display: "flex", flexDirection: "column", gap: "24px" }}
-          >
+          <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
             {page.map((photo, idx) => (
               <div
                 key={idx}

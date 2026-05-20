@@ -299,9 +299,7 @@ export function PacketNoticeOfViolation({
             )}
             {/* Variable: Locations.owner_address */}
             {ownerAddress && (
-              <p style={{ margin: "0", fontSize: pt.body }}>
-                {ownerAddress.toUpperCase()}
-              </p>
+              <p style={{ margin: "0", fontSize: pt.body }}>{ownerAddress.toUpperCase()}</p>
             )}
           </div>
           <div style={{ textAlign: "right" }}>
@@ -311,8 +309,8 @@ export function PacketNoticeOfViolation({
             </p>
             {/* Labels: STATIC_BLOCKS.nov.blockLabel / lotLabel — Variables: Locations.block_lot parsed */}
             <p style={{ margin: "4px 0 0", fontSize: pt.body }}>
-              <strong>{S.blockLabel}</strong> {block} &nbsp;&nbsp;{" "}
-              <strong>{S.lotLabel}</strong> {lot}
+              <strong>{S.blockLabel}</strong> {block} &nbsp;&nbsp; <strong>{S.lotLabel}</strong>{" "}
+              {lot}
             </p>
           </div>
         </div>
@@ -331,11 +329,7 @@ export function PacketNoticeOfViolation({
         </p>
 
         {/* Preamble — locked: STATIC_BLOCKS.nov.preamble */}
-        <p
-          style={{ margin: "0 0 10px", fontWeight: "bold", fontSize: pt.body }}
-        >
-          {S.preamble}
-        </p>
+        <p style={{ margin: "0 0 10px", fontWeight: "bold", fontSize: pt.body }}>{S.preamble}</p>
 
         {/* Directive — locked: STATIC_BLOCKS.nov.directive */}
         <p
@@ -383,28 +377,19 @@ export function PacketNoticeOfViolation({
           <p style={{ margin: "0 0 2px" }}>{C.contactPrompt}</p>
           {/* Variable: Users.firstName + lastName (matched via Complaints.assigned_to) */}
           <p style={{ margin: "0 0 1px" }}>
-            <strong>Investigator:</strong>{" "}
-            {inspector?.name ?? complaint?.assigned_to ?? ""}
+            <strong>Investigator:</strong> {inspector?.name ?? complaint?.assigned_to ?? ""}
           </p>
           {/* Variable: Users.email */}
-          {inspector?.email && (
-            <p style={{ margin: "0 0 1px" }}>e-mail: {inspector.email}</p>
-          )}
+          {inspector?.email && <p style={{ margin: "0 0 1px" }}>e-mail: {inspector.email}</p>}
           {/* Locked: STATIC_BLOCKS.common.investigatorDefaultPhone */}
-          <p style={{ margin: "0 0 1px" }}>
-            phone: {C.investigatorDefaultPhone}
-          </p>
+          <p style={{ margin: "0 0 1px" }}>phone: {C.investigatorDefaultPhone}</p>
           {/* Variable: Complaints.complaintid (locked, read-only) */}
           {complaint?.complaintid && (
-            <p style={{ margin: "0 0 1px" }}>
-              Complaint ID: {complaint.complaintid}
-            </p>
+            <p style={{ margin: "0 0 1px" }}>Complaint ID: {complaint.complaintid}</p>
           )}
           {/* Variable: Locations.id — last 12 chars uppercase (locked, read-only) */}
           {location?.id && (
-            <p style={{ margin: "0" }}>
-              Location ID: {location.id.slice(-12).toUpperCase()}
-            </p>
+            <p style={{ margin: "0" }}>Location ID: {location.id.slice(-12).toUpperCase()}</p>
           )}
         </div>
 
@@ -414,11 +399,7 @@ export function PacketNoticeOfViolation({
 
       {/* ===== CONTINUATION PAGES ===== */}
       {contPages.map((rows, pi) => (
-        <div
-          key={pi}
-          className="packet-page print-page-break"
-          style={baseStyle}
-        >
+        <div key={pi} className="packet-page print-page-break" style={baseStyle}>
           <SFDPHReportHeader
             layout="seal-dept-left"
             sectionLabel={C.sectionName}

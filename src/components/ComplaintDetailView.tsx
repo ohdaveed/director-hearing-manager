@@ -7,18 +7,8 @@ import { complaintService } from "@/services/complaintService";
 import { locationService } from "@/services/locationService";
 import type { ComplaintSummary } from "@/types/complaint";
 import { Button } from "@/components/ui/button";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-  CardAction,
-} from "@/components/ui/card";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Card, CardHeader, CardTitle, CardContent, CardAction } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Label } from "@/components/ui/label";
@@ -69,15 +59,8 @@ import {
 } from "lucide-react";
 import ComplaintChronologyPanel from "./ComplaintChronologyPanel";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
-import {
-  ACTIVE_STATUSES,
-  CLOSURE_STATUSES,
-  STATUS_DESCRIPTIONS,
-} from "@/utils/complaintStatuses";
-import {
-  COMPLAINT_STATUS_THEME,
-  INSPECTION_STATUS_THEME,
-} from "@/utils/badgeThemes";
+import { ACTIVE_STATUSES, CLOSURE_STATUSES, STATUS_DESCRIPTIONS } from "@/utils/complaintStatuses";
+import { COMPLAINT_STATUS_THEME, INSPECTION_STATUS_THEME } from "@/utils/badgeThemes";
 import { sanitizeText } from "@/utils/sanitizeText";
 
 const DESC_THRESHOLD = 200;
@@ -87,22 +70,18 @@ export function DescriptionText({ text }: { text: string }) {
   const isLong = text.length > DESC_THRESHOLD;
 
   if (!isLong) {
-    return (
-      <div className="mt-1">
-        <p className="text-sm text-muted-foreground leading-relaxed">{text}</p>
-      </div>
-    );
+    return <div className="mt-2 text-sm text-muted-foreground leading-relaxed">{text}</div>;
   }
 
   return (
-    <Collapsible open={open} onOpenChange={setOpen} className="mt-1">
+    <Collapsible open={open} onOpenChange={setOpen} className="mt-2">
       <div className="text-sm text-muted-foreground leading-relaxed">
         {!open && <p>{text.slice(0, DESC_THRESHOLD)}…</p>}
         <CollapsibleContent>
           <p>{text}</p>
         </CollapsibleContent>
       </div>
-      <CollapsibleTrigger className="text-xs text-primary hover:underline mt-0.5 font-medium block">
+      <CollapsibleTrigger className="text-xs text-primary hover:underline mt-1 font-medium block">
         {open ? "Show less" : "Show more"}
       </CollapsibleTrigger>
     </Collapsible>
@@ -120,21 +99,13 @@ type Props = {
   actionsSlot?: React.ReactNode;
 };
 
-function InfoRow({
-  icon,
-  label,
-  value,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value?: string;
-}) {
+function InfoRow({ icon, label, value }: { icon: React.ReactNode; label: string; value?: string }) {
   if (!value) return null;
   return (
     <div className="flex items-start gap-2.5">
       <span className="text-muted-foreground mt-0.5 flex-shrink-0">{icon}</span>
-      <div>
-        <p className="text-xs text-muted-foreground">{label}</p>
+      <div className="flex flex-col gap-0.5">
+        <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">{label}</p>
         <p className="text-sm font-medium text-foreground">{value}</p>
       </div>
     </div>
@@ -162,7 +133,7 @@ function SectionHeader({
         {count !== undefined && (
           <Badge
             variant="secondary"
-            className="text-[10px] h-4 px-1.5 font-bold bg-muted/80 text-muted-foreground border-none"
+            className="text-xs h-4 px-1.5 font-bold bg-muted/80 text-muted-foreground border-none"
           >
             {count}
           </Badge>
@@ -182,9 +153,7 @@ export default function ComplaintDetailView({
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [currentStatus, setCurrentStatus] = useState(complaint.status ?? "");
-  const [blockedViolations, setBlockedViolations] = useState<string[] | null>(
-    null,
-  );
+  const [blockedViolations, setBlockedViolations] = useState<string[] | null>(null);
 
   // Responsible party edit state
   const [rpEditing, setRpEditing] = useState(false);
@@ -197,9 +166,7 @@ export default function ComplaintDetailView({
   const [locationSearch, setLocationSearch] = useState("");
   const [locationResults, setLocationResults] = useState<LocationResult[]>([]);
   const [locationSearching, setLocationSearching] = useState(false);
-  const [linkingLocationId, setLinkingLocationId] = useState<string | null>(
-    null,
-  );
+  const [linkingLocationId, setLinkingLocationId] = useState<string | null>(null);
   const [optimisticallyLinked, setOptimisticallyLinked] = useState(false);
 
   const { data: detail, isLoading: loading } = useQuery({
@@ -225,9 +192,7 @@ export default function ComplaintDetailView({
       toast.success("Status updated");
     },
     onError: () => {
-      setCurrentStatus(
-        (detail?.status as any) || (complaint.status as any) || "",
-      );
+      setCurrentStatus((detail?.status as any) || (complaint.status as any) || "");
       toast.error("Failed to update status");
     },
   });
@@ -328,12 +293,10 @@ export default function ComplaintDetailView({
     });
   };
 
-  const hasDraft =
-    detail?.inspections?.some((i: any) => i.status === "Draft") ?? false;
+  const hasDraft = detail?.inspections?.some((i: any) => i.status === "Draft") ?? false;
   const statusBadgeCls =
-    COMPLAINT_STATUS_THEME[
-      currentStatus as keyof typeof COMPLAINT_STATUS_THEME
-    ] ?? "bg-muted text-muted-foreground";
+    COMPLAINT_STATUS_THEME[currentStatus as keyof typeof COMPLAINT_STATUS_THEME] ??
+    "bg-muted text-muted-foreground";
   const canEditStatus = viewMode !== "readonly";
   const canStartInspection = viewMode === "inspector";
 
@@ -355,7 +318,7 @@ export default function ComplaintDetailView({
         )}
       </SelectTrigger>
       <SelectContent>
-        <div className="px-2 pt-2 pb-1 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+        <div className="px-2 pt-2 pb-1 text-xs font-bold text-muted-foreground uppercase tracking-widest">
           Active
         </div>
         {ACTIVE_STATUSES.map((s) => (
@@ -366,15 +329,13 @@ export default function ComplaintDetailView({
             </span>
           </SelectItem>
         ))}
-        <div className="px-2 pt-3 pb-1 text-[10px] font-bold text-muted-foreground uppercase tracking-widest border-t border-border mt-1">
+        <div className="px-2 pt-3 pb-1 text-xs font-bold text-muted-foreground uppercase tracking-widest border-t border-border mt-1">
           Closure
         </div>
         {CLOSURE_STATUSES.map((s) => (
           <SelectItem key={s} value={s}>
             <div className="flex items-center gap-1.5">
-              {s === "Closed — Compliant" && (
-                <Lock className="w-3 h-3 text-muted-foreground" />
-              )}
+              {s === "Closed — Compliant" && <Lock className="w-3 h-3 text-muted-foreground" />}
               <span className="font-medium">{s}</span>
             </div>
           </SelectItem>
@@ -407,9 +368,7 @@ export default function ComplaintDetailView({
                 type="button"
                 onClick={async () => {
                   if (complaint.locationid) {
-                    const loc = await locationService.findByLocationId(
-                      complaint.locationid,
-                    );
+                    const loc = await locationService.findByLocationId(complaint.locationid);
                     if (loc) navigate(`/locations/${loc.id}`);
                   }
                 }}
@@ -433,7 +392,10 @@ export default function ComplaintDetailView({
             {canEditStatus && (
               <div className="flex flex-col gap-2">
                 <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="location-search" className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground ml-1">
+                  <Label
+                    htmlFor="location-search"
+                    className="text-xs uppercase tracking-wider font-semibold text-muted-foreground ml-1"
+                  >
                     Search Location
                   </Label>
                   <div className="relative">
@@ -550,9 +512,7 @@ export default function ComplaintDetailView({
           <div className="flex items-center gap-2 text-xs font-medium text-success bg-success/10 border border-success/30 rounded-md px-3 py-2">
             <CheckCircle2 className="w-3.5 h-3.5 flex-shrink-0" />
             Location linked
-            {optimisticallyLinked && (
-              <Loader2 className="w-3 h-3 animate-spin ml-1" />
-            )}
+            {optimisticallyLinked && <Loader2 className="w-3 h-3 animate-spin ml-1" />}
           </div>
         )}
       </CardContent>
@@ -610,16 +570,8 @@ export default function ComplaintDetailView({
                   label="Mailing Address"
                   value={rpAddress}
                 />
-                <InfoRow
-                  icon={<Phone className="w-3.5 h-3.5" />}
-                  label="Phone"
-                  value={rpPhone}
-                />
-                <InfoRow
-                  icon={<Mail className="w-3.5 h-3.5" />}
-                  label="Email"
-                  value={rpEmail}
-                />
+                <InfoRow icon={<Phone className="w-3.5 h-3.5" />} label="Phone" value={rpPhone} />
+                <InfoRow icon={<Mail className="w-3.5 h-3.5" />} label="Email" value={rpEmail} />
               </>
             ) : (
               <p className="text-xs text-muted-foreground italic col-span-2">
@@ -653,7 +605,7 @@ export default function ComplaintDetailView({
               .
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div className="space-y-1">
+              <div className="flex flex-col gap-1">
                 <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
                   Owner / Responsible Party
                 </Label>
@@ -663,7 +615,7 @@ export default function ComplaintDetailView({
                   placeholder="e.g. Jane Doe"
                 />
               </div>
-              <div className="space-y-1">
+              <div className="flex flex-col gap-1">
                 <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
                   Mailing Address
                 </Label>
@@ -673,7 +625,7 @@ export default function ComplaintDetailView({
                   placeholder="e.g. 123 Main Street, SF CA"
                 />
               </div>
-              <div className="space-y-1">
+              <div className="flex flex-col gap-1">
                 <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
                   Phone
                 </Label>
@@ -683,7 +635,7 @@ export default function ComplaintDetailView({
                   placeholder="e.g. (415) 555-1234"
                 />
               </div>
-              <div className="space-y-1">
+              <div className="flex flex-col gap-1">
                 <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
                   Email
                 </Label>
@@ -709,11 +661,7 @@ export default function ComplaintDetailView({
                 )}
                 Save
               </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setRpEditing(false)}
-              >
+              <Button variant="ghost" size="sm" onClick={() => setRpEditing(false)}>
                 Cancel
               </Button>
             </div>
@@ -730,7 +678,7 @@ export default function ComplaintDetailView({
       <CardHeader className="border-b border-border/60 py-3 px-5">
         <Skeleton className="h-4 w-40" />
       </CardHeader>
-      <CardContent className="p-5 space-y-2">
+      <CardContent className="p-5 flex flex-col gap-2">
         <Skeleton className="h-10 w-full" />
         <Skeleton className="h-10 w-full" />
       </CardContent>
@@ -745,35 +693,26 @@ export default function ComplaintDetailView({
       <CardContent className="p-0">
         <div className="divide-y divide-border/60">
           {detail.inspections.map((ins: any) => (
-            <div
-              key={ins.id}
-              className="px-5 py-3.5 flex items-center justify-between gap-3"
-            >
+            <div key={ins.id} className="px-5 py-3.5 flex items-center justify-between gap-3">
               <div className="min-w-0">
                 <div className="flex items-center gap-2 mb-0.5 flex-wrap">
                   <span className="text-sm font-medium text-foreground">
                     {ins.inspection_date
-                      ? new Date(
-                          ins.inspection_date + "T00:00:00",
-                        ).toLocaleDateString()
+                      ? new Date(ins.inspection_date + "T00:00:00").toLocaleDateString()
                       : "No date"}
                   </span>
                   {ins.inspection_type && (
-                    <span className="text-xs text-muted-foreground">
-                      {ins.inspection_type}
-                    </span>
+                    <span className="text-xs text-muted-foreground">{ins.inspection_type}</span>
                   )}
                 </div>
                 <div className="flex items-center gap-2 flex-wrap">
                   {ins.inspector && (
-                    <span className="text-xs text-muted-foreground">
-                      {ins.inspector}
-                    </span>
+                    <span className="text-xs text-muted-foreground">{ins.inspector}</span>
                   )}
                   {(ins.violation_count ?? 0) > 0 && (
                     <Badge
                       variant="destructive"
-                      className="text-[10px] h-4.5 px-1.5 font-bold bg-destructive/10 text-destructive border-none shadow-none"
+                      className="text-xs h-4.5 px-1.5 font-bold bg-destructive/10 text-destructive border-none shadow-none"
                     >
                       {ins.violation_count} violation
                       {ins.violation_count !== 1 ? "s" : ""}
@@ -785,7 +724,7 @@ export default function ComplaintDetailView({
                 {ins.inspection_rating === "Satisfactory" && (
                   <Badge
                     variant="outline"
-                    className="text-[10px] h-4.5 px-2 font-bold bg-success/10 text-success border-success/20"
+                    className="text-xs h-4.5 px-2 font-bold bg-success/10 text-success border-success/20"
                   >
                     <CheckCircle2 className="w-3 h-3 mr-1" /> Sat.
                   </Badge>
@@ -793,7 +732,7 @@ export default function ComplaintDetailView({
                 {ins.inspection_rating === "Unsatisfactory" && (
                   <Badge
                     variant="outline"
-                    className="text-[10px] h-4.5 px-2 font-bold bg-destructive/10 text-destructive border-destructive/20"
+                    className="text-xs h-4.5 px-2 font-bold bg-destructive/10 text-destructive border-destructive/20"
                   >
                     <XCircle className="w-3 h-3 mr-1" /> Unsat.
                   </Badge>
@@ -802,9 +741,8 @@ export default function ComplaintDetailView({
                 <Badge
                   variant="outline"
                   className={cn(
-                    "text-[10px] h-4.5 px-2 flex items-center gap-1 font-bold",
-                    INSPECTION_STATUS_THEME[ins.status ?? ""] ??
-                      "bg-muted text-muted-foreground",
+                    "text-xs h-4.5 px-2 flex items-center gap-1 font-bold",
+                    INSPECTION_STATUS_THEME[ins.status ?? ""] ?? "bg-muted text-muted-foreground",
                   )}
                 >
                   {ins.status === "Submitted" ? (
@@ -825,9 +763,7 @@ export default function ComplaintDetailView({
       <ClipboardList className="w-8 h-8 mx-auto mb-2 opacity-30" />
       <p className="text-sm font-medium">No inspections yet</p>
       {canStartInspection && (
-        <p className="text-xs mt-1">
-          Click &ldquo;Start Inspection&rdquo; to begin.
-        </p>
+        <p className="text-xs mt-1">Click &ldquo;Start Inspection&rdquo; to begin.</p>
       )}
     </Card>
   ) : null;
@@ -841,42 +777,32 @@ export default function ComplaintDetailView({
         <CardHeader className="px-5 py-3 bg-muted/40 border-b border-border">
           <CardTitle className="text-xs tracking-widest">Actions</CardTitle>
         </CardHeader>
-        <CardContent className="p-5 space-y-5">
+        <CardContent className="p-5 flex flex-col gap-5">
           {canEditStatus && (
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
                 Change Status
               </p>
               {statusSelector}
               {blockedViolations && blockedViolations.length > 0 && (
-                <div className="bg-destructive/5 border border-destructive/20 rounded-lg p-3">
-                  <div className="flex items-start gap-2">
-                    <Lock className="w-4 h-4 text-destructive flex-shrink-0 mt-0.5" />
-                    <div>
-                      <p className="text-sm font-semibold text-destructive">
-                        Cannot mark as Closed — Compliant
-                      </p>
-                      <ul className="mt-2 space-y-1">
-                        {blockedViolations.map((v, i) => (
-                          <li
-                            key={i}
-                            className="flex items-start gap-1.5 text-xs text-foreground"
-                          >
-                            <XCircle className="w-3 h-3 text-destructive flex-shrink-0 mt-0.5" />
-                            {v}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                </div>
+                <Alert variant="destructive">
+                  <Lock className="h-4 w-4" />
+                  <AlertTitle>Cannot mark as Closed — Compliant</AlertTitle>
+                  <AlertDescription>
+                    <ul className="mt-2 list-disc space-y-1 pl-5">
+                      {blockedViolations.map((v, i) => (
+                        <li key={i} className="text-xs">
+                          {v}
+                        </li>
+                      ))}
+                    </ul>
+                  </AlertDescription>
+                </Alert>
               )}
             </div>
           )}
           {actionsSlot && (
-            <div className={canEditStatus ? "border-t border-border pt-5" : ""}>
-              {actionsSlot}
-            </div>
+            <div className={canEditStatus ? "border-t border-border pt-5" : ""}>{actionsSlot}</div>
           )}
           <AlertDialog>
             <AlertDialogTrigger asChild>
@@ -891,8 +817,7 @@ export default function ComplaintDetailView({
               <AlertDialogHeader>
                 <AlertDialogTitle>Delete this complaint?</AlertDialogTitle>
                 <AlertDialogDescription>
-                  This will permanently remove the complaint. This action cannot
-                  be undone.
+                  This will permanently remove the complaint. This action cannot be undone.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
@@ -920,7 +845,7 @@ export default function ComplaintDetailView({
     <div className="w-full">
       {/* Two-column grid on desktop */}
       <div className="grid gap-4 lg:grid-cols-12 items-start">
-        <div className="space-y-4 lg:col-span-8">
+        <div className="flex flex-col gap-4 lg:col-span-8">
           <Card className="border-primary/20 shadow-md">
             <CardContent className="p-5">
               <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
@@ -929,7 +854,7 @@ export default function ComplaintDetailView({
                     {complaint.complaintid && (
                       <Badge
                         variant="secondary"
-                        className="text-[10px] font-mono font-bold bg-primary/10 text-primary border-none h-4 px-1"
+                        className="text-xs font-mono font-bold bg-primary/10 text-primary border-none h-4 px-1"
                       >
                         #{complaint.complaintid}
                       </Badge>
@@ -940,7 +865,7 @@ export default function ComplaintDetailView({
                           <Badge
                             key={cat}
                             variant="outline"
-                            className="text-[10px] font-semibold h-4 px-2 bg-primary/5 text-primary border-primary/20"
+                            className="text-xs font-semibold h-4 px-2 bg-primary/5 text-primary border-primary/20"
                           >
                             {cat}
                           </Badge>
@@ -985,15 +910,12 @@ export default function ComplaintDetailView({
                 )}
               </div>
               <div className="flex items-center gap-2 pt-3 border-t border-border/40">
-                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+                <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
                   Status
                 </span>
                 <Badge
                   variant="outline"
-                  className={cn(
-                    "text-[10px] h-5 px-2 font-bold",
-                    statusBadgeCls,
-                  )}
+                  className={cn("text-xs h-5 px-2 font-bold", statusBadgeCls)}
                 >
                   {currentStatus || "—"}
                 </Badge>
@@ -1010,7 +932,7 @@ export default function ComplaintDetailView({
               <CardHeader className="border-b border-border/60 py-3 px-5">
                 <Skeleton className="h-4 w-40" />
               </CardHeader>
-              <CardContent className="p-5 space-y-3">
+              <CardContent className="p-5 flex flex-col gap-3">
                 <Skeleton className="h-4 w-1/3" />
                 <Skeleton className="h-4 w-1/2" />
                 <Skeleton className="h-4 w-2/5" />
@@ -1030,9 +952,7 @@ export default function ComplaintDetailView({
                       label="Date Entered"
                       value={
                         detail.date_entered
-                          ? new Date(
-                              detail.date_entered + "T00:00:00",
-                            ).toLocaleDateString()
+                          ? new Date(detail.date_entered + "T00:00:00").toLocaleDateString()
                           : undefined
                       }
                     />
@@ -1085,48 +1005,36 @@ export default function ComplaintDetailView({
               <CardHeader className="border-b border-border/60 py-3 px-5">
                 <Skeleton className="h-4 w-40" />
               </CardHeader>
-              <CardContent className="p-5 space-y-3">
+              <CardContent className="p-5 flex flex-col gap-3">
                 <Skeleton className="h-4 w-1/3" />
                 <Skeleton className="h-4 w-1/2" />
                 <Skeleton className="h-4 w-2/5" />
               </CardContent>
             </Card>
           ) : (
-            <ErrorBoundary title="Responsible Party Error">
-              {responsiblePartyContent}
-            </ErrorBoundary>
+            <ErrorBoundary title="Responsible Party Error">{responsiblePartyContent}</ErrorBoundary>
           )}
 
           {/* Location */}
-          <ErrorBoundary title="Location Error">
-            {locationSectionContent}
-          </ErrorBoundary>
+          <ErrorBoundary title="Location Error">{locationSectionContent}</ErrorBoundary>
 
           {/* Inspection History */}
-          <ErrorBoundary title="Inspection History Error">
-            {inspectionHistory}
-          </ErrorBoundary>
+          <ErrorBoundary title="Inspection History Error">{inspectionHistory}</ErrorBoundary>
 
           {/* Case Chronology — mobile only (stacks below inspection history) */}
           <div className="lg:hidden">
             <ErrorBoundary title="Chronology Error">
-              <ComplaintChronologyPanel
-                chronology={detail?.chronology ?? []}
-                loading={loading}
-              />
+              <ComplaintChronologyPanel chronology={detail?.chronology ?? []} loading={loading} />
             </ErrorBoundary>
           </div>
         </div>
 
         {/* ── RIGHT COLUMN (40%) — sticky on desktop ────────── */}
         <div className="hidden lg:block lg:col-span-5">
-          <div className="sticky top-20 space-y-4">
+          <div className="sticky top-20 flex flex-col gap-4">
             {actionsCard}
             <ErrorBoundary title="Chronology Error">
-              <ComplaintChronologyPanel
-                chronology={detail?.chronology ?? []}
-                loading={loading}
-              />
+              <ComplaintChronologyPanel chronology={detail?.chronology ?? []} loading={loading} />
             </ErrorBoundary>
           </div>
         </div>
@@ -1137,24 +1045,16 @@ export default function ComplaintDetailView({
         <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-card/95 backdrop-blur-sm border-t border-border shadow-2xl print:hidden">
           <div className="container mx-auto px-4 py-3 max-w-7xl">
             <div className="flex items-center gap-3">
-              <p className="text-xs font-medium text-muted-foreground shrink-0">
-                Status
-              </p>
+              <p className="text-xs font-medium text-muted-foreground shrink-0">Status</p>
               <div className="flex-1">{statusSelector}</div>
               {canStartInspection && (
-                <Button
-                  onClick={handleStartInspection}
-                  size="sm"
-                  className="shrink-0 gap-1.5"
-                >
+                <Button onClick={handleStartInspection} size="sm" className="shrink-0 gap-1.5">
                   {hasDraft ? (
                     <FileEdit className="w-3.5 h-3.5" />
                   ) : (
                     <FilePlus className="w-3.5 h-3.5" />
                   )}
-                  <span className="hidden xs:inline">
-                    {hasDraft ? "Resume" : "Inspect"}
-                  </span>
+                  <span className="hidden xs:inline">{hasDraft ? "Resume" : "Inspect"}</span>
                 </Button>
               )}
             </div>

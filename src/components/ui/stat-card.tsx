@@ -111,24 +111,14 @@ const StatCard = memo(function StatCard({
         <p className={statValueVariants({ accent })}>
           {typeof value === "number" ? value.toLocaleString() : value}
         </p>
-        {sub && (
-          <p className="text-[11px] mt-2 text-muted-foreground leading-snug">
-            {sub}
-          </p>
-        )}
+        {sub && <p className="text-[11px] mt-2 text-muted-foreground leading-snug">{sub}</p>}
       </div>
     </>
   );
 
   if (to) {
     return (
-      <Link
-        to={to}
-        className={cn(
-          statCardVariants({ accent, interactive: true }),
-          className,
-        )}
-      >
+      <Link to={to} className={cn(statCardVariants({ accent, interactive: true }), className)}>
         {content}
       </Link>
     );

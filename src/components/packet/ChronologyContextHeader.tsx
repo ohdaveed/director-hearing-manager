@@ -9,21 +9,15 @@ interface Props {
   locationMeta?: LocationMeta;
 }
 
-export default function ChronologyContextHeader({
-  packetMeta,
-  locationMeta,
-}: Props) {
+export default function ChronologyContextHeader({ packetMeta, locationMeta }: Props) {
   const rpName = locationMeta?.responsible_party || locationMeta?.owner_name;
-  const rpPhone =
-    locationMeta?.responsible_party_phone || locationMeta?.owner_phone;
-  const rpEmail =
-    locationMeta?.responsible_party_email || locationMeta?.owner_email;
+  const rpPhone = locationMeta?.responsible_party_phone || locationMeta?.owner_phone;
+  const rpEmail = locationMeta?.responsible_party_email || locationMeta?.owner_email;
 
   const siteLine = [
     locationMeta?.block_lot && `Block/Lot: ${locationMeta.block_lot}`,
     locationMeta?.facility_type,
-    locationMeta?.number_of_units != null &&
-      `${locationMeta.number_of_units} units`,
+    locationMeta?.number_of_units != null && `${locationMeta.number_of_units} units`,
   ]
     .filter(Boolean)
     .join(" · ");
@@ -43,12 +37,8 @@ export default function ChronologyContextHeader({
           <p className="font-semibold text-muted-foreground uppercase tracking-wide text-[10px] mb-1 flex items-center gap-1">
             <MapPin className="w-2.5 h-2.5" /> Site Metadata
           </p>
-          <p className="text-foreground font-medium">
-            {locationMeta?.address || "—"}
-          </p>
-          <p className="text-muted-foreground text-[10px] mt-0.5">
-            {siteLine || "—"}
-          </p>
+          <p className="text-foreground font-medium">{locationMeta?.address || "—"}</p>
+          <p className="text-muted-foreground text-[10px] mt-0.5">{siteLine || "—"}</p>
         </div>
 
         {/* Owner / RP Details */}
@@ -72,9 +62,7 @@ export default function ChronologyContextHeader({
               ? `${formatDate(packetMeta.hearing_date)}${packetMeta.hearingTime ? ` · ${packetMeta.hearingTime}` : ""}`
               : "—"}
           </p>
-          <p className="text-muted-foreground text-[10px] mt-0.5">
-            {hearingLine || "—"}
-          </p>
+          <p className="text-muted-foreground text-[10px] mt-0.5">{hearingLine || "—"}</p>
         </div>
       </div>
     </section>

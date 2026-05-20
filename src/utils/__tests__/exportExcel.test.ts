@@ -1,11 +1,4 @@
-import {
-  describe,
-  it,
-  expect,
-  vi,
-  beforeEach,
-  afterEach,
-} from "vite-plus/test";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vite-plus/test";
 import { exportToExcel, exportToCSV } from "@/utils/exportExcel";
 
 interface TestRow extends Record<string, unknown> {
@@ -31,12 +24,8 @@ describe("exportExcel", () => {
     createElementSpy = vi
       .spyOn(document, "createElement")
       .mockReturnValue(mockAnchor as unknown as HTMLAnchorElement);
-    createObjectURLSpy = vi
-      .spyOn(URL, "createObjectURL")
-      .mockReturnValue("blob:test-url");
-    revokeObjectURLSpy = vi
-      .spyOn(URL, "revokeObjectURL")
-      .mockImplementation(() => {});
+    createObjectURLSpy = vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:test-url");
+    revokeObjectURLSpy = vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {});
     clickSpy = vi.spyOn(mockAnchor, "click").mockImplementation(() => {});
   });
 

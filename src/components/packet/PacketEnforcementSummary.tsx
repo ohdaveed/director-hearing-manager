@@ -42,10 +42,7 @@ interface EnforcementFlags {
   appealNonPermitted: boolean;
 }
 
-function parseFlags(
-  raw: string | undefined,
-  proposed: string[],
-): EnforcementFlags {
+function parseFlags(raw: string | undefined, proposed: string[]): EnforcementFlags {
   if (raw) {
     try {
       return JSON.parse(raw) as EnforcementFlags;
@@ -74,9 +71,7 @@ const ACTION_OPTIONS = [
 function isActionChecked(key: string, proposed: string[]): boolean {
   return proposed.some(
     (a) =>
-      a === key ||
-      a.toLowerCase().replace(/\s+/g, "_") ===
-        key.toLowerCase().replace(/\s+/g, "_"),
+      a === key || a.toLowerCase().replace(/\s+/g, "_") === key.toLowerCase().replace(/\s+/g, "_"),
   );
 }
 
@@ -89,10 +84,7 @@ export function PacketEnforcementSummary({
   inspectorSig,
   managerSig,
 }: Props) {
-  const flags = parseFlags(
-    packet.enforcement_flags,
-    packet.proposed_actions ?? [],
-  );
+  const flags = parseFlags(packet.enforcement_flags, packet.proposed_actions ?? []);
   const proposed = packet.proposed_actions ?? [];
 
   const address = complaint?.address ?? location?.address ?? "—";
@@ -250,9 +242,7 @@ export function PacketEnforcementSummary({
 
         {/* Proposed enforcement action */}
         <div style={{ marginBottom: "6px", fontSize: "9pt" }}>
-          <span style={{ fontWeight: "bold" }}>
-            Proposed enforcement action:
-          </span>
+          <span style={{ fontWeight: "bold" }}>Proposed enforcement action:</span>
           <br />
           <div
             style={{
@@ -263,10 +253,7 @@ export function PacketEnforcementSummary({
             }}
           >
             {ACTION_OPTIONS.map((opt) => (
-              <span
-                key={opt.key}
-                style={{ display: "inline-flex", alignItems: "center" }}
-              >
+              <span key={opt.key} style={{ display: "inline-flex", alignItems: "center" }}>
                 <PrintCheckbox checked={isActionChecked(opt.key, proposed)} />
                 {opt.label}
               </span>
@@ -334,10 +321,8 @@ export function PacketEnforcementSummary({
         >
           <p style={{ fontSize: "9pt", margin: "0 0 6px" }}>
             If checked, the below language{" "}
-            <strong style={{ textDecoration: "underline" }}>
-              must be included
-            </strong>{" "}
-            in the decision letter and/or Order:
+            <strong style={{ textDecoration: "underline" }}>must be included</strong> in the
+            decision letter and/or Order:
           </p>
 
           {/* Nuisance Abatement */}
@@ -364,11 +349,10 @@ export function PacketEnforcementSummary({
               lineHeight: 1.4,
             }}
           >
-            Failure to abate and remove the nuisance may result in the abatement
-            of the nuisance by the Department of Public Health and the Property
-            Owner shall become indebted to the City and County of San Francisco
-            for the costs, charges, and fees incurred by reason of the abatement
-            and removal of such nuisance upon demand.
+            Failure to abate and remove the nuisance may result in the abatement of the nuisance by
+            the Department of Public Health and the Property Owner shall become indebted to the City
+            and County of San Francisco for the costs, charges, and fees incurred by reason of the
+            abatement and removal of such nuisance upon demand.
           </p>
 
           {/* Cost Recovery */}
@@ -395,17 +379,15 @@ export function PacketEnforcementSummary({
               lineHeight: 1.4,
             }}
           >
-            In accordance with the San Francisco Health Code, the Property Owner
-            shall be indebted to the City and County of San Francisco for costs
-            incurred in abating the effects of the violation, taking other
-            remedial action, or imposing and collecting penalties, including but
-            not limited to administrative costs, costs of issuing an order,
-            inspection or monitoring costs, hearing officer costs, and
-            reasonable attorney fees if sought by the Director in the Notice of
-            Hearing. In any proceedings in which the Director seeks to recover
-            attorney's fees, the prevailing party shall be entitled to
-            reasonable attorney's fees. Failure to pay such costs, charges, and
-            fees may result in a lien against the property.
+            In accordance with the San Francisco Health Code, the Property Owner shall be indebted
+            to the City and County of San Francisco for costs incurred in abating the effects of the
+            violation, taking other remedial action, or imposing and collecting penalties, including
+            but not limited to administrative costs, costs of issuing an order, inspection or
+            monitoring costs, hearing officer costs, and reasonable attorney fees if sought by the
+            Director in the Notice of Hearing. In any proceedings in which the Director seeks to
+            recover attorney's fees, the prevailing party shall be entitled to reasonable attorney's
+            fees. Failure to pay such costs, charges, and fees may result in a lien against the
+            property.
           </p>
 
           {/* Appeal — Health Permit */}
@@ -432,13 +414,12 @@ export function PacketEnforcementSummary({
               lineHeight: 1.4,
             }}
           >
-            Within 15 calendar days of receipt of this letter, you have the
-            right to appeal this decision regarding your permit to the San
-            Francisco Board of Appeals. Appeals may be filed in-person (by
-            appointment only), by phone ((628) 652-1150) or email
-            (boardofappeals@sfgov.org). The Board's Office is located at 49
-            South Van Ness Avenue, Suite 1475. For more info, visit this website
-            at: https://sf.gov/file-appeal-permit-or-decision.
+            Within 15 calendar days of receipt of this letter, you have the right to appeal this
+            decision regarding your permit to the San Francisco Board of Appeals. Appeals may be
+            filed in-person (by appointment only), by phone ((628) 652-1150) or email
+            (boardofappeals@sfgov.org). The Board's Office is located at 49 South Van Ness Avenue,
+            Suite 1475. For more info, visit this website at:
+            https://sf.gov/file-appeal-permit-or-decision.
           </p>
 
           {/* Appeal — Non-permitted */}
@@ -465,12 +446,11 @@ export function PacketEnforcementSummary({
               lineHeight: 1.4,
             }}
           >
-            This Order is final and you may have the right to petition the
-            Superior Court of San Francisco for judicial review or appropriate
-            relief pursuant to Section 1094.6 of the California Code of Civil
-            Procedures. The filing of a petition with the Superior Court shall
-            not automatically stay the effectiveness of this Order or extend the
-            time period in which you have to abate the violation.
+            This Order is final and you may have the right to petition the Superior Court of San
+            Francisco for judicial review or appropriate relief pursuant to Section 1094.6 of the
+            California Code of Civil Procedures. The filing of a petition with the Superior Court
+            shall not automatically stay the effectiveness of this Order or extend the time period
+            in which you have to abate the violation.
           </p>
         </div>
 
@@ -540,8 +520,7 @@ export function PacketEnforcementSummary({
               fontFamily: "Times New Roman, serif",
             }}
           >
-            Environmental Health Basis for Proposed Enforcement Action Summary
-            (continued)
+            Environmental Health Basis for Proposed Enforcement Action Summary (continued)
           </p>
           <p
             style={{

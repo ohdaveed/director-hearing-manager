@@ -1,21 +1,18 @@
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
-const sectionHeaderVariants = cva(
-  "flex items-center gap-2 pb-3 border-b border-border/50",
-  {
-    variants: {
-      size: {
-        sm: "mb-3",
-        default: "mb-4",
-        lg: "mb-5",
-      },
-    },
-    defaultVariants: {
-      size: "default",
+const sectionHeaderVariants = cva("flex items-center gap-2 pb-3 border-b border-border/50", {
+  variants: {
+    size: {
+      sm: "mb-3",
+      default: "mb-4",
+      lg: "mb-5",
     },
   },
-);
+  defaultVariants: {
+    size: "default",
+  },
+});
 
 const sectionHeaderTitleVariants = cva(
   "font-semibold uppercase tracking-widest text-muted-foreground",
@@ -33,9 +30,7 @@ const sectionHeaderTitleVariants = cva(
   },
 );
 
-export type SectionHeaderSize = VariantProps<
-  typeof sectionHeaderVariants
->["size"];
+export type SectionHeaderSize = VariantProps<typeof sectionHeaderVariants>["size"];
 
 export interface SectionHeaderProps {
   icon?: React.ReactNode;
@@ -56,11 +51,7 @@ export function SectionHeader({
     <div className={cn(sectionHeaderVariants({ size }), className)}>
       {icon && <span className="text-primary/60 flex-shrink-0">{icon}</span>}
       <h2 className={sectionHeaderTitleVariants({ size })}>{title}</h2>
-      {subtitle && (
-        <span className="text-xs text-muted-foreground ml-auto">
-          {subtitle}
-        </span>
-      )}
+      {subtitle && <span className="text-xs text-muted-foreground ml-auto">{subtitle}</span>}
     </div>
   );
 }

@@ -18,10 +18,7 @@ type Props = {
   onClick?: () => void;
 };
 
-const ACCENT_CLASSES: Record<
-  Accent,
-  { card: string; bar: string; value: string; icon: string }
-> = {
+const ACCENT_CLASSES: Record<Accent, { card: string; bar: string; value: string; icon: string }> = {
   red: {
     card: "bg-destructive/8 border-destructive/25",
     bar: "bg-destructive",
@@ -54,20 +51,10 @@ const ACCENT_CLASSES: Record<
   },
 };
 
-const StatCard = memo(function StatCard({
-  label,
-  value,
-  sub,
-  accent,
-  icon,
-  to,
-  onClick,
-}: Props) {
+const StatCard = memo(function StatCard({ label, value, sub, accent, icon, to, onClick }: Props) {
   const ac = accent ? ACCENT_CLASSES[accent] : null;
   const interactive = !!(to || onClick);
-  const hoverCls = interactive
-    ? "hover:shadow-md hover:-translate-y-px cursor-pointer"
-    : "";
+  const hoverCls = interactive ? "hover:shadow-md hover:-translate-y-px cursor-pointer" : "";
   const focusCls = interactive
     ? "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
     : "";
@@ -93,11 +80,7 @@ const StatCard = memo(function StatCard({
         >
           {typeof value === "number" ? value.toLocaleString() : value}
         </p>
-        {sub && (
-          <p className="text-[11px] mt-2 text-muted-foreground leading-snug">
-            {sub}
-          </p>
-        )}
+        {sub && <p className="text-[11px] mt-2 text-muted-foreground leading-snug">{sub}</p>}
       </div>
     </>
   );

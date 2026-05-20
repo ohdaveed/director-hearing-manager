@@ -15,19 +15,18 @@ type Complaint = {
   locationRecordId?: string;
 };
 
-const QUICK_ACTION_MAP: Record<string, { label: string; nextStatus: string }> =
-  {
-    New: { label: "Schedule", nextStatus: "Inspection Scheduled" },
-    "Contact Pending": {
-      label: "Schedule",
-      nextStatus: "Inspection Scheduled",
-    },
-    "Re-Inspection Due": {
-      label: "Re-Schedule",
-      nextStatus: "Inspection Scheduled",
-    },
-    "NOV Issued": { label: "Set Re-Insp.", nextStatus: "Re-Inspection Due" },
-  };
+const QUICK_ACTION_MAP: Record<string, { label: string; nextStatus: string }> = {
+  New: { label: "Schedule", nextStatus: "Inspection Scheduled" },
+  "Contact Pending": {
+    label: "Schedule",
+    nextStatus: "Inspection Scheduled",
+  },
+  "Re-Inspection Due": {
+    label: "Re-Schedule",
+    nextStatus: "Inspection Scheduled",
+  },
+  "NOV Issued": { label: "Set Re-Insp.", nextStatus: "Re-Inspection Due" },
+};
 
 type Props = {
   complaint: Complaint;

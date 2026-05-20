@@ -1,12 +1,7 @@
 import { supabase } from "@/lib/supabase";
 import type { ComplianceResult } from "@/types/compliance";
 
-export type TaskStatus =
-  | "pending"
-  | "processing"
-  | "completed"
-  | "failed"
-  | "idle";
+export type TaskStatus = "pending" | "processing" | "completed" | "failed" | "idle";
 
 export interface AnalysisStatus {
   status: TaskStatus;
@@ -15,8 +10,7 @@ export interface AnalysisStatus {
   error?: string;
 }
 
-const EDGE_FUNCTION_URL =
-  import.meta.env.VITE_SUPABASE_URL + "/functions/v1/packet-review-trigger";
+const EDGE_FUNCTION_URL = import.meta.env.VITE_SUPABASE_URL + "/functions/v1/packet-review-trigger";
 
 export async function startAnalysis(
   text: string,
@@ -53,9 +47,7 @@ export async function startAnalysis(
   return data.taskId;
 }
 
-export async function getAnalysisStatus(
-  taskId: string,
-): Promise<AnalysisStatus> {
+export async function getAnalysisStatus(taskId: string): Promise<AnalysisStatus> {
   const { data, error } = await supabase
     .from("packet_analysis_tasks")
     .select("status, progress, result, error")

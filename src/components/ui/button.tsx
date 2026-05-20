@@ -40,8 +40,7 @@ const buttonVariants = cva(
   },
 );
 
-interface ButtonProps
-  extends ComponentProps<"button">, VariantProps<typeof buttonVariants> {
+interface ButtonProps extends ComponentProps<"button">, VariantProps<typeof buttonVariants> {
   asChild?: boolean;
 }
 

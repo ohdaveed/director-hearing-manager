@@ -17,13 +17,7 @@ type Props = {
   inspector?: any["inspector"];
 };
 
-function BlankLine({
-  width = 220,
-  value = "",
-}: {
-  width?: number;
-  value?: string;
-}) {
+function BlankLine({ width = 220, value = "" }: { width?: number; value?: string }) {
   return (
     <span
       style={{
@@ -43,12 +37,9 @@ function isMethodChecked(method: string | undefined, target: string): boolean {
   const m = method.toLowerCase();
   if (target === "hand") return m.includes("personal") || m.includes("hand");
   if (target === "postal")
-    return (
-      m.includes("mail") || m.includes("postal") || m.includes("certified")
-    );
+    return m.includes("mail") || m.includes("postal") || m.includes("certified");
   if (target === "posting") return m.includes("post");
-  if (target === "email")
-    return m.includes("email") || m.includes("electronic");
+  if (target === "email") return m.includes("email") || m.includes("electronic");
   return false;
 }
 
@@ -89,11 +80,7 @@ function ProofOfServicePage({
         lineHeight: 1.6,
       }}
     >
-      <SFDPHReportHeader
-        layout="seal-dept-left"
-        showOfficials
-        marginBottom="14px"
-      />
+      <SFDPHReportHeader layout="seal-dept-left" showOfficials marginBottom="14px" />
 
       {/* Title */}
       <p
@@ -114,16 +101,14 @@ function ProofOfServicePage({
         I, <BlankLine width={200} value={serverName} />, declare as follows:
       </p>
       <p style={{ marginBottom: "14px", fontSize: "11pt" }}>
-        I am a citizen of the United States, over the age of eighteen years and
-        not a party to the above-entitled action. I am employed at the San
-        Francisco Department of Public Health, Environmental Health Branch, 49
-        South Van Ness Avenue, Suite 600, San Francisco, CA 94103.
+        I am a citizen of the United States, over the age of eighteen years and not a party to the
+        above-entitled action. I am employed at the San Francisco Department of Public Health,
+        Environmental Health Branch, 49 South Van Ness Avenue, Suite 600, San Francisco, CA 94103.
       </p>
 
       {/* Date served and documents */}
       <p style={{ marginBottom: "10px", fontSize: "11pt" }}>
-        On <BlankLine width={120} value={serviceDate} /> I served the following
-        document(s):
+        On <BlankLine width={120} value={serviceDate} /> I served the following document(s):
       </p>
 
       {/* Document checkboxes — two columns */}
@@ -198,17 +183,15 @@ function ProofOfServicePage({
       </div>
 
       {/* Manner of service */}
-      <p style={{ marginBottom: "10px", fontSize: "11pt" }}>
-        in the manner indicated below:
-      </p>
+      <p style={{ marginBottom: "10px", fontSize: "11pt" }}>in the manner indicated below:</p>
 
       {/* Hand Delivery */}
       <div style={{ marginBottom: "12px", fontSize: "11pt" }}>
         <div style={{ display: "flex", alignItems: "flex-start" }}>
           <PrintCheckbox checked={isMethodChecked(method, "hand")} />
           <span>
-            <strong>HAND DELIVERY:</strong> I handed the documents to the person
-            whose name and signature are:
+            <strong>HAND DELIVERY:</strong> I handed the documents to the person whose name and
+            signature are:
           </span>
         </div>
         <div
@@ -246,8 +229,8 @@ function ProofOfServicePage({
         <div style={{ display: "flex", alignItems: "flex-start" }}>
           <PrintCheckbox checked={isMethodChecked(method, "posting")} />
           <span>
-            <strong>BY POSTING:</strong> I posted the document(s) in a
-            conspicuous place on the building, structure or property
+            <strong>BY POSTING:</strong> I posted the document(s) in a conspicuous place on the
+            building, structure or property
           </span>
         </div>
         <div
@@ -267,12 +250,11 @@ function ProofOfServicePage({
         <div style={{ display: "flex", alignItems: "flex-start" }}>
           <PrintCheckbox checked={isMethodChecked(method, "email")} />
           <span>
-            <strong>BY ELECTRONIC MAIL:</strong> Based on an agreement of the
-            parties to accept electronic service, I caused the documents to be
-            sent to the person(s) at the electronic service address(es) listed
-            above. Such document(s) were transmitted <em>via</em> electronic
-            mail in portable document format ("PDF") Adobe Acrobat from the
-            electronic address:{" "}
+            <strong>BY ELECTRONIC MAIL:</strong> Based on an agreement of the parties to accept
+            electronic service, I caused the documents to be sent to the person(s) at the electronic
+            service address(es) listed above. Such document(s) were transmitted <em>via</em>{" "}
+            electronic mail in portable document format ("PDF") Adobe Acrobat from the electronic
+            address:{" "}
             <BlankLine
               width={200}
               value={
@@ -287,8 +269,8 @@ function ProofOfServicePage({
 
       {/* Perjury declaration */}
       <p style={{ marginBottom: "14px", fontSize: "11pt" }}>
-        I declare under penalty of perjury pursuant to the laws of the State of
-        California that the foregoing is true and correct.
+        I declare under penalty of perjury pursuant to the laws of the State of California that the
+        foregoing is true and correct.
       </p>
 
       {/* Execution line */}
@@ -314,13 +296,7 @@ function ProofOfServicePage({
   );
 }
 
-export function PacketServiceLog({
-  serviceLog,
-  complaint,
-  location,
-  packet,
-  inspector,
-}: Props) {
+export function PacketServiceLog({ serviceLog, complaint, location, packet, inspector }: Props) {
   const hasViolations = true; // NOV is always included when there are violations in the packet
 
   if (serviceLog.length === 0) {

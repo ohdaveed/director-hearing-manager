@@ -1,10 +1,4 @@
-import {
-  createContext,
-  useContext,
-  useState,
-  useCallback,
-  ReactNode,
-} from "react";
+import { createContext, useContext, useState, useCallback, ReactNode } from "react";
 
 export type AppUser = {
   id: string;
@@ -66,11 +60,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
     setAppUser(null);
   }, []);
 
-  return (
-    <UserContext.Provider value={{ appUser, login, logout }}>
-      {children}
-    </UserContext.Provider>
-  );
+  return <UserContext.Provider value={{ appUser, login, logout }}>{children}</UserContext.Provider>;
 }
 
 export function useAppUser() {

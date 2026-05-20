@@ -6,9 +6,7 @@ const WEBP_QUALITY = 0.92;
  * If file is under 25MB, returns it unchanged.
  * Otherwise resizes to MAX_DIMENSION and converts to WebP at 0.92 quality.
  */
-export async function prepareImageForUpload(
-  file: File,
-): Promise<{ data: Blob; filename: string }> {
+export async function prepareImageForUpload(file: File): Promise<{ data: Blob; filename: string }> {
   if (file.size <= MAX_BYTES) {
     return { data: file, filename: file.name };
   }

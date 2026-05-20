@@ -2,13 +2,7 @@ import { useForm } from "react-hook-form";
 import { Button } from "./button";
 import { Input } from "./input";
 import { Textarea } from "./textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "./select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./select";
 
 type FieldType = "text" | "textarea" | "number" | "email" | "select" | "date";
 
@@ -72,9 +66,7 @@ export function ReusableForm({
             disabled={isLoading || isSubmitting}
           >
             <SelectTrigger className={error ? "border-red-500" : ""}>
-              <SelectValue
-                placeholder={field.placeholder || `Select ${field.label}`}
-              />
+              <SelectValue placeholder={field.placeholder || `Select ${field.label}`} />
             </SelectTrigger>
             <SelectContent>
               {field.options?.map((option) => (
@@ -141,9 +133,7 @@ export function ReusableForm({
           </label>
           {renderField(field)}
           {errors[field.name] && (
-            <p className="text-sm text-red-500">
-              {errors[field.name]?.message as string}
-            </p>
+            <p className="text-sm text-red-500">{errors[field.name]?.message as string}</p>
           )}
         </div>
       ))}

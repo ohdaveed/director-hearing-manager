@@ -53,13 +53,7 @@ const FACILITY_TYPES = [
   "Other",
 ];
 
-function LocationCard({
-  loc,
-  onClick,
-}: {
-  loc: Location;
-  onClick: () => void;
-}) {
+function LocationCard({ loc, onClick }: { loc: Location; onClick: () => void }) {
   return (
     <button
       type="button"
@@ -259,12 +253,8 @@ export default function AllLocationsPage() {
       owner_address: createForm.owner_address || undefined,
       owner_phone: createForm.owner_phone || undefined,
       owner_email: createForm.owner_email || undefined,
-      number_of_units: createForm.number_of_units
-        ? Number(createForm.number_of_units)
-        : undefined,
-      number_of_rooms: createForm.number_of_rooms
-        ? Number(createForm.number_of_rooms)
-        : undefined,
+      number_of_units: createForm.number_of_units ? Number(createForm.number_of_units) : undefined,
+      number_of_rooms: createForm.number_of_rooms ? Number(createForm.number_of_rooms) : undefined,
       healthy_housing: createForm.healthy_housing || undefined,
       census_tract: createForm.census_tract || undefined,
       block_lot: createForm.block_lot || undefined,
@@ -293,8 +283,8 @@ export default function AllLocationsPage() {
             <h1 className="text-xl font-bold text-foreground">All Locations</h1>
           </div>
           <p className="text-sm text-muted-foreground pl-10">
-            Search by street address or Location ID to view complaints and
-            inspections at a property.
+            Search by street address or Location ID to view complaints and inspections at a
+            property.
           </p>
         </div>
 
@@ -332,9 +322,7 @@ export default function AllLocationsPage() {
         {!loading && error && (
           <div className="flex items-center gap-2.5 text-destructive bg-destructive/5 border border-destructive/20 rounded-xl px-5 py-4">
             <AlertCircle className="w-4 h-4 flex-shrink-0" />
-            <p className="text-sm">
-              Failed to search locations. Please try again.
-            </p>
+            <p className="text-sm">Failed to search locations. Please try again.</p>
           </div>
         )}
 
@@ -342,9 +330,7 @@ export default function AllLocationsPage() {
         {!loading && !error && searched && results.length === 0 && (
           <div className="text-center py-16">
             <MapPin className="w-10 h-10 mx-auto mb-3 text-muted-foreground opacity-25" />
-            <p className="text-sm font-medium text-muted-foreground">
-              No locations found
-            </p>
+            <p className="text-sm font-medium text-muted-foreground">No locations found</p>
             <p className="text-xs text-muted-foreground mt-1 mb-4">
               Try a different address or Location ID
             </p>
@@ -369,14 +355,8 @@ export default function AllLocationsPage() {
           <Card className="mb-6">
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle className="text-base">
-                  New Location Details
-                </CardTitle>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setShowCreateForm(false)}
-                >
+                <CardTitle className="text-base">New Location Details</CardTitle>
+                <Button variant="ghost" size="sm" onClick={() => setShowCreateForm(false)}>
                   Cancel
                 </Button>
               </div>
@@ -417,14 +397,9 @@ export default function AllLocationsPage() {
                   <Label htmlFor="loc-facility-type">Facility Type</Label>
                   <Select
                     value={createForm.facility_type}
-                    onValueChange={(v) =>
-                      setCreateForm((prev) => ({ ...prev, facility_type: v }))
-                    }
+                    onValueChange={(v) => setCreateForm((prev) => ({ ...prev, facility_type: v }))}
                   >
-                    <SelectTrigger
-                      id="loc-facility-type"
-                      className="text-sm h-9"
-                    >
+                    <SelectTrigger id="loc-facility-type" className="text-sm h-9">
                       <SelectValue placeholder="Select type..." />
                     </SelectTrigger>
                     <SelectContent>
@@ -649,9 +624,7 @@ export default function AllLocationsPage() {
                   disabled={createMutation.isPending}
                   className="gap-2"
                 >
-                  {createMutation.isPending && (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  )}
+                  {createMutation.isPending && <Loader2 className="w-4 h-4 animate-spin" />}
                   Save Location
                 </Button>
               </div>
@@ -705,9 +678,7 @@ export default function AllLocationsPage() {
             ) : (
               <div className="text-center py-16">
                 <MapPin className="w-10 h-10 mx-auto mb-3 text-muted-foreground opacity-25" />
-                <p className="text-sm font-medium text-muted-foreground">
-                  No locations yet
-                </p>
+                <p className="text-sm font-medium text-muted-foreground">No locations yet</p>
                 <p className="text-xs text-muted-foreground mt-1">
                   Locations will appear here once they are added.
                 </p>

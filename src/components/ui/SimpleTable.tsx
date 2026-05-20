@@ -36,9 +36,7 @@ export function SimpleTable<T extends Record<string, any>>({
   const filtered = data.filter(
     (row) =>
       search === "" ||
-      Object.values(row).some((val) =>
-        String(val).toLowerCase().includes(search.toLowerCase()),
-      ),
+      Object.values(row).some((val) => String(val).toLowerCase().includes(search.toLowerCase())),
   );
 
   const sorted = [...filtered].sort((a, b) => {
@@ -116,9 +114,7 @@ export function SimpleTable<T extends Record<string, any>>({
               >
                 {columns.map((col) => (
                   <td key={String(col.key)} className="px-4 py-3 text-sm">
-                    {col.render
-                      ? col.render(row[col.key], row)
-                      : String(row[col.key] ?? "")}
+                    {col.render ? col.render(row[col.key], row) : String(row[col.key] ?? "")}
                   </td>
                 ))}
               </tr>

@@ -6,11 +6,7 @@ export const locationSchema = z.object({
   owner_name: z.string().optional(),
   owner_address: z.string().optional(),
   owner_phone: z.string().optional(),
-  owner_email: z
-    .string()
-    .email("Invalid email format")
-    .optional()
-    .or(z.literal("")),
+  owner_email: z.string().email("Invalid email format").optional().or(z.literal("")),
   facility_type: z.string().optional(),
   number_of_units: z.number().min(0).optional().nullable(),
   number_of_rooms: z.number().min(0).optional().nullable(),
@@ -21,11 +17,7 @@ export const locationSchema = z.object({
   management_name: z.string().optional(),
   responsible_party: z.string().optional(),
   responsible_party_phone: z.string().optional(),
-  responsible_party_email: z
-    .string()
-    .email("Invalid email format")
-    .optional()
-    .or(z.literal("")),
+  responsible_party_email: z.string().email("Invalid email format").optional().or(z.literal("")),
   building_features: z.array(z.string()).optional(),
 });
 

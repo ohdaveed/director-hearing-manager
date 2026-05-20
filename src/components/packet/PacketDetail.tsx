@@ -1,9 +1,6 @@
 import { lazy, Suspense, useState } from "react";
-import {
-  PACKET_STATUSES,
-  PacketStatus,
-  PacketValidationResult,
-} from "@/services/packetService";
+import { PACKET_STATUSES, PacketStatus, PacketValidationResult } from "@/services/packetService";
+import { useAuth } from "@/context/AuthContext";
 import { usePacketForm } from "@/hooks/usePacketForm";
 import { usePacketGeneration } from "@/hooks/usePacketGeneration";
 import {
@@ -18,11 +15,7 @@ import {
   PROPOSED_ACTION_OPTIONS,
   STATUS_BADGE,
 } from "@/constants/packet";
-import {
-  formatPacketDate,
-  formatPacketDateTime,
-  parsePacketHistory,
-} from "@/utils/packetFormat";
+import { formatPacketDate, formatPacketDateTime, parsePacketHistory } from "@/utils/packetFormat";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -60,12 +53,8 @@ import {
   X,
 } from "lucide-react";
 
-const HearingPacketPreview = lazy(
-  () => import("@/components/HearingPacketPreview"),
-);
-const HearingOrderEditor = lazy(
-  () => import("@/components/HearingOrderEditor"),
-);
+const HearingPacketPreview = lazy(() => import("@/components/HearingPacketPreview"));
+const HearingOrderEditor = lazy(() => import("@/components/HearingOrderEditor"));
 
 export function PacketDetail({
   packetId,
@@ -76,24 +65,27 @@ export function PacketDetail({
   onClose: () => void;
   userRole?: string;
 }) {
+  const { user } = useAuth();
   const isManagerRole = userRole ? MANAGER_ROLES.includes(userRole as any) : false;
+  const userDisplayName =
+    [user?.firstName, user?.lastName].filter(Boolean).join(" ") || user?.email || undefined;
 
   const { data: detail, isLoading } = usePacketDetailQuery(packetId);
   const { data: files = [] } = usePacketFilesQuery(packetId);
   const { data: events = [] } = usePacketEventsQuery(packetId);
 
   const packet = detail?.packet;
-  const validationResults = (packet?.validation_results_json ??
-    []) as PacketValidationResult[];
+  const validationResults = (packet?.validation_results_json ?? []) as PacketValidationResult[];
   const currentStatus = (packet?.packet_status ?? "Not Started") as PacketStatus;
-  const {
-    form,
-    setField,
-    toggleProposedAction,
-    buildUpdatePayload,
-    isDirty,
-  } = usePacketForm(packet);
-  const workflow = usePacketWorkflow({ packetId, currentStatus });
+  const statusHistory = parsePacketHistory(packet?.status_history_json ?? packet?.status_history);
+  const { form, setField, toggleProposedAction, buildUpdatePayload, isDirty } =
+    usePacketForm(packet);
+  const workflow = usePacketWorkflow({
+    packetId,
+    currentStatus,
+    statusHistory,
+    userName: userDisplayName,
+  });
   const generation = usePacketGeneration(packetId);
 
   const [returnNotes, setReturnNotes] = useState("");
@@ -104,13 +96,29 @@ export function PacketDetail({
   const cachedData = detail;
   const isComplete = ["Approved", "Complete", "Submitted"].includes(form.status);
   const badgeCls = STATUS_BADGE[form.status] ?? "bg-muted text-muted-foreground";
-  const history = parsePacketHistory(
-    packet?.status_history_json ?? packet?.status_history,
-  ).reverse();
+  const history = [...statusHistory].reverse();
   const hasRevisionNotes = !!packet?.revision_notes?.trim();
+  const statusOptions = PACKET_STATUSES.filter((status) => {
+    if (status === currentStatus) return true;
+    if (!workflow.canTransition(status)) return false;
+    if (!isManagerRole && status === "Approved") return false;
+    if (status === "Changes Requested" && currentStatus !== "Changes Requested") {
+      return false;
+    }
+    return true;
+  });
 
   const handleSave = () => {
-    workflow.savePacket(buildUpdatePayload());
+    const payload = buildUpdatePayload();
+    const nextStatus = payload.packet_status as PacketStatus;
+    if (nextStatus !== currentStatus) {
+      workflow.transitionToStatus({
+        toStatus: nextStatus,
+        updates: payload,
+      });
+      return;
+    }
+    workflow.savePacket(payload);
   };
 
   const handleReturnForRevision = () => {
@@ -123,15 +131,10 @@ export function PacketDetail({
     return (
       <Suspense
         fallback={
-          <div className="p-8 text-center text-muted-foreground">
-            Loading packet preview…
-          </div>
+          <div className="p-8 text-center text-muted-foreground">Loading packet preview…</div>
         }
       >
-        <HearingPacketPreview
-          data={cachedData}
-          onClose={() => setShowFullPacket(false)}
-        />
+        <HearingPacketPreview data={cachedData} onClose={() => setShowFullPacket(false)} />
       </Suspense>
     );
   }
@@ -155,12 +158,8 @@ export function PacketDetail({
       <div className="flex items-center justify-between px-5 py-3.5 border-b border-border bg-muted/30">
         <div className="flex items-center gap-2.5 min-w-0">
           <Package className="w-4 h-4 text-muted-foreground shrink-0" />
-          <h2 className="text-sm font-semibold text-foreground truncate">
-            Hearing Packet
-          </h2>
-          <span
-            className={`text-xs px-2 py-0.5 rounded-full font-medium shrink-0 ${badgeCls}`}
-          >
+          <h2 className="text-sm font-semibold text-foreground truncate">Hearing Packet</h2>
+          <span className={`text-xs px-2 py-0.5 rounded-full font-medium shrink-0 ${badgeCls}`}>
             {form.status}
           </span>
           {packet.generated_at && (
@@ -193,12 +192,11 @@ export function PacketDetail({
                 <Clock className="w-3 h-3" /> Hearing: {formatPacketDate(packet.hearing_date)}
               </p>
             </div>
-            {detail.complaint?.hearing_status &&
-              detail.complaint.hearing_status !== "None" && (
-                <span className="text-xs px-2 py-0.5 rounded-full bg-accent/50 text-accent-foreground font-medium whitespace-nowrap">
-                  {detail.complaint.hearing_status}
-                </span>
-              )}
+            {detail.complaint?.hearing_status && detail.complaint.hearing_status !== "None" && (
+              <span className="text-xs px-2 py-0.5 rounded-full bg-accent/50 text-accent-foreground font-medium whitespace-nowrap">
+                {detail.complaint.hearing_status}
+              </span>
+            )}
           </div>
         </div>
 
@@ -296,9 +294,7 @@ export function PacketDetail({
           <div className="rounded-lg border border-border bg-card mb-3 p-3 space-y-3">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <p className="text-xs font-semibold text-foreground">
-                  Manager review actions
-                </p>
+                <p className="text-xs font-semibold text-foreground">Manager review actions</p>
                 <p className="text-[11px] text-muted-foreground">
                   Approve packet or request changes.
                 </p>
@@ -494,12 +490,15 @@ export function PacketDetail({
             <Label className="text-xs font-medium text-muted-foreground mb-1.5 block">
               Packet Status
             </Label>
-            <Select value={form.status} onValueChange={(value) => setField("status", value as PacketStatus)}>
+            <Select
+              value={form.status}
+              onValueChange={(value) => setField("status", value as PacketStatus)}
+            >
               <SelectTrigger className="h-9 text-sm">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {PACKET_STATUSES.map((item) => (
+                {statusOptions.map((item) => (
                   <SelectItem key={item} value={item}>
                     {item}
                   </SelectItem>
@@ -522,7 +521,11 @@ export function PacketDetail({
           </div>
 
           <div className="grid grid-cols-2 gap-2">
-            <Button onClick={handleSave} disabled={workflow.isUpdating || !isDirty} className="gap-2">
+            <Button
+              onClick={handleSave}
+              disabled={workflow.isUpdating || !isDirty}
+              className="gap-2"
+            >
               {workflow.isUpdating ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
               ) : (
@@ -571,10 +574,7 @@ export function PacketDetail({
         </TabsContent>
 
         {isComplete && (
-          <TabsContent
-            value="order"
-            className="p-5 mt-0 overflow-y-auto max-h-[calc(100vh-320px)]"
-          >
+          <TabsContent value="order" className="p-5 mt-0 overflow-y-auto max-h-[calc(100vh-320px)]">
             <Suspense
               fallback={
                 <div className="text-center py-12 text-muted-foreground">

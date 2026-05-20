@@ -9,11 +9,7 @@ import {
 import { AnimatePresence, motion } from "framer-motion";
 import { ALL_COMPLAINT_STATUSES } from "@/utils/complaintStatuses";
 
-const CLOSED_STATUSES = [
-  "Closed — Compliant",
-  "Closed — No Violation",
-  "Closed — Unfounded",
-];
+const CLOSED_STATUSES = ["Closed — Compliant", "Closed — No Violation", "Closed — Unfounded"];
 
 interface Props {
   status: string;
@@ -22,12 +18,7 @@ interface Props {
   setDateClosed: (v: string) => void;
 }
 
-export default function StatusSection({
-  status,
-  setStatus,
-  dateClosed,
-  setDateClosed,
-}: Props) {
+export default function StatusSection({ status, setStatus, dateClosed, setDateClosed }: Props) {
   const isClosed = CLOSED_STATUSES.includes(status);
   return (
     <div className="bg-card border border-border rounded-xl shadow-sm p-4 sm:p-6 mb-6 sm:mb-8">

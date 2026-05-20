@@ -4,9 +4,7 @@ import { wordService } from "../wordService";
 // Mock mammoth
 vi.mock("mammoth", () => ({
   default: {
-    extractRawText: vi
-      .fn()
-      .mockResolvedValue({ value: "Extracted text from docx" }),
+    extractRawText: vi.fn().mockResolvedValue({ value: "Extracted text from docx" }),
   },
 }));
 

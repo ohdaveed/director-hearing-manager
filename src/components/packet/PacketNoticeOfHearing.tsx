@@ -5,12 +5,7 @@
  */
 
 import { SFDPHReportHeader } from "./SFDPHReportHeader";
-import {
-  fmtDate,
-  PrintCheckbox,
-  SFDPHReportFooter,
-  ExhibitLabel,
-} from "./printUtils";
+import { fmtDate, PrintCheckbox, SFDPHReportFooter, ExhibitLabel } from "./printUtils";
 
 type Props = {
   packet: any["packet"];
@@ -72,26 +67,18 @@ function FieldLine({
 }
 
 /** Determine program type checkbox from assignedProgram */
-function getProgramChecks(
-  assignedProgram: string | undefined,
-  categories: string[] | undefined,
-) {
+function getProgramChecks(assignedProgram: string | undefined, categories: string[] | undefined) {
   const prog = (assignedProgram ?? "").toLowerCase();
   return {
     food: prog.includes("food"),
-    housing:
-      prog.includes("health") ||
-      prog.includes("housing") ||
-      prog.includes("vector"),
+    housing: prog.includes("health") || prog.includes("housing") || prog.includes("vector"),
     massage: prog.includes("massage"),
     tobacco: prog.includes("tobacco"),
     solidWaste:
       prog.includes("solid") ||
       prog.includes("waste") ||
       (categories ?? []).some(
-        (c) =>
-          c.toLowerCase().includes("garbage") ||
-          c.toLowerCase().includes("waste"),
+        (c) => c.toLowerCase().includes("garbage") || c.toLowerCase().includes("waste"),
       ),
     other:
       !prog.includes("health") &&
@@ -104,15 +91,9 @@ function getProgramChecks(
 }
 
 /** Permit # logic: HHVC with 3+ units → use Location ID */
-function getPermitNumber(
-  complaint: Props["complaint"],
-  location: Props["location"],
-): string {
+function getPermitNumber(complaint: Props["complaint"], location: Props["location"]): string {
   const prog = (complaint?.assignedProgram ?? "").toLowerCase();
-  const isHHVC =
-    prog.includes("health") ||
-    prog.includes("housing") ||
-    prog.includes("vector");
+  const isHHVC = prog.includes("health") || prog.includes("housing") || prog.includes("vector");
   const units = location?.number_of_units ?? 0;
   if (isHHVC && units >= 3 && location?.id) {
     return location.id.slice(-8).toUpperCase();
@@ -128,8 +109,7 @@ export function PacketNoticeOfHearing({
   inspections,
   exhibitLetter,
 }: Props) {
-  const noticeDate =
-    complaint?.noticeOfHearingDate ?? new Date().toISOString().split("T")[0];
+  const noticeDate = complaint?.noticeOfHearingDate ?? new Date().toISOString().split("T")[0];
   const address = complaint?.address ?? location?.address ?? "";
   const ownerName = location?.owner_name ?? "";
   const ownerEmail = location?.owner_email ?? "";
@@ -141,10 +121,7 @@ export function PacketNoticeOfHearing({
   const rpEmail = complaint?.hearingRpEmail || ownerEmail;
   const rpAddress = complaint?.hearingRpAddress || ownerAddress;
 
-  const prog = getProgramChecks(
-    complaint?.assignedProgram,
-    complaint?.category,
-  );
+  const prog = getProgramChecks(complaint?.assignedProgram, complaint?.category);
   const otherProg = prog.other ? (complaint?.assignedProgram ?? "") : "";
 
   const codeSections = [
@@ -180,27 +157,20 @@ export function PacketNoticeOfHearing({
         }}
       >
         <p style={{ margin: "0 0 2px" }}>
-          For a translation of this Notice, please call the inspector's phone
-          number listed below.
+          For a translation of this Notice, please call the inspector's phone number listed below.
         </p>
         <p style={{ margin: "0 0 2px" }}>
-          Para una traducción de este aviso, por favor llame al número de
-          teléfono del inspector que aparece a continuación.
+          Para una traducción de este aviso, por favor llame al número de teléfono del inspector que
+          aparece a continuación.
         </p>
-        <p style={{ margin: "0 0 2px" }}>
-          欲索取本通知的翻譯本，請打下列電話號碼給檢查員。
-        </p>
+        <p style={{ margin: "0 0 2px" }}>欲索取本通知的翻譯本，請打下列電話號碼給檢查員。</p>
         <p style={{ margin: "0" }}>
-          Kung gusto ninyo ng pagsasalin ng Abisong ito, mangyaring tawagan ang
-          numero ng telepono ng inspektor na nakalista sa ibaba.
+          Kung gusto ninyo ng pagsasalin ng Abisong ito, mangyaring tawagan ang numero ng telepono
+          ng inspektor na nakalista sa ibaba.
         </p>
       </div>
 
-      <SFDPHReportHeader
-        layout="seal-dept-left"
-        showOfficials
-        marginBottom="10px"
-      />
+      <SFDPHReportHeader layout="seal-dept-left" showOfficials marginBottom="10px" />
 
       {/* Title */}
       <p
@@ -331,8 +301,8 @@ export function PacketNoticeOfHearing({
 
       {/* Order to appear */}
       <p style={{ fontWeight: "bold", marginBottom: "6px", fontSize: "11pt" }}>
-        You are hereby ordered to appear at a hearing for failure to comply with
-        the following code section(s):
+        You are hereby ordered to appear at a hearing for failure to comply with the following code
+        section(s):
       </p>
       <div
         style={{
@@ -348,8 +318,8 @@ export function PacketNoticeOfHearing({
 
       {/* Hearing line */}
       <p style={{ fontWeight: "bold", marginBottom: "14px", fontSize: "11pt" }}>
-        The hearing will be held at 49 So. Van Ness Ave., Rm. 192/194, on the
-        following date and time:{" "}
+        The hearing will be held at 49 So. Van Ness Ave., Rm. 192/194, on the following date and
+        time:{" "}
         <span
           style={{
             borderBottom: "1px solid black",
@@ -365,10 +335,9 @@ export function PacketNoticeOfHearing({
 
       {/* Failure to appear */}
       <p style={{ marginBottom: "14px", fontSize: "11pt" }}>
-        Failure to appear may result in one or more of the following: penalties,
-        suspension or revocation of any Permit to Operate, SFDPH initiated
-        refuse collection service, and/or a referral to the San Francisco City
-        Attorney's Office for the above referenced site.
+        Failure to appear may result in one or more of the following: penalties, suspension or
+        revocation of any Permit to Operate, SFDPH initiated refuse collection service, and/or a
+        referral to the San Francisco City Attorney's Office for the above referenced site.
       </p>
 
       {/* Multilingual interpretation box */}
@@ -381,22 +350,19 @@ export function PacketNoticeOfHearing({
         }}
       >
         <p style={{ margin: "0 0 2px" }}>
-          If you would like interpretation services at the Hearing, please
-          inform the Inspector below at least 4 business days before the
-          Hearing.
+          If you would like interpretation services at the Hearing, please inform the Inspector
+          below at least 4 business days before the Hearing.
         </p>
         <p style={{ margin: "0 0 2px" }}>
-          Si usted desea servicios de interpretación en la audiencia, por favor
-          informe al inspector que aparece a continuación por lo menos 4 días
-          hábiles antes de la audiencia.
+          Si usted desea servicios de interpretación en la audiencia, por favor informe al inspector
+          que aparece a continuación por lo menos 4 días hábiles antes de la audiencia.
         </p>
         <p style={{ margin: "0 0 2px" }}>
           如果您需要在聽證會上得到口譯/傳譯服務，請在聽證會之前至少4個工作日通知下列檢查員。
         </p>
         <p style={{ margin: "0" }}>
-          Kung gusto ninyo ng mga serbisyo ng interpretasyon sa Pagdinig,
-          mangyaring ipagbigay-alam sa Inspektor na nakalista sa ibaba ng hindi
-          bababa sa 4 araw ng negosyo bago ang Pagdinig.
+          Kung gusto ninyo ng mga serbisyo ng interpretasyon sa Pagdinig, mangyaring ipagbigay-alam
+          sa Inspektor na nakalista sa ibaba ng hindi bababa sa 4 araw ng negosyo bago ang Pagdinig.
         </p>
       </div>
 

@@ -18,8 +18,7 @@ vi.mock("@anthropic-ai/sdk", () => {
 
 describe("aiService", () => {
   it("should extract violations from inspection report text", async () => {
-    const reportText =
-      "INSPECTION REPORT\nFound rodent droppings. Citation: § 581(b)(13).";
+    const reportText = "INSPECTION REPORT\nFound rodent droppings. Citation: § 581(b)(13).";
 
     // Setup mock response
     mockMessagesCreate.mockResolvedValue({
@@ -46,9 +45,7 @@ describe("aiService", () => {
       }),
     );
     // Check if standards were added via post-processing
-    expect(violations[0].regulatoryStandards).toContain(
-      "STRUCTURAL GAPS & SEALING",
-    );
+    expect(violations[0].regulatoryStandards).toContain("STRUCTURAL GAPS & SEALING");
   });
 
   it("should filter out non-Article 11 codes", async () => {
@@ -77,8 +74,7 @@ describe("aiService", () => {
 
   describe("analyzePacketCompliance", () => {
     it("should return compliance result from AI response", async () => {
-      const draftText =
-        "Director Hearing Packet\nCover Page: Case #123\nNotice of Violation";
+      const draftText = "Director Hearing Packet\nCover Page: Case #123\nNotice of Violation";
 
       mockMessagesCreate.mockResolvedValue({
         id: "msg_compliance_123",
@@ -113,10 +109,7 @@ describe("aiService", () => {
         usage: { input_tokens: 100, output_tokens: 200 },
       } as any);
 
-      const result = await aiService.analyzePacketCompliance(
-        draftText,
-        "draft_packet.pdf",
-      );
+      const result = await aiService.analyzePacketCompliance(draftText, "draft_packet.pdf");
 
       expect(result.isCompliant).toBe(false);
       expect(result.score).toBe(75);
@@ -181,17 +174,12 @@ describe("aiService", () => {
     it("should handle API errors gracefully", async () => {
       mockMessagesCreate.mockRejectedValue(new Error("API Error"));
 
-      const result = await aiService.analyzePacketCompliance(
-        "test content",
-        "test.pdf",
-      );
+      const result = await aiService.analyzePacketCompliance("test content", "test.pdf");
 
       expect(result.isCompliant).toBe(false);
       expect(result.score).toBe(0);
       expect(result.summary).toBe("Failed to analyze document");
-      expect(result.recommendations).toContain(
-        "Please try again or manually verify compliance",
-      );
+      expect(result.recommendations).toContain("Please try again or manually verify compliance");
     });
   });
 });
@@ -223,10 +211,7 @@ describe("generateCorrectedPacket", () => {
       usage: { input_tokens: 10, output_tokens: 20 },
     } as any);
 
-    const result = await aiService.generateCorrectedPacket(
-      "original text",
-      mockResult,
-    );
+    const result = await aiService.generateCorrectedPacket("original text", mockResult);
     expect(result).toBe("This is the corrected packet text.");
   });
 });

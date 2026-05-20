@@ -105,10 +105,7 @@ function normalizePacketRow<T extends Record<string, any>>(packet: T): T {
     ...packet,
     checklist_json: parseJsonField(packet.checklist_json ?? packet.checklist_data, {}),
     enforcement_json: parseJsonField(packet.enforcement_json ?? packet.enforcement_flags, {}),
-    status_history_json: parseJsonField(
-      packet.status_history_json ?? packet.status_history,
-      [],
-    ),
+    status_history_json: parseJsonField(packet.status_history_json ?? packet.status_history, []),
     selected_report_ids_json: parseJsonField(
       packet.selected_report_ids_json ?? packet.selected_report_ids,
       [],
@@ -151,9 +148,7 @@ function toLegacyCompatibleUpdates(updates: Record<string, any>) {
 }
 
 export const packetService = {
-  async getAll(
-    filters: { statusFilter?: string; assignedToFilter?: string } = {},
-  ) {
+  async getAll(filters: { statusFilter?: string; assignedToFilter?: string } = {}) {
     let query = supabase
       .from("hearing_packets")
       .select(
@@ -314,10 +309,9 @@ export const packetService = {
   },
 
   async getGeneratedFileUrl(fileId: string): Promise<GeneratedFileUrlResult> {
-    const { data, error } = await supabase.functions.invoke(
-      "get-hearing-packet-file-url",
-      { body: { fileId } },
-    );
+    const { data, error } = await supabase.functions.invoke("get-hearing-packet-file-url", {
+      body: { fileId },
+    });
     if (error) throw error;
     return data as GeneratedFileUrlResult;
   },

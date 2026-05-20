@@ -43,10 +43,7 @@ export async function searchSOP(
 }
 
 // Fallback text search when vector search is unavailable
-async function fallbackTextSearch(
-  query: string,
-  topK: number,
-): Promise<SopReference[]> {
+async function fallbackTextSearch(query: string, topK: number): Promise<SopReference[]> {
   const queryTerms = query.toLowerCase().split(/\s+/);
 
   const { data, error } = await supabase

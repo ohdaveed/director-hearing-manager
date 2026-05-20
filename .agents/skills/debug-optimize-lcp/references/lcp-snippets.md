@@ -61,9 +61,7 @@ Use this snippet to check for common DOM-based LCP issues (lazy loading, priorit
 
   // Check for render-blocking scripts in head
   document
-    .querySelectorAll(
-      'head script:not([async]):not([defer]):not([type="module"])',
-    )
+    .querySelectorAll('head script:not([async]):not([defer]):not([type="module"])')
     .forEach((script) => {
       if (script.src) {
         issues.push({

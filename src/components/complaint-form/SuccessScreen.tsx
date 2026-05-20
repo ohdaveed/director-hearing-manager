@@ -34,9 +34,7 @@ export default function SuccessScreen({ summary, onReset }: Props) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.25 }}
         >
-          <h2 className="text-2xl font-bold text-foreground mb-2">
-            Complaint Created!
-          </h2>
+          <h2 className="text-2xl font-bold text-foreground mb-2">Complaint Created!</h2>
           <p className="text-muted-foreground mb-5">
             The complaint has been saved and is ready for inspection.
           </p>
@@ -47,9 +45,7 @@ export default function SuccessScreen({ summary, onReset }: Props) {
                 <p className="text-[10px] text-muted-foreground uppercase tracking-wide font-medium">
                   Address
                 </p>
-                <p className="text-sm font-semibold text-foreground">
-                  {summary.address}
-                </p>
+                <p className="text-sm font-semibold text-foreground">{summary.address}</p>
               </div>
             </div>
             <div className="flex items-start gap-2">
@@ -69,9 +65,7 @@ export default function SuccessScreen({ summary, onReset }: Props) {
                 <p className="text-[10px] text-muted-foreground uppercase tracking-wide font-medium">
                   Assigned Inspector
                 </p>
-                <p className="text-sm font-semibold text-foreground">
-                  {summary.assignedTo}
-                </p>
+                <p className="text-sm font-semibold text-foreground">{summary.assignedTo}</p>
               </div>
             </div>
           </div>

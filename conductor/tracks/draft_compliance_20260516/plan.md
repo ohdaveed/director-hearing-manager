@@ -29,7 +29,7 @@
 
 ## Phase 4: Document Generation and Storage
 
-*Detailed implementation plan written: `conductor/tracks/draft_compliance_20260516/phase-4-implementation-plan.md`*
+_Detailed implementation plan written: `conductor/tracks/draft_compliance_20260516/phase-4-implementation-plan.md`_
 
 - [x] Task: Map the approved, structured data to the existing packet generation templates.
   - [x] Task: Write failing tests for the data mapper function.

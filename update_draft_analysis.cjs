@@ -1,10 +1,10 @@
-const fs = require('fs');
-let code = fs.readFileSync('src/pages/DraftPacketAnalysisPage.tsx', 'utf-8');
+const fs = require("fs");
+let code = fs.readFileSync("src/pages/DraftPacketAnalysisPage.tsx", "utf-8");
 
 // Add state for corrected text
 code = code.replace(
   /const \[result, setResult\] = useState<ComplianceResult \| undefined>\(\);/,
-  'const [result, setResult] = useState<ComplianceResult | undefined>();\n  const [correctedText, setCorrectedText] = useState("");'
+  'const [result, setResult] = useState<ComplianceResult | undefined>();\n  const [correctedText, setCorrectedText] = useState("");',
 );
 
 // We need an option to Generate Corrected Packet
@@ -29,7 +29,7 @@ code = code.replace(handleBackRegex, generateHandler);
 // Add the view rendering for "generating" and "corrected" states
 const renderEnd = `  return (
     <div className="max-w-2xl mx-auto p-6">`;
-    
+
 const renderStart = `  if (viewState === "generating") {
     return (
       <div className="max-w-2xl mx-auto p-12 text-center">
@@ -78,7 +78,7 @@ code = code.replace(renderEnd, renderStart);
 // In DraftPacketAnalysisPage, the ParallelReviewView is rendered. We can pass a new prop `onGenerateCorrected` to it.
 code = code.replace(
   /onDownload=\{handleDownload\}/,
-  'onDownload={handleDownload}\n        onGenerateCorrected={handleGenerateCorrected}'
+  "onDownload={handleDownload}\n        onGenerateCorrected={handleGenerateCorrected}",
 );
 
-fs.writeFileSync('src/pages/DraftPacketAnalysisPage.tsx', code);
+fs.writeFileSync("src/pages/DraftPacketAnalysisPage.tsx", code);

@@ -11,8 +11,7 @@ Finds form inputs that lack an associated label (no `label[for]`, `aria-label`, 
   Array.from(document.querySelectorAll("input, select, textarea"))
     .filter((i) => {
       const hasId = i.id && document.querySelector(`label[for="${i.id}"]`);
-      const hasAria =
-        i.getAttribute("aria-label") || i.getAttribute("aria-labelledby");
+      const hasAria = i.getAttribute("aria-label") || i.getAttribute("aria-labelledby");
       return !hasId && !hasAria && !i.closest("label");
     })
     .map((i) => ({
@@ -44,9 +43,7 @@ Approximates the contrast ratio between an element's text color and background c
 (el) => {
   function getRGB(colorStr) {
     const match = colorStr.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
-    return match
-      ? [parseInt(match[1]), parseInt(match[2]), parseInt(match[3])]
-      : [255, 255, 255];
+    return match ? [parseInt(match[1]), parseInt(match[2]), parseInt(match[3])] : [255, 255, 255];
   }
   function luminance(r, g, b) {
     const a = [r, g, b].map(function (v) {
@@ -78,9 +75,7 @@ Checks document-level accessibility settings often missed in component testing.
 
 ```js
 () => ({
-  lang:
-    document.documentElement.lang ||
-    "MISSING - Screen readers need this for pronunciation",
+  lang: document.documentElement.lang || "MISSING - Screen readers need this for pronunciation",
   title: document.title || "MISSING - Required for context",
   viewport:
     document.querySelector('meta[name="viewport"]')?.content ||

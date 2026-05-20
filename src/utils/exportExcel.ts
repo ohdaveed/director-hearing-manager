@@ -1,10 +1,4 @@
-import {
-  appendSheet,
-  createWorkbook,
-  jsonToSheet,
-  sheetToCsv,
-  write,
-} from "xlsx-format";
+import { appendSheet, createWorkbook, jsonToSheet, sheetToCsv, write } from "xlsx-format";
 
 interface ExportOptions {
   fileName?: string;

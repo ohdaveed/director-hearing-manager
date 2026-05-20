@@ -1,8 +1,8 @@
-import fs from 'fs';
-import * as pdfjs from 'pdfjs-dist/legacy/build/pdf.mjs';
+import fs from "fs";
+import * as pdfjs from "pdfjs-dist/legacy/build/pdf.mjs";
 
 async function extractDraft() {
-  const fileName = 'HHP_26_08_Packet.pdf';
+  const fileName = "HHP_26_08_Packet.pdf";
   if (!fs.existsSync(fileName)) {
     console.error(`File ${fileName} not found.`);
     process.exit(1);
@@ -13,7 +13,7 @@ async function extractDraft() {
     useSystemFonts: true,
     disableFontFace: true,
   });
-  
+
   const pdf = await loadingTask.promise;
   let fullText = "";
 
@@ -24,7 +24,7 @@ async function extractDraft() {
     fullText += `--- Page ${i} ---\n` + strings.join(" ") + "\n";
   }
 
-  fs.writeFileSync('draft_hhp_26_08_extracted.txt', fullText);
+  fs.writeFileSync("draft_hhp_26_08_extracted.txt", fullText);
   console.log("Draft HHP_26_08 Text Extracted.");
 }
 

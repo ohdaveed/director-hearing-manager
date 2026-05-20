@@ -81,10 +81,7 @@ export const PHOTO_TYPE_THEME: Record<string, string> = {
  * Icon and badge backgrounds for Owner vs Tenant action assignment panels.
  * Owner = primary blue tint, Tenant = accent/secondary tint.
  */
-export const ACTION_PARTY_THEME: Record<
-  "Owner" | "Tenant",
-  { icon: string; badge: string }
-> = {
+export const ACTION_PARTY_THEME: Record<"Owner" | "Tenant", { icon: string; badge: string }> = {
   Owner: {
     icon: "bg-primary/15 text-primary",
     badge: "bg-primary/15 text-primary",

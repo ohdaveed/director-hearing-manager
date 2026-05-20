@@ -2,65 +2,65 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+   Select,
+   SelectContent,
+   SelectItem,
+   SelectTrigger,
+   SelectValue,
+ } from "@/components/ui/select";
 import { CheckCircle2, ClipboardList, AlertCircle } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { INSPECTORS } from "@/utils/inspectors";
+import { Label } from "@/components/ui/label";
+import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 
 const COMPLAINT_TYPES = [
-  "Animals and Pests",
-  "Housing Code Violations",
-  "Vector Control",
-  "Sanitation / Waste",
-  "Hazardous Conditions",
-  "Rodents",
-  "Noise",
-  "Other",
+   "Animals and Pests",
+   "Housing Code Violations",
+   "Vector Control",
+   "Sanitation / Waste",
+   "Hazardous Conditions",
+   "Rodents",
+   "Noise",
+   "Other",
 ];
 const METHODS = ["Email", "Phone", "In-Person", "311", "Walk-In", "Letter"];
-const PROGRAMS = [
-  "Healthy Housing and Vector Control",
-  "Environmental Health",
-  "Vector Control",
-];
+const PROGRAMS = ["Healthy Housing and Vector Control", "Environmental Health", "Vector Control"];
 const CATEGORIES = [
-  "Overgrown Vegetation",
-  "Rodents",
-  "Pigeons",
-  "Animal/Human Waste",
-  "Hoarding",
-  "Vector Control",
-  "Other",
+   "Overgrown Vegetation",
+   "Rodents",
+   "Pigeons",
+   "Animal/Human Waste",
+   "Hoarding",
+   "Vector Control",
+   "Other",
 ];
 
 interface Props {
-  hasDetails: boolean;
-  complaintType: string;
-  setComplaintType: (v: string) => void;
-  complaintSubtype: string;
-  setComplaintSubtype: (v: string) => void;
-  methodReceived: string;
-  setMethodReceived: (v: string) => void;
-  assignedProgram: string;
-  setAssignedProgram: (v: string) => void;
-  dateAssigned: string;
-  setDateAssigned: (v: string) => void;
-  description: string;
-  setDescription: (v: string) => void;
-  categories: string[];
-  setCategories: (v: string[]) => void;
-  assignedTo: string;
-  setAssignedTo: (v: string) => void;
-  hasLocation: boolean;
-  submitAttempted: boolean;
-  touched: Record<string, boolean>;
-  blurField: (field: string) => void;
+   hasDetails: boolean;
+   complaintType: string;
+   setComplaintType: (v: string) => void;
+   complaintSubtype: string;
+   setComplaintSubtype: (v: string) => void;
+   methodReceived: string;
+   setMethodReceived: (v: string) => void;
+   assignedProgram: string;
+   setAssignedProgram: (v: string) => void;
+   dateAssigned: string;
+   setDateAssigned: (v: string) => void;
+   description: string;
+   setDescription: (v: string) => void;
+   categories: string[];
+   setCategories: (v: string[]) => void;
+   assignedTo: string;
+   setAssignedTo: (v: string) => void;
+   hasLocation: boolean;
+   submitAttempted: boolean;
+   touched: Record<string, boolean>;
+   blurField: (field: string) => void;
 }
+
+// ... (constants and interface Props remain unchanged)
 
 export default function DetailsSection({
   hasDetails,
@@ -86,25 +86,24 @@ export default function DetailsSection({
   blurField,
 }: Props) {
   return (
-    <div className="bg-card border border-border rounded-xl shadow-sm p-4 sm:p-6 mb-4 sm:mb-6">
-      <div className="flex items-center gap-2 mb-5">
+    <Card className="mb-4 sm:mb-6">
+      <CardHeader className="flex flex-row items-center gap-2 pb-5">
         <div
           className={`w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold transition-colors ${hasDetails ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}
         >
           {hasDetails ? <CheckCircle2 className="w-4 h-4" /> : "3"}
         </div>
-        <h2 className="font-semibold text-foreground text-lg flex items-center gap-2">
+        <CardTitle className="flex items-center gap-2">
           <ClipboardList className="w-4 h-4 text-primary" /> Complaint Details
-        </h2>
-      </div>
-
-      <div className="space-y-4">
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
         {/* Complaint Type + Subtype */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-1">
-            <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+            <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
               Complaint Type
-            </label>
+            </Label>
             <Select value={complaintType} onValueChange={setComplaintType}>
               <SelectTrigger className="text-sm h-9">
                 <SelectValue placeholder="Select type..." />
@@ -119,9 +118,9 @@ export default function DetailsSection({
             </Select>
           </div>
           <div className="space-y-1">
-            <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+            <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
               Complaint Subtype
-            </label>
+            </Label>
             <Input
               placeholder="e.g. Animals and pests, not specified"
               value={complaintSubtype}
@@ -133,9 +132,9 @@ export default function DetailsSection({
         {/* Method + Program */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-1">
-            <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+            <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
               Method Received
-            </label>
+            </Label>
             <Select value={methodReceived} onValueChange={setMethodReceived}>
               <SelectTrigger className="text-sm h-9">
                 <SelectValue placeholder="How was this received?" />
@@ -150,9 +149,9 @@ export default function DetailsSection({
             </Select>
           </div>
           <div className="space-y-1">
-            <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+            <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
               Assigned Program
-            </label>
+            </Label>
             <Select value={assignedProgram} onValueChange={setAssignedProgram}>
               <SelectTrigger className="text-sm h-9">
                 <SelectValue placeholder="Select program..." />
@@ -171,21 +170,13 @@ export default function DetailsSection({
         {/* Inspector + Date Assigned */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-1">
-            <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+            <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
               Assigned Inspector
-            </label>
-            <Select
-              value={assignedTo}
-              onValueChange={setAssignedTo}
-              disabled={!hasLocation}
-            >
+            </Label>
+            <Select value={assignedTo} onValueChange={setAssignedTo} disabled={!hasLocation}>
               <SelectTrigger className="text-sm h-9">
                 <SelectValue
-                  placeholder={
-                    hasLocation
-                      ? "Assign inspector..."
-                      : "Select location first..."
-                  }
+                  placeholder={hasLocation ? "Assign inspector..." : "Select location first..."}
                 />
               </SelectTrigger>
               <SelectContent>
@@ -198,9 +189,9 @@ export default function DetailsSection({
             </Select>
           </div>
           <div className="space-y-1">
-            <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+            <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
               Date Assigned
-            </label>
+            </Label>
             <Input
               type="date"
               value={dateAssigned}
@@ -211,9 +202,9 @@ export default function DetailsSection({
 
         {/* Description */}
         <div className="space-y-1">
-          <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+          <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
             Description of Complaint <span className="text-destructive">*</span>
-          </label>
+          </Label>
           <Textarea
             placeholder="Describe the complaint in detail — include what was observed, location specifics, and any relevant history..."
             value={description}
@@ -236,7 +227,7 @@ export default function DetailsSection({
         </div>
 
         {/* Categories */}
-        <fieldset>
+        <fieldset className="pt-2">
           <legend className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">
             Category
           </legend>
@@ -250,9 +241,7 @@ export default function DetailsSection({
                   checked={categories.includes(cat)}
                   onCheckedChange={(checked) =>
                     setCategories(
-                      checked
-                        ? [...categories, cat]
-                        : categories.filter((c) => c !== cat),
+                      checked ? [...categories, cat] : categories.filter((c) => c !== cat),
                     )
                   }
                 />
@@ -261,7 +250,7 @@ export default function DetailsSection({
             ))}
           </div>
         </fieldset>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }

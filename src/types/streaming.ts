@@ -1,8 +1,4 @@
-export type StreamingChunkType =
-  | "progress"
-  | "partial_result"
-  | "complete"
-  | "error";
+export type StreamingChunkType = "progress" | "partial_result" | "complete" | "error";
 
 export interface StreamingChunk {
   type: StreamingChunkType;

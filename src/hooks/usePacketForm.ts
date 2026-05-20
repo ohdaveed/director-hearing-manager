@@ -64,10 +64,7 @@ export function usePacketForm(packet: any) {
     setForm(initialForm);
   }, [initialForm]);
 
-  const setField = <K extends keyof PacketFormState>(
-    field: K,
-    value: PacketFormState[K],
-  ) => {
+  const setField = <K extends keyof PacketFormState>(field: K, value: PacketFormState[K]) => {
     setForm((current) => ({ ...current, [field]: value }));
   };
 

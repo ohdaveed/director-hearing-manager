@@ -1,10 +1,4 @@
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-  ReactNode,
-} from "react";
+import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { User } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
 
@@ -70,9 +64,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const { data, error } = await supabase
         .from("users")
-        .select(
-          "id, email, first_name, last_name, role, signature_text, signature_style",
-        )
+        .select("id, email, first_name, last_name, role, signature_text, signature_style")
         .eq("email", supabaseUser.email)
         .is("deleted_at", null)
         .maybeSingle();
@@ -114,12 +106,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             ? `${supabaseUser.user_metadata.first_name} ${supabaseUser.user_metadata.last_name ?? ""}`.trim()
             : (supabaseUser.email?.split("@")[0] ?? "")
         )?.split(" ");
-        const firstName =
-          supabaseUser.user_metadata?.first_name ?? nameParts[0] ?? "";
+        const firstName = supabaseUser.user_metadata?.first_name ?? nameParts[0] ?? "";
         const lastName =
-          supabaseUser.user_metadata?.last_name ??
-          nameParts.slice(1).join(" ") ??
-          "";
+          supabaseUser.user_metadata?.last_name ?? nameParts.slice(1).join(" ") ?? "";
 
         try {
           const { data: newProfile, error: insertError } = await supabase
@@ -132,9 +121,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               role: "Inspector",
               last_login: new Date().toISOString(),
             })
-            .select(
-              "id, email, first_name, last_name, role, signature_text, signature_style",
-            )
+            .select("id, email, first_name, last_name, role, signature_text, signature_style")
             .single();
 
           if (insertError) throw insertError;

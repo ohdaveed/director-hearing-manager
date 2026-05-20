@@ -29,9 +29,7 @@ export default function MetricBar({ label, value, max, accent, color }: Props) {
         >
           {label}
         </span>
-        <span className="text-xs font-bold tabular-nums shrink-0 text-foreground">
-          {value}
-        </span>
+        <span className="text-xs font-bold tabular-nums shrink-0 text-foreground">{value}</span>
       </div>
       <div className="h-1.5 bg-muted rounded-full overflow-hidden">
         <div

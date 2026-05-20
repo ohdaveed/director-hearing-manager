@@ -21,16 +21,16 @@ Vitest + React Testing Library (jsdom, globals: true)
 
 ## Architecture — Information Architecture
 
-| Route              | Page                                       | Roles           |
-| ------------------ | ------------------------------------------ | --------------- |
-| `/dashboard`       | DashboardPage / InspectorDashboardPage     | All             |
-| `/complaints`      | ComplaintsPage → ComplaintEntryPage        | All             |
-| `/inspections`     | InspectionFormPage / InspectionHistoryPage | All             |
-| `/enforcement`     | EnforcementPage                            | PM, Super Admin |
-| `/hearings`        | HearingPacketsPage                         | All             |
-| `/draft-analysis`  | DraftPacketAnalysisPage                    | All             |
-| `/documents`       | DocumentLibraryPage                        | All             |
-| `/all-locations`   | AllLocationsPage → LocationPage            | All             |
+| Route             | Page                                       | Roles           |
+| ----------------- | ------------------------------------------ | --------------- |
+| `/dashboard`      | DashboardPage / InspectorDashboardPage     | All             |
+| `/complaints`     | ComplaintsPage → ComplaintEntryPage        | All             |
+| `/inspections`    | InspectionFormPage / InspectionHistoryPage | All             |
+| `/enforcement`    | EnforcementPage                            | PM, Super Admin |
+| `/hearings`       | HearingPacketsPage                         | All             |
+| `/draft-analysis` | DraftPacketAnalysisPage                    | All             |
+| `/documents`      | DocumentLibraryPage                        | All             |
+| `/all-locations`  | AllLocationsPage → LocationPage            | All             |
 
 Entry: `src/main.tsx` → `App.tsx` (BrowserRouter > AuthProvider > AppContent)
 Route guards live in `App.tsx` (role-based nav filtering + redirect), not per-page.

@@ -16,28 +16,18 @@ import { useQuery } from "@tanstack/react-query";
 import { complaintService } from "@/services/complaintService";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  ALL_COMPLAINT_STATUSES,
-  ACTIVE_STATUSES,
-  isOverdue,
-} from "@/utils/complaintStatuses";
+import { ALL_COMPLAINT_STATUSES, ACTIVE_STATUSES, isOverdue } from "@/utils/complaintStatuses";
 import { INSPECTORS } from "@/utils/inspectors";
 import { StatCard } from "@/components/ui/stat-card";
 import QualityChecksPanel from "@/components/dashboard/QualityChecksPanel";
 import UpcomingHearingsPanel from "@/components/dashboard/UpcomingHearingsPanel";
-import {
-  DashboardBarChart,
-  DashboardPieChart,
-  DashboardLineChart,
-} from "@/components/ui/Charts";
+import { DashboardBarChart, DashboardPieChart, DashboardLineChart } from "@/components/ui/Charts";
 import { Database } from "@/types/database";
 
 type Complaint = Database["public"]["Tables"]["complaints"]["Row"];
 
 function isHearingReady(c: Complaint): boolean {
-  return (
-    c.hearing_status === "Referred" || c.hearing_status === "Hearing Scheduled"
-  );
+  return c.hearing_status === "Referred" || c.hearing_status === "Hearing Scheduled";
 }
 
 function monthKey(dateStr?: string | null): string {
@@ -46,11 +36,7 @@ function monthKey(dateStr?: string | null): string {
   return d.toLocaleDateString("en-US", { year: "numeric", month: "short" });
 }
 
-export default function DashboardPage({
-  role = "Program Manager",
-}: {
-  role?: string;
-}) {
+export default function DashboardPage({ role = "Program Manager" }: { role?: string }) {
   const showHearings = role === "Program Manager" || role === "Super Admin";
 
   const {
@@ -73,24 +59,17 @@ export default function DashboardPage({
   const newThisMonth = complaints.filter((c) => {
     if (!c.date_entered) return false;
     const d = new Date(c.date_entered + "T00:00:00");
-    return (
-      d.getMonth() === today.getMonth() &&
-      d.getFullYear() === today.getFullYear()
-    );
+    return d.getMonth() === today.getMonth() && d.getFullYear() === today.getFullYear();
   });
 
   const hearingReady = complaints.filter(isHearingReady);
-  const hearingScheduled = complaints.filter(
-    (c) => c.hearing_status === "Hearing Scheduled",
-  );
+  const hearingScheduled = complaints.filter((c) => c.hearing_status === "Hearing Scheduled");
 
   const missingReinspDate = complaints.filter(
     (c) => c.status === "Re-Inspection Due" && !c.reinspection_due_on_after,
   );
   const missingAssignment = complaints.filter(
-    (c) =>
-      (ACTIVE_STATUSES as readonly string[]).includes(c.status ?? "") &&
-      !c.assigned_to,
+    (c) => (ACTIVE_STATUSES as readonly string[]).includes(c.status ?? "") && !c.assigned_to,
   );
 
   const upcomingHearings = complaints
@@ -121,9 +100,7 @@ export default function DashboardPage({
   for (let i = 5; i >= 0; i--) {
     const d = new Date(today);
     d.setMonth(d.getMonth() - i);
-    months.push(
-      d.toLocaleDateString("en-US", { year: "numeric", month: "short" }),
-    );
+    months.push(d.toLocaleDateString("en-US", { year: "numeric", month: "short" }));
   }
   const monthlyIntake = months.map((m) => ({
     month: m,
@@ -206,9 +183,7 @@ export default function DashboardPage({
           </p>
         </div>
         <div className="flex items-center gap-2">
-          {isRefetching && (
-            <Loader2 className="w-3.5 h-3.5 animate-spin text-muted-foreground" />
-          )}
+          {isRefetching && <Loader2 className="w-3.5 h-3.5 animate-spin text-muted-foreground" />}
           {dataUpdatedAt > 0 && (
             <span className="text-xs text-muted-foreground hidden sm:inline">
               Updated{" "}
@@ -244,17 +219,12 @@ export default function DashboardPage({
         <div className="space-y-4 min-w-0">
           {/* Upcoming Hearings */}
           {showHearings && (
-            <UpcomingHearingsPanel
-              hearings={upcomingHearings as any}
-              today={today}
-            />
+            <UpcomingHearingsPanel hearings={upcomingHearings as any} today={today} />
           )}
 
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
             <div className="bg-card border border-border rounded-xl p-4 shadow-sm">
-              <h3 className="text-sm font-semibold text-foreground mb-3">
-                Workload by Inspector
-              </h3>
+              <h3 className="text-sm font-semibold text-foreground mb-3">Workload by Inspector</h3>
               <DashboardBarChart
                 data={byInspector.map((i) => ({
                   name: i.name.split(" ")[0],
@@ -266,9 +236,7 @@ export default function DashboardPage({
               />
             </div>
             <div className="bg-card border border-border rounded-xl p-4 shadow-sm">
-              <h3 className="text-sm font-semibold text-foreground mb-3">
-                Status Distribution
-              </h3>
+              <h3 className="text-sm font-semibold text-foreground mb-3">Status Distribution</h3>
               <DashboardPieChart
                 data={byStatus.map((s) => ({ name: s.status, value: s.count }))}
                 nameKey="name"
@@ -277,9 +245,7 @@ export default function DashboardPage({
               />
             </div>
             <div className="bg-card border border-border rounded-xl p-4 shadow-sm">
-              <h3 className="text-sm font-semibold text-foreground mb-3">
-                Top Categories
-              </h3>
+              <h3 className="text-sm font-semibold text-foreground mb-3">Top Categories</h3>
               <DashboardBarChart
                 data={byCategory.map((c) => ({ name: c.cat, count: c.count }))}
                 xAxisKey="name"
@@ -290,9 +256,7 @@ export default function DashboardPage({
           </div>
 
           <div className="bg-card border border-border rounded-xl p-4 shadow-sm">
-            <h3 className="text-sm font-semibold text-foreground mb-3">
-              Monthly Intake
-            </h3>
+            <h3 className="text-sm font-semibold text-foreground mb-3">Monthly Intake</h3>
             <DashboardLineChart
               data={monthlyIntake.map((m) => ({
                 date: m.month,

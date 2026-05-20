@@ -30,9 +30,7 @@ export function usePacketGeneration(packetId: string) {
     },
     onError: (error) => {
       console.error(error);
-      toast.error(
-        error instanceof Error ? error.message : "Failed to generate hearing packet",
-      );
+      toast.error(error instanceof Error ? error.message : "Failed to generate hearing packet");
     },
   });
 

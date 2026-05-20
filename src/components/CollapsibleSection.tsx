@@ -1,9 +1,5 @@
 import { ChevronDown } from "lucide-react";
-import {
-  Collapsible,
-  CollapsibleTrigger,
-  CollapsibleContent,
-} from "@/components/ui/collapsible";
+import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
 
 interface Props {
   title: string;
@@ -55,9 +51,7 @@ export default function CollapsibleSection({
         {noPadding ? (
           <div className="border-t border-border">{children}</div>
         ) : (
-          <div className="px-4 sm:px-6 pb-5 pt-4 border-t border-border">
-            {children}
-          </div>
+          <div className="px-4 sm:px-6 pb-5 pt-4 border-t border-border">{children}</div>
         )}
       </CollapsibleContent>
     </Collapsible>

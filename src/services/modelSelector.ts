@@ -176,9 +176,7 @@ export async function callWithModel(
       }
 
       // Get the last response
-      const result = await chat.sendMessage(
-        messages[messages.length - 1]?.content || "",
-      );
+      const result = await chat.sendMessage(messages[messages.length - 1]?.content || "");
       const response = await result.response;
 
       return response.candidates?.[0]?.content?.parts?.[0]?.text || "";

@@ -4,8 +4,7 @@ import { SOP_CHUNKS } from "../../../src/utils/sopChunking.ts";
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
 // Rate limiting: max 10 chunks per second
@@ -34,13 +33,10 @@ Deno.serve(async (req: Request) => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 
     if (!supabaseUrl || !supabaseServiceKey) {
-      return new Response(
-        JSON.stringify({ error: "Server configuration error" }),
-        {
-          status: 500,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        },
-      );
+      return new Response(JSON.stringify({ error: "Server configuration error" }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey, {
@@ -62,9 +58,7 @@ Deno.serve(async (req: Request) => {
           .single();
 
         if (existing) {
-          console.log(
-            `Skipping existing chunk: ${chunk.sourceDocument}[${chunk.chunkIndex}]`,
-          );
+          console.log(`Skipping existing chunk: ${chunk.sourceDocument}[${chunk.chunkIndex}]`);
           continue;
         }
 
@@ -72,22 +66,20 @@ Deno.serve(async (req: Request) => {
         const embedding = await getEmbedding(chunk.content);
 
         // Insert into database
-        const { error: insertError } = await supabase
-          .from("sop_embeddings")
-          .upsert(
-            {
-              content_chunk: chunk.content,
-              embedding: embedding,
-              source_document: chunk.sourceDocument,
-              chunk_index: chunk.chunkIndex,
-              metadata: {
-                char_count: chunk.charCount,
-              },
+        const { error: insertError } = await supabase.from("sop_embeddings").upsert(
+          {
+            content_chunk: chunk.content,
+            embedding: embedding,
+            source_document: chunk.sourceDocument,
+            chunk_index: chunk.chunkIndex,
+            metadata: {
+              char_count: chunk.charCount,
             },
-            {
-              onConflict: "source_document,chunk_index",
-            },
-          );
+          },
+          {
+            onConflict: "source_document,chunk_index",
+          },
+        );
 
         if (insertError) {
           errors.push(

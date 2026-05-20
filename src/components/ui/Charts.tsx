@@ -98,12 +98,7 @@ export function DashboardLineChart({
         <YAxis tick={{ fontSize: 12 }} />
         <Tooltip />
         <Legend />
-        <Line
-          type="monotone"
-          dataKey={dataKey}
-          stroke="#3b82f6"
-          strokeWidth={2}
-        />
+        <Line type="monotone" dataKey={dataKey} stroke="#3b82f6" strokeWidth={2} />
       </LineChart>
     </ResponsiveContainer>
   );

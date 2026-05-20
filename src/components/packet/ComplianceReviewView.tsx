@@ -91,25 +91,15 @@ export default function ComplianceReviewView({
 
       <div className="grid gap-4 md:grid-cols-3">
         <div className="border rounded-lg p-4">
-          <p className="text-sm font-medium text-muted-foreground mb-1">
-            Compliance Score
-          </p>
-          <div
-            className={`text-4xl font-bold ${getScoreColor(complianceResult.score)}`}
-          >
-            {partial ? (
-              <Skeleton className="h-10 w-20" />
-            ) : (
-              complianceResult.score
-            )}
+          <p className="text-sm font-medium text-muted-foreground mb-1">Compliance Score</p>
+          <div className={`text-4xl font-bold ${getScoreColor(complianceResult.score)}`}>
+            {partial ? <Skeleton className="h-10 w-20" /> : complianceResult.score}
           </div>
           <p className="text-xs text-muted-foreground mt-1">out of 100</p>
         </div>
 
         <div className="border rounded-lg p-4">
-          <p className="text-sm font-medium text-muted-foreground mb-1">
-            Status
-          </p>
+          <p className="text-sm font-medium text-muted-foreground mb-1">Status</p>
           {partial ? (
             <Skeleton className="h-10 w-32" />
           ) : complianceResult.isCompliant ? (
@@ -126,15 +116,9 @@ export default function ComplianceReviewView({
         </div>
 
         <div className="border rounded-lg p-4">
-          <p className="text-sm font-medium text-muted-foreground mb-1">
-            Issues Found
-          </p>
+          <p className="text-sm font-medium text-muted-foreground mb-1">Issues Found</p>
           <div className="text-4xl font-bold">
-            {partial ? (
-              <Skeleton className="h-10 w-20" />
-            ) : (
-              complianceResult.issues.length
-            )}
+            {partial ? <Skeleton className="h-10 w-20" /> : complianceResult.issues.length}
           </div>
           <p className="text-xs text-muted-foreground mt-1">
             {partial ? (
@@ -181,9 +165,7 @@ export default function ComplianceReviewView({
                         Location: {issue.location}
                       </p>
                     )}
-                    <p className="text-sm font-medium mt-2">
-                      Suggestion: {issue.suggestion}
-                    </p>
+                    <p className="text-sm font-medium mt-2">Suggestion: {issue.suggestion}</p>
                     {issue.reference && (
                       <p className="text-xs text-muted-foreground mt-1">
                         Reference: {issue.reference}

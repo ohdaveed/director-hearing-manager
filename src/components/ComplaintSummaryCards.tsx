@@ -24,15 +24,10 @@ export default function ComplaintSummaryCards({ complaints }: Props) {
   const newThisMonth = complaints.filter((c) => {
     if (!c.date_entered) return false;
     const d = new Date(c.date_entered + "T00:00:00");
-    return (
-      d.getMonth() === today.getMonth() &&
-      d.getFullYear() === today.getFullYear()
-    );
+    return d.getMonth() === today.getMonth() && d.getFullYear() === today.getFullYear();
   }).length;
   const hearingReady = complaints.filter(
-    (c) =>
-      c.hearing_status === "Referred" ||
-      c.hearing_status === "Hearing Scheduled",
+    (c) => c.hearing_status === "Referred" || c.hearing_status === "Hearing Scheduled",
   ).length;
 
   const cards = [
@@ -48,10 +43,7 @@ export default function ComplaintSummaryCards({ complaints }: Props) {
       label: "Overdue",
       value: overdue,
       icon: <AlertTriangle className="w-3.5 h-3.5" />,
-      card:
-        overdue > 0
-          ? "bg-destructive/10 border-destructive/30"
-          : "bg-card border-border",
+      card: overdue > 0 ? "bg-destructive/10 border-destructive/30" : "bg-card border-border",
       bar: overdue > 0 ? "bg-destructive" : "bg-muted-foreground",
       text: overdue > 0 ? "text-destructive" : "text-muted-foreground",
     },
@@ -67,10 +59,7 @@ export default function ComplaintSummaryCards({ complaints }: Props) {
       label: "Hearing Ready",
       value: hearingReady,
       icon: <Scale className="w-3.5 h-3.5" />,
-      card:
-        hearingReady > 0
-          ? "bg-accent/50 border-accent/30"
-          : "bg-card border-border",
+      card: hearingReady > 0 ? "bg-accent/50 border-accent/30" : "bg-card border-border",
       bar: hearingReady > 0 ? "bg-accent-foreground" : "bg-muted-foreground",
       text: hearingReady > 0 ? "text-accent-foreground" : "text-foreground",
     },
@@ -91,9 +80,7 @@ export default function ComplaintSummaryCards({ complaints }: Props) {
                 {card.label}
               </p>
             </div>
-            <p
-              className={`text-2xl font-black tabular-nums leading-none ${card.text}`}
-            >
+            <p className={`text-2xl font-black tabular-nums leading-none ${card.text}`}>
               {card.value}
             </p>
           </div>

@@ -39,9 +39,7 @@ export function ObservationsList({
       <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-border bg-muted/30">
         <div className="flex items-center gap-2">
           <Eye className="w-5 h-5 text-primary" />
-          <h2 className="font-semibold text-foreground text-lg">
-            Observations
-          </h2>
+          <h2 className="font-semibold text-foreground text-lg">Observations</h2>
           <span className="text-sm text-muted-foreground hidden sm:inline">
             — list specific observations by number.
           </span>
@@ -93,11 +91,7 @@ export function ObservationsList({
                   <Select
                     value={obs.linkedViolationKey || "none"}
                     onValueChange={(val) => {
-                      onChange(
-                        obs.id,
-                        "linkedViolationKey",
-                        val === "none" ? "" : val,
-                      );
+                      onChange(obs.id, "linkedViolationKey", val === "none" ? "" : val);
                       onChangeAny();
                     }}
                     disabled={disabled}

@@ -15,10 +15,7 @@ import { Loader2, Plus, Trash2, CheckCircle2, Printer } from "lucide-react";
 import { toast } from "sonner";
 import { packetService } from "@/services/packetService";
 
-import {
-  HearingOrderData,
-  PacketHearingOrder,
-} from "@/components/packet/PacketHearingOrder";
+import { HearingOrderData, PacketHearingOrder } from "@/components/packet/PacketHearingOrder";
 
 type Props = {
   packet: any["packet"];
@@ -28,14 +25,7 @@ type Props = {
 };
 
 const DETERMINATION_OPTIONS = ["upheld", "dismissed", "modified"] as const;
-const PARTY_ROLES = [
-  "Owner",
-  "Property Manager",
-  "Agent",
-  "Tenant",
-  "Attorney",
-  "Other",
-];
+const PARTY_ROLES = ["Owner", "Property Manager", "Agent", "Tenant", "Attorney", "Other"];
 
 function makeDefaultOrderData(
   packet: Props["packet"],
@@ -46,9 +36,7 @@ function makeDefaultOrderData(
   const codeSections = [
     ...new Set(
       inspections.flatMap((i: any) =>
-        (i.violations as any[])
-          .map((v: any) => v.violationCode)
-          .filter(Boolean),
+        (i.violations as any[]).map((v: any) => v.violationCode).filter(Boolean),
       ),
     ),
   ];
@@ -71,12 +59,7 @@ function makeDefaultOrderData(
   };
 }
 
-export default function HearingOrderEditor({
-  packet,
-  complaint,
-  location,
-  inspections,
-}: Props) {
+export default function HearingOrderEditor({ packet, complaint, location, inspections }: Props) {
   const existing = packet.hearingOrderData
     ? (JSON.parse(packet.hearingOrderData) as HearingOrderData)
     : null;
@@ -86,10 +69,7 @@ export default function HearingOrderEditor({
   const [saving, setSaving] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
 
-  const update = (
-    field: keyof HearingOrderData,
-    val: HearingOrderData[keyof HearingOrderData],
-  ) => {
+  const update = (field: keyof HearingOrderData, val: HearingOrderData[keyof HearingOrderData]) => {
     setOrderData((prev) => ({ ...prev, [field]: val }));
   };
 
@@ -100,19 +80,14 @@ export default function HearingOrderEditor({
   ) => {
     setOrderData((prev) => ({
       ...prev,
-      attendees: prev.attendees.map((a, idx) =>
-        idx === i ? { ...a, [field]: val } : a,
-      ),
+      attendees: prev.attendees.map((a, idx) => (idx === i ? { ...a, [field]: val } : a)),
     }));
   };
 
   const addAttendee = () =>
     setOrderData((prev) => ({
       ...prev,
-      attendees: [
-        ...prev.attendees,
-        { name: "", role: "Owner", attended: false },
-      ],
+      attendees: [...prev.attendees, { name: "", role: "Owner", attended: false }],
     }));
 
   const removeAttendee = (i: number) =>
@@ -133,9 +108,7 @@ export default function HearingOrderEditor({
   const updateDetermination = (i: number, field: string, val: string) => {
     setOrderData((prev) => ({
       ...prev,
-      determinations: prev.determinations.map((d, idx) =>
-        idx === i ? { ...d, [field]: val } : d,
-      ),
+      determinations: prev.determinations.map((d, idx) => (idx === i ? { ...d, [field]: val } : d)),
     }));
   };
 
@@ -206,247 +179,226 @@ export default function HearingOrderEditor({
   }
 
   return (
-    <div className="space-y-5 p-1">
-      {/* Order date + Officer */}
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <Label className="text-xs font-medium text-muted-foreground mb-1 block">
-            Order Date
-          </Label>
-          <Input
-            type="date"
-            value={orderData.orderDate}
-            onChange={(e) => update("orderDate", e.target.value)}
-            className="h-8 text-sm"
-          />
+    <Card>
+      <CardHeader>
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <Label className="text-xs font-medium text-muted-foreground mb-1 block">
+              Order Date
+            </Label>
+            <Input
+              type="date"
+              value={orderData.orderDate}
+              onChange={(e) => update("orderDate", e.target.value)}
+              className="h-8 text-sm"
+            />
+          </div>
+          <div>
+            <Label className="text-xs font-medium text-muted-foreground mb-1 block">
+              Hearing Officer
+            </Label>
+            <Input
+              value={orderData.hearingOfficer}
+              onChange={(e) => update("hearingOfficer", e.target.value)}
+              placeholder="Name"
+              className="h-8 text-sm"
+            />
+          </div>
         </div>
-        <div>
-          <Label className="text-xs font-medium text-muted-foreground mb-1 block">
-            Hearing Officer
-          </Label>
-          <Input
-            value={orderData.hearingOfficer}
-            onChange={(e) => update("hearingOfficer", e.target.value)}
-            placeholder="Name"
-            className="h-8 text-sm"
-          />
-        </div>
-      </div>
-
-      {/* Attendance */}
-      <div>
-        <div className="flex items-center justify-between mb-2">
-          <Label className="text-xs font-bold text-muted-foreground uppercase tracking-wide">
-            Attendance
-          </Label>
-          <span className="text-xs text-muted-foreground">
-            {orderData.attendees.length} part
-            {orderData.attendees.length !== 1 ? "ies" : "y"}
-          </span>
-        </div>
-        <div className="space-y-2">
-          {orderData.attendees.map((a, i) => (
-            <div
-              key={i}
-              className="flex items-center gap-2 p-2.5 bg-muted/30 rounded-lg border border-border"
-            >
-              <Input
-                value={a.name}
-                onChange={(e) => updateAttendee(i, "name", e.target.value)}
-                placeholder="Full name"
-                className="h-7 text-sm flex-1"
-              />
-              <Select
-                value={a.role}
-                onValueChange={(v) => updateAttendee(i, "role", v)}
+      </CardHeader>
+      <CardContent className="space-y-6">
+        <Separator />
+        {/* Attendance */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <Label className="text-xs font-bold text-muted-foreground uppercase tracking-wide">
+              Attendance
+            </Label>
+            <span className="text-xs text-muted-foreground">
+              {orderData.attendees.length} part
+              {orderData.attendees.length !== 1 ? "ies" : "y"}
+            </span>
+          </div>
+          <div className="space-y-2">
+            {orderData.attendees.map((a, i) => (
+              <div
+                key={i}
+                className="flex items-center gap-2 p-2.5 bg-muted/30 rounded-lg border border-border"
               >
-                <SelectTrigger className="h-7 text-xs w-[110px]">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {PARTY_ROLES.map((r) => (
-                    <SelectItem key={r} value={r}>
-                      {r}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <label className="flex items-center gap-1.5 cursor-pointer shrink-0">
-                <Checkbox
-                  checked={a.attended}
-                  onCheckedChange={(v) => updateAttendee(i, "attended", !!v)}
-                />
-                <span className="text-xs">Attended</span>
-              </label>
-              <button
-                onClick={() => removeAttendee(i)}
-                className="text-muted-foreground hover:text-destructive p-0.5"
-              >
-                <Trash2 className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          ))}
-          <Button
-            variant="outline"
-            size="sm"
-            className="gap-1.5 text-xs"
-            onClick={addAttendee}
-          >
-            <Plus className="w-3.5 h-3.5" /> Add Party
-          </Button>
-        </div>
-      </div>
-
-      {/* Determinations */}
-      <div>
-        <div className="flex items-center justify-between mb-2">
-          <Label className="text-xs font-bold text-muted-foreground uppercase tracking-wide">
-            Code Section Determinations
-          </Label>
-        </div>
-        <div className="space-y-2">
-          {orderData.determinations.map((d, i) => (
-            <div
-              key={i}
-              className="p-2.5 bg-muted/30 rounded-lg border border-border space-y-2"
-            >
-              <div className="flex items-center gap-2">
                 <Input
-                  value={d.codeSection}
-                  onChange={(e) =>
-                    updateDetermination(i, "codeSection", e.target.value)
-                  }
-                  placeholder="Code section"
-                  className="h-7 text-sm font-mono flex-1"
+                  value={a.name}
+                  onChange={(e) => updateAttendee(i, "name", e.target.value)}
+                  placeholder="Full name"
+                  className="h-7 text-sm flex-1"
                 />
-                <Select
-                  value={d.determination}
-                  onValueChange={(v) =>
-                    updateDetermination(i, "determination", v)
-                  }
-                >
-                  <SelectTrigger className="h-7 text-xs w-[120px]">
+                <Select value={a.role} onValueChange={(v) => updateAttendee(i, "role", v)}>
+                  <SelectTrigger className="h-7 text-xs w-[110px]">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {DETERMINATION_OPTIONS.map((o) => (
-                      <SelectItem key={o} value={o} className="capitalize">
-                        {o}
+                    {PARTY_ROLES.map((r) => (
+                      <SelectItem key={r} value={r}>
+                        {r}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
+                <label className="flex items-center gap-1.5 cursor-pointer shrink-0">
+                  <Checkbox
+                    checked={a.attended}
+                    onCheckedChange={(v) => updateAttendee(i, "attended", !!v)}
+                  />
+                  <span className="text-xs">Attended</span>
+                </label>
                 <button
-                  onClick={() => removeDetermination(i)}
+                  onClick={() => removeAttendee(i)}
                   className="text-muted-foreground hover:text-destructive p-0.5"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>
               </div>
-              <Input
-                value={d.notes}
-                onChange={(e) =>
-                  updateDetermination(i, "notes", e.target.value)
-                }
-                placeholder="Notes / conditions for this section..."
-                className="h-7 text-sm"
-              />
-            </div>
-          ))}
-          <Button
-            variant="outline"
-            size="sm"
-            className="gap-1.5 text-xs"
-            onClick={addDetermination}
-          >
-            <Plus className="w-3.5 h-3.5" /> Add Code Section
-          </Button>
+            ))}
+            <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={addAttendee}>
+              <Plus className="w-3.5 h-3.5" /> Add Party
+            </Button>
+          </div>
         </div>
-      </div>
 
-      {/* Permit */}
-      <div className="grid grid-cols-2 gap-3">
+        <Separator />
+
+        {/* Determinations */}
+        <div className="space-y-3">
+          <Label className="text-xs font-bold text-muted-foreground uppercase tracking-wide">
+            Code Section Determinations
+          </Label>
+          <div className="space-y-2">
+            {orderData.determinations.map((d, i) => (
+              <div key={i} className="p-2.5 bg-muted/30 rounded-lg border border-border space-y-2">
+                <div className="flex items-center gap-2">
+                  <Input
+                    value={d.codeSection}
+                    onChange={(e) => updateDetermination(i, "codeSection", e.target.value)}
+                    placeholder="Code section"
+                    className="h-7 text-sm font-mono flex-1"
+                  />
+                  <Select
+                    value={d.determination}
+                    onValueChange={(v) => updateDetermination(i, "determination", v)}
+                  >
+                    <SelectTrigger className="h-7 text-xs w-[120px]">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {DETERMINATION_OPTIONS.map((o) => (
+                        <SelectItem key={o} value={o} className="capitalize">
+                          {o}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <button
+                    onClick={() => removeDetermination(i)}
+                    className="text-muted-foreground hover:text-destructive p-0.5"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+                <Input
+                  value={d.notes}
+                  onChange={(e) => updateDetermination(i, "notes", e.target.value)}
+                  placeholder="Notes / conditions for this section..."
+                  className="h-7 text-sm"
+                />
+              </div>
+            ))}
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-1.5 text-xs"
+              onClick={addDetermination}
+            >
+              <Plus className="w-3.5 h-3.5" /> Add Code Section
+            </Button>
+          </div>
+        </div>
+
+        <Separator />
+
+        {/* Other fields */}
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <Label className="text-xs font-medium text-muted-foreground mb-1 block">
+              Permit Number
+            </Label>
+            <Input
+              value={orderData.permitNumber}
+              onChange={(e) => update("permitNumber", e.target.value)}
+              placeholder="Permit #"
+              className="h-8 text-sm"
+            />
+          </div>
+          <div>
+            <Label className="text-xs font-medium text-muted-foreground mb-1 block">
+              Permit Decision
+            </Label>
+            <Input
+              value={orderData.permitDecision}
+              onChange={(e) => update("permitDecision", e.target.value)}
+              placeholder="e.g. Suspended"
+              className="h-8 text-sm"
+            />
+          </div>
+        </div>
+
         <div>
           <Label className="text-xs font-medium text-muted-foreground mb-1 block">
-            Permit Number (if applicable)
+            Reinspection Fee
           </Label>
           <Input
-            value={orderData.permitNumber}
-            onChange={(e) => update("permitNumber", e.target.value)}
-            placeholder="Permit #"
-            className="h-8 text-sm"
+            value={orderData.reinspectionFee}
+            onChange={(e) => update("reinspectionFee", e.target.value)}
+            placeholder="e.g. $250.00"
+            className="h-8 text-sm w-48"
           />
         </div>
+
         <div>
           <Label className="text-xs font-medium text-muted-foreground mb-1 block">
-            Permit Decision
+            Nuisance Abatement Conditions
           </Label>
-          <Input
-            value={orderData.permitDecision}
-            onChange={(e) => update("permitDecision", e.target.value)}
-            placeholder="e.g. Suspended"
-            className="h-8 text-sm"
+          <Textarea
+            value={orderData.nuisanceAbatementConditions}
+            onChange={(e) => update("nuisanceAbatementConditions", e.target.value)}
+            className="text-sm resize-none"
+            rows={3}
           />
         </div>
-      </div>
 
-      {/* Fee */}
-      <div>
-        <Label className="text-xs font-medium text-muted-foreground mb-1 block">
-          Reinspection Fee
-        </Label>
-        <Input
-          value={orderData.reinspectionFee}
-          onChange={(e) => update("reinspectionFee", e.target.value)}
-          placeholder="e.g. $250.00"
-          className="h-8 text-sm w-48"
-        />
-      </div>
+        <div>
+          <Label className="text-xs font-medium text-muted-foreground mb-1 block">
+            Cost Recovery Notes
+          </Label>
+          <Textarea
+            value={orderData.costRecovery}
+            onChange={(e) => update("costRecovery", e.target.value)}
+            className="text-sm resize-none"
+            rows={2}
+          />
+        </div>
 
-      {/* Conditions */}
-      <div>
-        <Label className="text-xs font-medium text-muted-foreground mb-1 block">
-          Nuisance Abatement Conditions
-        </Label>
-        <Textarea
-          value={orderData.nuisanceAbatementConditions}
-          onChange={(e) =>
-            update("nuisanceAbatementConditions", e.target.value)
-          }
-          placeholder="Enter abatement conditions and required corrective actions..."
-          className="text-sm resize-none"
-          rows={3}
-        />
-      </div>
-
-      <div>
-        <Label className="text-xs font-medium text-muted-foreground mb-1 block">
-          Cost Recovery Notes
-        </Label>
-        <Textarea
-          value={orderData.costRecovery}
-          onChange={(e) => update("costRecovery", e.target.value)}
-          placeholder="Enter cost recovery details if applicable..."
-          className="text-sm resize-none"
-          rows={2}
-        />
-      </div>
-
-      <div>
-        <Label className="text-xs font-medium text-muted-foreground mb-1 block">
-          Appeal Process Notes (leave blank for standard boilerplate)
-        </Label>
-        <Textarea
-          value={orderData.appealNotes}
-          onChange={(e) => update("appealNotes", e.target.value)}
-          placeholder="Leave blank for standard 30-day appeal boilerplate..."
-          className="text-sm resize-none"
-          rows={2}
-        />
-      </div>
-
-      {/* Actions */}
-      <div className="flex gap-2 pt-2 border-t border-border">
+        <div>
+          <Label className="text-xs font-medium text-muted-foreground mb-1 block">
+            Appeal Process Notes
+          </Label>
+          <Textarea
+            value={orderData.appealNotes}
+            onChange={(e) => update("appealNotes", e.target.value)}
+            className="text-sm resize-none"
+            rows={2}
+          />
+        </div>
+      </CardContent>
+      <CardFooter className="pt-2 border-t border-border flex gap-2">
         <Button onClick={handleSave} disabled={saving} className="gap-2 flex-1">
           {saving ? (
             <Loader2 className="w-4 h-4 animate-spin" />
@@ -455,14 +407,10 @@ export default function HearingOrderEditor({
           )}
           Save Order
         </Button>
-        <Button
-          variant="outline"
-          onClick={() => setShowPreview(true)}
-          className="gap-2"
-        >
+        <Button variant="outline" onClick={() => setShowPreview(true)} className="gap-2">
           <Printer className="w-4 h-4" /> Preview & Print
         </Button>
-      </div>
-    </div>
+      </CardFooter>
+    </Card>
   );
 }

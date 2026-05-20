@@ -86,9 +86,7 @@ describe("ComplianceReviewView", () => {
       />,
     );
 
-    expect(
-      screen.getByText("Chronology section not found"),
-    ).toBeInTheDocument();
+    expect(screen.getByText("Chronology section not found")).toBeInTheDocument();
     expect(screen.getByText("Proof of Service missing")).toBeInTheDocument();
   });
 

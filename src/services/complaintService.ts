@@ -66,9 +66,10 @@ export const complaintService = {
 
     if (filters.assigned_to) {
       const assigneeVariants = getAssigneeVariants(filters.assigned_to);
-      query = assigneeVariants.length > 1
-        ? query.in("assigned_to", assigneeVariants)
-        : query.eq("assigned_to", filters.assigned_to);
+      query =
+        assigneeVariants.length > 1
+          ? query.in("assigned_to", assigneeVariants)
+          : query.eq("assigned_to", filters.assigned_to);
     }
 
     const { data, error } = await query;

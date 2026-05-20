@@ -69,15 +69,7 @@ const cellBase: React.CSSProperties = {
 const cellBold: React.CSSProperties = { ...cellBase, fontWeight: "bold" };
 const cellCenter: React.CSSProperties = { ...cellBold, textAlign: "center" };
 
-function Cb({
-  checked,
-  label,
-  code,
-}: {
-  checked?: boolean;
-  label: string;
-  code?: string;
-}) {
+function Cb({ checked, label, code }: { checked?: boolean; label: string; code?: string }) {
   return (
     <div
       style={{
@@ -100,11 +92,7 @@ function Cb({
       />
       <span style={{ fontSize: 8, lineHeight: 1.3 }}>
         {label}
-        {code && (
-          <span style={{ fontSize: 7, color: "#333", marginLeft: 4 }}>
-            {code}
-          </span>
-        )}
+        {code && <span style={{ fontSize: 7, color: "#333", marginLeft: 4 }}>{code}</span>}
       </span>
     </div>
   );
@@ -125,15 +113,10 @@ const pageStyle: React.CSSProperties = {
 function FormPage1(p: PrintFormProps) {
   const filled = p.violations.filter((v) => v.violationKey);
   const labels = filled.map(
-    (v) =>
-      VIOLATION_TYPES.find(
-        (t) => `${t.category}||${t.label}` === v.violationKey,
-      )?.label ?? "",
+    (v) => VIOLATION_TYPES.find((t) => `${t.category}||${t.label}` === v.violationKey)?.label ?? "",
   );
   const hasV = (...names: string[]) =>
-    names.some((n) =>
-      labels.some((l) => l.toLowerCase().includes(n.toLowerCase())),
-    );
+    names.some((n) => labels.some((l) => l.toLowerCase().includes(n.toLowerCase())));
   const allLocs = filled
     .map((v) => v.location)
     .join(" ")
@@ -172,13 +155,10 @@ function FormPage1(p: PrintFormProps) {
   const obsLines: string[] = [];
   // Global observations appear as a numbered list above the narrative summary
   if ((p.globalObservations ?? []).length > 0) {
-    (p.globalObservations ?? []).forEach((o, i) =>
-      obsLines.push(`${i + 1}. ${o}`),
-    );
+    (p.globalObservations ?? []).forEach((o, i) => obsLines.push(`${i + 1}. ${o}`));
   }
   if (p.summary) obsLines.push(p.summary);
-  if (p.accessGrantedBy)
-    obsLines.push(`Access granted by: ${p.accessGrantedBy}.`);
+  if (p.accessGrantedBy) obsLines.push(`Access granted by: ${p.accessGrantedBy}.`);
   const obsNotes = (p.observations ?? []).filter((o) => o.text);
   if (obsNotes.length > 0) {
     obsLines.push("Observations:");
@@ -188,9 +168,7 @@ function FormPage1(p: PrintFormProps) {
   // Tenant corrective actions section
   if (allTenantActions.length > 0) {
     const duePart = earliestDueDate ? ` by ${fmtDate(earliestDueDate)}` : "";
-    obsLines.push(
-      `\nCorrective Actions — To Be Completed by Tenants${duePart}:`,
-    );
+    obsLines.push(`\nCorrective Actions — To Be Completed by Tenants${duePart}:`);
     allTenantActions.forEach((a, i) => obsLines.push(`${i + 1}. ${a}`));
   }
 
@@ -202,9 +180,7 @@ function FormPage1(p: PrintFormProps) {
 
   // Closing paragraph when actions exist
   if (allTenantActions.length > 0 || allOwnerActions.length > 0) {
-    const deadlineStr = earliestDueDate
-      ? fmtDate(earliestDueDate)
-      : "the correction date";
+    const deadlineStr = earliestDueDate ? fmtDate(earliestDueDate) : "the correction date";
     obsLines.push(
       `\nAll corrective actions must be completed by ${deadlineStr}. Failure to comply will result in a citation to a Director's Hearing and the assessment of administrative fees. The initial inspection and first re-inspection are provided at no cost; all subsequent inspections will be billed at $229 per inspection.`,
     );
@@ -222,9 +198,7 @@ function FormPage1(p: PrintFormProps) {
 
   const isOtherFacility =
     p.facilityType &&
-    !["Tourist Hotel", "Residential Hotel", "Apartments"].includes(
-      p.facilityType,
-    );
+    !["Tourist Hotel", "Residential Hotel", "Apartments"].includes(p.facilityType);
 
   return (
     <div
@@ -250,16 +224,10 @@ function FormPage1(p: PrintFormProps) {
               }}
             >
               <div style={{ fontWeight: "bold", fontSize: 10 }}>
-                HEALTHY HOUSING &amp; VECTOR CONTROL INSPECTION REPORT/NOTICE OF
-                VIOLATION
+                HEALTHY HOUSING &amp; VECTOR CONTROL INSPECTION REPORT/NOTICE OF VIOLATION
               </div>
-              <div>
-                SAN FRANCISCO DEPARTMENT OF PUBLIC HEALTH ENVIRONMENTAL HEALTH
-                BRANCH
-              </div>
-              <div>
-                49 SOUTH VAN NESS AVENUE, SUITE 600, SAN FRANCISCO, CA 94103
-              </div>
+              <div>SAN FRANCISCO DEPARTMENT OF PUBLIC HEALTH ENVIRONMENTAL HEALTH BRANCH</div>
+              <div>49 SOUTH VAN NESS AVENUE, SUITE 600, SAN FRANCISCO, CA 94103</div>
               <div>
                 OFFICE: (415) 252-3800&nbsp;&nbsp;&nbsp;FAX: (415)
                 252-3930&nbsp;&nbsp;&nbsp;WWW.SFDPH.ORG/DPH/EH
@@ -281,9 +249,7 @@ function FormPage1(p: PrintFormProps) {
       </table>
 
       {/* Info block */}
-      <table
-        style={{ width: "100%", borderCollapse: "collapse", borderTop: "none" }}
-      >
+      <table style={{ width: "100%", borderCollapse: "collapse", borderTop: "none" }}>
         <tbody>
           <tr>
             <td style={{ ...cellBase, width: "45%" }}>
@@ -325,15 +291,12 @@ function FormPage1(p: PrintFormProps) {
       </table>
 
       {/* Healthy Housing Fee */}
-      <table
-        style={{ width: "100%", borderCollapse: "collapse", borderTop: "none" }}
-      >
+      <table style={{ width: "100%", borderCollapse: "collapse", borderTop: "none" }}>
         <tbody>
           <tr>
             <td style={{ ...cellBase, padding: "3px 6px" }}>
               <span style={{ fontWeight: "bold" }}>
-                Vector Control and Healthy Housing Inspection Program
-                Fee&nbsp;&nbsp;
+                Vector Control and Healthy Housing Inspection Program Fee&nbsp;&nbsp;
               </span>
               <span
                 style={{
@@ -355,9 +318,7 @@ function FormPage1(p: PrintFormProps) {
                 />
                 <span style={{ fontSize: 8 }}>Yes*</span>
               </span>
-              <span
-                style={{ display: "inline-flex", alignItems: "center", gap: 4 }}
-              >
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
                 <span
                   style={{
                     display: "inline-block",
@@ -376,9 +337,7 @@ function FormPage1(p: PrintFormProps) {
       </table>
 
       {/* Facility Type / Units / Building Details */}
-      <table
-        style={{ width: "100%", borderCollapse: "collapse", borderTop: "none" }}
-      >
+      <table style={{ width: "100%", borderCollapse: "collapse", borderTop: "none" }}>
         <tbody>
           <tr>
             <td style={{ ...cellCenter, width: "20%" }}>Type of Facility</td>
@@ -387,18 +346,9 @@ function FormPage1(p: PrintFormProps) {
           </tr>
           <tr>
             <td style={{ ...cellBase, verticalAlign: "top" }}>
-              <Cb
-                checked={p.facilityType === "Tourist Hotel"}
-                label="Tourist Hotel"
-              />
-              <Cb
-                checked={p.facilityType === "Residential Hotel"}
-                label="Residential Hotel"
-              />
-              <Cb
-                checked={p.facilityType === "Apartments"}
-                label="Apartments"
-              />
+              <Cb checked={p.facilityType === "Tourist Hotel"} label="Tourist Hotel" />
+              <Cb checked={p.facilityType === "Residential Hotel"} label="Residential Hotel" />
+              <Cb checked={p.facilityType === "Apartments"} label="Apartments" />
               <Cb
                 checked={isOtherFacility || undefined}
                 label={isOtherFacility ? `Other: ${p.facilityType}` : "Other:"}
@@ -421,10 +371,7 @@ function FormPage1(p: PrintFormProps) {
                 <Cb checked={hasBd("Roof Access")} label="Roof access" />
                 <Cb checked={hasBd("Backyard")} label="Backyard" />
                 <Cb checked={hasBd("Hallways")} label="Hallways" />
-                <Cb
-                  checked={hasBd("Secondary Egress")}
-                  label="Secondary egress"
-                />
+                <Cb checked={hasBd("Secondary Egress")} label="Secondary egress" />
                 <Cb checked={hasBd("Other")} label="Other:" />
               </div>
             </td>
@@ -433,9 +380,7 @@ function FormPage1(p: PrintFormProps) {
       </table>
 
       {/* Inspection Type / Rating / Vector Survey */}
-      <table
-        style={{ width: "100%", borderCollapse: "collapse", borderTop: "none" }}
-      >
+      <table style={{ width: "100%", borderCollapse: "collapse", borderTop: "none" }}>
         <tbody>
           <tr>
             <td style={cellCenter} colSpan={4}>
@@ -465,16 +410,10 @@ function FormPage1(p: PrintFormProps) {
               />
             </td>
             <td style={cellBase}>
-              <Cb
-                checked={p.inspectionRating === "Satisfactory"}
-                label="Satisfactory"
-              />
+              <Cb checked={p.inspectionRating === "Satisfactory"} label="Satisfactory" />
             </td>
             <td style={cellBase}>
-              <Cb
-                checked={p.inspectionRating === "Unsatisfactory"}
-                label="Unsatisfactory"
-              />
+              <Cb checked={p.inspectionRating === "Unsatisfactory"} label="Unsatisfactory" />
             </td>
             <td style={cellBase}>
               <Cb checked={false} label="Field Survey" />
@@ -482,10 +421,7 @@ function FormPage1(p: PrintFormProps) {
           </tr>
           <tr>
             <td style={cellBase}>
-              <Cb
-                checked={p.inspectionType === "Complaint"}
-                label="Complaint"
-              />
+              <Cb checked={p.inspectionType === "Complaint"} label="Complaint" />
             </td>
             <td style={cellBase}>
               <Cb
@@ -507,9 +443,7 @@ function FormPage1(p: PrintFormProps) {
       </table>
 
       {/* Areas Inspected + Violation Categories */}
-      <table
-        style={{ width: "100%", borderCollapse: "collapse", borderTop: "none" }}
-      >
+      <table style={{ width: "100%", borderCollapse: "collapse", borderTop: "none" }}>
         <tbody>
           <tr>
             <td style={cellCenter}>
@@ -526,55 +460,33 @@ function FormPage1(p: PrintFormProps) {
                 const hasA = (formArea: string) => ai.includes(formArea);
                 return (
                   <>
+                    <Cb checked={hasLoc("alley", "easement")} label="Alleyway/Easement" />
                     <Cb
-                      checked={hasLoc("alley", "easement")}
-                      label="Alleyway/Easement"
-                    />
-                    <Cb
-                      checked={
-                        hasLoc("basement") || hasA("Basement / Substructure")
-                      }
+                      checked={hasLoc("basement") || hasA("Basement / Substructure")}
                       label="Basement"
                     />
                     <Cb
                       checked={
-                        hasLoc("front", "backyard", "yard") ||
-                        hasA("Backyard / Exterior Grounds")
+                        hasLoc("front", "backyard", "yard") || hasA("Backyard / Exterior Grounds")
                       }
                       label="Front/Backyard"
                     />
                     <Cb
-                      checked={
-                        hasLoc("garage", "driveway") || hasA("Garage / Parking")
-                      }
+                      checked={hasLoc("garage", "driveway") || hasA("Garage / Parking")}
                       label="Garage/Driveway"
                     />
                     <Cb
-                      checked={
-                        hasLoc("garbage area") || hasA("Trash / Refuse Area")
-                      }
+                      checked={hasLoc("garbage area") || hasA("Trash / Refuse Area")}
                       label="Garbage Area"
                     />
                     <Cb
-                      checked={
-                        hasLoc("hallway", "hall") ||
-                        hasA("Hallways / Stairwells")
-                      }
+                      checked={hasLoc("hallway", "hall") || hasA("Hallways / Stairwells")}
                       label="Hallways"
                     />
-                    <Cb
-                      checked={hasLoc("laundry") || hasA("Laundry Room")}
-                      label="Laundry Room"
-                    />
+                    <Cb checked={hasLoc("laundry") || hasA("Laundry Room")} label="Laundry Room" />
                     <Cb checked={hasLoc("lightwell")} label="Lightwells" />
-                    <Cb
-                      checked={hasLoc("lobby") || hasA("Lobby / Common Areas")}
-                      label="Lobby"
-                    />
-                    <Cb
-                      checked={hasLoc("roof") || hasA("Roof / Attic")}
-                      label="Roof"
-                    />
+                    <Cb checked={hasLoc("lobby") || hasA("Lobby / Common Areas")} label="Lobby" />
+                    <Cb checked={hasLoc("roof") || hasA("Roof / Attic")} label="Roof" />
                     <Cb
                       checked={hasLoc("stair") || hasA("Hallways / Stairwells")}
                       label="Staircase"
@@ -599,38 +511,16 @@ function FormPage1(p: PrintFormProps) {
               })()}
             </td>
             <td style={{ ...cellBase, width: "42%", verticalAlign: "top" }}>
-              <div style={{ fontWeight: "bold", marginBottom: 2 }}>
-                Pests, Vermin, Animals
-              </div>
-              <Cb
-                checked={hasV("Bed Bug")}
-                label="Bed Bugs"
-                code="Sec 581(b)(8)"
-              />
+              <div style={{ fontWeight: "bold", marginBottom: 2 }}>Pests, Vermin, Animals</div>
+              <Cb checked={hasV("Bed Bug")} label="Bed Bugs" code="Sec 581(b)(8)" />
               <Cb checked={hasV("Cockroach")} label="Cockroaches" />
               <Cb checked={hasV("Flies")} label="Flies" />
               <Cb checked={hasV("Mosquito")} label="Mosquitoes" />
-              <Cb
-                checked={hasV("Pigeon")}
-                label="Pigeons"
-                code="Sec 581(b)(7)"
-              />
-              <Cb
-                checked={hasV("Poison Oak")}
-                label="Poison Oak"
-                code="Sec 581(b)(11)"
-              />
-              <Cb
-                checked={hasV("Rodent")}
-                label="Rodents"
-                code="Sec 581(b)(13)"
-              />
+              <Cb checked={hasV("Pigeon")} label="Pigeons" code="Sec 581(b)(7)" />
+              <Cb checked={hasV("Poison Oak")} label="Poison Oak" code="Sec 581(b)(11)" />
+              <Cb checked={hasV("Rodent")} label="Rodents" code="Sec 581(b)(13)" />
               <Cb checked={false} label="Other:" />
-              <div
-                style={{ fontWeight: "bold", marginTop: 4, marginBottom: 2 }}
-              >
-                Sanitation
-              </div>
+              <div style={{ fontWeight: "bold", marginTop: 4, marginBottom: 2 }}>Sanitation</div>
               <Cb
                 checked={hasV("Garbage / Refuse")}
                 label="Garbage/Refuse/Waste/Debris"
@@ -641,70 +531,39 @@ function FormPage1(p: PrintFormProps) {
                 label="Human/Animal Waste"
                 code="Sec 581(b)(1)(5)"
               />
-              <Cb
-                checked={hasV("Overgrown")}
-                label="Overgrown Vegetation"
-                code="Sec 581(b)(2)"
-              />
+              <Cb checked={hasV("Overgrown")} label="Overgrown Vegetation" code="Sec 581(b)(2)" />
             </td>
             <td style={{ ...cellBase, width: "41%", verticalAlign: "top" }}>
-              <Cb
-                checked={hasV("Unsanitary Bathroom")}
-                label="Unsanitary Bathroom/Toilet"
-              />
+              <Cb checked={hasV("Unsanitary Bathroom")} label="Unsanitary Bathroom/Toilet" />
               <Cb
                 checked={hasV("Floor, Walls")}
                 label="Unsanitary/Floor, Walls, & Ceiling"
                 code="Sec 581(b)(4)"
               />
-              <Cb
-                checked={hasV("Unsanitary Hallways")}
-                label="Unsanitary Hallways"
-              />
-              <Cb
-                checked={hasV("Unsanitary Common Kitchen")}
-                label="Unsanitary Common Kitchen"
-              />
+              <Cb checked={hasV("Unsanitary Hallways")} label="Unsanitary Hallways" />
+              <Cb checked={hasV("Unsanitary Common Kitchen")} label="Unsanitary Common Kitchen" />
               <Cb
                 checked={hasV("Accumulation of Paper")}
                 label="Accumulation of Paper Materials"
                 code="Sec 581(b)(3)"
               />
-              <Cb
-                checked={hasV("Mold")}
-                label="Mold Growth"
-                code="Sec 581(b)(6)"
-              />
-              <Cb
-                checked={hasV("Unpaid Fees")}
-                label="Unpaid Fees"
-                code="Sec 609"
-              />
+              <Cb checked={hasV("Mold")} label="Mold Growth" code="Sec 581(b)(6)" />
+              <Cb checked={hasV("Unpaid Fees")} label="Unpaid Fees" code="Sec 609" />
               <Cb
                 checked={hasV("Excessive Materials")}
                 label="Excessive Materials"
                 code="Sec 581(b)(18)"
               />
               <Cb checked={false} label="Other:" />
-              <div
-                style={{ fontWeight: "bold", marginTop: 4, marginBottom: 2 }}
-              >
-                Garbage Area
-              </div>
+              <div style={{ fontWeight: "bold", marginTop: 4, marginBottom: 2 }}>Garbage Area</div>
               <Cb
                 checked={hasV("Inadequate Garbage")}
                 label="Inadequate Garbage Containers/Lids"
                 code="Sec 581(b)(1)"
               />
-              <Cb
-                checked={hasV("Uncontainerized")}
-                label="Uncontainerized Garbage"
-              />
+              <Cb checked={hasV("Uncontainerized")} label="Uncontainerized Garbage" />
               <div style={{ marginTop: 2 }}>
-                <Cb
-                  checked={false}
-                  label="Referral to: _____________________________"
-                />
+                <Cb checked={false} label="Referral to: _____________________________" />
               </div>
             </td>
           </tr>
@@ -712,9 +571,7 @@ function FormPage1(p: PrintFormProps) {
       </table>
 
       {/* Observations */}
-      <table
-        style={{ width: "100%", borderCollapse: "collapse", borderTop: "none" }}
-      >
+      <table style={{ width: "100%", borderCollapse: "collapse", borderTop: "none" }}>
         <tbody>
           <tr>
             <td style={{ ...cellBold, padding: "3px 4px" }}>
@@ -731,43 +588,34 @@ function FormPage1(p: PrintFormProps) {
                 padding: 4,
               }}
             >
-              <div style={{ whiteSpace: "pre-wrap", lineHeight: 1.5 }}>
-                {obsText}
-              </div>
+              <div style={{ whiteSpace: "pre-wrap", lineHeight: 1.5 }}>{obsText}</div>
             </td>
           </tr>
         </tbody>
       </table>
 
       {/* Footnotes */}
-      <table
-        style={{ width: "100%", borderCollapse: "collapse", borderTop: "none" }}
-      >
+      <table style={{ width: "100%", borderCollapse: "collapse", borderTop: "none" }}>
         <tbody>
           <tr>
             <td style={{ ...cellBase, fontSize: 7, padding: "3px 6px" }}>
-              *Re-inspection fee of $______ will be charged on the 2nd
-              re-inspection and on subsequent re-inspections until violations
-              are corrected. Failure to cooperate with a re-inspection, or to
-              pay authorized re-inspection fees pursuant to SFHC Art. 11, Sec.
-              609.1, will result in a finding that the violations are not
-              abated.
+              *Re-inspection fee of $______ will be charged on the 2nd re-inspection and on
+              subsequent re-inspections until violations are corrected. Failure to cooperate with a
+              re-inspection, or to pay authorized re-inspection fees pursuant to SFHC Art. 11, Sec.
+              609.1, will result in a finding that the violations are not abated.
             </td>
           </tr>
           <tr>
             <td style={{ ...cellBase, fontSize: 7, padding: "3px 6px" }}>
-              **Up to $1000 fine per day may be charged after Director&apos;s
-              Hearing if violations are not corrected, per SFHC Art. 11, Sec
-              600.
+              **Up to $1000 fine per day may be charged after Director&apos;s Hearing if violations
+              are not corrected, per SFHC Art. 11, Sec 600.
             </td>
           </tr>
         </tbody>
       </table>
 
       {/* Signature block */}
-      <table
-        style={{ width: "100%", borderCollapse: "collapse", borderTop: "none" }}
-      >
+      <table style={{ width: "100%", borderCollapse: "collapse", borderTop: "none" }}>
         <tbody>
           <tr>
             <td style={{ ...cellBase, width: "60%" }}>
@@ -1043,9 +891,7 @@ function FormPage3(p: PrintFormProps) {
         <div style={{ fontWeight: "bold", fontSize: 12 }}>
           SAN FRANCISCO DEPARTMENT OF PUBLIC HEALTH
         </div>
-        <div style={{ fontWeight: "bold", fontSize: 9 }}>
-          ENVIRONMENTAL HEALTH BRANCH
-        </div>
+        <div style={{ fontWeight: "bold", fontSize: 9 }}>ENVIRONMENTAL HEALTH BRANCH</div>
         <div>49 South Van Ness Avenue, Suite 600</div>
         <div>San Francisco, CA 94103</div>
         <div
@@ -1114,8 +960,8 @@ function FormPage3(p: PrintFormProps) {
         }}
       >
         <strong style={{ fontSize: 8 }}>
-          The following Items Represent Health Code Violations and Must Be
-          Corrected By the Indicated Date(s):
+          The following Items Represent Health Code Violations and Must Be Corrected By the
+          Indicated Date(s):
         </strong>
       </div>
 
@@ -1131,9 +977,7 @@ function FormPage3(p: PrintFormProps) {
         <thead>
           <tr style={{ background: "#e8e8e8" }}>
             <td style={{ ...cellBold, width: "4%" }}>#</td>
-            <td style={{ ...cellBold, width: "20%" }}>
-              Violation / Code Section
-            </td>
+            <td style={{ ...cellBold, width: "20%" }}>Violation / Code Section</td>
             <td style={{ ...cellBold, width: "12%" }}>Location</td>
             <td style={{ ...cellBold, width: "30%" }}>Owner / Mgmt Actions</td>
             <td style={{ ...cellBold, width: "25%" }}>Tenant Actions</td>
@@ -1178,9 +1022,7 @@ function FormPage3(p: PrintFormProps) {
                   <td style={{ ...cellBase, fontWeight: "bold" }}>{i + 1}</td>
                   <td style={cellBase}>
                     <div style={{ fontWeight: "bold" }}>{vt?.label}</div>
-                    <div style={{ fontSize: 7, color: "#444", marginTop: 1 }}>
-                      {vt?.code}
-                    </div>
+                    <div style={{ fontSize: 7, color: "#444", marginTop: 1 }}>{vt?.code}</div>
                   </td>
                   <td style={cellBase}>{v.location}</td>
                   <td style={{ ...cellBase, lineHeight: 1.4 }}>
@@ -1209,25 +1051,21 @@ function FormPage3(p: PrintFormProps) {
                       <span style={{ color: "#999" }}>—</span>
                     )}
                   </td>
-                  <td style={{ ...cellBase, whiteSpace: "nowrap" }}>
-                    {fmtDate(v.dueDate)}
-                  </td>
+                  <td style={{ ...cellBase, whiteSpace: "nowrap" }}>{fmtDate(v.dueDate)}</td>
                 </tr>
               );
             })
           )}
-          {Array.from({ length: Math.max(0, 6 - filled.length) }).map(
-            (_, i) => (
-              <tr key={`pad-${i}`}>
-                <td style={{ ...cellBase, height: 18 }}>&nbsp;</td>
-                <td style={cellBase}>&nbsp;</td>
-                <td style={cellBase}>&nbsp;</td>
-                <td style={cellBase}>&nbsp;</td>
-                <td style={cellBase}>&nbsp;</td>
-                <td style={cellBase}>&nbsp;</td>
-              </tr>
-            ),
-          )}
+          {Array.from({ length: Math.max(0, 6 - filled.length) }).map((_, i) => (
+            <tr key={`pad-${i}`}>
+              <td style={{ ...cellBase, height: 18 }}>&nbsp;</td>
+              <td style={cellBase}>&nbsp;</td>
+              <td style={cellBase}>&nbsp;</td>
+              <td style={cellBase}>&nbsp;</td>
+              <td style={cellBase}>&nbsp;</td>
+              <td style={cellBase}>&nbsp;</td>
+            </tr>
+          ))}
         </tbody>
       </table>
 

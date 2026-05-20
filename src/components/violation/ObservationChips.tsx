@@ -13,12 +13,7 @@ interface Props {
   readOnly?: boolean;
 }
 
-export default function ObservationChips({
-  observations,
-  selectedObs,
-  onToggle,
-  readOnly,
-}: Props) {
+export default function ObservationChips({ observations, selectedObs, onToggle, readOnly }: Props) {
   const autoCount = (obs: Observation) =>
     (obs.autoOwnerActions?.length ?? 0) + (obs.autoTenantActions?.length ?? 0);
 
@@ -27,10 +22,7 @@ export default function ObservationChips({
     return (
       <ul className="space-y-1">
         {selectedObs.map((o) => (
-          <li
-            key={o}
-            className="flex items-start gap-1.5 text-xs text-foreground"
-          >
+          <li key={o} className="flex items-start gap-1.5 text-xs text-foreground">
             <span className="text-primary mt-0.5 shrink-0">•</span> {o}
           </li>
         ))}

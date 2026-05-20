@@ -24,9 +24,7 @@ export default function FormHeaderSection({
         >
           <FileText className="w-4 h-4" />
         </div>
-        <h2 className="font-semibold text-foreground text-lg">
-          Complaint Information
-        </h2>
+        <h2 className="font-semibold text-foreground text-lg">Complaint Information</h2>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-1">

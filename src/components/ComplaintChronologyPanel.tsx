@@ -1,13 +1,7 @@
 import { useState } from "react";
 import { BookOpen, User, ChevronDown, ChevronUp } from "lucide-react";
 import { cn } from "@/lib/utils";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-  CardFooter,
-} from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { sanitizeText } from "@/utils/sanitizeText";
@@ -36,10 +30,7 @@ const TYPE_BADGE: Record<string, string> = {
 
 const PREVIEW_COUNT = 5;
 
-export default function ComplaintChronologyPanel({
-  chronology,
-  loading,
-}: Props) {
+export default function ComplaintChronologyPanel({ chronology, loading }: Props) {
   const [showAll, setShowAll] = useState(false);
 
   // Sort newest-first for the preview
@@ -55,9 +46,7 @@ export default function ComplaintChronologyPanel({
         <CardHeader className="px-5 py-3 bg-muted/40 border-b border-border">
           <div className="flex items-center gap-2">
             <BookOpen className="w-4 h-4 text-primary/70" />
-            <CardTitle className="text-xs tracking-widest">
-              Case Chronology
-            </CardTitle>
+            <CardTitle className="text-xs tracking-widest">Case Chronology</CardTitle>
           </div>
         </CardHeader>
         <CardContent className="p-5 space-y-2">
@@ -75,9 +64,7 @@ export default function ComplaintChronologyPanel({
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <BookOpen className="w-4 h-4 text-primary/70" />
-            <CardTitle className="text-xs tracking-widest">
-              Case Chronology
-            </CardTitle>
+            <CardTitle className="text-xs tracking-widest">Case Chronology</CardTitle>
             {chronology.length > 0 && (
               <Badge
                 variant="secondary"
@@ -99,8 +86,7 @@ export default function ComplaintChronologyPanel({
             <BookOpen className="w-8 h-8 mx-auto mb-2 opacity-30" />
             <p className="text-sm font-medium">No chronology entries yet</p>
             <p className="text-xs mt-1 max-w-xs mx-auto">
-              Entries are added automatically as inspections, NOVs, and other
-              actions are recorded.
+              Entries are added automatically as inspections, NOVs, and other actions are recorded.
             </p>
           </div>
         ) : (
@@ -140,8 +126,7 @@ export default function ComplaintChronologyPanel({
                           variant="outline"
                           className={cn(
                             "text-[10px] h-4.5 px-1.5 font-bold whitespace-nowrap",
-                            TYPE_BADGE[entry.entryType] ??
-                              "bg-muted text-muted-foreground",
+                            TYPE_BADGE[entry.entryType] ?? "bg-muted text-muted-foreground",
                           )}
                         >
                           {entry.entryType}
@@ -159,9 +144,7 @@ export default function ComplaintChronologyPanel({
                         )}
                         {entry.violationsObserved && (
                           <p className="text-muted-foreground leading-relaxed">
-                            <span className="font-semibold text-foreground/70">
-                              Violations:{" "}
-                            </span>
+                            <span className="font-semibold text-foreground/70">Violations: </span>
                             {sanitizeText(entry.violationsObserved)}
                           </p>
                         )}
@@ -185,9 +168,7 @@ export default function ComplaintChronologyPanel({
                         <span className="text-muted-foreground">—</span>
                       )}
                       {entry.attachmentPageRef && (
-                        <p className="text-muted-foreground mt-0.5">
-                          p. {entry.attachmentPageRef}
-                        </p>
+                        <p className="text-muted-foreground mt-0.5">p. {entry.attachmentPageRef}</p>
                       )}
                     </td>
                   </tr>

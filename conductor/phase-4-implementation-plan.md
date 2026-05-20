@@ -13,6 +13,7 @@
 ### Task 1: Persist Mapped Data to Database
 
 **Files:**
+
 - Modify: `src/services/packetService.ts`
 - Test: `src/services/__tests__/packetService.test.ts` (create if doesn't exist)
 
@@ -20,38 +21,47 @@
 
 ```typescript
 // src/services/__tests__/packetService.test.ts
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { packetService } from '../packetService';
-import { supabase } from '@/lib/supabase';
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { packetService } from "../packetService";
+import { supabase } from "@/lib/supabase";
 
-vi.mock('@/lib/supabase', () => ({
+vi.mock("@/lib/supabase", () => ({
   supabase: {
     from: vi.fn().mockReturnThis(),
     update: vi.fn().mockReturnThis(),
     eq: vi.fn().mockReturnThis(),
     select: vi.fn().mockReturnThis(),
-    single: vi.fn().mockResolvedValue({ data: { id: '123' }, error: null })
-  }
+    single: vi.fn().mockResolvedValue({ data: { id: "123" }, error: null }),
+  },
 }));
 
-describe('packetService.saveComplianceAnalysis', () => {
+describe("packetService.saveComplianceAnalysis", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it('saves mapped data correctly', async () => {
+  it("saves mapped data correctly", async () => {
     const mockData = {
-      extractedText: 'test',
-      complianceResult: { score: 100, isCompliant: true, issues: [], summary: 'test', missingSections: [], recommendations: [] },
-      mappedData: { caseNumber: 'CASE-123', enforcementSummary: 'test summary' },
-      analyzedAt: new Date().toISOString()
+      extractedText: "test",
+      complianceResult: {
+        score: 100,
+        isCompliant: true,
+        issues: [],
+        summary: "test",
+        missingSections: [],
+        recommendations: [],
+      },
+      mappedData: { caseNumber: "CASE-123", enforcementSummary: "test summary" },
+      analyzedAt: new Date().toISOString(),
     };
-    
-    await packetService.saveComplianceAnalysis('packet-1', mockData);
-    
-    expect(supabase.update).toHaveBeenCalledWith(expect.objectContaining({
-      case_number: 'CASE-123',
-    }));
+
+    await packetService.saveComplianceAnalysis("packet-1", mockData);
+
+    expect(supabase.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        case_number: "CASE-123",
+      }),
+    );
   });
 });
 ```
@@ -109,6 +119,7 @@ git commit -m "feat: persist mapped compliance data to database"
 ### Task 2: Implement PDF Blob Generation and Storage
 
 **Files:**
+
 - Modify: `src/components/packet/printUtils.tsx`
 - Modify: `src/services/packetService.ts`
 
@@ -121,9 +132,7 @@ Add `elementToPdfBlob` to `src/components/packet/printUtils.tsx`:
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 
-export async function elementToPdfBlob(
-  elementId: string
-): Promise<Blob> {
+export async function elementToPdfBlob(elementId: string): Promise<Blob> {
   const element = document.getElementById(elementId);
   if (!element) {
     throw new Error(`Element with id "${elementId}" not found`);
@@ -169,7 +178,7 @@ Modify `src/services/packetService.ts` to actually upload to Supabase:
     pdfBlob: Blob,
   ): Promise<string> {
     const filePath = `packets/${packetId}/final_packet_${Date.now()}.pdf`;
-    
+
     const { data, error } = await supabase.storage
       .from("documents")
       .upload(filePath, pdfBlob, {
@@ -205,6 +214,7 @@ git commit -m "feat: implement PDF blob generation and Supabase storage upload"
 ### Task 3: Add "Save Final PDF" Action to UI
 
 **Files:**
+
 - Modify: `src/components/HearingPacketPreview.tsx`
 
 - [ ] **Step 1: Add Save Final PDF button**
@@ -218,48 +228,45 @@ import { toast } from "sonner";
 ```
 
 Inside the component:
-```typescript
-  const [isSavingPdf, setIsSavingPdf] = useState(false);
 
-  const handleSaveFinalPdf = async () => {
-    if (!printRef.current) return;
-    try {
-      setIsSavingPdf(true);
-      toast.loading("Generating PDF...", { id: "save-pdf" });
-      const blob = await elementToPdfBlob("hearing-packet-print");
-      
-      toast.loading("Uploading to storage...", { id: "save-pdf" });
-      const url = await packetService.generateAndStorePdf(packet.id, blob);
-      
-      toast.success("Final PDF saved successfully!", { id: "save-pdf" });
-      // Optionally open the URL
-      window.open(url, "_blank");
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to save final PDF", { id: "save-pdf" });
-    } finally {
-      setIsSavingPdf(false);
-    }
-  };
+```typescript
+const [isSavingPdf, setIsSavingPdf] = useState(false);
+
+const handleSaveFinalPdf = async () => {
+  if (!printRef.current) return;
+  try {
+    setIsSavingPdf(true);
+    toast.loading("Generating PDF...", { id: "save-pdf" });
+    const blob = await elementToPdfBlob("hearing-packet-print");
+
+    toast.loading("Uploading to storage...", { id: "save-pdf" });
+    const url = await packetService.generateAndStorePdf(packet.id, blob);
+
+    toast.success("Final PDF saved successfully!", { id: "save-pdf" });
+    // Optionally open the URL
+    window.open(url, "_blank");
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed to save final PDF", { id: "save-pdf" });
+  } finally {
+    setIsSavingPdf(false);
+  }
+};
 ```
 
 Add the button next to the Print button in the toolbar:
 
 ```tsx
-          <Button
-            onClick={handleSaveFinalPdf}
-            size="sm"
-            variant="outline"
-            className="gap-2"
-            disabled={renderStage !== "ready" || isSavingPdf}
-          >
-            {isSavingPdf ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <Save className="w-4 h-4" />
-            )}
-            {isSavingPdf ? "Saving..." : "Save Final PDF"}
-          </Button>
+<Button
+  onClick={handleSaveFinalPdf}
+  size="sm"
+  variant="outline"
+  className="gap-2"
+  disabled={renderStage !== "ready" || isSavingPdf}
+>
+  {isSavingPdf ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+  {isSavingPdf ? "Saving..." : "Save Final PDF"}
+</Button>
 ```
 
 - [ ] **Step 2: Commit**

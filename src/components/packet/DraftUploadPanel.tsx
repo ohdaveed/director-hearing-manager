@@ -11,10 +11,7 @@ interface DraftUploadPanelProps {
   isUploading: boolean;
 }
 
-export default function DraftUploadPanel({
-  onUpload,
-  isUploading,
-}: DraftUploadPanelProps) {
+export default function DraftUploadPanel({ onUpload, isUploading }: DraftUploadPanelProps) {
   const [extracting, setExtracting] = useState(false);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -25,31 +22,21 @@ export default function DraftUploadPanel({
     try {
       let extractedText = "";
 
-      if (
-        file.type === "application/pdf" ||
-        file.name.toLowerCase().endsWith(".pdf")
-      ) {
+      if (file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf")) {
         extractedText = await pdfService.extractText(file);
       } else if (
-        file.type ===
-          "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
+        file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
         file.name.toLowerCase().endsWith(".docx")
       ) {
         extractedText = await wordService.extractText(file);
       } else {
-        throw new Error(
-          "Unsupported file type. Please upload a PDF or Word document.",
-        );
+        throw new Error("Unsupported file type. Please upload a PDF or Word document.");
       }
 
       onUpload(file, extractedText);
     } catch (error) {
       console.error("Error extracting text:", error);
-      alert(
-        error instanceof Error
-          ? error.message
-          : "Failed to extract text from file",
-      );
+      alert(error instanceof Error ? error.message : "Failed to extract text from file");
     } finally {
       setExtracting(false);
     }
@@ -68,19 +55,14 @@ export default function DraftUploadPanel({
           )}
         </div>
         <div className="space-y-1">
-          <Label
-            htmlFor="draft-upload"
-            className="text-base font-semibold cursor-pointer"
-          >
+          <Label htmlFor="draft-upload" className="text-base font-semibold cursor-pointer">
             {isProcessing
               ? extracting
                 ? "Extracting text..."
                 : "Uploading..."
               : "Upload Draft Packet"}
           </Label>
-          <p className="text-sm text-muted-foreground">
-            Select a PDF or Word Document (.docx)
-          </p>
+          <p className="text-sm text-muted-foreground">Select a PDF or Word Document (.docx)</p>
         </div>
       </div>
 

@@ -24,8 +24,7 @@ export function PacketList({
         {packets.map((packet) => {
           const isSelected = selectedPacketId === packet.id;
           const badgeCls =
-            STATUS_BADGE[packet.packet_status ?? ""] ??
-            "bg-muted text-muted-foreground";
+            STATUS_BADGE[packet.packet_status ?? ""] ?? "bg-muted text-muted-foreground";
           return (
             <button
               key={packet.id}
@@ -65,19 +64,13 @@ export function PacketList({
                   {packet.case_number ?? "—"}
                 </div>
                 <div className="col-span-4">
-                  <p className="text-sm font-medium truncate">
-                    {packet.address ?? "—"}
-                  </p>
+                  <p className="text-sm font-medium truncate">{packet.address ?? "—"}</p>
                   {packet.complaintid && (
-                    <p className="text-xs text-muted-foreground font-mono">
-                      #{packet.complaintid}
-                    </p>
+                    <p className="text-xs text-muted-foreground font-mono">#{packet.complaintid}</p>
                   )}
                 </div>
                 <div className="col-span-2 flex items-center gap-1.5 flex-wrap">
-                  <span
-                    className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${badgeCls}`}
-                  >
+                  <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${badgeCls}`}>
                     {packet.packet_status ?? "—"}
                   </span>
                   {packet.final_file_path && (

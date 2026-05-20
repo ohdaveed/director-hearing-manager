@@ -5,10 +5,7 @@ import { toast } from "sonner";
 import { prepareImageForUpload } from "@/utils/resizeImage";
 import PhotoCard, { PhotoEntry } from "./PhotoCard";
 
-async function uploadFile(_: {
-  data: any;
-  filename: string;
-}): Promise<{ fileUrl: string }> {
+async function uploadFile(_: { data: any; filename: string }): Promise<{ fileUrl: string }> {
   return { fileUrl: "" };
 }
 async function savePhoto(_: Record<string, any>): Promise<void> {}
@@ -24,9 +21,7 @@ type Props = {
   inspectionRecordId?: string;
   inspector: string;
   photos: PhotoEntry[];
-  onPhotosChange: (
-    photos: PhotoEntry[] | ((prev: PhotoEntry[]) => PhotoEntry[]),
-  ) => void;
+  onPhotosChange: (photos: PhotoEntry[] | ((prev: PhotoEntry[]) => PhotoEntry[])) => void;
 };
 
 export default function PhotoUploadSection({
@@ -42,9 +37,7 @@ export default function PhotoUploadSection({
 
   const processFiles = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
-    const imageFiles = Array.from(files).filter((f) =>
-      f.type.startsWith("image/"),
-    );
+    const imageFiles = Array.from(files).filter((f) => f.type.startsWith("image/"));
     if (imageFiles.length === 0) {
       toast.error("Please select image files only.");
       return;
@@ -96,9 +89,7 @@ export default function PhotoUploadSection({
       } catch {
         onPhotosChange((prev) =>
           prev.map((p) =>
-            p.id === entry.id
-              ? { ...p, uploading: false, error: "Upload failed" }
-              : p,
+            p.id === entry.id ? { ...p, uploading: false, error: "Upload failed" } : p,
           ),
         );
         toast.error(`Failed to upload ${file.name}`);
@@ -107,9 +98,7 @@ export default function PhotoUploadSection({
   };
 
   const handleChange = (id: string, field: keyof PhotoEntry, value: string) => {
-    onPhotosChange(
-      photos.map((p) => (p.id === id ? { ...p, [field]: value } : p)),
-    );
+    onPhotosChange(photos.map((p) => (p.id === id ? { ...p, [field]: value } : p)));
   };
 
   const handleRemove = (id: string) => {
@@ -123,9 +112,7 @@ export default function PhotoUploadSection({
       <div className="flex items-center justify-between px-6 py-4 border-b border-border bg-muted/30">
         <div className="flex items-center gap-2">
           <Camera className="w-5 h-5 text-primary" />
-          <h2 className="font-semibold text-foreground text-lg">
-            Inspection Photos
-          </h2>
+          <h2 className="font-semibold text-foreground text-lg">Inspection Photos</h2>
           <span className="bg-primary/10 text-primary text-sm font-semibold px-3 py-0.5 rounded-full ml-2">
             {photos.length} photo{photos.length !== 1 ? "s" : ""}
           </span>
@@ -137,8 +124,8 @@ export default function PhotoUploadSection({
           <div className="flex items-start gap-2 bg-warning/10 border border-warning/30 rounded-lg px-4 py-3 text-sm text-warning">
             <AlertTriangle className="w-4 h-4 mt-0.5 flex-shrink-0" />
             <span>
-              Enter a <strong>Complaint ID</strong> above to save photos
-              permanently to the database.
+              Enter a <strong>Complaint ID</strong> above to save photos permanently to the
+              database.
             </span>
           </div>
         )}
@@ -164,8 +151,7 @@ export default function PhotoUploadSection({
               Drop photos here or click to browse
             </p>
             <p className="text-xs text-muted-foreground mt-1">
-              JPG, PNG, HEIC, WebP — files over 25MB auto-resized at 600 DPI
-              quality
+              JPG, PNG, HEIC, WebP — files over 25MB auto-resized at 600 DPI quality
             </p>
           </div>
           <input

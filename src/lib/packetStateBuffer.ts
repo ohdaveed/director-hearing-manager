@@ -55,9 +55,7 @@ export async function saveTaskState(task: AnalysisTaskState): Promise<void> {
   await db.put(STORE_NAME, updatedTask);
 }
 
-export async function getTaskState(
-  taskId: string,
-): Promise<AnalysisTaskState | undefined> {
+export async function getTaskState(taskId: string): Promise<AnalysisTaskState | undefined> {
   const db = await getDB();
   return db.get(STORE_NAME, taskId);
 }
@@ -80,7 +78,5 @@ export async function clearAllTasks(): Promise<void> {
 export async function getIncompleteTasks(): Promise<AnalysisTaskState[]> {
   const db = await getDB();
   const allTasks = await db.getAll(STORE_NAME);
-  return allTasks.filter(
-    (task) => task.status === "pending" || task.status === "processing",
-  );
+  return allTasks.filter((task) => task.status === "pending" || task.status === "processing");
 }

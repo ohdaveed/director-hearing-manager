@@ -3,8 +3,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
 interface Task {
@@ -82,10 +81,7 @@ async function analyzeWithModel(_task: Task): Promise<unknown> {
     summary:
       "Packet is missing critical cover page information and has formatting issues in the chronology section.",
     missingSections: ["Case ID on cover page"],
-    recommendations: [
-      "Add case identification number",
-      "Format chronology with proper dates",
-    ],
+    recommendations: ["Add case identification number", "Format chronology with proper dates"],
   };
 }
 
@@ -107,13 +103,10 @@ Deno.serve(async (req: Request) => {
 
     if (!supabaseUrl || !supabaseServiceKey) {
       console.error("Missing environment variables");
-      return new Response(
-        JSON.stringify({ error: "Server configuration error" }),
-        {
-          status: 500,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        },
-      );
+      return new Response(JSON.stringify({ error: "Server configuration error" }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey, {
@@ -161,13 +154,10 @@ Deno.serve(async (req: Request) => {
 
     if (updateError) {
       console.error("Update error:", updateError);
-      return new Response(
-        JSON.stringify({ error: "Failed to update task status" }),
-        {
-          status: 500,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        },
-      );
+      return new Response(JSON.stringify({ error: "Failed to update task status" }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     console.log(`Processing task: ${task.id}`);
@@ -198,13 +188,10 @@ Deno.serve(async (req: Request) => {
 
       console.log(`Completed task: ${task.id}`);
 
-      return new Response(
-        JSON.stringify({ message: "Task processed", taskId: task.id }),
-        {
-          status: 200,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        },
-      );
+      return new Response(JSON.stringify({ message: "Task processed", taskId: task.id }), {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     } catch (analysisError) {
       console.error("Analysis error:", analysisError);
 
@@ -218,18 +205,12 @@ Deno.serve(async (req: Request) => {
           .from("async_tasks")
           .update({
             status: "failed",
-            error:
-              analysisError instanceof Error
-                ? analysisError.message
-                : "Analysis failed",
+            error: analysisError instanceof Error ? analysisError.message : "Analysis failed",
             updated_at: new Date().toISOString(),
             metadata: {
               ...task.metadata,
               retry_count: retryCount,
-              model_error:
-                analysisError instanceof Error
-                  ? analysisError.message
-                  : "Unknown error",
+              model_error: analysisError instanceof Error ? analysisError.message : "Unknown error",
             },
           })
           .eq("id", task.id);
@@ -255,10 +236,7 @@ Deno.serve(async (req: Request) => {
             metadata: {
               ...task.metadata,
               retry_count: retryCount,
-              model_error:
-                analysisError instanceof Error
-                  ? analysisError.message
-                  : "Unknown error",
+              model_error: analysisError instanceof Error ? analysisError.message : "Unknown error",
             },
           })
           .eq("id", task.id);

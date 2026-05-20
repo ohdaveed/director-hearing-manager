@@ -68,8 +68,7 @@ export const STATIC_BLOCKS = {
     deptName: "Department of Public Health",
     sectionName: "Environmental Health Section",
     programName: "Healthy Housing and Vector Control Program",
-    officeAddress:
-      "49 South Van Ness Avenue, Suite 600, San Francisco, CA 94103",
+    officeAddress: "49 South Van Ness Avenue, Suite 600, San Francisco, CA 94103",
     officeAddressShort: "49 South Van Ness Ave. #600",
     officeCity: "San Francisco, CA 94103",
     officePhone: "(415) 252-3800",
@@ -85,8 +84,7 @@ export const STATIC_BLOCKS = {
     documentTitle: "Environmental Health",
     caseLabel: "Director's Hearing Case #",
     addressLabel: "Address:",
-    footerText:
-      "SFDPH\u00a0│\u00a049 South Van Ness Avenue, Suite 600, San Francisco, CA 94103",
+    footerText: "SFDPH\u00a0│\u00a049 South Van Ness Avenue, Suite 600, San Francisco, CA 94103",
   },
 
   // ── Case Chronology ────────────────────────────────────────────────────────
@@ -192,13 +190,7 @@ export type ProgramCode = (typeof PROGRAM_CODES)[number];
 
 // ─── DOCUMENT FIELD TYPES ─────────────────────────────────────────────────────
 
-export type InputType =
-  | "text"
-  | "date"
-  | "dropdown"
-  | "longText"
-  | "email"
-  | "repeater";
+export type InputType = "text" | "date" | "dropdown" | "longText" | "email" | "repeater";
 export type EditMode = "locked" | "auto-filled" | "editable";
 export type FormatRule =
   | "uppercase"
@@ -703,13 +695,9 @@ export const CHRONOLOGY_VARIABLE_SLOTS: DocumentFieldConfig[] = [
 // Keyed by `templateId.fieldKey` for unambiguous lookup.
 
 export const DOCUMENT_FIELD_REGISTRY: Record<string, DocumentFieldConfig> = {
-  ...Object.fromEntries(
-    COVER_PAGE_VARIABLE_SLOTS.map((f) => [`cover.${f.key}`, f]),
-  ),
+  ...Object.fromEntries(COVER_PAGE_VARIABLE_SLOTS.map((f) => [`cover.${f.key}`, f])),
   ...Object.fromEntries(NOV_VARIABLE_SLOTS.map((f) => [`nov.${f.key}`, f])),
-  ...Object.fromEntries(
-    CHRONOLOGY_VARIABLE_SLOTS.map((f) => [`chronology.${f.key}`, f]),
-  ),
+  ...Object.fromEntries(CHRONOLOGY_VARIABLE_SLOTS.map((f) => [`chronology.${f.key}`, f])),
 };
 
 // ─── TEMPLATE DESCRIPTORS ─────────────────────────────────────────────────────
@@ -719,8 +707,7 @@ export const DOCUMENT_TEMPLATES = {
   cover: {
     id: "cover",
     name: "Director's Hearing Cover Page",
-    description:
-      "Official SFDPH cover sheet with case number and property address.",
+    description: "Official SFDPH cover sheet with case number and property address.",
     variableSlots: COVER_PAGE_VARIABLE_SLOTS,
     staticBlocks: STATIC_BLOCKS.cover,
     layoutTokens: LAYOUT_TOKENS,

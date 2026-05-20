@@ -9,17 +9,10 @@ const INSPECTION_IMPORT_COLUMNS = `
   inspection_id, inspection_date, inspector, inspection_type,
   status, notes, deleted_at
 `;
-const CHRONO_RELATED_COLUMNS =
-  "id, related_inspection, complaint, complaint_uuid, deleted_at";
+const CHRONO_RELATED_COLUMNS = "id, related_inspection, complaint, complaint_uuid, deleted_at";
 
 export const importService = {
-  async importDraftPacket({
-    packetId,
-    file,
-  }: {
-    packetId: string;
-    file: File;
-  }) {
+  async importDraftPacket({ packetId, file }: { packetId: string; file: File }) {
     let text = "";
     if (file.name.toLowerCase().endsWith(".pdf")) {
       text = await pdfService.extractText(file);
@@ -169,9 +162,7 @@ export const importService = {
       exhibit_date: insp.inspection_date,
     }));
 
-    const { error: exhibitBatchError } = await supabase
-      .from("exhibits")
-      .insert(exhibitEntries);
+    const { error: exhibitBatchError } = await supabase.from("exhibits").insert(exhibitEntries);
 
     if (exhibitBatchError) throw exhibitBatchError;
 

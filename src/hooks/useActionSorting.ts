@@ -13,10 +13,7 @@ interface Action {
  * @param selectedTexts     - Set of currently-selected action texts
  * @returns { selectedItems, unselectedItems, showDivider }
  */
-export function useActionSorting(
-  predefinedActions: Action[],
-  selectedTexts: Set<string>,
-) {
+export function useActionSorting(predefinedActions: Action[], selectedTexts: Set<string>) {
   return useMemo(() => {
     const selectedItems = predefinedActions
       .filter((a) => selectedTexts.has(a.text))

@@ -53,10 +53,9 @@ Deno.serve(async (req) => {
       .createSignedUrl(storagePath, 60 * 60);
     if (signedError) throw signedError;
 
-    return new Response(
-      JSON.stringify({ signedUrl: signed?.signedUrl ?? file.file_path, file }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } },
-    );
+    return new Response(JSON.stringify({ signedUrl: signed?.signedUrl ?? file.file_path, file }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   } catch (error) {
     console.error(error);
     return new Response(

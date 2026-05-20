@@ -1,24 +1,24 @@
 - generic [ref=e4]:
-  - generic [ref=e5]:
-    - generic [ref=e7]: EHD
-    - generic [ref=e8]:
-      - heading "Environmental Health Division" [level=1] [ref=e9]
-      - paragraph [ref=e10]: Sign in to your workspace
-  - generic [ref=e12]:
-    - generic [ref=e13]:
-      - text: Email
-      - textbox "Email" [ref=e14]:
-        - /placeholder: name@sfdph.org
-    - generic [ref=e15]:
-      - generic [ref=e16]:
-        - generic [ref=e17]: Password
-        - button "Forgot password?" [ref=e18] [cursor=pointer]
-      - textbox "Password" [ref=e19]
-    - button "Sign In" [ref=e20] [cursor=pointer]:
-      - img [ref=e21]
-      - text: Sign In
-  - paragraph [ref=e24]:
-    - text: Don't have an account?
-    - link "Create one" [ref=e25] [cursor=pointer]:
-      - /url: /signup
-  - paragraph [ref=e26]: © 2026 San Francisco Department of Public Health
+    - generic [ref=e5]:
+        - generic [ref=e7]: EHD
+        - generic [ref=e8]:
+            - heading "Environmental Health Division" [level=1] [ref=e9]
+            - paragraph [ref=e10]: Sign in to your workspace
+    - generic [ref=e12]:
+        - generic [ref=e13]:
+            - text: Email
+            - textbox "Email" [ref=e14]:
+                - /placeholder: name@sfdph.org
+        - generic [ref=e15]:
+            - generic [ref=e16]:
+                - generic [ref=e17]: Password
+                - button "Forgot password?" [ref=e18] [cursor=pointer]
+            - textbox "Password" [ref=e19]
+        - button "Sign In" [ref=e20] [cursor=pointer]:
+            - img [ref=e21]
+            - text: Sign In
+    - paragraph [ref=e24]:
+        - text: Don't have an account?
+        - link "Create one" [ref=e25] [cursor=pointer]:
+            - /url: /signup
+    - paragraph [ref=e26]: © 2026 San Francisco Department of Public Health

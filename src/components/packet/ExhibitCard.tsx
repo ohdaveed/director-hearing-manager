@@ -42,13 +42,9 @@ export default function ExhibitCard({
   return (
     <div className="border border-border rounded-lg p-3 bg-card shadow-sm">
       <div className="flex items-start justify-between mb-1.5">
-        <span className="text-xs font-black text-primary">
-          Exhibit {letter}
-        </span>
+        <span className="text-xs font-black text-primary">Exhibit {letter}</span>
         <div className="flex items-center gap-1.5">
-          <span className="text-[10px] text-muted-foreground font-medium">
-            {pageCount} pg
-          </span>
+          <span className="text-[10px] text-muted-foreground font-medium">{pageCount} pg</span>
           <button
             onClick={onDelete}
             disabled={isDeleting}
@@ -64,10 +60,7 @@ export default function ExhibitCard({
         </div>
       </div>
 
-      <p
-        className="text-[10px] text-foreground truncate leading-snug"
-        title={fileName}
-      >
+      <p className="text-[10px] text-foreground truncate leading-snug" title={fileName}>
         {fileName}
       </p>
 
@@ -77,9 +70,7 @@ export default function ExhibitCard({
             {category}
           </span>
         )}
-        <span className="text-[10px] text-muted-foreground font-mono">
-          pp. {pageRange}
-        </span>
+        <span className="text-[10px] text-muted-foreground font-mono">pp. {pageRange}</span>
         {fileUrl && (
           <a
             href={fileUrl}

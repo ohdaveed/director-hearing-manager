@@ -48,9 +48,7 @@ describe("AllLocationsPage", () => {
     render(<AllLocationsPage />, { wrapper: Wrapper });
 
     expect(screen.getByText(/All Locations/i)).toBeInTheDocument();
-    expect(
-      screen.getByPlaceholderText(/Search by address or Location ID/i),
-    ).toBeInTheDocument();
+    expect(screen.getByPlaceholderText(/Search by address or Location ID/i)).toBeInTheDocument();
 
     await waitFor(() => {
       expect(screen.getByText(/Recently Added/i)).toBeInTheDocument();
@@ -61,9 +59,7 @@ describe("AllLocationsPage", () => {
     mockFns.search.mockResolvedValue([]);
     render(<AllLocationsPage />, { wrapper: Wrapper });
 
-    const input = screen.getByPlaceholderText(
-      /Search by address or Location ID/i,
-    );
+    const input = screen.getByPlaceholderText(/Search by address or Location ID/i);
     const user = userEvent.setup();
     await user.type(input, "123 Unknown St");
 
@@ -74,18 +70,14 @@ describe("AllLocationsPage", () => {
       { timeout: 2000 },
     );
 
-    expect(
-      screen.getByRole("button", { name: /Create New Location/i }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Create New Location/i })).toBeInTheDocument();
   });
 
   it("opens the create location form with address pre-filled when button is clicked", async () => {
     mockFns.search.mockResolvedValue([]);
     render(<AllLocationsPage />, { wrapper: Wrapper });
 
-    const input = screen.getByPlaceholderText(
-      /Search by address or Location ID/i,
-    );
+    const input = screen.getByPlaceholderText(/Search by address or Location ID/i);
     const user = userEvent.setup();
     await user.type(input, "123 Unknown St");
 
@@ -102,9 +94,7 @@ describe("AllLocationsPage", () => {
     await user.click(createBtn);
 
     expect(screen.getByText(/New Location Details/i)).toBeInTheDocument();
-    expect(screen.getByPlaceholderText("Street address")).toHaveValue(
-      "123 Unknown St",
-    );
+    expect(screen.getByPlaceholderText("Street address")).toHaveValue("123 Unknown St");
   });
 
   it("calls locationService.create and navigates on save", async () => {
@@ -116,9 +106,7 @@ describe("AllLocationsPage", () => {
 
     render(<AllLocationsPage />, { wrapper: Wrapper });
 
-    const input = screen.getByPlaceholderText(
-      /Search by address or Location ID/i,
-    );
+    const input = screen.getByPlaceholderText(/Search by address or Location ID/i);
     const user = userEvent.setup();
     await user.type(input, "123 Unknown St");
 
@@ -129,9 +117,7 @@ describe("AllLocationsPage", () => {
       { timeout: 2000 },
     );
 
-    await user.click(
-      screen.getByRole("button", { name: /Create New Location/i }),
-    );
+    await user.click(screen.getByRole("button", { name: /Create New Location/i }));
 
     const saveBtn = screen.getByRole("button", { name: /Save Location/i });
     await user.click(saveBtn);
@@ -152,9 +138,7 @@ describe("AllLocationsPage", () => {
     mockFns.search.mockResolvedValue([]);
     render(<AllLocationsPage />, { wrapper: Wrapper });
 
-    const input = screen.getByPlaceholderText(
-      /Search by address or Location ID/i,
-    );
+    const input = screen.getByPlaceholderText(/Search by address or Location ID/i);
     const user = userEvent.setup();
     await user.type(input, "123 Unknown St");
 
@@ -165,9 +149,7 @@ describe("AllLocationsPage", () => {
       { timeout: 2000 },
     );
 
-    await user.click(
-      screen.getByRole("button", { name: /Create New Location/i }),
-    );
+    await user.click(screen.getByRole("button", { name: /Create New Location/i }));
 
     // Clear the pre-filled address
     const addressInput = screen.getByPlaceholderText("Street address");
@@ -184,9 +166,7 @@ describe("AllLocationsPage", () => {
     mockFns.search.mockResolvedValue([]);
     render(<AllLocationsPage />, { wrapper: Wrapper });
 
-    const input = screen.getByPlaceholderText(
-      /Search by address or Location ID/i,
-    );
+    const input = screen.getByPlaceholderText(/Search by address or Location ID/i);
     const user = userEvent.setup();
     await user.type(input, "123 Unknown St");
 
@@ -197,18 +177,14 @@ describe("AllLocationsPage", () => {
       { timeout: 2000 },
     );
 
-    await user.click(
-      screen.getByRole("button", { name: /Create New Location/i }),
-    );
+    await user.click(screen.getByRole("button", { name: /Create New Location/i }));
 
     expect(screen.getByText(/New Location Details/i)).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: /Cancel/i }));
 
     await waitFor(() => {
-      expect(
-        screen.queryByText(/New Location Details/i),
-      ).not.toBeInTheDocument();
+      expect(screen.queryByText(/New Location Details/i)).not.toBeInTheDocument();
     });
   });
 
@@ -221,28 +197,19 @@ describe("AllLocationsPage", () => {
 
     render(<AllLocationsPage />, { wrapper: Wrapper });
 
-    const input = screen.getByPlaceholderText(
-      /Search by address or Location ID/i,
-    );
+    const input = screen.getByPlaceholderText(/Search by address or Location ID/i);
     const user = userEvent.setup();
     await user.type(input, "456 Metadata Ave");
 
-    await waitFor(() =>
-      expect(screen.getByText(/No locations found/i)).toBeInTheDocument(),
-    );
-    await user.click(
-      screen.getByRole("button", { name: /Create New Location/i }),
-    );
+    await waitFor(() => expect(screen.getByText(/No locations found/i)).toBeInTheDocument());
+    await user.click(screen.getByRole("button", { name: /Create New Location/i }));
 
     // Fill new fields
     await user.type(screen.getByLabelText(/Owner Address/i), "789 Owner St");
     await user.type(screen.getByLabelText(/# Rooms/i), "20");
     await user.type(screen.getByLabelText(/Census Tract/i), "123.45");
     await user.type(screen.getByLabelText(/Block \/ Lot/i), "9999/001");
-    await user.type(
-      screen.getByLabelText(/DBA \/ Facility Name/i),
-      "Metadata Market",
-    );
+    await user.type(screen.getByLabelText(/DBA \/ Facility Name/i), "Metadata Market");
     await user.type(screen.getByLabelText(/Management Co\./i), "Mega Mgmt");
     await user.type(screen.getByLabelText(/Responsible Party/i), "John Doe");
     await user.click(screen.getByLabelText(/Healthy Housing Program/i));

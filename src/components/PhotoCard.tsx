@@ -29,8 +29,7 @@ type Props = {
 };
 
 export default function PhotoCard({ photo, onChange, onRemove }: Props) {
-  const showViolationSelect =
-    photo.photoType === "Violation" || photo.photoType === "Abatement";
+  const showViolationSelect = photo.photoType === "Violation" || photo.photoType === "Abatement";
   const violationLabels = VIOLATION_TYPES.map((v) => v.label);
   const uniqueLabels = [...new Set(violationLabels)];
 
@@ -76,10 +75,7 @@ export default function PhotoCard({ photo, onChange, onRemove }: Props) {
           {photo.photoType}
         </div>
 
-        <Select
-          value={photo.photoType}
-          onValueChange={(v) => onChange(photo.id, "photoType", v)}
-        >
+        <Select value={photo.photoType} onValueChange={(v) => onChange(photo.id, "photoType", v)}>
           <SelectTrigger className="h-8 text-xs">
             <SelectValue />
           </SelectTrigger>

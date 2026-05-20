@@ -11,19 +11,13 @@ export const complaintFormSchema = z.object({
   methodReceived: z.string().min(1, "Method received is required"),
   complainantEmail: z
     .string()
-    .refine(
-      (v) => !v || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v),
-      "Invalid email format",
-    )
+    .refine((v) => !v || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v), "Invalid email format")
     .optional()
     .default(""),
   complainantPhone: z.string().optional().default(""),
   locOwnerEmail: z
     .string()
-    .refine(
-      (v) => !v || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v),
-      "Invalid email format",
-    )
+    .refine((v) => !v || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v), "Invalid email format")
     .optional()
     .default(""),
   // Hearing Information
@@ -31,10 +25,7 @@ export const complaintFormSchema = z.object({
   hearing_rp_phone: z.string().optional().default(""),
   hearing_rp_email: z
     .string()
-    .refine(
-      (v) => !v || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v),
-      "Invalid email format",
-    )
+    .refine((v) => !v || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v), "Invalid email format")
     .optional()
     .default(""),
   hearing_rp_address: z.string().optional().default(""),

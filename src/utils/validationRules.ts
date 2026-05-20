@@ -107,16 +107,12 @@ export function containsLeadKeyword(text: string): boolean {
  * defaultCorrectiveAction contain lead-related references.
  * Use at render time to ensure lead content never appears in dropdowns or chips.
  */
-export function filterLeadViolations<
-  T extends { label: string; defaultCorrectiveAction?: string },
->(violations: T[]): T[] {
+export function filterLeadViolations<T extends { label: string; defaultCorrectiveAction?: string }>(
+  violations: T[],
+): T[] {
   return violations.filter((v) => {
     if (containsLeadKeyword(v.label)) return false;
-    if (
-      v.defaultCorrectiveAction &&
-      containsLeadKeyword(v.defaultCorrectiveAction)
-    )
-      return false;
+    if (v.defaultCorrectiveAction && containsLeadKeyword(v.defaultCorrectiveAction)) return false;
     return true;
   });
 }
@@ -185,20 +181,18 @@ export const BIOHAZARD_PROHIBITION_PATTERNS: Array<{
 export function getBiohazardViolations(
   text: string,
 ): Array<{ shortLabel: string; violation: string; correction: string }> {
-  return BIOHAZARD_PROHIBITION_PATTERNS.filter(({ pattern }) =>
-    pattern.test(text),
-  ).map(({ shortLabel, violation, correction }) => ({
-    shortLabel,
-    violation,
-    correction,
-  }));
+  return BIOHAZARD_PROHIBITION_PATTERNS.filter(({ pattern }) => pattern.test(text)).map(
+    ({ shortLabel, violation, correction }) => ({
+      shortLabel,
+      violation,
+      correction,
+    }),
+  );
 }
 
 /** Returns true if any biohazard prohibition pattern matches the text. */
 export function containsBiohazardViolation(text: string): boolean {
-  return BIOHAZARD_PROHIBITION_PATTERNS.some(({ pattern }) =>
-    pattern.test(text),
-  );
+  return BIOHAZARD_PROHIBITION_PATTERNS.some(({ pattern }) => pattern.test(text));
 }
 
 /**
@@ -246,8 +240,7 @@ export const STATE_TO_SFHC_MAP: Array<{
     suggestion: {
       code: "§ 581(b)(13)",
       label: "Rodents",
-      description:
-        "Covers rat, mouse, and other rodent infestations and associated evidence",
+      description: "Covers rat, mouse, and other rodent infestations and associated evidence",
     },
   },
   {
@@ -287,26 +280,15 @@ export const STATE_TO_SFHC_MAP: Array<{
     suggestion: {
       code: "§ 581(b)(5)",
       label: "Sewage / Human Waste",
-      description:
-        "Covers sewage leaks, human/animal waste accumulation, and drainage failures",
+      description: "Covers sewage leaks, human/animal waste accumulation, and drainage failures",
     },
   },
   {
-    keywords: [
-      "mold",
-      "mould",
-      "fungus",
-      "fungi",
-      "moisture",
-      "damp",
-      "water damage",
-      "leak",
-    ],
+    keywords: ["mold", "mould", "fungus", "fungi", "moisture", "damp", "water damage", "leak"],
     suggestion: {
       code: "§ 581(b)(6)",
       label: "Mold Growth",
-      description:
-        "Covers mold, moisture damage, and conditions supporting fungal growth",
+      description: "Covers mold, moisture damage, and conditions supporting fungal growth",
     },
   },
   {
@@ -314,42 +296,23 @@ export const STATE_TO_SFHC_MAP: Array<{
     suggestion: {
       code: "§ 581(b)(7)",
       label: "Pigeons / Birds",
-      description:
-        "Covers pigeon and bird infestations and associated waste hazards",
+      description: "Covers pigeon and bird infestations and associated waste hazards",
     },
   },
   {
-    keywords: [
-      "vegetation",
-      "plant",
-      "weed",
-      "shrub",
-      "overgrown",
-      "garden",
-      "yard",
-    ],
+    keywords: ["vegetation", "plant", "weed", "shrub", "overgrown", "garden", "yard"],
     suggestion: {
       code: "§ 581(b)(2)",
       label: "Overgrown Vegetation",
-      description:
-        "Covers overgrown plants, weeds, and vegetation posing health or safety hazards",
+      description: "Covers overgrown plants, weeds, and vegetation posing health or safety hazards",
     },
   },
   {
-    keywords: [
-      "refuse",
-      "garbage",
-      "trash",
-      "debris",
-      "litter",
-      "dump",
-      "junk",
-    ],
+    keywords: ["refuse", "garbage", "trash", "debris", "litter", "dump", "junk"],
     suggestion: {
       code: "§ 581(b)(1)",
       label: "Garbage / Refuse / Waste",
-      description:
-        "Covers accumulation of garbage, refuse, and solid waste materials",
+      description: "Covers accumulation of garbage, refuse, and solid waste materials",
     },
   },
   {
@@ -400,10 +363,7 @@ export function getSfhcSuggestion(text: string): SfhcSuggestion {
  * with the given SFHC code string (e.g., '§ 581(b)(4)').
  * The rest of the summary text is preserved exactly.
  */
-export function replaceStateCodeWithSfhc(
-  text: string,
-  sfhcCode: string,
-): string {
+export function replaceStateCodeWithSfhc(text: string, sfhcCode: string): string {
   let result = text;
   for (const pattern of CA_STATE_CODE_PATTERNS) {
     // Reset lastIndex for global patterns, replace only first occurrence

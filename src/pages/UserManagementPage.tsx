@@ -40,10 +40,7 @@ export default function UserManagementPage() {
     },
     onError: (err: any) => {
       const msg = err.message || "";
-      if (
-        msg.toLowerCase().includes("forbidden") ||
-        msg.toLowerCase().includes("super admin")
-      ) {
+      if (msg.toLowerCase().includes("forbidden") || msg.toLowerCase().includes("super admin")) {
         toast.error("Permission denied — only Super Admins can assign roles.");
       } else {
         toast.error("Failed to update role");
@@ -52,10 +49,7 @@ export default function UserManagementPage() {
     onSettled: () => setUpdatingId(null),
   });
 
-  const handleRoleChange = async (
-    userId: string,
-    role: (typeof ROLES)[number],
-  ) => {
+  const handleRoleChange = async (userId: string, role: (typeof ROLES)[number]) => {
     setUpdatingId(userId);
     updateRoleMutation.mutate({ userId, role });
   };
@@ -68,9 +62,7 @@ export default function UserManagementPage() {
         </div>
         <div>
           <h1 className="text-xl font-bold text-foreground">User Management</h1>
-          <p className="text-sm text-muted-foreground">
-            Assign and manage roles for all users
-          </p>
+          <p className="text-sm text-muted-foreground">Assign and manage roles for all users</p>
         </div>
       </div>
 
@@ -98,20 +90,14 @@ export default function UserManagementPage() {
             </div>
           ))
         ) : users.length === 0 ? (
-          <div className="py-16 text-center text-muted-foreground text-sm">
-            No users found.
-          </div>
+          <div className="py-16 text-center text-muted-foreground text-sm">No users found.</div>
         ) : (
           users.map((user) => {
             const initials =
-              [user.first_name?.[0], user.last_name?.[0]]
-                .filter(Boolean)
-                .join("") ||
+              [user.first_name?.[0], user.last_name?.[0]].filter(Boolean).join("") ||
               user.email?.[0]?.toUpperCase() ||
               "?";
-            const fullName =
-              [user.first_name, user.last_name].filter(Boolean).join(" ") ||
-              "—";
+            const fullName = [user.first_name, user.last_name].filter(Boolean).join(" ") || "—";
             return (
               <div
                 key={user.id}
@@ -121,12 +107,8 @@ export default function UserManagementPage() {
                   {initials}
                 </div>
                 <div className="min-w-0">
-                  <p className="font-medium text-sm text-foreground truncate">
-                    {fullName}
-                  </p>
-                  <p className="text-xs text-muted-foreground truncate">
-                    {user.email}
-                  </p>
+                  <p className="font-medium text-sm text-foreground truncate">{fullName}</p>
+                  <p className="text-xs text-muted-foreground truncate">{user.email}</p>
                 </div>
                 <div className="flex items-center">
                   {user.role ? (
@@ -134,25 +116,18 @@ export default function UserManagementPage() {
                       variant="outline"
                       className={`text-xs font-medium whitespace-nowrap ${ROLE_COLORS[user.role] ?? "bg-muted text-muted-foreground"}`}
                     >
-                      {user.role === "Super Admin" && (
-                        <ShieldCheck className="w-3 h-3 mr-1" />
-                      )}
+                      {user.role === "Super Admin" && <ShieldCheck className="w-3 h-3 mr-1" />}
                       {user.role}
                     </Badge>
                   ) : (
-                    <Badge
-                      variant="outline"
-                      className="text-xs text-muted-foreground"
-                    >
+                    <Badge variant="outline" className="text-xs text-muted-foreground">
                       No Role
                     </Badge>
                   )}
                 </div>
                 <Select
                   value={user.role ?? ""}
-                  onValueChange={(v) =>
-                    handleRoleChange(user.id, v as (typeof ROLES)[number])
-                  }
+                  onValueChange={(v) => handleRoleChange(user.id, v as (typeof ROLES)[number])}
                   disabled={updatingId === user.id}
                 >
                   <SelectTrigger className="h-9 w-36 text-xs">

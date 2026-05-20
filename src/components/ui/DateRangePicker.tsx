@@ -75,12 +75,7 @@ interface DatePickerProps {
   className?: string;
 }
 
-export function DatePicker({
-  value,
-  onChange,
-  placeholder,
-  className,
-}: DatePickerProps) {
+export function DatePicker({ value, onChange, placeholder, className }: DatePickerProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (

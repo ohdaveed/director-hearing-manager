@@ -120,13 +120,7 @@ function ComplaintRow({
   );
 }
 
-function InspectionRow({
-  inspection,
-  onClick,
-}: {
-  inspection: Inspection;
-  onClick: () => void;
-}) {
+function InspectionRow({ inspection, onClick }: { inspection: Inspection; onClick: () => void }) {
   return (
     <button
       type="button"
@@ -231,10 +225,7 @@ function FeedPanel({
         </div>
         {badge && (
           <CardAction>
-            <Badge
-              variant="outline"
-              className={cn("text-[10px] font-bold px-1.5 py-0", badgeCls)}
-            >
+            <Badge variant="outline" className={cn("text-[10px] font-bold px-1.5 py-0", badgeCls)}>
               {badge}
             </Badge>
           </CardAction>
@@ -279,11 +270,7 @@ function FeedPanel({
 
 // ── Page ──────────────────────────────────────────────────────────────────────
 
-export default function InspectorDashboardPage({
-  inspectorName,
-}: {
-  inspectorName: string;
-}) {
+export default function InspectorDashboardPage({ inspectorName }: { inspectorName: string }) {
   const navigate = useNavigate();
   const { user } = useAuth();
 
@@ -359,10 +346,7 @@ export default function InspectorDashboardPage({
                 </div>
                 <div className="divide-y divide-border/40">
                   {Array.from({ length: 3 }).map((_, j) => (
-                    <div
-                      key={j}
-                      className="flex items-center gap-4 px-5 py-3.5"
-                    >
+                    <div key={j} className="flex items-center gap-4 px-5 py-3.5">
                       <div className="flex-1 space-y-1.5">
                         <div className="h-4 w-3/4 bg-muted/50 rounded" />
                         <div className="h-3 w-1/2 bg-muted/30 rounded" />
@@ -395,16 +379,12 @@ export default function InspectorDashboardPage({
       return diff >= 0 && diff <= 14;
     })
     .sort((a, b) =>
-      (a.reinspection_due_on_after ?? "").localeCompare(
-        b.reinspection_due_on_after ?? "",
-      ),
+      (a.reinspection_due_on_after ?? "").localeCompare(b.reinspection_due_on_after ?? ""),
     );
 
   const hour = new Date().getHours();
-  const greeting =
-    hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
-  const firstName =
-    user?.firstName || inspectorName.split(" ")[0] || "Inspector";
+  const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+  const firstName = user?.firstName || inspectorName.split(" ")[0] || "Inspector";
   const alerts = {
     newAssignments: [] as AlertComplaint[],
     noContactAttempt: [] as AlertComplaint[],
@@ -416,8 +396,7 @@ export default function InspectorDashboardPage({
   function daysSince(dateStr?: string): number {
     if (!dateStr) return 0;
     return Math.floor(
-      (today.getTime() - new Date(dateStr + "T00:00:00").getTime()) /
-        (1000 * 60 * 60 * 24),
+      (today.getTime() - new Date(dateStr + "T00:00:00").getTime()) / (1000 * 60 * 60 * 24),
     );
   }
 
@@ -428,15 +407,9 @@ export default function InspectorDashboardPage({
       key={c.id}
       address={(c.address as any) ?? "—"}
       complaintId={(c.complaintid as any) || undefined}
-      meta={
-        c.date_assigned
-          ? `Assigned ${formatDate(c.date_assigned)}`
-          : "Recently assigned"
-      }
+      meta={c.date_assigned ? `Assigned ${formatDate(c.date_assigned)}` : "Recently assigned"}
       statusLabel={(c.status as any) ?? undefined}
-      statusCls={
-        COMPLAINT_STATUS_THEME[c.status as keyof typeof COMPLAINT_STATUS_THEME]
-      }
+      statusCls={COMPLAINT_STATUS_THEME[c.status as keyof typeof COMPLAINT_STATUS_THEME]}
       onClick={() => navigate(`/complaints/${c.id}`)}
     />
   ));
@@ -460,8 +433,7 @@ export default function InspectorDashboardPage({
 
   const reinspectRows = upcomingReinspections.map((c: Complaint) => {
     const daysOut = Math.round(
-      (new Date(c.reinspection_due_on_after! + "T00:00:00").getTime() -
-        today.getTime()) /
+      (new Date(c.reinspection_due_on_after! + "T00:00:00").getTime() - today.getTime()) /
         (1000 * 60 * 60 * 24),
     );
     const urgent = daysOut <= 3;
@@ -472,22 +444,12 @@ export default function InspectorDashboardPage({
         complaintId={(c.complaintid as any) || undefined}
         meta={`Due ${formatDate(c.reinspection_due_on_after!)}`}
         statusLabel={(c.status as any) ?? undefined}
-        statusCls={
-          COMPLAINT_STATUS_THEME[
-            c.status as keyof typeof COMPLAINT_STATUS_THEME
-          ]
-        }
+        statusCls={COMPLAINT_STATUS_THEME[c.status as keyof typeof COMPLAINT_STATUS_THEME]}
         urgent={urgent}
         leftSlot={
-          <div
-            className={urgent ? "text-destructive" : "text-muted-foreground"}
-          >
-            <p className="text-base font-black tabular-nums leading-none">
-              {daysOut}
-            </p>
-            <p className="text-[9px] uppercase tracking-wide leading-none mt-0.5">
-              days
-            </p>
+          <div className={urgent ? "text-destructive" : "text-muted-foreground"}>
+            <p className="text-base font-black tabular-nums leading-none">{daysOut}</p>
+            <p className="text-[9px] uppercase tracking-wide leading-none mt-0.5">days</p>
           </div>
         }
         onClick={() => navigate(`/inspections/${c.id}`)}
@@ -497,8 +459,7 @@ export default function InspectorDashboardPage({
 
   const overdueRows = overdue.map((c: Complaint) => {
     const daysPast = Math.round(
-      (today.getTime() -
-        new Date(c.reinspection_due_on_after! + "T00:00:00").getTime()) /
+      (today.getTime() - new Date(c.reinspection_due_on_after! + "T00:00:00").getTime()) /
         (1000 * 60 * 60 * 24),
     );
     return (
@@ -510,12 +471,8 @@ export default function InspectorDashboardPage({
         urgent
         leftSlot={
           <div className="text-destructive">
-            <p className="text-base font-black tabular-nums leading-none">
-              {daysPast}
-            </p>
-            <p className="text-[9px] uppercase tracking-wide leading-none mt-0.5">
-              past
-            </p>
+            <p className="text-base font-black tabular-nums leading-none">{daysPast}</p>
+            <p className="text-[9px] uppercase tracking-wide leading-none mt-0.5">past</p>
           </div>
         }
         onClick={() => navigate(`/inspections/${c.id}`)}
@@ -576,9 +533,7 @@ export default function InspectorDashboardPage({
           <h1 className="text-xl font-bold text-foreground">
             {greeting}, {firstName} 👋
           </h1>
-          <p className="text-sm text-muted-foreground mt-0.5">
-            Here's your caseload at a glance
-          </p>
+          <p className="text-sm text-muted-foreground mt-0.5">Here's your caseload at a glance</p>
         </div>
         <Button
           variant="outline"
@@ -602,11 +557,7 @@ export default function InspectorDashboardPage({
         <div className="lg:hidden space-y-4">
           <div className="grid grid-cols-2 gap-3">{statCards}</div>
           <div className="flex gap-2">
-            <Button
-              size="sm"
-              className="gap-2 flex-1"
-              onClick={() => navigate("/complaints")}
-            >
+            <Button size="sm" className="gap-2 flex-1" onClick={() => navigate("/complaints")}>
               <ClipboardList className="w-4 h-4" /> My Complaints
             </Button>
             <Button
@@ -650,11 +601,7 @@ export default function InspectorDashboardPage({
           <FeedPanel
             icon={<Bell className="w-3.5 h-3.5" />}
             title="New Assignments"
-            badge={
-              newAssignments.length > 0
-                ? `${newAssignments.length} new`
-                : undefined
-            }
+            badge={newAssignments.length > 0 ? `${newAssignments.length} new` : undefined}
             allRows={newAssignmentRows}
             showAll={showAllNew}
             onToggleShowAll={() => setShowAllNew((v) => !v)}
@@ -674,11 +621,7 @@ export default function InspectorDashboardPage({
           <FeedPanel
             icon={<PhoneOff className="w-3.5 h-3.5" />}
             title="No Contact Attempt"
-            badge={
-              noContactAttempt.length > 0
-                ? `${noContactAttempt.length} pending`
-                : undefined
-            }
+            badge={noContactAttempt.length > 0 ? `${noContactAttempt.length} pending` : undefined}
             badgeCls="bg-accent/20 text-accent-foreground border-accent/30"
             allRows={noContactRows}
             showAll={showAllNoContact}
@@ -700,9 +643,7 @@ export default function InspectorDashboardPage({
             allRows={reinspectRows}
             showAll={showAllReinspect}
             onToggleShowAll={() => setShowAllReinspect((v) => !v)}
-            emptyContent={
-              <AllClear message="No upcoming reinspections in the next 14 days." />
-            }
+            emptyContent={<AllClear message="No upcoming reinspections in the next 14 days." />}
           />
 
           {/* Overdue Cases */}
@@ -726,9 +667,7 @@ export default function InspectorDashboardPage({
             showAll={showAllInspections}
             onToggleShowAll={() => setShowAllInspections((v) => !v)}
             emptyContent={
-              <p className="text-sm text-muted-foreground">
-                No submitted inspections yet.
-              </p>
+              <p className="text-sm text-muted-foreground">No submitted inspections yet.</p>
             }
           />
         </div>

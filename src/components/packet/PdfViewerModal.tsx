@@ -50,21 +50,14 @@ export function PdfViewerModal({ url, onClose }: PdfViewerModalProps) {
                   variant="ghost"
                   size="sm"
                   className="h-8 w-8 p-0"
-                  onClick={() =>
-                    setPageNumber((p) => Math.min(numPages, p + 1))
-                  }
+                  onClick={() => setPageNumber((p) => Math.min(numPages, p + 1))}
                   disabled={pageNumber >= numPages}
                 >
                   <ChevronRight className="w-4 h-4" />
                 </Button>
               </div>
             )}
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-8 w-8 p-0"
-              onClick={onClose}
-            >
+            <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={onClose}>
               <X className="w-4 h-4" />
             </Button>
           </div>

@@ -82,9 +82,7 @@ export function SFDPHReportHeader({
           }}
         />
         <div style={{ textAlign: "right" }}>
-          <p style={{ fontSize: "11pt", margin: "0" }}>
-            City and County of San Francisco
-          </p>
+          <p style={{ fontSize: "11pt", margin: "0" }}>City and County of San Francisco</p>
           <p
             style={{
               fontWeight: "bold",
@@ -228,9 +226,7 @@ export function SFDPHReportHeader({
       // NOH / ServiceLog style: non-italic, single-line titles
       <div style={{ textAlign: "right", fontSize: "9.5pt" }}>
         <p style={{ margin: "0" }}>{MAYOR}, Mayor</p>
-        <p style={{ margin: "1px 0 0" }}>
-          {DIRECTOR_OF_HEALTH}, Director of Health
-        </p>
+        <p style={{ margin: "1px 0 0" }}>{DIRECTOR_OF_HEALTH}, Director of Health</p>
         <p style={{ margin: "1px 0 0" }}>{EH_DIRECTOR}</p>
         <p style={{ margin: "1px 0 0" }}>Director of Environmental Health</p>
       </div>
@@ -265,9 +261,7 @@ export function SFDPHReportHeader({
         </div>
         {officialsBlock}
       </div>
-      {showRule && (
-        <hr style={{ borderTop: "2px solid black", margin: "6px 0" }} />
-      )}
+      {showRule && <hr style={{ borderTop: "2px solid black", margin: "6px 0" }} />}
     </div>
   );
 }

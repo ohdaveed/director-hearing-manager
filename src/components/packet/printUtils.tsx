@@ -59,13 +59,8 @@ export const SF_SEAL_URL =
   "https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Seal_of_San_Francisco%2C_California.svg/240px-Seal_of_San_Francisco%2C_California.svg.png";
 
 // ─── Locked office contact (sourced from config) ─────────────────────────────
-const {
-  officeAddressShort,
-  officeCity,
-  officePhone,
-  officeFax,
-  officeVoicemail,
-} = STATIC_BLOCKS.common;
+const { officeAddressShort, officeCity, officePhone, officeFax, officeVoicemail } =
+  STATIC_BLOCKS.common;
 
 // ─── Date formatter ───────────────────────────────────────────────────────────
 
@@ -106,18 +101,10 @@ export function PrintCheckbox({ checked }: { checked: boolean }) {
 // ─── Exhibit Label ───────────────────────────────────────────────────────────
 
 /** Red exhibit label positioned at the top-right of a page/section. */
-export function ExhibitLabel({
-  letter,
-  className = "",
-}: {
-  letter?: string;
-  className?: string;
-}) {
+export function ExhibitLabel({ letter, className = "" }: { letter?: string; className?: string }) {
   if (!letter) return null;
   return (
-    <div className={`absolute top-0 right-0 exhibit-label-red ${className}`}>
-      Exhibit {letter}
-    </div>
+    <div className={`absolute top-0 right-0 exhibit-label-red ${className}`}>Exhibit {letter}</div>
   );
 }
 

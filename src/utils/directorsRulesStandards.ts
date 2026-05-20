@@ -40,8 +40,7 @@ export const STRUCTURAL_GAPS_SEALING: StandardEntry[] = [
   {
     sourceSection: "Sec. VIII — Vector Exclusion",
     shortTitle: "Exterior door/window gaps — ¼-inch threshold",
-    verbatimText:
-      "Gaps greater than ¼ inch around exterior doors and windows shall be repaired.",
+    verbatimText: "Gaps greater than ¼ inch around exterior doors and windows shall be repaired.",
   },
   {
     sourceSection: "Sec. VIII — Vector Exclusion",
@@ -59,8 +58,7 @@ export const STRUCTURAL_GAPS_SEALING: StandardEntry[] = [
       "bats, rodents, and other animals.",
   },
   {
-    sourceSection:
-      "Sec. VIII — Vector Exclusion / Corrective Action Precedents",
+    sourceSection: "Sec. VIII — Vector Exclusion / Corrective Action Precedents",
     shortTitle: "Hole sealing — ¼-inch rule, SPRAY FOAM PROHIBITED",
     verbatimText:
       "Seal all holes larger than ¼ inch with rodent-proof materials such as sheet metal, ¼ inch " +
@@ -73,8 +71,7 @@ export const STRUCTURAL_GAPS_SEALING: StandardEntry[] = [
 export const SCREEN_MESH_STANDARDS: StandardEntry[] = [
   {
     sourceSection: "Sec. VIII — Vector Exclusion",
-    shortTitle:
-      "Fly/mosquito screen specification — 16-mesh per inch, tight-fitting frames",
+    shortTitle: "Fly/mosquito screen specification — 16-mesh per inch, tight-fitting frames",
     verbatimText:
       "Where flies and mosquitoes are a nuisance, every doorway, window or other device with " +
       "openings to outdoor space and used for ventilation shall have screens of at least 16-mesh " +
@@ -115,10 +112,8 @@ export const LANDSCAPE_CLEAR_DISTANCES: StandardEntry[] = [
   },
   {
     sourceSection: "Sec. VII-3 — Landscape Management",
-    shortTitle:
-      "Dense groundcover — remove to eliminate burrow/runway harborage",
-    verbatimText:
-      "Remove or thin out dense groundcover that can hide burrows, runways and drains.",
+    shortTitle: "Dense groundcover — remove to eliminate burrow/runway harborage",
+    verbatimText: "Remove or thin out dense groundcover that can hide burrows, runways and drains.",
   },
   {
     sourceSection: "Sec. VII-3 — Landscape Management",
@@ -140,15 +135,13 @@ export const MATERIAL_STORAGE_STACKING: StandardEntry[] = [
   },
   {
     sourceSection: "Sec. VII-2 — Proper Storage Practices",
-    shortTitle:
-      "Wall/fence clearance minimum — 6 inches between piles and walls",
+    shortTitle: "Wall/fence clearance minimum — 6 inches between piles and walls",
     verbatimText:
       "With at least 6 inches of space between the piles and exterior walls of any structure or fence.",
   },
   {
     sourceSection: "Sec. VII-2 — Corrective Action Precedents",
-    shortTitle:
-      "Temporary storage pile specs — 6–10 in apart, 6–10 in from walls, max 4 ft tall",
+    shortTitle: "Temporary storage pile specs — 6–10 in apart, 6–10 in from walls, max 4 ft tall",
     verbatimText:
       "All unnecessary items shall be discarded or recycled. Where it is necessary to temporarily " +
       "store items, all such items shall be stored neatly in piles 6–10 inches apart and 6–10 inches " +
@@ -156,8 +149,7 @@ export const MATERIAL_STORAGE_STACKING: StandardEntry[] = [
   },
   {
     sourceSection: "Sec. VII-2 — Proper Storage Practices",
-    shortTitle:
-      "No water collection — items shall be drained, covered, and inverted",
+    shortTitle: "No water collection — items shall be drained, covered, and inverted",
     verbatimText:
       "Stored items shall not collect water that would permit the breeding of insect disease vectors " +
       "such as mosquitoes. Stored items shall be drained, covered and inverted.",
@@ -187,16 +179,14 @@ export const BIOHAZARD_CHEMICAL_PROTOCOLS: StandardEntry[] = [
   },
   {
     sourceSection: "Sec. XIV — Procedures for Safe Cleanup",
-    shortTitle:
-      "PROHIBITION: NEVER mix bleach (hypochlorite) and ammonia — produces chlorine gas",
+    shortTitle: "PROHIBITION: NEVER mix bleach (hypochlorite) and ammonia — produces chlorine gas",
     verbatimText:
       "NEVER mix hypochlorite products (bleach) and ammonia products (such as glass cleaner) " +
       "because poisonous chlorine gas will be created.",
   },
   {
     sourceSection: "Sec. XIV — Procedures for Safe Cleanup",
-    shortTitle:
-      "PROHIBITION: Do NOT vacuum or sweep unsterilized feces/droppings",
+    shortTitle: "PROHIBITION: Do NOT vacuum or sweep unsterilized feces/droppings",
     verbatimText:
       "Do not vacuum or sweep urine, feces, droppings or contaminated surfaces unless they have " +
       "been disinfected. Sweeping will put the disease organisms into the air you breathe.",
@@ -220,16 +210,14 @@ export const BIOHAZARD_CHEMICAL_PROTOCOLS: StandardEntry[] = [
   },
   {
     sourceSection: "Sec. XIV — Procedures for Safe Cleanup",
-    shortTitle:
-      "Post-cleanup hand hygiene — soap/water or alcohol-based hand gel",
+    shortTitle: "Post-cleanup hand hygiene — soap/water or alcohol-based hand gel",
     verbatimText:
       "After removing gloves, thoroughly wash hands with soap and water, or use an alcohol-based " +
       "hand gel when soap and water are not immediately available.",
   },
   {
     sourceSection: "Appendix A — CA Business & Professions Code Sec. 8538",
-    shortTitle:
-      "Pesticide advance notice — written notice to owner/manager/occupant required",
+    shortTitle: "Pesticide advance notice — written notice to owner/manager/occupant required",
     verbatimText:
       "A registered structural pest control company shall provide the owner, or owner's agent, " +
       "and tenant of the premises for which the work is to be done with clear written notice " +
@@ -309,9 +297,7 @@ const VIOLATION_STANDARDS_MAP: Array<{
   {
     // Overgrown Vegetation
     codeSubstring: "581(b)(2)",
-    categories: [
-      { name: "Landscape Clear Distances", entries: LANDSCAPE_CLEAR_DISTANCES },
-    ],
+    categories: [{ name: "Landscape Clear Distances", entries: LANDSCAPE_CLEAR_DISTANCES }],
   },
   {
     // Noxious Insects (flies, mosquitoes, cockroaches) — (b)(8)
@@ -335,9 +321,7 @@ const VIOLATION_STANDARDS_MAP: Array<{
  * @param violationText - The violation code or label string from the inspection form.
  * @returns Matched StandardsCategory array (empty if no match).
  */
-export function getStandardsForViolationCode(
-  violationText: string,
-): StandardsCategory[] {
+export function getStandardsForViolationCode(violationText: string): StandardsCategory[] {
   const entry = VIOLATION_STANDARDS_MAP.find(({ codeSubstring }) =>
     violationText.includes(codeSubstring),
   );
@@ -351,9 +335,7 @@ export function getStandardsForViolationCode(
  * The AI is instructed to use the exact measurements, distances, and material
  * names as written — no rounding, paraphrasing, or substituting figures.
  */
-export function buildStandardsPromptBlock(
-  categories: StandardsCategory[],
-): string {
+export function buildStandardsPromptBlock(categories: StandardsCategory[]): string {
   if (categories.length === 0) return "";
 
   const lines: string[] = [

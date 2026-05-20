@@ -13,12 +13,7 @@
  */
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -58,54 +53,48 @@ const STAGES = [
 
 // ── Sub-components ─────────────────────────────────────────────────────────
 
-function ProgressOverlay({
-  stage,
-  progress,
-}: {
-  stage: number;
-  progress: number;
-}) {
+function ProgressOverlay({ stage, progress }: { stage: number; progress: number }) {
   return (
     <div className="flex flex-col h-full items-center justify-center gap-8 px-10">
-      <div className="w-full max-w-sm space-y-5">
-        <div className="text-center space-y-1">
+      <Card className="w-full max-w-sm border-0 shadow-none">
+        <CardContent className="space-y-5 p-0 text-center">
           <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 mb-2">
             <Loader2 className="w-6 h-6 text-primary animate-spin" />
           </div>
-          <p className="text-sm font-semibold text-foreground">
-            {STAGES[stage].label}…
-          </p>
-          <p className="text-xs text-muted-foreground">
-            Please wait while records are being created.
-          </p>
-        </div>
+          <div className="space-y-1">
+            <p className="text-sm font-semibold text-foreground">{STAGES[stage].label}…</p>
+            <p className="text-xs text-muted-foreground">
+              Please wait while records are being created.
+            </p>
+          </div>
 
-        <Progress value={progress} className="h-2" />
+          <Progress value={progress} className="h-2" />
 
-        <div className="space-y-2 pt-1">
-          {STAGES.map((s, i) => (
-            <div
-              key={i}
-              className={`flex items-center gap-2.5 text-[11px] transition-colors ${
-                i < stage
-                  ? "text-primary"
-                  : i === stage
-                    ? "text-foreground font-medium"
-                    : "text-muted-foreground/50"
-              }`}
-            >
-              {i < stage ? (
-                <CheckCircle2 className="w-3 h-3 flex-shrink-0" />
-              ) : i === stage ? (
-                <Loader2 className="w-3 h-3 flex-shrink-0 animate-spin" />
-              ) : (
-                <div className="w-3 h-3 rounded-full border border-current/30 flex-shrink-0" />
-              )}
-              {s.label}
-            </div>
-          ))}
-        </div>
-      </div>
+          <div className="space-y-2 pt-1 text-left">
+            {STAGES.map((s, i) => (
+              <div
+                key={i}
+                className={`flex items-center gap-2.5 text-[11px] transition-colors ${
+                  i < stage
+                    ? "text-primary"
+                    : i === stage
+                      ? "text-foreground font-medium"
+                      : "text-muted-foreground/50"
+                }`}
+              >
+                {i < stage ? (
+                  <CheckCircle2 className="w-3 h-3 flex-shrink-0" />
+                ) : i === stage ? (
+                  <Loader2 className="w-3 h-3 flex-shrink-0 animate-spin" />
+                ) : (
+                  <div className="w-3 h-3 rounded-full border border-current/30 flex-shrink-0" />
+                )}
+                {s.label}
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
@@ -125,23 +114,22 @@ function InspectionCard({
   // Collect unique displayed codes (prefer violationCode over category)
   const displayCodes: string[] = [
     ...new Set(
-      inspection.violations
-        .map((v: any) => v.violationCode || v.category || "")
-        .filter(Boolean),
+      inspection.violations.map((v: any) => v.violationCode || v.category || "").filter(Boolean),
     ),
   ].slice(0, 5) as string[];
 
   return (
-    <div
-      className={`rounded-xl border overflow-hidden transition-all duration-150 ${
+    <Card
+      className={cn(
+        "transition-all duration-150 overflow-hidden",
         isDisabled
           ? "border-border/40 bg-muted/20 opacity-65"
           : checked
             ? "border-primary/40 bg-primary/[0.03] shadow-sm ring-1 ring-primary/20"
-            : "border-border bg-card hover:border-border"
-      }`}
+            : "border-border bg-card hover:border-border",
+      )}
     >
-      <div className="p-4 flex items-start gap-3">
+      <CardContent className="p-4 flex items-start gap-3">
         {/* Checkbox */}
         <div className="pt-0.5 flex-shrink-0">
           <Checkbox
@@ -159,19 +147,14 @@ function InspectionCard({
               {formatDateShort(inspection.inspection_date)}
             </span>
             {inspection.inspection_type && (
-              <Badge
-                variant="secondary"
-                className="text-[10px] h-4 px-1.5 font-normal py-0"
-              >
+              <Badge variant="secondary" className="text-[10px] h-4 px-1.5 font-normal py-0">
                 {inspection.inspection_type}
               </Badge>
             )}
             {inspection.inspection_rating && (
               <Badge
                 variant={
-                  inspection.inspection_rating === "Unsatisfactory"
-                    ? "destructive"
-                    : "outline"
+                  inspection.inspection_rating === "Unsatisfactory" ? "destructive" : "outline"
                 }
                 className="text-[10px] h-4 px-1.5 font-normal py-0"
               >
@@ -192,10 +175,7 @@ function InspectionCard({
           {/* Inspector */}
           {inspection.inspector && (
             <p className="text-[11px] text-muted-foreground">
-              Inspector:{" "}
-              <span className="font-medium text-foreground">
-                {inspection.inspector}
-              </span>
+              Inspector: <span className="font-medium text-foreground">{inspection.inspector}</span>
             </p>
           )}
 
@@ -248,11 +228,7 @@ function InspectionCard({
                   key={i}
                   className="w-12 h-10 rounded-md overflow-hidden bg-muted border border-border flex-shrink-0"
                 >
-                  <img
-                    src={url}
-                    alt={`Photo ${i + 1}`}
-                    className="w-full h-full object-cover"
-                  />
+                  <img src={url} alt={`Photo ${i + 1}`} className="w-full h-full object-cover" />
                 </div>
               ))}
               {inspection.photoCount > inspection.photoThumbnails.length && (
@@ -272,21 +248,14 @@ function InspectionCard({
                 onClick={() => setExpanded((e) => !e)}
                 className="flex items-center gap-1 text-[10px] text-muted-foreground hover:text-foreground transition-colors mt-1"
               >
-                {expanded ? (
-                  <ChevronUp className="w-3 h-3" />
-                ) : (
-                  <ChevronDown className="w-3 h-3" />
-                )}
+                {expanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
                 {expanded ? "Hide" : "Show"} violations detail
               </button>
 
               {expanded && (
                 <div className="space-y-1.5 border-t border-border/60 pt-2 mt-0.5">
                   {inspection.violations.map((v: any) => (
-                    <div
-                      key={v.id}
-                      className="flex items-start gap-2 text-[10px]"
-                    >
+                    <div key={v.id} className="flex items-start gap-2 text-[10px]">
                       <Shield className="w-2.5 h-2.5 text-destructive/50 flex-shrink-0 mt-0.5" />
                       <div className="leading-relaxed">
                         {v.violationCode && (
@@ -305,8 +274,8 @@ function InspectionCard({
             </>
           )}
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -339,9 +308,7 @@ export default function InspectionImportWizard({
       setInspections(data.inspections);
       // Pre-select all un-imported inspections
       const preSelected = new Set(
-        data.inspections
-          .filter((i: any) => !i.alreadyImported)
-          .map((i: any) => i.id),
+        data.inspections.filter((i: any) => !i.alreadyImported).map((i: any) => i.id),
       );
       setSelected(preSelected);
     } catch {
@@ -365,9 +332,7 @@ export default function InspectionImportWizard({
   };
 
   const selectAll = () =>
-    setSelected(
-      new Set(inspections.filter((i) => !i.alreadyImported).map((i) => i.id)),
-    );
+    setSelected(new Set(inspections.filter((i) => !i.alreadyImported).map((i) => i.id)));
   const deselectAll = () => setSelected(new Set());
 
   const startProgressAnim = () => {
@@ -404,16 +369,13 @@ export default function InspectionImportWizard({
 
       await new Promise((r) => setTimeout(r, 500));
 
-      const chronoWord =
-        result.chronologyEntriesCreated === 1 ? "entry" : "entries";
+      const chronoWord = result.chronologyEntriesCreated === 1 ? "entry" : "entries";
       const exhibitWord = result.exhibitsCreated === 1 ? "exhibit" : "exhibits";
 
       toast.success(
         `Import complete — ${result.chronologyEntriesCreated} chronology ${chronoWord} ` +
           `and ${result.exhibitsCreated} ${exhibitWord} created.` +
-          (result.skipped > 0
-            ? ` (${result.skipped} already imported, skipped)`
-            : ""),
+          (result.skipped > 0 ? ` (${result.skipped} already imported, skipped)` : ""),
       );
 
       onImportComplete();
@@ -451,9 +413,8 @@ export default function InspectionImportWizard({
                 Import Past Inspections
               </SheetTitle>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                Select inspections to auto-generate chronology entries, SFHC
-                citations, and exhibit records. Or upload a PDF report for AI
-                extraction.
+                Select inspections to auto-generate chronology entries, SFHC citations, and exhibit
+                records. Or upload a PDF report for AI extraction.
               </p>
               <div className="pt-2">
                 <Input
@@ -462,17 +423,14 @@ export default function InspectionImportWizard({
                   onChange={async (e) => {
                     const file = e.target.files?.[0];
                     if (file) {
-                      toast.promise(
-                        importService.importDraftPacket({ packetId, file }),
-                        {
-                          loading: "Analyzing PDF with AI...",
-                          success: (data: any) => {
-                            onImportComplete();
-                            return `Successfully extracted ${data.violationsFound} violations.`;
-                          },
-                          error: "Failed to parse PDF.",
+                      toast.promise(importService.importDraftPacket({ packetId, file }), {
+                        loading: "Analyzing PDF with AI...",
+                        success: (data: any) => {
+                          onImportComplete();
+                          return `Successfully extracted ${data.violationsFound} violations.`;
                         },
-                      );
+                        error: "Failed to parse PDF.",
+                      });
                     }
                   }}
                   className="h-8 text-[11px]"
@@ -495,23 +453,21 @@ export default function InspectionImportWizard({
                 ))}
               </>
             ) : inspections.length === 0 ? (
-              <div className="text-center py-16 text-muted-foreground">
-                <AlertCircle className="w-10 h-10 mx-auto mb-3 opacity-20" />
-                <p className="text-sm font-medium">
-                  No submitted inspections found
-                </p>
-                <p className="text-xs mt-1 max-w-xs mx-auto">
-                  Inspections must have a status of "Submitted" before they can
-                  be imported.
-                </p>
-              </div>
+              <Card className="text-center py-16">
+                <CardContent>
+                  <AlertCircle className="w-10 h-10 mx-auto mb-3 opacity-20" />
+                  <p className="text-sm font-medium">No submitted inspections found</p>
+                  <p className="text-xs mt-1 max-w-xs mx-auto text-muted-foreground">
+                    Inspections must have a status of "Submitted" before they can be imported.
+                  </p>
+                </CardContent>
+              </Card>
             ) : (
               <>
                 {/* Select controls + count */}
                 <div className="flex items-center justify-between">
                   <p className="text-xs text-muted-foreground">
-                    {importableCount}{" "}
-                    {importableCount === 1 ? "inspection" : "inspections"}{" "}
+                    {importableCount} {importableCount === 1 ? "inspection" : "inspections"}{" "}
                     available · {selectedCount} selected
                   </p>
                   <div className="flex items-center gap-2">
@@ -533,27 +489,29 @@ export default function InspectionImportWizard({
 
                 {/* What will be created info box */}
                 {selectedCount > 0 && (
-                  <div className="rounded-lg bg-primary/5 border border-primary/20 px-3.5 py-3 text-[11px] text-muted-foreground space-y-1">
-                    <p className="font-semibold text-foreground text-xs">
-                      What will be created for each import:
-                    </p>
-                    <p className="flex items-center gap-1.5">
-                      <CheckCircle2 className="w-3 h-3 text-primary flex-shrink-0" />
-                      1 chronology entry with SFHC citation and narrative
-                    </p>
-                    <p className="flex items-center gap-1.5">
-                      <CheckCircle2 className="w-3 h-3 text-primary flex-shrink-0" />
-                      1 exhibit record for the inspection report (~5 pages)
-                    </p>
-                    <p className="flex items-center gap-1.5">
-                      <CheckCircle2 className="w-3 h-3 text-primary flex-shrink-0" />
-                      1 exhibit record for grouped photos (if any)
-                    </p>
-                    <p className="flex items-center gap-1.5">
-                      <CheckCircle2 className="w-3 h-3 text-primary flex-shrink-0" />
-                      Sequential Bates page ranges auto-calculated
-                    </p>
-                  </div>
+                  <Card className="bg-primary/5 border-primary/20">
+                    <CardContent className="p-3.5 space-y-1 text-[11px] text-muted-foreground">
+                      <p className="font-semibold text-foreground text-xs">
+                        What will be created for each import:
+                      </p>
+                      <p className="flex items-center gap-1.5">
+                        <CheckCircle2 className="w-3 h-3 text-primary flex-shrink-0" />1 chronology
+                        entry with SFHC citation and narrative
+                      </p>
+                      <p className="flex items-center gap-1.5">
+                        <CheckCircle2 className="w-3 h-3 text-primary flex-shrink-0" />1 exhibit
+                        record for the inspection report (~5 pages)
+                      </p>
+                      <p className="flex items-center gap-1.5">
+                        <CheckCircle2 className="w-3 h-3 text-primary flex-shrink-0" />1 exhibit
+                        record for grouped photos (if any)
+                      </p>
+                      <p className="flex items-center gap-1.5">
+                        <CheckCircle2 className="w-3 h-3 text-primary flex-shrink-0" />
+                        Sequential Bates page ranges auto-calculated
+                      </p>
+                    </CardContent>
+                  </Card>
                 )}
 
                 <Separator />
@@ -577,12 +535,7 @@ export default function InspectionImportWizard({
         {/* ── Footer ── */}
         {!importing && (
           <div className="flex-shrink-0 px-6 py-4 border-t border-border flex items-center justify-between bg-muted/20">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onClose}
-              className="h-8 text-xs gap-1"
-            >
+            <Button variant="outline" size="sm" onClick={onClose} className="h-8 text-xs gap-1">
               <XCircle className="w-3 h-3" />
               Cancel
             </Button>

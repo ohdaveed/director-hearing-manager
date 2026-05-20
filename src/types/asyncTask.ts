@@ -1,11 +1,6 @@
 import type { ComplianceResult } from "@/types/compliance";
 
-export type TaskStatus =
-  | "pending"
-  | "processing"
-  | "completed"
-  | "failed"
-  | "idle";
+export type TaskStatus = "pending" | "processing" | "completed" | "failed" | "idle";
 
 export interface AsyncTask {
   id: string;

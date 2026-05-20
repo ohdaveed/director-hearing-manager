@@ -10,9 +10,7 @@ function PacketEventsPanel({ events }: { events: PacketGenerationEvent[] }) {
       <div className="px-4 py-3 border-b border-border bg-muted/30 flex items-center gap-2">
         <History className="w-4 h-4 text-primary" />
         <div>
-          <h3 className="text-sm font-bold text-foreground">
-            Packet Event Log
-          </h3>
+          <h3 className="text-sm font-bold text-foreground">Packet Event Log</h3>
           <p className="text-xs text-muted-foreground">
             Audit trail for packet refreshes, generation, and workflow events.
           </p>
@@ -75,13 +73,10 @@ function StatusHistoryPanel({ history }: { history: StatusHistoryEntry[] }) {
                 {entry.action ?? "changed status"}
               </p>
               <p className="text-[10px] text-muted-foreground mt-0.5">
-                {entry.fromStatus} → {entry.toStatus} ·{" "}
-                {formatPacketDateTime(entry.timestamp)}
+                {entry.fromStatus} → {entry.toStatus} · {formatPacketDateTime(entry.timestamp)}
               </p>
               {entry.notes && (
-                <p className="text-[10px] text-muted-foreground mt-1 italic">
-                  “{entry.notes}”
-                </p>
+                <p className="text-[10px] text-muted-foreground mt-1 italic">“{entry.notes}”</p>
               )}
             </div>
           ))}

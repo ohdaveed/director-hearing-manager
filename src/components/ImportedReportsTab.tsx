@@ -143,10 +143,7 @@ const saveImportedReportManual = async ({
 };
 
 const deleteImportedReport = async ({ reportId }: { reportId: string }) => {
-  const { error } = await supabase
-    .from("imported_reports")
-    .delete()
-    .eq("id", reportId);
+  const { error } = await supabase.from("imported_reports").delete().eq("id", reportId);
   if (error) throw error;
 };
 
@@ -196,16 +193,10 @@ function ManualEntryForm({
       ...d,
       violations: d.violations.filter((_, idx) => idx !== i),
     }));
-  const updateViolation = (
-    i: number,
-    field: keyof ManualViolation,
-    val: string,
-  ) =>
+  const updateViolation = (i: number, field: keyof ManualViolation, val: string) =>
     setData((d) => ({
       ...d,
-      violations: d.violations.map((v, idx) =>
-        idx === i ? { ...v, [field]: val } : v,
-      ),
+      violations: d.violations.map((v, idx) => (idx === i ? { ...v, [field]: val } : v)),
     }));
 
   const handleSave = async () => {
@@ -234,159 +225,132 @@ function ManualEntryForm({
   };
 
   return (
-    <div className="bg-card border border-border rounded-xl p-4">
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2">
-          <AlertTriangle className="w-4 h-4 text-muted-foreground" />
-          <span className="text-sm font-medium text-foreground">
-            Parse failed — enter details manually
-          </span>
+    <Card>
+      <CardHeader className="p-4 pb-0">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <AlertTriangle className="w-4 h-4 text-muted-foreground" />
+            <span className="text-sm font-medium text-foreground">
+              Parse failed — enter details manually
+            </span>
+          </div>
+          <button onClick={onRemove} className="text-xs text-destructive hover:underline">
+            Remove
+          </button>
         </div>
-        <button
-          onClick={onRemove}
-          className="text-xs text-destructive hover:underline"
-        >
-          Remove
-        </button>
-      </div>
-      <div className="grid grid-cols-2 gap-3 mb-3">
-        <div>
-          <p className="text-xs text-muted-foreground mb-1">
-            Inspection Date *
-          </p>
-          <Input
-            type="date"
-            value={data.date}
-            onChange={(e) => setData((d) => ({ ...d, date: e.target.value }))}
-            className="h-8 text-xs"
-          />
+      </CardHeader>
+      <CardContent className="p-4 pt-3">
+        <div className="grid grid-cols-2 gap-3 mb-3">
+          <div>
+            <p className="text-xs text-muted-foreground mb-1">Inspection Date *</p>
+            <Input
+              type="date"
+              value={data.date}
+              onChange={(e) => setData((d) => ({ ...d, date: e.target.value }))}
+              className="h-8 text-xs"
+            />
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground mb-1">Inspector Name *</p>
+            <Input
+              value={data.inspector}
+              onChange={(e) => setData((d) => ({ ...d, inspector: e.target.value }))}
+              placeholder="e.g. J. Rodriguez"
+              className="h-8 text-xs"
+            />
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground mb-1">Inspection Type *</p>
+            <Select value={data.type} onValueChange={(v) => setData((d) => ({ ...d, type: v }))}>
+              <SelectTrigger className="h-8 text-xs">
+                <SelectValue placeholder="Select…" />
+              </SelectTrigger>
+              <SelectContent>
+                {INSPECTION_TYPES.map((t) => (
+                  <SelectItem key={t} value={t}>
+                    {t}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground mb-1">Rating *</p>
+            <Select
+              value={data.rating}
+              onValueChange={(v) => setData((d) => ({ ...d, rating: v }))}
+            >
+              <SelectTrigger className="h-8 text-xs">
+                <SelectValue placeholder="Select…" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Satisfactory">Satisfactory</SelectItem>
+                <SelectItem value="Unsatisfactory">Unsatisfactory</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
-        <div>
-          <p className="text-xs text-muted-foreground mb-1">Inspector Name *</p>
-          <Input
-            value={data.inspector}
-            onChange={(e) =>
-              setData((d) => ({ ...d, inspector: e.target.value }))
-            }
-            placeholder="e.g. J. Rodriguez"
-            className="h-8 text-xs"
-          />
-        </div>
-        <div>
-          <p className="text-xs text-muted-foreground mb-1">
-            Inspection Type *
-          </p>
-          <Select
-            value={data.type}
-            onValueChange={(v) => setData((d) => ({ ...d, type: v }))}
-          >
-            <SelectTrigger className="h-8 text-xs">
-              <SelectValue placeholder="Select…" />
-            </SelectTrigger>
-            <SelectContent>
-              {INSPECTION_TYPES.map((t) => (
-                <SelectItem key={t} value={t}>
-                  {t}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        <div>
-          <p className="text-xs text-muted-foreground mb-1">Rating *</p>
-          <Select
-            value={data.rating}
-            onValueChange={(v) => setData((d) => ({ ...d, rating: v }))}
-          >
-            <SelectTrigger className="h-8 text-xs">
-              <SelectValue placeholder="Select…" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Satisfactory">Satisfactory</SelectItem>
-              <SelectItem value="Unsatisfactory">Unsatisfactory</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-      <div className="mb-3">
-        <p className="text-xs text-muted-foreground mb-2">Violations</p>
-        <div className="space-y-2">
-          {data.violations.map((v, i) => (
-            <div key={i} className="grid grid-cols-4 gap-2 items-center">
-              <Input
-                value={v.violationLabel}
-                onChange={(e) =>
-                  updateViolation(i, "violationLabel", e.target.value)
-                }
-                placeholder="Label"
-                className="h-7 text-xs"
-              />
-              <Input
-                value={v.locationInProperty}
-                onChange={(e) =>
-                  updateViolation(i, "locationInProperty", e.target.value)
-                }
-                placeholder="Location"
-                className="h-7 text-xs"
-              />
-              <Input
-                value={v.correctiveAction}
-                onChange={(e) =>
-                  updateViolation(i, "correctiveAction", e.target.value)
-                }
-                placeholder="Corrective action"
-                className="h-7 text-xs"
-              />
-              <div className="flex gap-1">
+        <div className="mb-3">
+          <p className="text-xs text-muted-foreground mb-2">Violations</p>
+          <div className="space-y-2">
+            {data.violations.map((v, i) => (
+              <div key={i} className="grid grid-cols-4 gap-2 items-center">
                 <Input
-                  type="date"
-                  value={v.dueDate}
-                  onChange={(e) =>
-                    updateViolation(i, "dueDate", e.target.value)
-                  }
-                  className="h-7 text-xs flex-1"
+                  value={v.violationLabel}
+                  onChange={(e) => updateViolation(i, "violationLabel", e.target.value)}
+                  placeholder="Label"
+                  className="h-7 text-xs"
                 />
-                <button
-                  onClick={() => removeViolation(i)}
-                  className="text-muted-foreground hover:text-destructive"
-                >
-                  <X className="w-3 h-3" />
-                </button>
+                <Input
+                  value={v.locationInProperty}
+                  onChange={(e) => updateViolation(i, "locationInProperty", e.target.value)}
+                  placeholder="Location"
+                  className="h-7 text-xs"
+                />
+                <Input
+                  value={v.correctiveAction}
+                  onChange={(e) => updateViolation(i, "correctiveAction", e.target.value)}
+                  placeholder="Corrective action"
+                  className="h-7 text-xs"
+                />
+                <div className="flex gap-1">
+                  <Input
+                    type="date"
+                    value={v.dueDate}
+                    onChange={(e) => updateViolation(i, "dueDate", e.target.value)}
+                    className="h-7 text-xs flex-1"
+                  />
+                  <button
+                    onClick={() => removeViolation(i)}
+                    className="text-muted-foreground hover:text-destructive"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
+          <button
+            onClick={addViolation}
+            className="mt-2 flex items-center gap-1 text-xs text-primary hover:underline"
+          >
+            <Plus className="w-3 h-3" /> Add violation
+          </button>
         </div>
-        <button
-          onClick={addViolation}
-          className="mt-2 flex items-center gap-1 text-xs text-primary hover:underline"
-        >
-          <Plus className="w-3 h-3" /> Add violation
-        </button>
-      </div>
-      <Button
-        onClick={handleSave}
-        disabled={saving}
-        size="sm"
-        className="w-full gap-2"
-      >
-        {saving ? (
-          <Loader2 className="w-3.5 h-3.5 animate-spin" />
-        ) : (
-          <CheckCircle2 className="w-3.5 h-3.5" />
-        )}
-        Save & Import
-      </Button>
-    </div>
+        <Button onClick={handleSave} disabled={saving} size="sm" className="w-full gap-2">
+          {saving ? (
+            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+          ) : (
+            <CheckCircle2 className="w-3.5 h-3.5" />
+          )}
+          Save & Import
+        </Button>
+      </CardContent>
+    </Card>
   );
 }
 
-function ReportCard({
-  report,
-  onDelete,
-}: {
-  report: ImportedReport;
-  onDelete: () => void;
-}) {
+function ReportCard({ report, onDelete }: { report: ImportedReport; onDelete: () => void }) {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const topViolations = report.violations.slice(0, 3);
@@ -406,97 +370,96 @@ function ReportCard({
 
   return (
     <>
-      <div className="bg-card border border-border rounded-xl p-4">
-        <div className="flex items-start justify-between mb-2">
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 flex-wrap mb-1">
-              <FileText className="w-3.5 h-3.5 text-primary flex-shrink-0" />
-              <span className="text-sm font-semibold text-foreground">
-                {report.reportTitle ?? "Imported Report"}
-              </span>
-              <span className="text-xs bg-muted text-muted-foreground px-1.5 py-0.5 rounded-full">
-                {report.parsingStatus === "Manual"
-                  ? "Manual"
-                  : !report.pdfUrl
-                    ? "Parsed — No PDF"
-                    : "Imported"}
-              </span>
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {[
-                report.inspectorName && `Inspector: ${report.inspectorName}`,
-                report.inspection_rating,
-                report.violation_count != null &&
-                  `${report.violation_count} violation${report.violation_count !== 1 ? "s" : ""}`,
-              ]
-                .filter(Boolean)
-                .join(" · ")}
-            </p>
-          </div>
-          <div className="flex items-center gap-3 text-xs ml-3 flex-shrink-0">
-            {report.pdfUrl && (
-              <a
-                href={report.pdfUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-primary underline flex items-center gap-1"
-              >
-                <ExternalLink className="w-3 h-3" /> PDF
-              </a>
-            )}
-            <button
-              onClick={() => setConfirmDelete(true)}
-              disabled={deleting}
-              className="text-destructive hover:underline flex items-center gap-1"
-            >
-              {deleting ? (
-                <Loader2 className="w-3 h-3 animate-spin" />
-              ) : (
-                <Trash2 className="w-3 h-3" />
-              )}
-            </button>
-          </div>
-        </div>
-        {topViolations.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 mt-2">
-            {topViolations.map((v: any, i: number) => (
-              <span
-                key={i}
-                className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded-full"
-              >
-                {[v.violation_label, v.location_in_property]
+      <Card>
+        <CardContent className="p-4">
+          <div className="flex items-start justify-between mb-2">
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 flex-wrap mb-1">
+                <FileText className="w-3.5 h-3.5 text-primary flex-shrink-0" />
+                <span className="text-sm font-semibold text-foreground">
+                  {report.reportTitle ?? "Imported Report"}
+                </span>
+                <span className="text-xs bg-muted text-muted-foreground px-1.5 py-0.5 rounded-full">
+                  {report.parsingStatus === "Manual"
+                    ? "Manual"
+                    : !report.pdfUrl
+                      ? "Parsed — No PDF"
+                      : "Imported"}
+                </span>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {[
+                  report.inspectorName && `Inspector: ${report.inspectorName}`,
+                  report.inspection_rating,
+                  report.violation_count != null &&
+                    `${report.violation_count} violation${report.violation_count !== 1 ? "s" : ""}`,
+                ]
                   .filter(Boolean)
                   .join(" · ")}
-              </span>
-            ))}
-            {extra > 0 && (
-              <span className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded-full">
-                +{extra} more
-              </span>
-            )}
+              </p>
+            </div>
+            <div className="flex items-center gap-3 text-xs ml-3 flex-shrink-0">
+              {report.pdfUrl && (
+                <a
+                  href={report.pdfUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary underline flex items-center gap-1"
+                >
+                  <ExternalLink className="w-3 h-3" /> PDF
+                </a>
+              )}
+              <button
+                onClick={() => setConfirmDelete(true)}
+                disabled={deleting}
+                className="text-destructive hover:underline flex items-center gap-1"
+              >
+                {deleting ? (
+                  <Loader2 className="w-3 h-3 animate-spin" />
+                ) : (
+                  <Trash2 className="w-3 h-3" />
+                )}
+              </button>
+            </div>
           </div>
-        )}
-        {!report.pdfUrl && report.parsingStatus !== "Manual" && (
-          <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
-            <Info className="w-3 h-3 flex-shrink-0" />
-            Original file was too large to store — compress it below 25 MB and
-            re-upload for a viewable link
-          </p>
-        )}
-        {report.uploadedBy && (
-          <p className="text-xs text-muted-foreground mt-2">
-            Uploaded by {report.uploadedBy} ·{" "}
-            {fmt(report.uploaded_at?.slice(0, 10))}
-          </p>
-        )}
-      </div>
+          {topViolations.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 mt-2">
+              {topViolations.map((v: any, i: number) => (
+                <span
+                  key={i}
+                  className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded-full"
+                >
+                  {[v.violation_label, v.location_in_property].filter(Boolean).join(" · ")}
+                </span>
+              ))}
+              {extra > 0 && (
+                <span className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded-full">
+                  +{extra} more
+                </span>
+              )}
+            </div>
+          )}
+          {!report.pdfUrl && report.parsingStatus !== "Manual" && (
+            <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
+              <Info className="w-3 h-3 flex-shrink-0" />
+              Original file was too large to store — compress it below 25 MB and re-upload for a
+              viewable link
+            </p>
+          )}
+          {report.uploadedBy && (
+            <p className="text-xs text-muted-foreground mt-2">
+              Uploaded by {report.uploadedBy} · {fmt(report.uploaded_at?.slice(0, 10))}
+            </p>
+          )}
+        </CardContent>
+      </Card>
       <AlertDialog open={confirmDelete} onOpenChange={setConfirmDelete}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete imported report?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will delete the report record, its linked inspection, and all
-              extracted violations. This cannot be undone.
+              This will delete the report record, its linked inspection, and all extracted
+              violations. This cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -514,11 +477,7 @@ function ReportCard({
   );
 }
 
-export default function ImportedReportsTab({
-  locationId,
-}: {
-  locationId: string;
-}) {
+export default function ImportedReportsTab({ locationId }: { locationId: string }) {
   const { user } = useAuth();
   const [reports, setReports] = useState<ImportedReport[]>([]);
   const [loading, setLoading] = useState(true);
@@ -580,9 +539,7 @@ export default function ImportedReportsTab({
         fileUrl = upload.fileUrl;
       }
 
-      setPending((p) =>
-        p.map((x) => (x.tempId === tempId ? { ...x, status: "parsing" } : x)),
-      );
+      setPending((p) => p.map((x) => (x.tempId === tempId ? { ...x, status: "parsing" } : x)));
 
       // Chunked base64 conversion — much faster than char-by-char for large files
       const arrayBuffer = await file.arrayBuffer();
@@ -600,8 +557,7 @@ export default function ImportedReportsTab({
         pdfBase64,
         fileName: file.name,
         uploadedBy: user
-          ? [user.firstName, user.lastName].filter(Boolean).join(" ") ||
-            user.email
+          ? [user.firstName, user.lastName].filter(Boolean).join(" ") || user.email
           : "Unknown",
       });
 
@@ -621,17 +577,13 @@ export default function ImportedReportsTab({
         ]);
         toast.error(`Could not auto-parse ${file.name} — fill in manually`);
       } else if (parseOnly) {
-        toast.success(
-          `${file.name} parsed (${fileSizeMB.toFixed(1)} MB — original not stored)`,
-        );
+        toast.success(`${file.name} parsed (${fileSizeMB.toFixed(1)} MB — original not stored)`);
       } else {
         toast.success(`${file.name} imported successfully`);
       }
       await loadReports();
     } catch {
-      setPending((p) =>
-        p.map((x) => (x.tempId === tempId ? { ...x, status: "failed" } : x)),
-      );
+      setPending((p) => p.map((x) => (x.tempId === tempId ? { ...x, status: "failed" } : x)));
       toast.error(`Failed to process ${file.name}`);
     }
   };
@@ -658,74 +610,62 @@ export default function ImportedReportsTab({
   return (
     <div className="space-y-4">
       {/* Upload zone */}
-      <div
-        onDragOver={(e) => {
-          e.preventDefault();
-          setDragging(true);
-        }}
-        onDragLeave={() => setDragging(false)}
-        onDrop={handleDrop}
-        onClick={() => fileInputRef.current?.click()}
-        className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-colors ${dragging ? "border-primary bg-primary/5" : "border-border bg-muted/30 hover:border-primary/50 hover:bg-muted/50"}`}
-      >
-        <UploadCloud className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
-        <p className="text-sm font-medium text-foreground mb-1">
-          Drop inspection report PDFs here
-        </p>
-        <p className="text-xs text-muted-foreground">
-          PDF only · up to 60 MB · files over 25 MB are parsed without storing
-          the original
-        </p>
-        <Button
-          size="sm"
-          variant="outline"
-          className="mt-3 pointer-events-none"
-        >
-          Browse files
-        </Button>
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept=".pdf"
-          multiple
-          className="hidden"
-          onChange={(e) => {
-            handleFiles(e.target.files);
-            e.target.value = "";
-          }}
-        />
-      </div>
+      <Card>
+        <CardContent className="p-8">
+          <div
+            onDragOver={(e) => {
+              e.preventDefault();
+              setDragging(true);
+            }}
+            onDragLeave={() => setDragging(false)}
+            onDrop={handleDrop}
+            onClick={() => fileInputRef.current?.click()}
+            className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-colors ${dragging ? "border-primary bg-primary/5" : "border-border bg-muted/30 hover:border-primary/50 hover:bg-muted/50"}`}
+          >
+            <UploadCloud className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
+            <p className="text-sm font-medium text-foreground mb-1">
+              Drop inspection report PDFs here
+            </p>
+            <p className="text-xs text-muted-foreground">
+              PDF only · up to 60 MB · files over 25 MB are parsed without storing the original
+            </p>
+            <Button size="sm" variant="outline" className="mt-3 pointer-events-none">
+              Browse files
+            </Button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".pdf"
+              multiple
+              className="hidden"
+              onChange={(e) => {
+                handleFiles(e.target.files);
+                e.target.value = "";
+              }}
+            />
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Pending uploads */}
       {pending.map((p) => (
-        <div
-          key={p.tempId}
-          className="bg-card border border-border rounded-xl p-4 opacity-70"
-        >
-          <div className="flex items-center gap-2">
+        <Card key={p.tempId} className="opacity-70">
+          <CardContent className="p-4 flex items-center gap-2">
             <Loader2 className="w-4 h-4 animate-spin text-muted-foreground flex-shrink-0" />
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-foreground truncate">
-                {p.fileName}
-              </p>
+              <p className="text-sm font-medium text-foreground truncate">{p.fileName}</p>
               {p.parseOnly && (
                 <p className="text-xs text-muted-foreground">
-                  {p.fileSizeMB != null
-                    ? `${p.fileSizeMB.toFixed(1)} MB · `
-                    : ""}
+                  {p.fileSizeMB != null ? `${p.fileSizeMB.toFixed(1)} MB · ` : ""}
                   parsing only — file too large to store
                 </p>
               )}
             </div>
             <span className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded-full flex-shrink-0">
-              {p.status === "uploading"
-                ? p.parseOnly
-                  ? "Reading…"
-                  : "Uploading…"
-                : "Parsing…"}
+              {p.status === "uploading" ? (p.parseOnly ? "Reading…" : "Uploading…") : "Parsing…"}
             </span>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       ))}
 
       {/* Manual entry forms */}
@@ -735,36 +675,26 @@ export default function ImportedReportsTab({
           entry={entry}
           locationId={locationId}
           onSaved={async () => {
-            setManualEntries((m) =>
-              m.filter((e) => e.reportId !== entry.reportId),
-            );
+            setManualEntries((m) => m.filter((e) => e.reportId !== entry.reportId));
             await loadReports();
           }}
-          onRemove={() =>
-            setManualEntries((m) =>
-              m.filter((e) => e.reportId !== entry.reportId),
-            )
-          }
+          onRemove={() => setManualEntries((m) => m.filter((e) => e.reportId !== entry.reportId))}
         />
       ))}
 
       {/* Report cards */}
-      {reports.length === 0 &&
-      pending.length === 0 &&
-      manualEntries.length === 0 ? (
-        <div className="bg-card border border-border rounded-xl p-12 text-center shadow-sm">
-          <FileText className="w-10 h-10 mx-auto mb-3 text-muted-foreground opacity-30" />
-          <p className="text-sm font-medium text-muted-foreground">
-            No imported reports yet
-          </p>
-          <p className="text-xs text-muted-foreground mt-1">
-            Upload previous inspection PDFs above
-          </p>
-        </div>
+      {reports.length === 0 && pending.length === 0 && manualEntries.length === 0 ? (
+        <Card>
+          <CardContent className="p-12 text-center">
+            <FileText className="w-10 h-10 mx-auto mb-3 text-muted-foreground opacity-30" />
+            <p className="text-sm font-medium text-muted-foreground">No imported reports yet</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Upload previous inspection PDFs above
+            </p>
+          </CardContent>
+        </Card>
       ) : (
-        reports.map((r) => (
-          <ReportCard key={r.id} report={r} onDelete={loadReports} />
-        ))
+        reports.map((r) => <ReportCard key={r.id} report={r} onDelete={loadReports} />)
       )}
     </div>
   );

@@ -21,6 +21,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import {
   Plus,
@@ -420,32 +423,32 @@ export default function ChronologyEditorTab({
     );
   }
 
-  if (!complaintId) {
-    return (
-      <div className="p-8 text-center text-muted-foreground">
-        <BookOpen className="w-10 h-10 mx-auto mb-3 opacity-20" />
-        <p className="text-sm font-medium">
-          No complaint linked to this packet
-        </p>
-        <p className="text-xs mt-1">
-          A complaint must be linked before the chronology can be managed.
-        </p>
-      </div>
-    );
-  }
+   if (!complaintId) {
+     return (
+       <div className="p-8 text-center text-muted-foreground">
+         <BookOpen className="w-10 h-10 mx-auto mb-3 opacity-20" />
+         <p className="text-sm font-medium">
+           No complaint linked to this packet
+         </p>
+         <p className="text-xs mt-1">
+           A complaint must be linked before the chronology can be managed.
+         </p>
+       </div>
+     );
+   }
 
-  const nextLetter = entryLetter(sorted.length);
+   const nextLetter = entryLetter(sorted.length);
 
-  return (
-    <div className="flex flex-col" style={{ maxHeight: "calc(100vh - 260px)" }}>
-      {/* ── Context header ── */}
-      <ChronologyContextHeader
-        packetMeta={packetMeta}
-        locationMeta={locationMeta}
-      />
+   return (
+     <div className="flex flex-col h-full overflow-hidden">
+       {/* ── Context header ── */}
+       <ChronologyContextHeader
+         packetMeta={packetMeta}
+         locationMeta={locationMeta}
+       />
 
-      {/* ── Split workspace ── */}
-      <div className="flex flex-1 min-h-0">
+       {/* ── Split workspace ── */}
+      <div className="flex flex-1 min-h-0 overflow-hidden">
         {/* LEFT: Chronology entries */}
         <div className="flex-1 min-w-0 p-5 space-y-4 overflow-y-auto">
           {/* Header row */}
@@ -456,9 +459,9 @@ export default function ChronologyEditorTab({
                 Case Chronology
               </h3>
               {sorted.length > 0 && (
-                <span className="text-[10px] text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+                <Badge variant="secondary" className="text-[10px] h-4 px-2">
                   {sorted.length} {sorted.length === 1 ? "entry" : "entries"}
-                </span>
+                </Badge>
               )}
             </div>
             {!showAddForm && (
@@ -487,186 +490,172 @@ export default function ChronologyEditorTab({
 
           {/* Add form */}
           {showAddForm && (
-            <EntryForm
-              onSave={handleAdd}
-              onCancel={() => setShowAddForm(false)}
-              saving={savingId === "new"}
-              assignedLetter={nextLetter}
-            />
+            <Card className="p-4 border-primary/20 bg-primary/5">
+              <EntryForm
+                onSave={handleAdd}
+                onCancel={() => setShowAddForm(false)}
+                saving={savingId === "new"}
+                assignedLetter={nextLetter}
+              />
+            </Card>
           )}
 
           {/* Empty state */}
           {sorted.length === 0 && !showAddForm && (
-            <div className="text-center py-10 text-muted-foreground border-2 border-dashed border-border rounded-xl">
-              <BookOpen className="w-8 h-8 mx-auto mb-2 opacity-20" />
-              <p className="text-sm font-medium">No chronology entries yet</p>
-              <p className="text-xs mt-1">
-                Click "Add Entry" to document this case history.
-              </p>
-            </div>
+            <Card className="text-center py-10 text-muted-foreground">
+              <CardContent>
+                <BookOpen className="w-8 h-8 mx-auto mb-2 opacity-20" />
+                <p className="text-sm font-medium">No chronology entries yet</p>
+                <p className="text-xs mt-1">
+                  Click "Add Entry" to document this case history.
+                </p>
+              </CardContent>
+            </Card>
           )}
 
-          {/* Entries table */}
+          {/* Entries list */}
           {sorted.length > 0 && (
-            <div className="border border-border rounded-xl overflow-hidden shadow-sm">
-              <table className="w-full text-xs">
-                <thead>
-                  <tr className="bg-muted/50 border-b border-border">
-                    <th className="text-left px-3 py-2.5 font-semibold text-[10px] uppercase tracking-wide text-muted-foreground w-20">
-                      Date
-                    </th>
-                    <th className="text-left px-3 py-2.5 font-semibold text-[10px] uppercase tracking-wide text-muted-foreground w-36">
-                      Code / Type
-                    </th>
-                    <th className="text-left px-3 py-2.5 font-semibold text-[10px] uppercase tracking-wide text-muted-foreground">
-                      Summary
-                    </th>
-                    <th className="text-center px-2 py-2.5 font-semibold text-[10px] uppercase tracking-wide text-muted-foreground w-12">
-                      Exh.
-                    </th>
-                    <th className="text-left px-2 py-2.5 font-semibold text-[10px] uppercase tracking-wide text-muted-foreground w-24">
-                      Pages
-                    </th>
-                    <th className="w-24" />
-                  </tr>
-                </thead>
-                <tbody>
-                  {sorted.map((entry, idx) => {
-                    const letter = entryLetter(idx);
-                    const isEditing = editingId === entry.id;
-                    const isSaving = savingId === entry.id;
-                    const isDeleting = deletingId === entry.id;
+            <div className="space-y-3">
+              {sorted.map((entry, idx) => {
+                const letter = entryLetter(idx);
+                const isEditing = editingId === entry.id;
+                const isSaving = savingId === entry.id;
+                const isDeleting = deletingId === entry.id;
 
-                    if (isEditing) {
-                      return (
-                        <tr key={entry.id}>
-                          <td colSpan={6} className="p-3">
-                            <EntryForm
-                              initial={{
-                                entryDate:
-                                  entry.entryDate ??
-                                  new Date().toISOString().split("T")[0],
-                                entryType: entry.entryType ?? "Other",
-                                citationCode: entry.citationCode ?? "",
-                                summary: entry.summary ?? "",
-                                attachmentPageRef:
-                                  entry.attachmentPageRef ?? "",
-                              }}
-                              onSave={(form) => handleUpdate(entry.id, form)}
-                              onCancel={() => setEditingId(null)}
-                              saving={isSaving}
-                              assignedLetter={letter}
-                            />
-                          </td>
-                        </tr>
-                      );
-                    }
+                if (isEditing) {
+                  return (
+                    <Card key={entry.id} className="p-4 border-primary/20 bg-primary/5">
+                      <EntryForm
+                        initial={{
+                          entryDate:
+                            entry.entryDate ??
+                            new Date().toISOString().split("T")[0],
+                          entryType: entry.entryType ?? "Other",
+                          citationCode: entry.citationCode ?? "",
+                          summary: entry.summary ?? "",
+                          attachmentPageRef:
+                            entry.attachmentPageRef ?? "",
+                        }}
+                        onSave={(form) => handleUpdate(entry.id, form)}
+                        onCancel={() => setEditingId(null)}
+                        saving={isSaving}
+                        assignedLetter={letter}
+                      />
+                    </Card>
+                  );
+                }
 
-                    return (
-                      <tr
-                        key={entry.id}
-                        className={`border-b border-border align-top transition-colors ${idx % 2 === 0 ? "bg-background" : "bg-muted/20"} hover:bg-muted/30`}
-                      >
-                        <td className="px-3 py-2.5 whitespace-nowrap font-medium text-foreground text-xs">
-                          {formatDateShort(entry.entryDate)}
-                        </td>
-                        <td className="px-3 py-2.5">
-                          {entry.citationCode ? (
-                            <span className="inline-flex items-center gap-1 text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded font-mono font-semibold">
-                              <Shield className="w-2.5 h-2.5 flex-shrink-0" />
-                              {entry.citationCode}
-                            </span>
-                          ) : null}
-                          {entry.entryType && (
-                            <p
-                              className={`text-[10px] text-muted-foreground ${entry.citationCode ? "mt-0.5" : ""}`}
-                            >
-                              {entry.entryType}
-                            </p>
-                          )}
-                        </td>
-                        <td className="px-3 py-2.5 text-foreground leading-relaxed text-xs">
-                          <span>{entry.summary ?? "—"}</span>
-                          {entry.createdBy && (
-                            <p className="text-[10px] text-muted-foreground mt-0.5">
-                              By: {entry.createdBy}
-                            </p>
-                          )}
-                        </td>
-                        <td className="px-2 py-2.5 text-center">
-                          <span className="text-xs font-black text-primary">
-                            {entry.exhibit_refs || letter}
+                return (
+                  <Card key={entry.id} className="p-4">
+                    <div className="flex items-start gap-4">
+                      {/* Exhibit Letter */}
+                      <div className="flex-shrink-0 w-8 pt-1">
+                        <span className="text-xl font-black text-primary">
+                          {entry.exhibit_refs || letter}
+                        </span>
+                      </div>
+                      
+                      {/* Entry Content */}
+                      <div className="flex-1 min-w-0 space-y-2">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="text-xs font-semibold text-foreground">
+                            {formatDateShort(entry.entryDate)}
                           </span>
-                        </td>
-                        <td className="px-2 py-2.5 text-[10px] text-muted-foreground font-mono whitespace-nowrap">
-                          {entry.attachmentPageRef ?? "—"}
-                        </td>
-                        <td className="px-1.5 py-2.5">
-                          <div className="flex items-center gap-0.5 justify-end">
-                            <button
-                              onClick={() => handleMove(idx, "up")}
-                              disabled={idx === 0 || reordering}
-                              className="p-1 rounded hover:bg-muted transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-                              title="Move up"
-                            >
-                              <ChevronUp className="w-3 h-3" />
-                            </button>
-                            <button
-                              onClick={() => handleMove(idx, "down")}
-                              disabled={idx === sorted.length - 1 || reordering}
-                              className="p-1 rounded hover:bg-muted transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-                              title="Move down"
-                            >
-                              <ChevronDown className="w-3 h-3" />
-                            </button>
-                            <button
-                              onClick={() => {
-                                setEditingId(entry.id);
-                                setShowAddForm(false);
-                              }}
-                              className="p-1 rounded hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
-                              title="Edit"
-                            >
-                              <Pencil className="w-3 h-3" />
-                            </button>
-                            <button
-                              onClick={() => handleDelete(entry.id)}
-                              disabled={isDeleting}
-                              className="p-1 rounded hover:bg-destructive/10 transition-colors text-muted-foreground hover:text-destructive"
-                              title="Delete"
-                            >
-                              {isDeleting ? (
-                                <Loader2 className="w-3 h-3 animate-spin" />
-                              ) : (
-                                <Trash2 className="w-3 h-3" />
-                              )}
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+                          {entry.citationCode && (
+                            <Badge variant="secondary" className="text-[10px] font-mono font-semibold px-1.5 py-0.5">
+                              <Shield className="w-2.5 h-2.5 mr-1" />
+                              {entry.citationCode}
+                            </Badge>
+                          )}
+                          {entry.entryType && (
+                            <span className="text-[10px] text-muted-foreground">
+                              {entry.entryType}
+                            </span>
+                          )}
+                          {entry.attachmentPageRef && (
+                            <span className="text-[10px] font-mono text-muted-foreground ml-auto">
+                              Pages: {entry.attachmentPageRef}
+                            </span>
+                          )}
+                        </div>
+                        
+                        <p className="text-sm text-foreground leading-relaxed">
+                          {entry.summary ?? "—"}
+                        </p>
+
+                        {entry.createdBy && (
+                          <p className="text-[10px] text-muted-foreground">
+                            By: {entry.createdBy}
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Actions */}
+                      <div className="flex flex-col gap-1 flex-shrink-0">
+                        <button
+                          onClick={() => handleMove(idx, "up")}
+                          disabled={idx === 0 || reordering}
+                          className="p-1 rounded hover:bg-muted transition-colors disabled:opacity-30"
+                          title="Move up"
+                        >
+                          <ChevronUp className="w-3 h-3" />
+                        </button>
+                        <button
+                          onClick={() => handleMove(idx, "down")}
+                          disabled={idx === sorted.length - 1 || reordering}
+                          className="p-1 rounded hover:bg-muted transition-colors disabled:opacity-30"
+                          title="Move down"
+                        >
+                          <ChevronDown className="w-3 h-3" />
+                        </button>
+                        <button
+                          onClick={() => {
+                            setEditingId(entry.id);
+                            setShowAddForm(false);
+                          }}
+                          className="p-1 rounded hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
+                          title="Edit"
+                        >
+                          <Pencil className="w-3 h-3" />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(entry.id)}
+                          disabled={isDeleting}
+                          className="p-1 rounded hover:bg-destructive/10 transition-colors text-muted-foreground hover:text-destructive"
+                          title="Delete"
+                        >
+                          {isDeleting ? (
+                            <Loader2 className="w-3 h-3 animate-spin" />
+                          ) : (
+                            <Trash2 className="w-3 h-3" />
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  </Card>
+                );
+              })}
             </div>
           )}
 
           {/* Article 11 guardrail badge */}
-          <div className="flex items-start gap-2 p-3 rounded-lg bg-primary/5 border border-primary/15">
-            <Shield className="w-3.5 h-3.5 text-primary flex-shrink-0 mt-0.5" />
-            <p className="text-[10px] text-muted-foreground leading-relaxed">
-              <span className="font-semibold text-foreground">
-                SFHC articles only.
-              </span>{" "}
-              California state health and safety codes are completely blocked by
-              policy — use SFHC articles only (Article 11, Article 11A, Article
-              2, and other relevant sections).
-            </p>
-          </div>
+          <Card className="bg-primary/5 border-primary/15 p-3">
+            <div className="flex items-start gap-2">
+              <Shield className="w-3.5 h-3.5 text-primary flex-shrink-0 mt-0.5" />
+              <p className="text-[10px] text-muted-foreground leading-relaxed">
+                <span className="font-semibold text-foreground">
+                  SFHC articles only.
+                </span>{" "}
+                California state health and safety codes are completely blocked by
+                policy — use SFHC articles only (Article 11, Article 11A, Article
+                2, and other relevant sections).
+              </p>
+            </div>
+          </Card>
         </div>
 
         {/* Divider */}
-        <div className="w-px bg-border flex-shrink-0" />
+        <Separator orientation="vertical" />
 
         {/* RIGHT: Exhibit upload panel */}
         <div className="w-80 flex-shrink-0 p-5 overflow-y-auto bg-muted/10 flex flex-col">

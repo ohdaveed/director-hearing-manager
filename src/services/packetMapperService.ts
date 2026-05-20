@@ -31,16 +31,12 @@ export interface ExhibitData {
 }
 
 export const packetMapperService = {
-  extractPacketData(
-    complianceResult: ComplianceResult,
-    fileName: string,
-  ): PacketData {
+  extractPacketData(complianceResult: ComplianceResult, fileName: string): PacketData {
     const violations: ViolationData[] = [];
     const chronology: ChronologyEntryData[] = [];
     const exhibits: ExhibitData[] = [];
 
-    const hasChronology =
-      !complianceResult.missingSections.includes("Chronology");
+    const hasChronology = !complianceResult.missingSections.includes("Chronology");
 
     if (!hasChronology) {
       chronology.push({
@@ -51,10 +47,7 @@ export const packetMapperService = {
     }
 
     for (const issue of complianceResult.issues) {
-      if (
-        issue.category === "missing_section" ||
-        issue.category === "missing_element"
-      ) {
+      if (issue.category === "missing_section" || issue.category === "missing_element") {
         if (
           issue.description.toLowerCase().includes("notice of violation") ||
           issue.description.toLowerCase().includes("notice of hearing")
@@ -89,9 +82,7 @@ export const packetMapperService = {
     };
   },
 
-  generateMissingSectionReport(
-    missingSections: string[],
-  ): Record<string, string> {
+  generateMissingSectionReport(missingSections: string[]): Record<string, string> {
     const report: Record<string, string> = {};
 
     for (const section of missingSections) {

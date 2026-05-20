@@ -98,9 +98,7 @@ export const VIOLATION_TYPES: ViolationType[] = [
         autoOwnerActions: [
           "Hire a licensed pest control operator (PCO) within two days of this report.",
         ],
-        autoTenantActions: [
-          "Launder all clothing and bedding on the highest safe temperature.",
-        ],
+        autoTenantActions: ["Launder all clothing and bedding on the highest safe temperature."],
       },
       {
         text: "Blood staining or fecal spots observed",
@@ -116,9 +114,7 @@ export const VIOLATION_TYPES: ViolationType[] = [
       },
       {
         text: "Tenant reports bites / skin reactions",
-        autoOwnerActions: [
-          "Arrange assistance for tenants who are unable to comply.",
-        ],
+        autoOwnerActions: ["Arrange assistance for tenants who are unable to comply."],
         autoTenantActions: [
           "Cooperate with Owners, Managers, and PCOs for inspection and treatment.",
         ],
@@ -573,9 +569,7 @@ export const VIOLATION_TYPES: ViolationType[] = [
         autoOwnerActions: [
           "Contract a licensed pest control operator (PCO) to bait and trap for rodents throughout the property.",
         ],
-        autoTenantActions: [
-          "Store all food (including pet food) in sealed, airtight containers.",
-        ],
+        autoTenantActions: ["Store all food (including pet food) in sealed, airtight containers."],
       },
       {
         text: "Active burrow entrances observed",
@@ -1325,25 +1319,18 @@ export const VIOLATION_TYPES: ViolationType[] = [
   },
 ];
 
-export const VIOLATION_CATEGORIES = Array.from(
-  new Set(VIOLATION_TYPES.map((v) => v.category)),
-);
+export const VIOLATION_CATEGORIES = Array.from(new Set(VIOLATION_TYPES.map((v) => v.category)));
 
 /** Return the appropriate default corrective action based on responsible party */
 export function getDefaultCorrectiveAction(
   vType: ViolationType,
   party: "Owner" | "Tenant",
 ): string {
-  return party === "Tenant"
-    ? vType.tenantCorrectiveAction
-    : vType.defaultCorrectiveAction;
+  return party === "Tenant" ? vType.tenantCorrectiveAction : vType.defaultCorrectiveAction;
 }
 
 /** Calculate due date string (YYYY-MM-DD) from an inspection date and a violation type */
-export function calcDueDate(
-  inspectionDate: string,
-  vType: ViolationType,
-): string {
+export function calcDueDate(inspectionDate: string, vType: ViolationType): string {
   const base = inspectionDate ? new Date(inspectionDate) : new Date();
   if (vType.dueHours) {
     base.setHours(base.getHours() + vType.dueHours);

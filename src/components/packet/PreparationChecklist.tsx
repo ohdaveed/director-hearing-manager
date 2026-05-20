@@ -83,9 +83,7 @@ export function PreparationChecklist({
       <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-muted/30">
         <div className="flex items-center gap-2">
           <ListChecks className="w-4 h-4 text-primary" />
-          <h3 className="text-sm font-bold text-foreground">
-            Preparation Checklist
-          </h3>
+          <h3 className="text-sm font-bold text-foreground">Preparation Checklist</h3>
         </div>
         {hDate && (
           <span className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded-full">
@@ -138,9 +136,7 @@ export function PreparationChecklist({
                   </p>
                 </div>
                 {isDone && (
-                  <span className="text-xs text-primary font-medium flex-shrink-0">
-                    ✓ Done
-                  </span>
+                  <span className="text-xs text-primary font-medium flex-shrink-0">✓ Done</span>
                 )}
               </Button>
             );

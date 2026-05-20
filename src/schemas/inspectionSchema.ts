@@ -9,11 +9,7 @@ export const inspectionSchema = z.object({
   access_granted_by: z.string().optional(),
   dba: z.string().optional(),
   contact_phone: z.string().optional(),
-  contact_email: z
-    .string()
-    .email("Invalid email format")
-    .optional()
-    .or(z.literal("")),
+  contact_email: z.string().email("Invalid email format").optional().or(z.literal("")),
   notes: z.string().optional(),
   global_observations: z.array(z.string()).optional(),
   areas_inspected: z.array(z.string()).optional(),

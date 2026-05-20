@@ -49,9 +49,7 @@ const CATEGORY_ICONS: Record<string, any> = {
 
 export default function DocumentLibraryPage() {
   const [view, setView] = useState<"documents" | "regulatory">("documents");
-  const [activeCategory, setActiveCategory] = useState<
-    DocumentCategory | "All"
-  >("Regulatory SOP");
+  const [activeCategory, setActiveCategory] = useState<DocumentCategory | "All">("Regulatory SOP");
   const [searchQuery, setSearchQuery] = useState("");
   const [regSearchQuery, setRegSearchQuery] = useState("");
   const queryClient = useQueryClient();
@@ -80,13 +78,7 @@ export default function DocumentLibraryPage() {
   });
 
   const uploadMutation = useMutation({
-    mutationFn: async ({
-      file,
-      category,
-    }: {
-      file: File;
-      category: DocumentCategory;
-    }) => {
+    mutationFn: async ({ file, category }: { file: File; category: DocumentCategory }) => {
       return documentService.uploadDocument(file, category);
     },
     onSuccess: () => {
@@ -103,9 +95,7 @@ export default function DocumentLibraryPage() {
     if (!file) return;
 
     if (activeCategory === "All") {
-      toast.error(
-        "Please select a specific category first to ensure correct labeling.",
-      );
+      toast.error("Please select a specific category first to ensure correct labeling.");
       return;
     }
 
@@ -150,18 +140,14 @@ export default function DocumentLibraryPage() {
       key: "created_at" as const,
       header: "Uploaded",
       render: (value: string) => (
-        <span className="text-muted-foreground">
-          {format(new Date(value), "MMM d, yyyy")}
-        </span>
+        <span className="text-muted-foreground">{format(new Date(value), "MMM d, yyyy")}</span>
       ),
     },
     {
       key: "version" as const,
       header: "Version",
       render: (value: string) => (
-        <span className="text-sm font-mono text-muted-foreground">
-          v{value || "1.0"}
-        </span>
+        <span className="text-sm font-mono text-muted-foreground">v{value || "1.0"}</span>
       ),
     },
     {
@@ -169,13 +155,7 @@ export default function DocumentLibraryPage() {
       header: "",
       render: (_: string, row: any) => (
         <div className="flex justify-end gap-2">
-          <Button
-            variant="ghost"
-            size="icon"
-            asChild
-            title="Download"
-            className="h-8 w-8"
-          >
+          <Button variant="ghost" size="icon" asChild title="Download" className="h-8 w-8">
             <a
               href={documentService.getDocumentUrl(row.file_path)}
               target="_blank"
@@ -201,9 +181,7 @@ export default function DocumentLibraryPage() {
     {
       key: "violation_code" as const,
       header: "Health Code",
-      render: (value: string) => (
-        <span className="font-mono font-bold">{value}</span>
-      ),
+      render: (value: string) => <span className="font-mono font-bold">{value}</span>,
     },
     {
       key: "short_title" as const,
@@ -214,18 +192,14 @@ export default function DocumentLibraryPage() {
       key: "verbatim_text" as const,
       header: "Official Language",
       render: (value: string) => (
-        <p className="text-xs text-muted-foreground line-clamp-2 max-w-md italic">
-          "{value}"
-        </p>
+        <p className="text-xs text-muted-foreground line-clamp-2 max-w-md italic">"{value}"</p>
       ),
     },
     {
       key: "standard_corrective_action" as const,
       header: "Standard Corrective Action",
       render: (value: string) => (
-        <p className="text-xs text-emerald-700 line-clamp-2 max-w-md font-medium">
-          {value || "—"}
-        </p>
+        <p className="text-xs text-emerald-700 line-clamp-2 max-w-md font-medium">{value || "—"}</p>
       ),
     },
   ];
@@ -234,9 +208,7 @@ export default function DocumentLibraryPage() {
     <div className="container mx-auto py-8 px-4 max-w-6xl">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">
-            Knowledge & Documents
-          </h1>
+          <h1 className="text-3xl font-bold tracking-tight">Knowledge & Documents</h1>
           <p className="text-muted-foreground mt-1 text-sm">
             Central repository for regulatory logic, SOPs, and health codes.
           </p>
@@ -268,9 +240,7 @@ export default function DocumentLibraryPage() {
           <div className="flex flex-col lg:flex-row justify-between gap-4">
             <Tabs
               value={activeCategory}
-              onValueChange={(v) =>
-                setActiveCategory(v as DocumentCategory | "All")
-              }
+              onValueChange={(v) => setActiveCategory(v as DocumentCategory | "All")}
               className="w-full lg:w-auto"
             >
               <TabsList className="bg-muted/50 p-1 h-auto flex flex-wrap justify-start gap-1">
@@ -280,11 +250,7 @@ export default function DocumentLibraryPage() {
                 {CATEGORIES.map((cat) => {
                   const Icon = CATEGORY_ICONS[cat] || FileText;
                   return (
-                    <TabsTrigger
-                      key={cat}
-                      value={cat}
-                      className="px-4 py-2 gap-2"
-                    >
+                    <TabsTrigger key={cat} value={cat} className="px-4 py-2 gap-2">
                       <Icon className="h-3.5 w-3.5" />
                       <span className="whitespace-nowrap">{cat}</span>
                     </TabsTrigger>
@@ -304,9 +270,7 @@ export default function DocumentLibraryPage() {
                 />
               </div>
               <Button
-                onClick={() =>
-                  document.getElementById("library-upload")?.click()
-                }
+                onClick={() => document.getElementById("library-upload")?.click()}
                 disabled={uploadMutation.isPending || activeCategory === "All"}
                 className="gap-2"
                 size="sm"
@@ -317,8 +281,7 @@ export default function DocumentLibraryPage() {
                   <Upload className="h-4 w-4" />
                 )}
                 <span className="hidden sm:inline">
-                  Upload to{" "}
-                  {activeCategory === "All" ? "Category" : activeCategory}
+                  Upload to {activeCategory === "All" ? "Category" : activeCategory}
                 </span>
                 <span className="sm:hidden">Upload</span>
               </Button>
@@ -398,11 +361,7 @@ export default function DocumentLibraryPage() {
                 </p>
               </div>
             ) : (
-              <SimpleTable
-                data={regulatoryRefs}
-                columns={regColumns}
-                searchable={false}
-              />
+              <SimpleTable data={regulatoryRefs} columns={regColumns} searchable={false} />
             )}
           </div>
         </div>
@@ -413,20 +372,15 @@ export default function DocumentLibraryPage() {
           <ShieldCheck className="h-6 w-6" />
         </div>
         <div className="flex-1 text-center md:text-left">
-          <h4 className="font-bold text-foreground text-lg">
-            AI Verification Core
-          </h4>
+          <h4 className="font-bold text-foreground text-lg">AI Verification Core</h4>
           <p className="text-muted-foreground text-sm">
-            The "Regulatory Brain" stores the verbatim language the AI uses to
-            verify hearing packets. Update these rules to change how the AI
-            evaluates compliance and suggests corrective actions.
+            The "Regulatory Brain" stores the verbatim language the AI uses to verify hearing
+            packets. Update these rules to change how the AI evaluates compliance and suggests
+            corrective actions.
           </p>
         </div>
         <div className="flex flex-col sm:flex-row gap-2">
-          <Button
-            variant="outline"
-            className="border-primary/20 hover:bg-primary/10 text-primary"
-          >
+          <Button variant="outline" className="border-primary/20 hover:bg-primary/10 text-primary">
             Import Official PDF
           </Button>
           <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">

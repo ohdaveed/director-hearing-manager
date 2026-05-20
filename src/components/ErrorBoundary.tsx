@@ -13,10 +13,7 @@ type ErrorBoundaryState = {
   error: Error | null;
 };
 
-export class ErrorBoundary extends Component<
-  ErrorBoundaryProps,
-  ErrorBoundaryState
-> {
+export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   constructor(props: ErrorBoundaryProps) {
     super(props);
     this.state = { hasError: false, error: null };
@@ -68,16 +65,9 @@ export function PanelErrorSummary({
         <p className="text-sm text-muted-foreground">
           Something went wrong rendering this section.
         </p>
-        {error && (
-          <p className="text-xs text-muted-foreground/70 font-mono">{error}</p>
-        )}
+        {error && <p className="text-xs text-muted-foreground/70 font-mono">{error}</p>}
         {onRetry && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={onRetry}
-            className="gap-1.5 mt-2"
-          >
+          <Button variant="outline" size="sm" onClick={onRetry} className="gap-1.5 mt-2">
             <RefreshCw className="w-3.5 h-3.5" /> Retry
           </Button>
         )}

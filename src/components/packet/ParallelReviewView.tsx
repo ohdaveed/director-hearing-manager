@@ -69,9 +69,7 @@ export default function ParallelReviewView({
                 file={extractedText} // Note: In real implementation, this would be the actual PDF URL
                 onLoadSuccess={onDocumentLoadSuccess}
                 onLoadError={onDocumentLoadError}
-                loading={
-                  <div className="text-muted-foreground">Loading PDF...</div>
-                }
+                loading={<div className="text-muted-foreground">Loading PDF...</div>}
               >
                 <Page
                   pageNumber={pageNumber}

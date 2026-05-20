@@ -28,12 +28,7 @@ type Props = {
  * Resolve a variable slot value from the packet data props.
  * Keys correspond to COVER_PAGE_VARIABLE_SLOTS[].key.
  */
-function resolveVariable(
-  key: string,
-  packet: any,
-  complaint: any,
-  location: any,
-): string {
+function resolveVariable(key: string, packet: any, complaint: any, location: any): string {
   switch (key) {
     case "caseNumber":
       return packet.case_number ?? "—";
@@ -48,19 +43,10 @@ function resolveVariable(
 
 export function PacketCoverPage({ packet, complaint, location }: Props) {
   // Resolve variable slots through the config registry — traceable to source tables
-  const caseNumberSlot = COVER_PAGE_VARIABLE_SLOTS.find(
-    (s) => s.key === "caseNumber",
-  )!;
-  const addressSlot = COVER_PAGE_VARIABLE_SLOTS.find(
-    (s) => s.key === "propertyAddress",
-  )!;
+  const caseNumberSlot = COVER_PAGE_VARIABLE_SLOTS.find((s) => s.key === "caseNumber")!;
+  const addressSlot = COVER_PAGE_VARIABLE_SLOTS.find((s) => s.key === "propertyAddress")!;
 
-  const caseNumber = resolveVariable(
-    caseNumberSlot.key,
-    packet,
-    complaint,
-    location,
-  );
+  const caseNumber = resolveVariable(caseNumberSlot.key, packet, complaint, location);
   const address = resolveVariable(addressSlot.key, packet, complaint, location);
 
   // Layout constants from the locked token set

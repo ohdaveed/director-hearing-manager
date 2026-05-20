@@ -71,9 +71,7 @@ export default function HearingPacketsPage({
         <div className="flex items-center gap-2">
           <Select
             value={statusFilter || "all"}
-            onValueChange={(value) =>
-              setStatusFilter(value === "all" ? "" : value)
-            }
+            onValueChange={(value) => setStatusFilter(value === "all" ? "" : value)}
           >
             <SelectTrigger className="w-44 h-8 text-sm">
               <SelectValue placeholder="All statuses" />
