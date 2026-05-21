@@ -64,7 +64,7 @@ Complaint → Inspection(s) → Violations → Chronology → Hearing Packet
 
 **CRITICAL: PostgREST Join Hints**
 Due to multiple foreign keys on some tables, always use explicit join hints in `.select()` calls.
-Example: `.select('*, inspections!location_uuid(*)')` to disambiguate which FK to use.
+Example: `.select('*, inspections!location_id(*)')` to disambiguate which FK to use.
 
 ## Directory Structure
 
@@ -118,11 +118,14 @@ Example: `.select('*, inspections!location_uuid(*)')` to disambiguate which FK t
 
 ## UI Conventions
 
-- Radix UI + `@base-ui/react` primitives in `src/components/ui/` (shadcn pattern; `components.json` is the registry config)
-- Lucide React icons only
-- `react-hook-form` + Zod schemas for forms — validate at the boundary
-- `sonner` `<Toaster />` for toasts (`toast.*()` API)
-- Data fetching: `useQuery` / `useMutation` from TanStack React Query (QueryClient initialized in `src/main.tsx`)
+- **Source of Truth**: `src/components/ui/` contains all base primitives (Radix UI + `@base-ui/react`).
+- **Standardized Usage**: ALWAYS use the primitives in `src/components/ui/`. NEVER create duplicate or "custom" versions of existing shadcn/ui components (e.g., `StatCard`, `SectionHeader`, `MetricBar`) outside this directory.
+- **Composition**: Prefer composing existing components over building custom ones.
+- **Icons**: Use `lucide-react` icons exclusively.
+- **Form Patterns**: Use `react-hook-form` + Zod schemas for forms; validate at the boundary.
+- **Toasts**: Use `sonner` via the `toast.*()` API.
+- **Data Fetching**: Use `useQuery` / `useMutation` from TanStack React Query.
+- **No Direct Styling Overrides**: Avoid raw Tailwind colors or manual CSS when a semantic component exists.
 
 ## RBAC Roles
 
@@ -185,6 +188,16 @@ Runtime (Vite-prefixed, set in `.env` / `.env.local`):
 - Linked skills: `impeccable`, `shadcn`, `supabase-postgres-best-practices`, `using-superpowers` (see `skills-lock.json`)
 - MCP servers: Playwright MCP (browser automation), PostgreSQL MCP (schema inspection)
 
+### Context7 Reconciliation Protocol
+
+When utilizing Context7 for library documentation or best practices, you MUST reconcile generic advice with our local architecture using `ctx7-manifest.json` as the source of truth for mappings and constraints:
+
+1. **Library Mapping:** Use the `libraryId` pinned in `ctx7-manifest.json` for all documentation queries.
+2. **Version Match:** Verify the Context7 library version matches our `package.json` exactly.
+3. **UI Primitives:** Prefer our local `src/components/ui/` Shadcn primitives over generic component examples.
+4. **Database Queries:** Adapt generic SQL or ORM queries to use our specific Atlas/Supabase join hints (as defined in the Architecture section).
+5. **Local Trumps Generic:** If Context7 best practices conflict with rules defined in this `AGENTS.md` file or the `reconciliationNotes` in `ctx7-manifest.json`, the local rules take absolute precedence.
+
 ## AI Agent Communication Protocol
 
 This project uses a 4-tier system to keep AI agents informed about app progress and changes.
@@ -205,7 +218,14 @@ gotchas, and breaking changes. Updated at the end of every work session.
 ### Tier 3 — claude-mem (Cross-Session Memory)
 
 Persistent observations across Claude Code sessions. See `.sisyphus/progress/CLAUDE-MEM.md`
-for the recording guide. Use `observation_add` to persist decisions, patterns, and gotchas.
+for the recording guide.
+
+**Note on Tools**:
+
+- **Claude Code**: Use `observation_add` to persist decisions, patterns, and gotchas.
+- **Gemini CLI**: Use `replace` or `write_file` to record observations directly into
+  `.sisyphus/progress/current-status.md` (Tier 2) or project documentation.
+  There is no `observation_add` tool in Gemini CLI.
 
 ### Tier 4 — Git History (Permanent Record)
 

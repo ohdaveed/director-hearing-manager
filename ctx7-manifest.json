@@ -1,0 +1,29 @@
+{
+  "dependencies": {
+    "react-hook-form": {
+      "libraryId": "/react-hook-form/documentation",
+      "version": "^7.76.0",
+      "reconciliationNotes": "Use with zod resolvers. Validate at boundary."
+    },
+    "@supabase/supabase-js": {
+      "libraryId": "/supabase/supabase-js",
+      "version": "^2.105.4",
+      "reconciliationNotes": "Use explicit join hints in .select(), e.g., .select('*, inspections!location_id(*)'). RLS policies govern access."
+    },
+    "@tanstack/react-query": {
+      "libraryId": "/tanstack/query",
+      "version": "^5.100.10",
+      "reconciliationNotes": "Use for all data fetching. Initialize in src/main.tsx."
+    },
+    "shadcn": {
+      "libraryId": "/shadcn-ui/ui",
+      "version": "^4.7.0",
+      "reconciliationNotes": "Source of Truth is src/components/ui/. Use local primitives."
+    },
+    "@react-pdf/renderer": {
+      "libraryId": "/diegomura/react-pdf",
+      "version": "^4.5.1",
+      "reconciliationNotes": "For print-ready packets. Store in Supabase 'documents' bucket."
+    }
+  }
+}
