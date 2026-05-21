@@ -60,8 +60,6 @@ export const inspectionService = {
       `,
       )
       .eq("inspection_id", id)
-      .is("violations.deleted_at", null)
-      .is("inspection_photos.deleted_at", null)
       .single();
 
     if (error) throw error;

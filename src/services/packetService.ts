@@ -219,12 +219,10 @@ export const packetService = {
             tracking_number, proof_of_service, status, notes, deleted_at
           )
         )
-      `,
-      )
-      .eq("id", id)
-      .is("complaint.deleted_at", null)
-      .single();
-
+        `,
+        )
+        .eq("id", id)
+        .single();
     if (error) throw error;
 
     const packet = normalizePacketRow(data as any);

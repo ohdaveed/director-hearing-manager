@@ -106,8 +106,6 @@ export const complaintService = {
        `,
       )
       .eq("id", id)
-      .is("inspections.deleted_at", null)
-      .is("chronology.deleted_at", null)
       .single();
 
     if (error) throw error;

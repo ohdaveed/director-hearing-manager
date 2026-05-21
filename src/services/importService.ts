@@ -71,9 +71,7 @@ export const importService = {
       )
       .eq("complaint", packet.complaint)
       .eq("status", "Submitted")
-      .is("deleted_at", null)
-      .is("violations.deleted_at", null)
-      .is("inspection_photos.deleted_at", null);
+      .is("deleted_at", null);
 
     if (error) throw error;
 

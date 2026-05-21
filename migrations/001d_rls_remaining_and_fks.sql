@@ -9,7 +9,7 @@
 -- ── LOCATIONS ──
 CREATE POLICY "Staff can view locations"
   ON locations FOR SELECT
-  USING (EXISTS (SELECT 1 FROM users WHERE id = auth.uid()));
+  USING (deleted_at IS NULL AND EXISTS (SELECT 1 FROM users WHERE id = auth.uid()));
 
 CREATE POLICY "Staff can insert locations"
   ON locations FOR INSERT
@@ -17,12 +17,12 @@ CREATE POLICY "Staff can insert locations"
 
 CREATE POLICY "Staff can update locations"
   ON locations FOR UPDATE
-  USING (EXISTS (SELECT 1 FROM users WHERE id = auth.uid()));
+  USING (deleted_at IS NULL AND EXISTS (SELECT 1 FROM users WHERE id = auth.uid()));
 
 -- ── HEARING PACKETS ──
 CREATE POLICY "Staff can view hearing packets"
   ON hearing_packets FOR SELECT
-  USING (EXISTS (SELECT 1 FROM users WHERE id = auth.uid()));
+  USING (deleted_at IS NULL AND EXISTS (SELECT 1 FROM users WHERE id = auth.uid()));
 
 CREATE POLICY "Staff can insert hearing packets"
   ON hearing_packets FOR INSERT
@@ -30,12 +30,12 @@ CREATE POLICY "Staff can insert hearing packets"
 
 CREATE POLICY "Staff can update hearing packets"
   ON hearing_packets FOR UPDATE
-  USING (EXISTS (SELECT 1 FROM users WHERE id = auth.uid()));
+  USING (deleted_at IS NULL AND EXISTS (SELECT 1 FROM users WHERE id = auth.uid()));
 
 -- ── CHRONOLOGY ──
 CREATE POLICY "Auth can view chronology"
   ON chronology FOR SELECT
-  USING (EXISTS (SELECT 1 FROM users WHERE id = auth.uid()));
+  USING (deleted_at IS NULL AND EXISTS (SELECT 1 FROM users WHERE id = auth.uid()));
 
 CREATE POLICY "Auth can insert chronology"
   ON chronology FOR INSERT
@@ -43,7 +43,7 @@ CREATE POLICY "Auth can insert chronology"
 
 CREATE POLICY "Auth can update chronology"
   ON chronology FOR UPDATE
-  USING (EXISTS (SELECT 1 FROM users WHERE id = auth.uid()));
+  USING (deleted_at IS NULL AND EXISTS (SELECT 1 FROM users WHERE id = auth.uid()));
 
 -- ── EXHIBITS ──
 CREATE POLICY "Auth can view exhibits"
@@ -57,7 +57,7 @@ CREATE POLICY "Auth can insert exhibits"
 -- ── INSPECTION PHOTOS ──
 CREATE POLICY "Auth can view inspection photos"
   ON inspection_photos FOR SELECT
-  USING (EXISTS (SELECT 1 FROM users WHERE id = auth.uid()));
+  USING (deleted_at IS NULL AND EXISTS (SELECT 1 FROM users WHERE id = auth.uid()));
 
 CREATE POLICY "Auth can insert inspection photos"
   ON inspection_photos FOR INSERT
@@ -66,7 +66,7 @@ CREATE POLICY "Auth can insert inspection photos"
 -- ── OWNER DOCUMENTS ──
 CREATE POLICY "Auth can view owner documents"
   ON owner_documents FOR SELECT
-  USING (EXISTS (SELECT 1 FROM users WHERE id = auth.uid()));
+  USING (deleted_at IS NULL AND EXISTS (SELECT 1 FROM users WHERE id = auth.uid()));
 
 CREATE POLICY "Auth can insert owner documents"
   ON owner_documents FOR INSERT
@@ -75,7 +75,7 @@ CREATE POLICY "Auth can insert owner documents"
 -- ── SERVICE LOG ──
 CREATE POLICY "Auth can view service log"
   ON service_log FOR SELECT
-  USING (EXISTS (SELECT 1 FROM users WHERE id = auth.uid()));
+  USING (deleted_at IS NULL AND EXISTS (SELECT 1 FROM users WHERE id = auth.uid()));
 
 CREATE POLICY "Auth can insert service log"
   ON service_log FOR INSERT
@@ -84,7 +84,7 @@ CREATE POLICY "Auth can insert service log"
 -- ── IMPORTED REPORTS ──
 CREATE POLICY "Auth can view imported reports"
   ON imported_reports FOR SELECT
-  USING (EXISTS (SELECT 1 FROM users WHERE id = auth.uid()));
+  USING (deleted_at IS NULL AND EXISTS (SELECT 1 FROM users WHERE id = auth.uid()));
 
 CREATE POLICY "Auth can insert imported reports"
   ON imported_reports FOR INSERT
