@@ -10,8 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
 import {
   Select,
   SelectContent,
@@ -38,8 +38,6 @@ import {
   FileEdit,
   FilePlus,
   CheckCircle2,
-  XCircle,
-  Clock,
   ClipboardList,
   User,
   Phone,
@@ -52,10 +50,10 @@ import {
   ExternalLink,
   Pencil,
   Search,
-  Link2,
   MapPin,
-  PlusCircle,
   Trash2,
+  ChevronRight,
+  Plus,
 } from "lucide-react";
 import ComplaintChronologyPanel from "./ComplaintChronologyPanel";
 import { SectionHeader } from "@/components/ui/section-header";
@@ -106,8 +104,8 @@ function InfoRow({ icon, label, value }: { icon: React.ReactNode; label: string;
     <div className="flex items-start gap-2.5">
       <span className="text-muted-foreground mt-0.5 shrink-0">{icon}</span>
       <div className="flex flex-col gap-0.5">
-        <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">{label}</p>
-        <p className="text-sm font-medium text-foreground">{value}</p>
+        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{label}</p>
+        <p className="text-sm font-semibold text-foreground">{value}</p>
       </div>
     </div>
   );
@@ -122,7 +120,6 @@ export default function ComplaintDetailView({
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [currentStatus, setCurrentStatus] = useState(complaint.status ?? "");
-  const [blockedViolations, setBlockedViolations] = useState<string[] | null>(null);
 
   // Responsible party edit state
   const [rpEditing, setRpEditing] = useState(false);
@@ -135,7 +132,6 @@ export default function ComplaintDetailView({
   const [locationSearch, setLocationSearch] = useState("");
   const [locationResults, setLocationResults] = useState<LocationResult[]>([]);
   const [locationSearching, setLocationSearching] = useState(false);
-  const [linkingLocationId, setLinkingLocationId] = useState<string | null>(null);
   const [optimisticallyLinked, setOptimisticallyLinked] = useState(false);
 
   const { data: detail, isLoading: loading } = useQuery({
@@ -155,8 +151,8 @@ export default function ComplaintDetailView({
     mutationFn: (newStatus: string) =>
       complaintService.update(complaint.id, { status: newStatus as any }),
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["complaint", complaint.id] });
-      queryClient.invalidateQueries({ queryKey: ["complaints"] });
+      void queryClient.invalidateQueries({ queryKey: ["complaint", complaint.id] });
+      void queryClient.invalidateQueries({ queryKey: ["complaints"] });
       onStatusUpdate(data.status as any);
       toast.success("Status updated");
     },
@@ -175,7 +171,7 @@ export default function ComplaintDetailView({
         hearing_rp_email: updates.owner_email,
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["complaint", complaint.id] });
+      void queryClient.invalidateQueries({ queryKey: ["complaint", complaint.id] });
       setRpEditing(false);
       toast.success("Responsible party saved");
     },
@@ -188,8 +184,8 @@ export default function ComplaintDetailView({
       setOptimisticallyLinked(true);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["complaint", complaint.id] });
-      queryClient.invalidateQueries({ queryKey: ["complaints"] });
+      void queryClient.invalidateQueries({ queryKey: ["complaint", complaint.id] });
+      void queryClient.invalidateQueries({ queryKey: ["complaints"] });
       setLocationSearch("");
       setLocationResults([]);
       toast.success("Location linked");
@@ -203,7 +199,7 @@ export default function ComplaintDetailView({
   const deleteMutation = useMutation({
     mutationFn: () => complaintService.softDelete(complaint.id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["complaints"] });
+      void queryClient.invalidateQueries({ queryKey: ["complaints"] });
       toast.success("Complaint deleted");
       navigate("/complaints");
     },
@@ -231,9 +227,6 @@ export default function ComplaintDetailView({
 
   const handleStatusChange = async (newStatus: string) => {
     setCurrentStatus(newStatus);
-    setBlockedViolations(null);
-    // In a real implementation, you'd check for unresolved violations here
-    // For now, we just perform the mutation
     updateStatusMutation.mutate(newStatus);
   };
 
@@ -256,10 +249,7 @@ export default function ComplaintDetailView({
   };
 
   const handleLinkLocation = (locationId: string) => {
-    setLinkingLocationId(locationId);
-    linkLocationMutation.mutate(locationId, {
-      onSettled: () => setLinkingLocationId(null),
-    });
+    linkLocationMutation.mutate(locationId);
   };
 
   const hasDraft = detail?.inspections?.some((i: any) => i.status === "Draft") ?? false;
@@ -269,30 +259,30 @@ export default function ComplaintDetailView({
   const canEditStatus = viewMode !== "readonly";
   const canStartInspection = viewMode === "inspector";
 
-  // ── Shared JSX pieces ──────────────────────────────────────────────────────
+  // ── Layout Components ──────────────────────────────────────────────────────
 
   const externalResourcesCard = (
-    <Card className="overflow-hidden shadow-sm print:hidden">
-      <CardHeader className="px-5 py-3 bg-muted/40 border-b border-border">
-        <CardTitle className="text-xs tracking-widest">Resources</CardTitle>
+    <Card className="overflow-hidden shadow-sm border-none bg-muted/30 print:hidden">
+      <CardHeader className="px-5 py-2.5 border-b border-border/50">
+        <CardTitle className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Resources</CardTitle>
       </CardHeader>
-      <CardContent className="p-5 flex flex-col gap-3">
+      <CardContent className="p-4">
         <a
           href="https://sfplanninggis.org/pim/"
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center justify-between group p-2 rounded-lg border border-border hover:border-primary/30 hover:bg-primary/5 transition-all"
+          className="flex items-center justify-between group p-2.5 rounded-xl border border-border bg-card hover:border-primary/30 hover:shadow-sm transition-all"
         >
-          <div className="flex items-center gap-2.5">
-            <div className="p-1.5 rounded bg-background border border-border group-hover:border-primary/20">
-              <MapPin className="size-3.5 text-primary/70" />
+          <div className="flex items-center gap-3">
+            <div className="size-8 rounded-lg bg-primary/5 border border-primary/10 flex items-center justify-center group-hover:bg-primary/10 transition-colors">
+              <MapPin className="size-4 text-primary/70" />
             </div>
             <div className="flex flex-col">
-              <span className="text-xs font-bold text-foreground">SF PIM</span>
-              <span className="text-[10px] text-muted-foreground uppercase tracking-tight font-medium">Property Information</span>
+              <span className="text-sm font-bold text-foreground">SF PIM</span>
+              <span className="text-[10px] text-muted-foreground uppercase tracking-tight font-bold">Property Search</span>
             </div>
           </div>
-          <ExternalLink data-icon="inline-end" className="text-muted-foreground group-hover:text-primary transition-colors" />
+          <ExternalLink data-icon="inline-end" className="size-3.5 text-muted-foreground/40 group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
         </a>
       </CardContent>
     </Card>
@@ -304,7 +294,7 @@ export default function ComplaintDetailView({
       onValueChange={handleStatusChange}
       disabled={updateStatusMutation.isPending}
     >
-      <SelectTrigger className="w-full h-9 text-sm">
+      <SelectTrigger className="w-full h-9 text-sm font-medium">
         {updateStatusMutation.isPending ? (
           <span className="flex items-center gap-1.5">
             <Loader2 className="animate-spin" /> Updating...
@@ -314,25 +304,25 @@ export default function ComplaintDetailView({
         )}
       </SelectTrigger>
       <SelectContent>
-        <div className="px-2 pt-2 pb-1 text-xs font-bold text-muted-foreground uppercase tracking-widest">
+        <div className="px-2 pt-2 pb-1 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
           Active
         </div>
         {ACTIVE_STATUSES.map((s) => (
           <SelectItem key={s} value={s}>
-            <span className="font-medium">{s}</span>
-            <span className="hidden sm:inline text-xs text-muted-foreground ml-2">
-              {STATUS_DESCRIPTIONS[s]}
+            <span className="font-semibold">{s}</span>
+            <span className="hidden sm:inline text-[11px] text-muted-foreground ml-2 italic">
+              — {STATUS_DESCRIPTIONS[s]}
             </span>
           </SelectItem>
         ))}
-        <div className="px-2 pt-3 pb-1 text-xs font-bold text-muted-foreground uppercase tracking-widest border-t border-border mt-1">
+        <div className="px-2 pt-3 pb-1 text-[10px] font-bold text-muted-foreground uppercase tracking-widest border-t border-border mt-1">
           Closure
         </div>
         {CLOSURE_STATUSES.map((s) => (
           <SelectItem key={s} value={s}>
             <div className="flex items-center gap-1.5">
               {s === "Closed — Compliant" && <Lock className="text-muted-foreground" />}
-              <span className="font-medium">{s}</span>
+              <span className="font-semibold">{s}</span>
             </div>
           </SelectItem>
         ))}
@@ -340,175 +330,102 @@ export default function ComplaintDetailView({
     </Select>
   );
 
-  // ── Location section (visual proximity: warning + search in same card) ──────
-
   const locationLinked = !!complaint.locationid || optimisticallyLinked;
 
-  const locationSectionContent = (
-    <Card className="overflow-hidden shadow-sm">
+  const detailsSection = (
+    <Card className="overflow-hidden shadow-md border-primary/10">
       <SectionHeader
-        icon={<MapPin />}
-        title="Location"
-        right={
-          complaint.locationid && (
-            <button
-              type="button"
-              onClick={async () => {
-                if (complaint.locationid) {
-                  const loc = await locationService.findByLocationId(complaint.locationid);
-                  if (loc) navigate(`/locations/${loc.id}`);
-                }
-              }}
-              className="flex items-center gap-1 text-[11px] text-primary hover:underline font-bold uppercase tracking-tight"
-            >
-              <ExternalLink data-icon="inline-start" /> View Records
-            </button>
-          )
-        }
+        icon={<ClipboardList />}
+        title="Identity & Location"
       />
-      <CardContent className="p-5">
-        {!locationLinked && (
-          <div className="flex flex-col gap-3 print:hidden">
-            <Alert variant="warning" className="px-3 py-2">
-              <AlertCircle />
-              <AlertDescription className="text-xs font-medium">
-                No location linked — required before assigning an inspector
-              </AlertDescription>
-            </Alert>
-            {canEditStatus && (
-              <div className="flex flex-col gap-2">
-                <div className="flex flex-col gap-1.5">
-                  <Label
-                    htmlFor="location-search"
-                    className="text-xs uppercase tracking-wider font-semibold text-muted-foreground ml-1"
-                  >
-                    Search Location
-                  </Label>
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                    <Input
-                      id="location-search"
-                      value={locationSearch}
-                      onChange={(e) => {
-                        setLocationSearch(e.target.value);
-                        debouncedLocationSearch(e.target.value);
-                      }}
-                      placeholder="Type an address to search…"
-                      className="pl-9 h-9 text-sm"
-                    />
-                    {locationSearching && (
-                      <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 animate-spin text-muted-foreground" />
-                    )}
-                  </div>
-                </div>
+      <CardContent className="p-6 flex flex-col gap-6">
+        {/* Row 1: Complainant & Source */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-4">
+          <div className="flex flex-col gap-3">
+            <InfoRow icon={<User />} label="Complainant" value={detail?.complainant_name} />
+            <InfoRow icon={<Phone />} label="Phone" value={detail?.complainant_phone} />
+            <InfoRow icon={<Mail />} label="Email" value={detail?.complainant_email} />
+          </div>
+          <div className="flex flex-col gap-3">
+            <InfoRow icon={<Calendar />} label="Entered" value={detail?.date_entered ? new Date(detail.date_entered + "T00:00:00").toLocaleDateString() : undefined} />
+            <InfoRow icon={<AlertCircle />} label="Due After" value={detail?.reinspection_due_on_after ? new Date(detail.reinspection_due_on_after + "T00:00:00").toLocaleDateString() : undefined} />
+            <InfoRow icon={<Calendar />} label="Last Report" value={detail?.date_last_report_sent ? new Date(detail.date_last_report_sent + "T00:00:00").toLocaleDateString() : undefined} />
+          </div>
+        </div>
 
-                {/* Skeleton loading state during search */}
-                {locationSearching && (
-                  <div className="border border-border rounded-lg bg-card overflow-hidden">
-                    {[1, 2, 3].map((i) => (
-                      <div
-                        key={i}
-                        className="px-3 py-2.5 flex items-center justify-between border-b border-border last:border-b-0"
-                      >
-                        <div className="flex flex-col gap-1.5 flex-1">
-                          <Skeleton className="h-3.5 w-3/5" />
-                          <Skeleton className="h-3 w-2/5" />
-                        </div>
-                        <Skeleton className="h-7 w-14 ml-3" />
-                      </div>
-                    ))}
-                  </div>
-                )}
+        <Separator className="bg-border/60" />
 
-                {/* Search results */}
-                {locationResults.length > 0 && (
-                  <div className="border border-border rounded-lg bg-card overflow-hidden">
-                    {locationResults.slice(0, 6).map((loc: any) => (
-                      <div
-                        key={loc.id}
-                        className="px-3 py-2.5 flex items-center justify-between border-b border-border last:border-b-0 hover:bg-muted/40 transition-colors"
-                      >
-                        <div className="min-w-0 flex-1">
-                          <p className="text-sm font-medium text-foreground truncate">
-                            {loc.address}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {loc.location_id && `ID: ${loc.location_id}`}
-                            {loc.facility_type && ` · ${loc.facility_type}`}
-                          </p>
-                        </div>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="ml-3 shrink-0 h-7 text-xs gap-1"
-                          onClick={() => handleLinkLocation(loc.id)}
-                          disabled={linkLocationMutation.isPending}
-                        >
-                          {linkingLocationId === loc.id ? (
-                            <Loader2 className="animate-spin" />
-                          ) : (
-                            <Link2 data-icon="inline-start" />
-                          )}
-                          Link
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* Empty state with fallback actions */}
-                {locationSearch.length >= 2 &&
-                  !locationSearching &&
-                  locationResults.length === 0 && (
-                    <div className="flex flex-col gap-2">
-                      <p className="text-xs text-muted-foreground italic">
-                        No locations found for &ldquo;{locationSearch}&rdquo;
-                      </p>
-                      <div className="flex flex-wrap items-center gap-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="h-7 text-xs gap-1"
-                          onClick={() =>
-                            navigate("/complaints/new", {
-                              state: { prefilledAddress: locationSearch },
-                            })
-                          }
-                        >
-                          <PlusCircle data-icon="inline-start" /> Create New Location
-                        </Button>
-                        <a
-                          href="https://sfplanninggis.org/pim/"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-1 text-xs text-primary hover:underline"
-                        >
-                          <ExternalLink data-icon="inline-start" /> Verify via SF PIM
-                        </a>
-                      </div>
-                    </div>
-                  )}
+        {/* Row 2: Location Linking & Verification */}
+        <div className="flex flex-col gap-4">
+          {!locationLinked ? (
+            <div className="flex flex-col gap-4">
+              <div className="flex items-center gap-2 text-xs font-bold text-warning uppercase tracking-tight">
+                <AlertCircle className="size-3.5" /> Missing Linked Location
               </div>
-            )}
-          </div>
-        )}
+              {canEditStatus && (
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/60" />
+                  <Input
+                    value={locationSearch}
+                    onChange={(e) => {
+                      setLocationSearch(e.target.value);
+                      void debouncedLocationSearch(e.target.value);
+                    }}
+                    placeholder="Search master records by address..."
+                    className="pl-9 h-10 text-sm shadow-inner bg-muted/20"
+                  />
+                  {locationSearching && <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 animate-spin text-muted-foreground" />}
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="flex items-center justify-between group">
+              <div className="flex items-center gap-3">
+                <div className="size-9 rounded-full bg-success/10 text-success flex items-center justify-center">
+                  <CheckCircle2 className="size-5" />
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-foreground">Verified Location Record</p>
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Master ID: {complaint.locationid || "Optimistic"}</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={async () => {
+                  if (complaint.locationid) {
+                    const loc = await locationService.findByLocationId(complaint.locationid);
+                    if (loc) navigate(`/locations/${loc.id}`);
+                  }
+                }}
+                className="text-[11px] font-bold uppercase tracking-widest text-primary hover:underline px-3 h-8 rounded-lg border border-primary/20 hover:bg-primary/5 transition-all"
+              >
+                View Map
+              </button>
+            </div>
+          )}
 
-        {/* Location linked confirmation */}
-        {locationLinked && (
-          <div className="flex items-center gap-2 text-xs font-medium text-success bg-success/10 border border-success/30 rounded-md px-3 py-2">
-            <CheckCircle2 className="shrink-0" />
-            Location linked
-            {optimisticallyLinked && <Loader2 className="animate-spin ml-1" />}
-          </div>
-        )}
+          {locationResults.length > 0 && (
+            <div className="grid grid-cols-1 gap-2 border-l-2 border-primary/20 pl-4 py-1">
+              {locationResults.slice(0, 3).map((loc: any) => (
+                <div key={loc.id} className="flex items-center justify-between gap-3 p-2 rounded-lg hover:bg-muted/40 transition-colors">
+                  <div className="min-w-0">
+                    <p className="text-xs font-bold truncate">{loc.address}</p>
+                    <p className="text-[10px] text-muted-foreground">{loc.facility_type}</p>
+                  </div>
+                  <Button size="sm" variant="outline" className="h-7 text-[10px] font-bold uppercase tracking-widest px-3" onClick={() => handleLinkLocation(loc.id)}>
+                    Link
+                  </Button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </CardContent>
     </Card>
   );
 
-  // ── Responsible Party section ──────────────────────────────────────────────
-
   const responsiblePartyContent = (
-    <Card className="overflow-hidden shadow-sm">
+    <Card className="overflow-hidden shadow-sm border-none bg-muted/20">
       <SectionHeader
         icon={<Home />}
         title="Responsible Party"
@@ -516,537 +433,234 @@ export default function ComplaintDetailView({
           canEditStatus && !rpEditing && locationLinked && (
             <button
               onClick={() => setRpEditing(true)}
-              className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground transition-colors font-bold uppercase tracking-tight"
+              className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-primary px-3 h-7 rounded-lg border border-primary/20 bg-card hover:bg-primary/5 transition-all"
             >
               <Pencil data-icon="inline-start" /> Edit
             </button>
           )
         }
       />
-      <CardContent className="p-5">
-        {/* Location not linked — prompt to link first */}
-        {!locationLinked && (
-          <p className="text-xs text-muted-foreground italic">
-            Link a location above to view and edit responsible party info.
+      <CardContent className="p-6">
+        {!locationLinked ? (
+          <p className="text-[11px] text-muted-foreground italic font-medium uppercase tracking-tight">
+            Link a location to manage responsible party data.
           </p>
-        )}
-
-        {/* Location linked, view mode */}
-        {detail && !rpEditing && locationLinked && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {rpName || rpAddress || rpPhone || rpEmail ? (
-              <>
-                <InfoRow
-                  icon={<User />}
-                  label="Owner / Responsible Party"
-                  value={rpName}
-                />
-                <InfoRow
-                  icon={<Home />}
-                  label="Mailing Address"
-                  value={rpAddress}
-                />
-                <InfoRow icon={<Phone />} label="Phone" value={rpPhone} />
-                <InfoRow icon={<Mail />} label="Email" value={rpEmail} />
-              </>
-            ) : (
-              <p className="text-xs text-muted-foreground italic col-span-2">
-                No responsible party info entered yet.{" "}
-                {canEditStatus && (
-                  <button
-                    onClick={() => setRpEditing(true)}
-                    className="text-primary hover:underline"
-                  >
-                    Add from SF PIM
-                  </button>
-                )}
-              </p>
-            )}
-          </div>
-        )}
-
-        {/* Edit form */}
-        {detail && rpEditing && locationLinked && (
-          <div className="flex flex-col gap-3">
-            <p className="text-xs text-muted-foreground mb-3">
-              Enter owner info from{" "}
-              <a
-                href="https://sfplanninggis.org/pim/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-primary hover:underline"
-              >
-                sfplanninggis.org/pim
-              </a>
-              .
-            </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div className="flex flex-col gap-1">
-                <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                  Owner / Responsible Party
-                </Label>
-                <Input
-                  value={rpName}
-                  onChange={(e) => setRpName(e.target.value)}
-                  placeholder="e.g. Jane Doe"
-                />
-              </div>
-              <div className="flex flex-col gap-1">
-                <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                  Mailing Address
-                </Label>
-                <Input
-                  value={rpAddress}
-                  onChange={(e) => setRpAddress(e.target.value)}
-                  placeholder="e.g. 123 Main Street, SF CA"
-                />
-              </div>
-              <div className="flex flex-col gap-1">
-                <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                  Phone
-                </Label>
-                <Input
-                  value={rpPhone}
-                  onChange={(e) => setRpPhone(e.target.value)}
-                  placeholder="e.g. (415) 555-1234"
-                />
-              </div>
-              <div className="flex flex-col gap-1">
-                <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                  Email
-                </Label>
-                <Input
-                  value={rpEmail}
-                  onChange={(e) => setRpEmail(e.target.value)}
-                  placeholder="e.g. owner@email.com"
-                  type="email"
-                />
-              </div>
-            </div>
-            <div className="flex items-center gap-2 pt-1">
-              <Button
-                onClick={handleSaveResponsibleParty}
-                disabled={updateLocationMutation.isPending}
-                size="sm"
-              >
-                {updateLocationMutation.isPending ? (
-                  <Loader2 className="animate-spin" data-icon="inline-start" />
+        ) : (
+          <>
+            {detail && !rpEditing && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-4">
+                {rpName || rpAddress || rpPhone || rpEmail ? (
+                  <>
+                    <InfoRow icon={<User />} label="Owner" value={rpName} />
+                    <InfoRow icon={<Home />} label="Mailing" value={rpAddress} />
+                    <InfoRow icon={<Phone />} label="Phone" value={rpPhone} />
+                    <InfoRow icon={<Mail />} label="Email" value={rpEmail} />
+                  </>
                 ) : (
-                  <Save data-icon="inline-start" />
+                  <div className="col-span-2 py-4 text-center">
+                    <p className="text-xs text-muted-foreground mb-3">No party data logged in hearing records.</p>
+                    <Button variant="outline" size="sm" className="font-bold uppercase tracking-widest text-[10px]" onClick={() => setRpEditing(true)}>
+                      <Plus data-icon="inline-start" /> Add Record
+                    </Button>
+                  </div>
                 )}
-                Save
-              </Button>
-              <Button variant="ghost" size="sm" onClick={() => setRpEditing(false)}>
-                Cancel
-              </Button>
-            </div>
-          </div>
+              </div>
+            )}
+
+            {detail && rpEditing && (
+              <div className="flex flex-col gap-5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-1.5">
+                    <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest ml-1">Name</Label>
+                    <Input value={rpName} onChange={(e) => setRpName(e.target.value)} placeholder="Full name" className="h-9 shadow-inner" />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest ml-1">Mailing Address</Label>
+                    <Input value={rpAddress} onChange={(e) => setRpAddress(e.target.value)} placeholder="Street, City, Zip" className="h-9 shadow-inner" />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest ml-1">Phone</Label>
+                    <Input value={rpPhone} onChange={(e) => setRpPhone(e.target.value)} placeholder="(415) 555-0000" className="h-9 shadow-inner" />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest ml-1">Email</Label>
+                    <Input value={rpEmail} onChange={(e) => setRpEmail(e.target.value)} type="email" placeholder="owner@email.com" className="h-9 shadow-inner" />
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 border-t border-border pt-4">
+                  <Button onClick={handleSaveResponsibleParty} disabled={updateLocationMutation.isPending} size="sm" className="font-bold uppercase tracking-widest text-[10px] px-4">
+                    {updateLocationMutation.isPending ? <Loader2 className="animate-spin" /> : <Save data-icon="inline-start" />}
+                    Save Record
+                  </Button>
+                  <Button variant="ghost" size="sm" onClick={() => setRpEditing(false)} className="text-[10px] font-bold uppercase tracking-widest">
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            )}
+          </>
         )}
       </CardContent>
     </Card>
   );
 
-  // ── Inspection history section ─────────────────────────────────────────────
-
-  const inspectionHistory = loading ? (
-    <Card className="overflow-hidden">
-      <CardHeader className="border-b border-border/60 py-3 px-5">
-        <Skeleton className="h-4 w-40" />
+  const actionsCard = (canEditStatus || actionsSlot) && (
+    <Card className="overflow-hidden shadow-sm border-none bg-muted/30">
+      <CardHeader className="px-5 py-2.5 border-b border-border/50">
+        <CardTitle className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Operations</CardTitle>
       </CardHeader>
-      <CardContent className="p-5 flex flex-col gap-2">
-        <Skeleton className="h-10 w-full" />
-        <Skeleton className="h-10 w-full" />
-      </CardContent>
-    </Card>
-  ) : detail && detail.inspections.length > 0 ? (
-    <Card className="overflow-hidden shadow-sm">
-      <SectionHeader
-        icon={<ClipboardList />}
-        title="Inspection History"
-        count={detail.inspections.length}
-      />
-      <CardContent className="p-0">
-        <div className="divide-y divide-border/60">
-          {detail.inspections.map((ins: any) => (
-            <div key={ins.id} className="px-5 py-3.5 flex items-center justify-between gap-3">
-              <div className="min-w-0">
-                <div className="flex items-center gap-2 mb-0.5 flex-wrap">
-                  <span className="text-sm font-medium text-foreground">
-                    {ins.inspection_date
-                      ? new Date(ins.inspection_date + "T00:00:00").toLocaleDateString()
-                      : "No date"}
-                  </span>
-                  {ins.inspection_type && (
-                    <span className="text-xs text-muted-foreground">{ins.inspection_type}</span>
-                  )}
-                </div>
-                <div className="flex items-center gap-2 flex-wrap">
-                  {ins.inspector && (
-                    <span className="text-xs text-muted-foreground">{ins.inspector}</span>
-                  )}
-                  {(ins.violation_count ?? 0) > 0 && (
-                    <Badge
-                      variant="destructive"
-                      className="text-xs h-4.5 px-1.5 font-bold bg-destructive/10 text-destructive border-none shadow-none"
-                    >
-                      {ins.violation_count} violation
-                      {ins.violation_count !== 1 ? "s" : ""}
-                    </Badge>
-                  )}
-                </div>
-              </div>
-              <div className="flex items-center gap-2 shrink-0">
-                {ins.inspection_rating === "Satisfactory" && (
-                  <Badge
-                    variant="outline"
-                    className="text-xs h-4.5 px-2 font-bold bg-success/10 text-success border-success/20"
-                  >
-                    <CheckCircle2 data-icon="inline-start" /> Sat.
-                  </Badge>
-                )}
-                {ins.inspection_rating === "Unsatisfactory" && (
-                  <Badge
-                    variant="outline"
-                    className="text-xs h-4.5 px-2 font-bold bg-destructive/10 text-destructive border-destructive/20"
-                  >
-                    <XCircle data-icon="inline-start" /> Unsat.
-                  </Badge>
-                )}
-                {/* Draft: dashed border neutral; Submitted: primary tint */}
-                <Badge
-                  variant="outline"
-                  className={cn(
-                    "text-xs h-4.5 px-2 flex items-center gap-1 font-bold",
-                    INSPECTION_STATUS_THEME[ins.status ?? ""] ?? "bg-muted text-muted-foreground",
-                  )}
-                >
-                  {ins.status === "Submitted" ? (
-                    <CheckCircle2 />
-                  ) : (
-                    <Clock />
-                  )}
-                  {ins.status}
-                </Badge>
-              </div>
-            </div>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
-  ) : !loading ? (
-    <Card className="p-8 text-center text-muted-foreground shadow-sm">
-      <ClipboardList className="mx-auto mb-2 opacity-30" />
-      <p className="text-sm font-medium">No inspections yet</p>
-      {canStartInspection && (
-        <p className="text-xs mt-1">Click &ldquo;Start Inspection&rdquo; to begin.</p>
-      )}
-    </Card>
-  ) : null;
-
-  // ── Desktop actions card ───────────────────────────────────────────────────
-  const canShowActions = viewMode === "admin" || canEditStatus;
-
-  const actionsCard =
-    canShowActions || actionsSlot ? (
-      <Card className="overflow-hidden shadow-sm print:hidden">
-        <CardHeader className="px-5 py-3 bg-muted/40 border-b border-border">
-          <CardTitle className="text-xs tracking-widest">Actions</CardTitle>
-        </CardHeader>
-        <CardContent className="p-5 flex flex-col gap-5">
-          {canEditStatus && (
-            <div className="flex flex-col gap-2">
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                Change Status
-              </p>
-              {statusSelector}
-              {blockedViolations && blockedViolations.length > 0 && (
-                <Alert variant="destructive">
-                  <Lock />
-                  <AlertTitle>Cannot mark as Closed — Compliant</AlertTitle>
-                  <AlertDescription>
-                    <ul className="mt-2 list-disc flex flex-col gap-1 pl-5">
-                      {blockedViolations.map((v, i) => (
-                        <li key={i} className="text-xs">
-                          {v}
-                        </li>
-                      ))}
-                    </ul>
-                  </AlertDescription>
-                </Alert>
-              )}
-            </div>
-          )}
-          {actionsSlot && (
-            <div className={cn(canEditStatus ? "border-t border-border pt-5" : "")}>{actionsSlot}</div>
-          )}
+      <CardContent className="p-5 flex flex-col gap-4">
+        {canEditStatus && (
+          <div className="flex flex-col gap-2">
+            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest ml-1">Status Management</p>
+            {statusSelector}
+          </div>
+        )}
+        {actionsSlot && (
+          <div className={cn("flex flex-col gap-2", canEditStatus ? "border-t border-border/50 pt-4" : "")}>
+            {actionsSlot}
+          </div>
+        )}
+        <div className="border-t border-border/50 pt-4">
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button
-                variant="outline"
-                className="w-full justify-start text-destructive hover:text-destructive hover:bg-destructive/5 border-destructive/20 h-9 text-xs"
-              >
-                <Trash2 data-icon="inline-start" /> Delete Complaint
+              <Button variant="ghost" className="w-full justify-start text-destructive hover:text-destructive hover:bg-destructive/5 h-8 text-[10px] font-bold uppercase tracking-widest">
+                <Trash2 data-icon="inline-start" /> Delete Case
               </Button>
             </AlertDialogTrigger>
-            <AlertDialogContent>
+            <AlertDialogContent className="rounded-2xl border-none shadow-2xl">
               <AlertDialogHeader>
-                <AlertDialogTitle>Delete this complaint?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  This will permanently remove the complaint. This action cannot be undone.
+                <AlertDialogTitle className="font-black uppercase tracking-tight">Delete Complaint?</AlertDialogTitle>
+                <AlertDialogDescription className="text-sm">
+                  This action is irreversible. All associated hearing packet data will be purged.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={() => deleteMutation.mutate()}
-                  disabled={deleteMutation.isPending}
-                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                >
-                  {deleteMutation.isPending ? (
-                    <Loader2 className="animate-spin" data-icon="inline-start" />
-                  ) : null}
-                  Delete
+                <AlertDialogCancel className="font-bold uppercase tracking-widest text-[10px]">Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={() => deleteMutation.mutate()} disabled={deleteMutation.isPending} className="bg-destructive text-destructive-foreground hover:bg-destructive/90 font-bold uppercase tracking-widest text-[10px]">
+                  {deleteMutation.isPending && <Loader2 className="animate-spin mr-2" />}
+                  Confirm Purge
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
-        </CardContent>
-      </Card>
-    ) : null;
-
-  // ── Main render ────────────────────────────────────────────────────────────
+        </div>
+      </CardContent>
+    </Card>
+  );
 
   return (
-    <div className="w-full">
-      {/* Two-column grid on desktop */}
-      <div className="grid gap-4 lg:grid-cols-12 items-start">
-        <div className="flex flex-col gap-4 lg:col-span-8">
-          <Card className="border-primary/20 shadow-md">
-            <CardContent className="p-5">
-              <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2 mb-2 flex-wrap">
-                    {complaint.complaintid && (
-                      <Badge
-                        variant="secondary"
-                        className="text-xs font-mono font-bold bg-primary/10 text-primary border-none h-4 px-1"
-                      >
-                        #{complaint.complaintid}
-                      </Badge>
-                    )}
-                    {complaint.category && complaint.category.length > 0 && (
-                      <div className="flex items-center gap-1.5 flex-wrap">
-                        {complaint.category.map((cat: string) => (
-                          <Badge
-                            key={cat}
-                            variant="outline"
-                            className="text-xs font-semibold h-4 px-2 bg-primary/5 text-primary border-primary/20"
-                          >
-                            {cat}
-                          </Badge>
-                        ))}
+    <div className="w-full flex flex-col gap-8">
+      {/* ── HERO SUMMARY (Full Width) ─────────────────────── */}
+      <Card className="border-none bg-primary shadow-2xl rounded-2xl overflow-hidden">
+        <CardContent className="p-6 sm:p-8 text-primary-foreground">
+          <div className="flex flex-wrap items-start justify-between gap-6">
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-3 mb-3 flex-wrap">
+                <Badge variant="outline" className="bg-background/10 text-primary-foreground border-primary-foreground/20 font-mono font-bold text-xs h-6 px-2.5">
+                  #{complaint.complaintid}
+                </Badge>
+                {complaint.category?.map((cat: string) => (
+                  <Badge key={cat} variant="secondary" className="bg-primary-foreground/10 text-primary-foreground hover:bg-primary-foreground/20 border-none font-bold text-[10px] uppercase tracking-widest h-5">
+                    {cat}
+                  </Badge>
+                ))}
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-black leading-tight tracking-tight mb-4 drop-shadow-sm">
+                {complaint.address}
+              </h2>
+              {detail?.description && (
+                <div className="max-w-2xl bg-black/10 rounded-xl p-4 border border-white/5">
+                  <DescriptionText text={sanitizeText(detail.description)} />
+                </div>
+              )}
+            </div>
+            <div className="flex flex-col items-end gap-4 shrink-0">
+              {canStartInspection && (
+                <Button onClick={handleStartInspection} className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 font-black uppercase tracking-widest text-xs h-12 px-8 rounded-xl shadow-xl hover:-translate-y-0.5 transition-all">
+                  {hasDraft ? <><FileEdit data-icon="inline-start" /> Resume Draft</> : <><FilePlus data-icon="inline-start" /> Start New</>}
+                </Button>
+              )}
+              <div className="flex flex-col items-end gap-1.5 pr-2">
+                <span className="text-[10px] font-bold uppercase tracking-widest opacity-60">Workflow Status</span>
+                <Badge className={cn("text-xs font-black uppercase tracking-widest h-6 px-3 shadow-md border-none", statusBadgeCls)}>
+                  {currentStatus || "Pending"}
+                </Badge>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* ── CONTENT GRID (7/5 Split) ──────────────────────── */}
+      <div className="grid gap-8 lg:grid-cols-12 items-start">
+        <div className="flex flex-col gap-8 lg:col-span-7">
+          <ErrorBoundary title="Identity Section Error">{detailsSection}</ErrorBoundary>
+          
+          <Card className="overflow-hidden shadow-sm border-none bg-muted/20">
+            <SectionHeader icon={<ClipboardList />} title="Inspection History" count={detail?.inspections?.length} />
+            <CardContent className="p-0">
+              {loading ? (
+                <div className="p-6 flex flex-col gap-3">
+                  <Skeleton className="h-12 w-full" />
+                  <Skeleton className="h-12 w-full" />
+                </div>
+              ) : (
+                <div className="divide-y divide-border/50">
+                  {detail?.inspections?.map((ins: any) => (
+                    <div key={ins.id} className="px-6 py-4 flex items-center justify-between gap-4 hover:bg-card/50 transition-colors group">
+                      <div className="min-w-0">
+                        <p className="text-sm font-bold text-foreground">{new Date(ins.inspection_date + "T00:00:00").toLocaleDateString()}</p>
+                        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-0.5">{ins.inspection_type} · {ins.inspector}</p>
                       </div>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <h2 className="text-lg font-bold text-foreground leading-snug">
-                      {complaint.address}
-                    </h2>
-                  </div>
-                  {detail?.description && (
-                    <DescriptionText text={sanitizeText(detail.description)} />
-                  )}
-                  {viewMode !== "inspector" && complaint.assigned_to && (
-                    <p className="text-[11px] text-muted-foreground mt-1.5 font-medium uppercase tracking-wider">
-                      Assigned: {complaint.assigned_to.replace(" (DPH)", "")}
-                    </p>
+                      <div className="flex items-center gap-3 shrink-0">
+                        {ins.violation_count > 0 && (
+                          <Badge variant="destructive" className="text-[10px] font-black h-5 px-2 border-none">
+                            {ins.violation_count}v
+                          </Badge>
+                        )}
+                        <Badge variant="outline" className={cn("text-[10px] font-black h-5 px-2 border-none shadow-none", INSPECTION_STATUS_THEME[ins.status] ?? "bg-muted")}>
+                          {ins.status}
+                        </Badge>
+                        <ChevronRight className="size-3.5 text-muted-foreground/30 group-hover:text-primary transition-colors" />
+                      </div>
+                    </div>
+                  ))}
+                  {detail?.inspections?.length === 0 && (
+                    <div className="p-12 text-center text-muted-foreground/60 italic font-medium text-sm">
+                      No inspections recorded for this case.
+                    </div>
                   )}
                 </div>
-                {canStartInspection && (
-                  <Button
-                    onClick={handleStartInspection}
-                    title={
-                      hasDraft
-                        ? "Resume your draft inspection for this complaint"
-                        : "Start a new inspection for this complaint"
-                    }
-                    className="flex-shrink-0 h-10 px-5 text-sm font-bold shadow-sm"
-                  >
-                    {hasDraft ? (
-                      <>
-                        <FileEdit data-icon="inline-start" /> Resume Draft
-                      </>
-                    ) : (
-                      <>
-                        <FilePlus data-icon="inline-start" /> Start Inspection
-                      </>
-                    )}
-                  </Button>
-                )}
-              </div>
-              <div className="flex items-center gap-2 pt-3 border-t border-border/40">
-                <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
-                  Status
-                </span>
-                <Badge
-                  variant="outline"
-                  className={cn("text-xs h-5 px-2 font-bold", statusBadgeCls)}
-                >
-                  {currentStatus || "—"}
-                </Badge>
-                {updateStatusMutation.isPending && (
-                  <Loader2 className="animate-spin text-muted-foreground" />
-                )}
-              </div>
+              )}
             </CardContent>
           </Card>
-
-          {/* Complaint Info */}
-          {loading ? (
-            <Card className="overflow-hidden shadow-sm">
-              <CardHeader className="border-b border-border/60 py-3 px-5">
-                <Skeleton className="h-4 w-40" />
-              </CardHeader>
-              <CardContent className="p-5 flex flex-col gap-3">
-                <Skeleton className="h-4 w-1/3" />
-                <Skeleton className="h-4 w-1/2" />
-                <Skeleton className="h-4 w-2/5" />
-              </CardContent>
-            </Card>
-          ) : (
-            detail && (
-              <Card className="overflow-hidden shadow-sm">
-                <SectionHeader
-                  icon={<ClipboardList />}
-                  title="Complaint Info"
-                />
-                <CardContent className="p-5">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <InfoRow
-                      icon={<Calendar />}
-                      label="Date Entered"
-                      value={
-                        detail.date_entered
-                          ? new Date(detail.date_entered + "T00:00:00").toLocaleDateString()
-                          : undefined
-                      }
-                    />
-                    <InfoRow
-                      icon={<AlertCircle />}
-                      label="Reinspection Due"
-                      value={
-                        detail.reinspection_due_on_after
-                          ? new Date(
-                              detail.reinspection_due_on_after + "T00:00:00",
-                            ).toLocaleDateString()
-                          : undefined
-                      }
-                    />
-                    <InfoRow
-                      icon={<Calendar />}
-                      label="Last Report Sent"
-                      value={
-                        detail.date_last_report_sent
-                          ? new Date(
-                              detail.date_last_report_sent + "T00:00:00",
-                            ).toLocaleDateString()
-                          : undefined
-                      }
-                    />
-                    <InfoRow
-                      icon={<User />}
-                      label="Complainant"
-                      value={detail.complainant_name}
-                    />
-                    <InfoRow
-                      icon={<Phone />}
-                      label="Phone"
-                      value={detail.complainant_phone}
-                    />
-                    <InfoRow
-                      icon={<Mail />}
-                      label="Email"
-                      value={detail.complainant_email}
-                    />
-                  </div>
-                </CardContent>
-              </Card>
-            )
-          )}
-
-          {/* Responsible Party */}
-          {loading ? (
-            <Card className="overflow-hidden shadow-sm">
-              <CardHeader className="border-b border-border/60 py-3 px-5">
-                <Skeleton className="h-4 w-40" />
-              </CardHeader>
-              <CardContent className="p-5 flex flex-col gap-3">
-                <Skeleton className="h-4 w-1/3" />
-                <Skeleton className="h-4 w-1/2" />
-                <Skeleton className="h-4 w-2/5" />
-              </CardContent>
-            </Card>
-          ) : (
-            <ErrorBoundary title="Responsible Party Error">{responsiblePartyContent}</ErrorBoundary>
-          )}
-
-          {/* Location */}
-          <ErrorBoundary title="Location Error">{locationSectionContent}</ErrorBoundary>
-
-          {/* Inspection History */}
-          <ErrorBoundary title="Inspection History Error">{inspectionHistory}</ErrorBoundary>
-
-          {/* Case Chronology — mobile only (stacks below inspection history) */}
-          <div className="lg:hidden">
-            <ErrorBoundary title="Chronology Error">
-              <ComplaintChronologyPanel chronology={detail?.chronology ?? []} loading={loading} />
-            </ErrorBoundary>
-          </div>
         </div>
 
-        {/* ── RIGHT COLUMN (40%) — sticky on desktop ────────── */}
-        <div className="hidden lg:block lg:col-span-5">
-          <div className="sticky top-20 flex flex-col gap-4">
-            {actionsCard}
-            {externalResourcesCard}
-            <ErrorBoundary title="Chronology Error">
-              <ComplaintChronologyPanel chronology={detail?.chronology ?? []} loading={loading} />
-            </ErrorBoundary>
-          </div>
+        <div className="flex flex-col gap-8 lg:col-span-5 sticky top-20">
+          <ErrorBoundary title="Actions Error">{actionsCard}</ErrorBoundary>
+          <ErrorBoundary title="Party Error">{responsiblePartyContent}</ErrorBoundary>
+          <ErrorBoundary title="Resources Error">{externalResourcesCard}</ErrorBoundary>
+          <ErrorBoundary title="Chronology Error">
+            <ComplaintChronologyPanel chronology={detail?.chronology ?? []} loading={loading} />
+          </ErrorBoundary>
         </div>
       </div>
 
-      {/* ── Mobile floating Actions bar ────────────────────── */}
+      {/* ── MOBILE WORKFLOW BAR ────────────────────────── */}
       {(canEditStatus || actionsSlot) && (
-        <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-card/95 backdrop-blur-sm border-t border-border shadow-2xl print:hidden">
-          <div className="container mx-auto px-4 py-3 max-w-7xl">
-            <div className="flex items-center gap-3">
-              <p className="text-xs font-medium text-muted-foreground shrink-0">Status</p>
-              <div className="flex-1">{statusSelector}</div>
-              {canStartInspection && (
-                <Button onClick={handleStartInspection} size="sm" className="shrink-0">
-                  {hasDraft ? (
-                    <FileEdit data-icon="inline-start" />
-                  ) : (
-                    <FilePlus data-icon="inline-start" />
-                  )}
-                  <span className="hidden xs:inline">{hasDraft ? "Resume" : "Inspect"}</span>
-                </Button>
-              )}
-            </div>
-            {blockedViolations && blockedViolations.length > 0 && (
-              <p className="mt-1.5 text-xs text-destructive flex items-center gap-1.5">
-                <Lock shrink-0 />
-                Cannot close — {blockedViolations.length} unresolved violation
-                {blockedViolations.length !== 1 ? "s" : ""}
-              </p>
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-t border-border p-4 shadow-2xl safe-area-bottom">
+          <div className="flex items-center gap-3">
+            <div className="flex-1">{statusSelector}</div>
+            {canStartInspection && (
+              <Button onClick={handleStartInspection} size="icon" className="size-10 rounded-xl shrink-0 shadow-lg">
+                {hasDraft ? <FileEdit className="size-5" /> : <FilePlus className="size-5" />}
+              </Button>
             )}
           </div>
         </div>
       )}
-
-      {/* Spacer so content isn't hidden behind floating bar on mobile */}
-      {(canEditStatus || actionsSlot) && <div className="lg:hidden h-20" />}
+      <div className="lg:hidden h-20" />
     </div>
   );
 }
