@@ -10,20 +10,21 @@ type Photo = Database["public"]["Tables"]["inspection_photos"]["Row"];
 export const INSPECTION_LIST_COLUMNS = `
   inspection_id, inspection_date, inspector, inspection_type,
   inspection_rating, status, dba, facility_address, notes,
-  complaint_id, location_id, submitted_at, deleted_at
+  complaint_id, location_id, violation_count, submitted_at, deleted_at
 `;
 
 export const INSPECTION_FULL_COLUMNS = `
   ${INSPECTION_LIST_COLUMNS},
   time_in, time_out, access_granted_by, contact_phone, contact_email,
-  violation_count, completed_report, imported_reports
+  violation_count, completed_report, imported_reports,
+  global_observations, areas_inspected
 `;
 
 export const VIOLATION_COLUMNS = `
   id, violation_label, violation_code, category,
   location_in_property, corrective_action, due_date,
-  responsible_party, status, observation, exhibit_refs,
-  complaint, deleted_at
+  responsible_party, status, observation, deleted_at,
+  regulatory_reference_id
 `;
 
 export const PHOTO_COLUMNS = `
@@ -40,23 +41,21 @@ export const inspectionService = {
       .order("inspection_date", { ascending: false });
 
     if (error) throw error;
-    return data as Inspection[];
+    return data as any;
   },
 
   async getById(
     id: string,
-  ): Promise<Inspection & { violations: Violation[]; inspection_photos: Photo[] }> {
+  ): Promise<
+    Inspection & { violations: Violation[]; inspection_photos: Photo[] }
+  > {
     const { data, error } = await supabase
       .from("inspections")
       .select(
         `
         ${INSPECTION_FULL_COLUMNS},
-        violations!inspection_id (
-          ${VIOLATION_COLUMNS}
-        ),
-        inspection_photos!inspection_id (
-          ${PHOTO_COLUMNS}
-        )
+        violations!inspection_id ( ${VIOLATION_COLUMNS} ),
+        inspection_photos!inspection_id ( ${PHOTO_COLUMNS} )
       `,
       )
       .eq("inspection_id", id)
@@ -67,7 +66,13 @@ export const inspectionService = {
   },
 
   async save(inspection: any): Promise<Inspection> {
-    const { violations, photos, isDraft: _isDraft, summary, ...rest } = inspection;
+    const {
+      violations,
+      photos,
+      isDraft: _isDraft,
+      summary,
+      ...rest
+    } = inspection;
 
     // Transform fields to match database schema
     const inspectionData: InspectionInsert = {
@@ -84,15 +89,14 @@ export const inspectionService = {
       .single();
 
     if (inspectionError) throw inspectionError;
-    const inspectionId = savedInspection.inspection_id;
 
-    const ops: Promise<void>[] = [];
+    const ops: Promise<any>[] = [];
 
+    // Save violations
     if (violations && violations.length > 0) {
-      const violationsWithId = violations.map((v: any) => ({
+      const violationsWithInspectionId = violations.map((v: any) => ({
         ...v,
-        inspection: String(inspectionId),
-        inspection_id: inspectionId,
+        inspection_id: savedInspection.inspection_id,
         updated_at: new Date().toISOString(),
       }));
 
@@ -100,17 +104,18 @@ export const inspectionService = {
         (async () => {
           const { error } = await supabase
             .from("violations")
-            .upsert(violationsWithId, { onConflict: "id" })
+            .upsert(violationsWithInspectionId, { onConflict: "id" })
             .select();
           if (error) throw error;
         })(),
       );
     }
 
+    // Save photos
     if (photos && photos.length > 0) {
       const photosWithInspectionId = photos.map((p: any) => ({
         ...p,
-        inspection_id: inspectionId,
+        inspection_id: savedInspection.inspection_id,
         updated_at: new Date().toISOString(),
       }));
 
@@ -127,6 +132,6 @@ export const inspectionService = {
 
     await Promise.all(ops);
 
-    return savedInspection as Inspection;
+    return savedInspection as any;
   },
 };

@@ -18,7 +18,10 @@ type Props = {
   onSelectComplaint: (complaint: Complaint) => void;
 };
 
-export default function AssignedComplaintsPanel({ inspector, onSelectComplaint }: Props) {
+export default function AssignedComplaintsPanel({
+  inspector,
+  onSelectComplaint,
+}: Props) {
   const { data: complaints = [], isLoading: loading } = useQuery({
     queryKey: ["complaints", "assigned", inspector],
     queryFn: () => complaintService.getAll({ assigned_to: inspector }),
@@ -31,7 +34,10 @@ export default function AssignedComplaintsPanel({ inspector, onSelectComplaint }
         <SectionHeader icon={<ClipboardList />} title="Assigned Complaints" />
         <div className="divide-y divide-border">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="px-5 py-4 flex items-start justify-between gap-3 animate-pulse">
+            <div
+              key={i}
+              className="px-5 py-4 flex items-start justify-between gap-3 animate-pulse"
+            >
               <div className="flex-1 flex flex-col gap-2">
                 <div className="flex items-center gap-2">
                   <Skeleton className="h-5 w-14 rounded" />
@@ -54,7 +60,9 @@ export default function AssignedComplaintsPanel({ inspector, onSelectComplaint }
         <div className="size-10 rounded-full bg-background border border-border flex items-center justify-center mx-auto mb-3">
           <CheckCircle2 className="size-5 text-success/60" />
         </div>
-        <p className="text-xs font-bold uppercase tracking-widest opacity-60">All Caught Up</p>
+        <p className="text-xs font-bold uppercase tracking-widest opacity-60">
+          All Caught Up
+        </p>
         <p className="text-[11px] mt-1 max-w-[200px] mx-auto font-medium leading-relaxed">
           No open complaints currently assigned to you.
         </p>
@@ -72,8 +80,9 @@ export default function AssignedComplaintsPanel({ inspector, onSelectComplaint }
       <div className="divide-y divide-border/40 max-h-72 overflow-y-auto feed-scroll">
         {complaints.map((c) => {
           const statusCls =
-            COMPLAINT_STATUS_THEME[c.status as keyof typeof COMPLAINT_STATUS_THEME] ??
-            "bg-muted text-muted-foreground";
+            COMPLAINT_STATUS_THEME[
+              c.status as keyof typeof COMPLAINT_STATUS_THEME
+            ] ?? "bg-muted text-muted-foreground";
           return (
             <button
               key={c.id}
@@ -84,9 +93,9 @@ export default function AssignedComplaintsPanel({ inspector, onSelectComplaint }
               <div className="flex items-start justify-between gap-3">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
-                    {c.complaintid && (
+                    {c.legacy_complaint_id && (
                       <span className="text-[10px] font-mono font-bold text-primary/60 bg-primary/5 px-1.5 py-0.5 rounded border border-primary/10 backdrop-blur-sm">
-                        #{c.complaintid}
+                        #{c.legacy_complaint_id}
                       </span>
                     )}
                     {c.status === "Inspection Scheduled" && (
@@ -113,7 +122,10 @@ export default function AssignedComplaintsPanel({ inspector, onSelectComplaint }
                   {c.status && (
                     <Badge
                       variant="outline"
-                      className={cn("text-[10px] h-5 px-2 font-black uppercase tracking-widest border-none shadow-none transition-transform group-hover:scale-105 duration-300", statusCls)}
+                      className={cn(
+                        "text-[10px] h-5 px-2 font-black uppercase tracking-widest border-none shadow-none transition-transform group-hover:scale-105 duration-300",
+                        statusCls,
+                      )}
                     >
                       {c.status}
                     </Badge>

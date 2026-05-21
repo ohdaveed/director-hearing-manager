@@ -48,7 +48,7 @@ export interface PacketValidationResult {
 export interface PacketGenerationEvent {
   id: string;
   hearing_packet_id: string | null;
-  complaint_uuid: string | null;
+  complaint_id: string | null;
   event_type: string;
   event_status: "info" | "success" | "warning" | "error" | "blocked" | string;
   event_message: string | null;
@@ -60,7 +60,7 @@ export interface PacketGenerationEvent {
 export interface GeneratedPacketFile {
   id: string;
   hearing_packet_id: string | null;
-  complaint_uuid: string | null;
+  complaint_id: string | null;
   file_type: string;
   file_path: string;
   file_name: string | null;
@@ -85,7 +85,10 @@ export interface GenerateHearingPacketResult {
 
 export interface GeneratedFileUrlResult {
   signedUrl: string;
-  file: Pick<GeneratedPacketFile, "id" | "file_path" | "file_name" | "metadata">;
+  file: Pick<
+    GeneratedPacketFile,
+    "id" | "file_path" | "file_name" | "metadata"
+  >;
 }
 
 function parseJsonField<T>(value: unknown, fallback: T): T {
@@ -103,9 +106,18 @@ function parseJsonField<T>(value: unknown, fallback: T): T {
 function normalizePacketRow<T extends Record<string, any>>(packet: T): T {
   return {
     ...packet,
-    checklist_json: parseJsonField(packet.checklist_json ?? packet.checklist_data, {}),
-    enforcement_json: parseJsonField(packet.enforcement_json ?? packet.enforcement_flags, {}),
-    status_history_json: parseJsonField(packet.status_history_json ?? packet.status_history, []),
+    checklist_json: parseJsonField(
+      packet.checklist_json ?? packet.checklist_data,
+      {},
+    ),
+    enforcement_json: parseJsonField(
+      packet.enforcement_json ?? packet.enforcement_flags,
+      {},
+    ),
+    status_history_json: parseJsonField(
+      packet.status_history_json ?? packet.status_history,
+      [],
+    ),
     selected_report_ids_json: parseJsonField(
       packet.selected_report_ids_json ?? packet.selected_report_ids,
       [],
@@ -148,13 +160,15 @@ function toLegacyCompatibleUpdates(updates: Record<string, any>) {
 }
 
 export const packetService = {
-  async getAll(filters: { statusFilter?: string; assignedToFilter?: string } = {}) {
+  async getAll(
+    filters: { statusFilter?: string; assignedToFilter?: string } = {},
+  ) {
     let query = supabase
       .from("hearing_packets")
       .select(
         `
         ${PACKET_LIST_COLUMNS},
-        complaints!complaint_uuid ( id, address, complaintid, hearing_status )
+        complaints!complaint_id ( id, address, legacy_complaint_id, hearing_status )
       `,
       )
       .is("deleted_at", null)
@@ -176,8 +190,8 @@ export const packetService = {
       return {
         ...normalized,
         address: (p as any).complaints?.address,
-        complaintid: (p as any).complaints?.complaintid,
-        complaintId: (p as any).complaints?.complaintid,
+        legacy_complaint_id: (p as any).complaints?.legacy_complaint_id,
+        complaintId: (p as any).complaints?.legacy_complaint_id,
         hearingStatus: (p as any).complaints?.hearing_status,
       };
     });
@@ -189,9 +203,9 @@ export const packetService = {
       .select(
         `
         ${PACKET_FULL_COLUMNS},
-        complaint:complaints!complaint_uuid (
-          id, complaintid, address, status, description, assigned_to,
-          date_entered, hearing_status, hearing_date, locationid,
+        complaint:complaints!complaint_id (
+          id, legacy_complaint_id, address, status, description, assigned_to,
+          date_entered, hearing_status, hearing_date, legacy_location_id,
           category, deleted_at,
           hearing_rp_name, hearing_rp_phone, hearing_rp_email,
           hearing_rp_address, purpose_of_hearing,
@@ -210,19 +224,19 @@ export const packetService = {
               packet_include, packet_sort_order, deleted_at
             )
           ),
-          chronology!complaint_uuid (
+          chronology!complaint_id (
             id, summary, entry_date, entry_type, created_by,
             visibility, chronology_order, citation_code, exhibit_refs, deleted_at
           ),
-          service_log!complaint_uuid (
+          service_log!complaint_id (
             id, notice_type, service_method, service_date, recipient,
             tracking_number, proof_of_service, status, notes, deleted_at
           )
         )
         `,
-        )
-        .eq("id", id)
-        .single();
+      )
+      .eq("id", id)
+      .single();
     if (error) throw error;
 
     const packet = normalizePacketRow(data as any);
@@ -242,8 +256,8 @@ export const packetService = {
       .from("hearing_packets")
       .insert([
         {
-          complaint: complaintId,
-          complaint_uuid: complaintId,
+          legacy_complaint_ref: complaintId,
+          complaint_id: complaintId,
           packet_status: "Not Started",
         },
       ])
@@ -283,9 +297,12 @@ export const packetService = {
   },
 
   async refreshSnapshot(packetId: string) {
-    const { data, error } = await supabase.rpc("refresh_hearing_packet_snapshot", {
-      p_hearing_packet_id: packetId,
-    });
+    const { data, error } = await supabase.rpc(
+      "refresh_hearing_packet_snapshot",
+      {
+        p_hearing_packet_id: packetId,
+      },
+    );
     if (error) throw error;
     return data;
   },
@@ -294,17 +311,23 @@ export const packetService = {
     packetId: string,
     packetType: "draft" | "final" = "draft",
   ): Promise<GenerateHearingPacketResult> {
-    const { data, error } = await supabase.functions.invoke("generate-hearing-packet", {
-      body: { packetId, packetType },
-    });
+    const { data, error } = await supabase.functions.invoke(
+      "generate-hearing-packet",
+      {
+        body: { packetId, packetType },
+      },
+    );
     if (error) throw error;
     return data as GenerateHearingPacketResult;
   },
 
   async getGeneratedFileUrl(fileId: string): Promise<GeneratedFileUrlResult> {
-    const { data, error } = await supabase.functions.invoke("get-hearing-packet-file-url", {
-      body: { fileId },
-    });
+    const { data, error } = await supabase.functions.invoke(
+      "get-hearing-packet-file-url",
+      {
+        body: { fileId },
+      },
+    );
     if (error) throw error;
     return data as GeneratedFileUrlResult;
   },
@@ -313,7 +336,7 @@ export const packetService = {
     const { data, error } = await supabase
       .from("generated_packet_files")
       .select(
-        `id, hearing_packet_id, complaint_uuid, file_type, file_path, file_name,
+        `id, hearing_packet_id, complaint_id, file_type, file_path, file_name,
          mime_type, version_number, generated_by, generated_at, packet_hash,
          is_final, notes, metadata`,
       )
@@ -328,7 +351,7 @@ export const packetService = {
     const { data, error } = await supabase
       .from("packet_generation_events")
       .select(
-        `id, hearing_packet_id, complaint_uuid, event_type, event_status,
+        `id, hearing_packet_id, complaint_id, event_type, event_status,
          event_message, event_data, created_by, created_at`,
       )
       .eq("hearing_packet_id", packetId)
@@ -357,14 +380,14 @@ export const packetService = {
       .from("packet_generation_events")
       .insert({
         hearing_packet_id: packetId,
-        complaint_uuid: complaintUuid ?? null,
+        complaint_id: complaintUuid ?? null,
         event_type: eventType,
         event_status: eventStatus,
         event_message: eventMessage ?? null,
         event_data: eventData,
       })
       .select(
-        `id, hearing_packet_id, complaint_uuid, event_type, event_status,
+        `id, hearing_packet_id, complaint_id, event_type, event_status,
          event_message, event_data, created_by, created_at`,
       )
       .single();

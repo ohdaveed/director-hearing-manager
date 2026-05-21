@@ -3,15 +3,29 @@ import SectionHeader from "./SectionHeader";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 
 type Props = {
-  missingReinspDate: { id: string; complaintid?: string; address?: string }[];
-  missingAssignment: { id: string; complaintid?: string; address?: string }[];
+  missingReinspDate: {
+    id: string;
+    legacy_complaint_id?: string;
+    address?: string;
+  }[];
+  missingAssignment: {
+    id: string;
+    legacy_complaint_id?: string;
+    address?: string;
+  }[];
 };
 
-export default function QualityChecksPanel({ missingReinspDate, missingAssignment }: Props) {
+export default function QualityChecksPanel({
+  missingReinspDate,
+  missingAssignment,
+}: Props) {
   return (
     <Card>
       <CardHeader className="p-5 pb-0">
-        <SectionHeader icon={<AlertTriangle className="w-4 h-4" />} title="Quality Checks" />
+        <SectionHeader
+          icon={<AlertTriangle className="w-4 h-4" />}
+          title="Quality Checks"
+        />
       </CardHeader>
       <CardContent className="p-5 pt-2">
         {missingReinspDate.length === 0 && missingAssignment.length === 0 ? (
@@ -27,13 +41,20 @@ export default function QualityChecksPanel({ missingReinspDate, missingAssignmen
                   <AlertTriangle className="w-3.5 h-3.5 text-warning" />
                   <span className="text-xs font-semibold text-warning">
                     {missingReinspDate.length} complaint
-                    {missingReinspDate.length !== 1 ? "s" : ""} — Re-Inspection Due but no date set
+                    {missingReinspDate.length !== 1 ? "s" : ""} — Re-Inspection
+                    Due but no date set
                   </span>
                 </div>
                 <div className="space-y-1">
                   {missingReinspDate.slice(0, 5).map((c) => (
-                    <p key={c.id} className="text-xs text-muted-foreground truncate">
-                      <span className="font-mono text-primary">#{c.complaintid}</span> · {c.address}
+                    <p
+                      key={c.id}
+                      className="text-xs text-muted-foreground truncate"
+                    >
+                      <span className="font-mono text-primary">
+                        #{c.legacy_complaint_id}
+                      </span>{" "}
+                      · {c.address}
                     </p>
                   ))}
                   {missingReinspDate.length > 5 && (
@@ -55,8 +76,14 @@ export default function QualityChecksPanel({ missingReinspDate, missingAssignmen
                 </div>
                 <div className="space-y-1">
                   {missingAssignment.slice(0, 5).map((c) => (
-                    <p key={c.id} className="text-xs text-muted-foreground truncate">
-                      <span className="font-mono text-primary">#{c.complaintid}</span> · {c.address}
+                    <p
+                      key={c.id}
+                      className="text-xs text-muted-foreground truncate"
+                    >
+                      <span className="font-mono text-primary">
+                        #{c.legacy_complaint_id}
+                      </span>{" "}
+                      · {c.address}
                     </p>
                   ))}
                   {missingAssignment.length > 5 && (

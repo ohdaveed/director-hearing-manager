@@ -21,10 +21,14 @@ const ProfilePage = lazy(() => import("@/pages/ProfilePage"));
 const ComplaintsPage = lazy(() => import("@/pages/ComplaintsPage"));
 const ComplaintEntryPage = lazy(() => import("@/pages/ComplaintEntryPage"));
 const InspectionFormPage = lazy(() => import("@/pages/InspectionFormPage"));
-const InspectionHistoryPage = lazy(() => import("@/pages/InspectionHistoryPage"));
+const InspectionHistoryPage = lazy(
+  () => import("@/pages/InspectionHistoryPage"),
+);
 const EnforcementPage = lazy(() => import("@/pages/EnforcementPage"));
 const HearingPacketsPage = lazy(() => import("@/pages/HearingPacketsPage"));
-const DraftPacketAnalysisPage = lazy(() => import("@/pages/DraftPacketAnalysisPage"));
+const DraftPacketAnalysisPage = lazy(
+  () => import("@/pages/DraftPacketAnalysisPage"),
+);
 const LocationPage = lazy(() => import("@/pages/LocationPage"));
 const AllLocationsPage = lazy(() => import("@/pages/AllLocationsPage"));
 const ImportComplaintsPage = lazy(() => import("@/pages/ImportComplaintsPage"));
@@ -45,7 +49,12 @@ import {
 } from "lucide-react";
 import { NavBar } from "@/components/NavBar";
 
-const ALL_ROLES: Role[] = ["Inspector", "Admin", "Program Manager", "Super Admin"];
+const ALL_ROLES: Role[] = [
+  "Inspector",
+  "Admin",
+  "Program Manager",
+  "Super Admin",
+];
 
 // ── 5-pillar navigation ───────────────────────────────────────────────────────
 
@@ -130,7 +139,9 @@ function AppShell() {
   const activeRole = (impersonatedRole ?? realRole) as Role | undefined;
 
   useEffect(() => {
-    const currentNav = ALL_NAV.find((n) => location.pathname.startsWith(n.path));
+    const currentNav = ALL_NAV.find((n) =>
+      location.pathname.startsWith(n.path),
+    );
     if (currentNav && activeRole && !currentNav.roles.includes(activeRole)) {
       navigate("/dashboard", { replace: true });
     }
@@ -138,15 +149,21 @@ function AppShell() {
 
   if (!user) return null;
 
-  const inspectorName = [user.firstName, user.lastName].filter(Boolean).join(" ") || user.email;
-  const visibleNav = ALL_NAV.filter((item) => activeRole && item.roles.includes(activeRole));
+  const inspectorName =
+    [user.firstName, user.lastName].filter(Boolean).join(" ") || user.email;
+  const visibleNav = ALL_NAV.filter(
+    (item) => activeRole && item.roles.includes(activeRole),
+  );
 
   const isNavActive = (path: string) => {
     if (path === "/dashboard")
       return location.pathname === "/dashboard" || location.pathname === "/";
-    if (path === "/complaints") return location.pathname.startsWith("/complaints");
-    if (path === "/inspections") return location.pathname.startsWith("/inspections");
-    if (path === "/enforcement") return location.pathname.startsWith("/enforcement");
+    if (path === "/complaints")
+      return location.pathname.startsWith("/complaints");
+    if (path === "/inspections")
+      return location.pathname.startsWith("/inspections");
+    if (path === "/enforcement")
+      return location.pathname.startsWith("/enforcement");
     return location.pathname.startsWith(path);
   };
 
@@ -193,12 +210,21 @@ function AppShell() {
               path="/complaints/new"
               element={
                 <ComplaintEntryPage
-                  inspectorName={activeRole === "Inspector" ? inspectorName : undefined}
-                  onSuccess={activeRole === "Inspector" ? () => navigate("/complaints") : undefined}
+                  inspectorName={
+                    activeRole === "Inspector" ? user?.email : undefined
+                  }
+                  onSuccess={
+                    activeRole === "Inspector"
+                      ? () => navigate("/complaints")
+                      : undefined
+                  }
                 />
               }
             />
-            <Route path="/complaints/import" element={<ImportComplaintsPage />} />
+            <Route
+              path="/complaints/import"
+              element={<ImportComplaintsPage />}
+            />
             <Route path="/complaints/:id" element={<ComplaintsPage />} />
             <Route path="/complaints" element={<ComplaintsPage />} />
 
@@ -214,7 +240,10 @@ function AppShell() {
             <Route path="/inspections" element={<InspectionHistoryPage />} />
 
             {/* Enforcement */}
-            <Route path="/enforcement/hearings/:id" element={<EnforcementPage />} />
+            <Route
+              path="/enforcement/hearings/:id"
+              element={<EnforcementPage />}
+            />
             <Route path="/enforcement/hearings" element={<EnforcementPage />} />
             <Route path="/enforcement" element={<EnforcementPage />} />
 
@@ -224,7 +253,9 @@ function AppShell() {
               element={
                 <HearingPacketsPage
                   userScopedFilter={activeRole === "Inspector"}
-                  inspectorName={activeRole === "Inspector" ? inspectorName : undefined}
+                  inspectorName={
+                    activeRole === "Inspector" ? inspectorName : undefined
+                  }
                   baseRoute="/hearings"
                 />
               }
@@ -234,19 +265,27 @@ function AppShell() {
               element={
                 <HearingPacketsPage
                   userScopedFilter={activeRole === "Inspector"}
-                  inspectorName={activeRole === "Inspector" ? inspectorName : undefined}
+                  inspectorName={
+                    activeRole === "Inspector" ? inspectorName : undefined
+                  }
                   baseRoute="/hearings"
                 />
               }
             />
 
-            <Route path="/draft-analysis" element={<DraftPacketAnalysisPage />} />
+            <Route
+              path="/draft-analysis"
+              element={<DraftPacketAnalysisPage />}
+            />
 
             <Route path="/documents" element={<DocumentLibraryPage />} />
 
             {/* Locations */}
             <Route path="/all-locations" element={<AllLocationsPage />} />
-            <Route path="/locations/:locationRecordId" element={<LocationPage />} />
+            <Route
+              path="/locations/:locationRecordId"
+              element={<LocationPage />}
+            />
 
             {/* User management */}
             <Route path="/user-management" element={<UserManagementPage />} />
@@ -255,24 +294,54 @@ function AppShell() {
             <Route path="/profile" element={<ProfilePage />} />
 
             {/* Redirects from old paths */}
-            <Route path="/my-complaints" element={<Navigate to="/complaints" replace />} />
-            <Route path="/my-complaints/:id" element={<ComplaintIdRedirect />} />
-            <Route path="/all-complaints" element={<Navigate to="/complaints" replace />} />
-            <Route path="/all-complaints/:id" element={<ComplaintIdRedirect />} />
-            <Route path="/new-complaint" element={<Navigate to="/complaints/new" replace />} />
+            <Route
+              path="/my-complaints"
+              element={<Navigate to="/complaints" replace />}
+            />
+            <Route
+              path="/my-complaints/:id"
+              element={<ComplaintIdRedirect />}
+            />
+            <Route
+              path="/all-complaints"
+              element={<Navigate to="/complaints" replace />}
+            />
+            <Route
+              path="/all-complaints/:id"
+              element={<ComplaintIdRedirect />}
+            />
+            <Route
+              path="/new-complaint"
+              element={<Navigate to="/complaints/new" replace />}
+            />
             <Route
               path="/import-complaints"
               element={<Navigate to="/complaints/import" replace />}
             />
-            <Route path="/inspection-form" element={<Navigate to="/inspections/new" replace />} />
-            <Route path="/inspection/:complaintId" element={<InspectionComplaintRedirect />} />
-            <Route path="/inspection-history" element={<Navigate to="/inspections" replace />} />
-            <Route path="/escalation-queue" element={<Navigate to="/enforcement" replace />} />
+            <Route
+              path="/inspection-form"
+              element={<Navigate to="/inspections/new" replace />}
+            />
+            <Route
+              path="/inspection/:complaintId"
+              element={<InspectionComplaintRedirect />}
+            />
+            <Route
+              path="/inspection-history"
+              element={<Navigate to="/inspections" replace />}
+            />
+            <Route
+              path="/escalation-queue"
+              element={<Navigate to="/enforcement" replace />}
+            />
             <Route
               path="/hearing-packets"
               element={<Navigate to="/enforcement/hearings" replace />}
             />
-            <Route path="/hearing-packets/:id" element={<HearingPacketIdRedirect />} />
+            <Route
+              path="/hearing-packets/:id"
+              element={<HearingPacketIdRedirect />}
+            />
 
             {/* Catch-all */}
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
@@ -330,7 +399,9 @@ function AppContent() {
 
 export default function App() {
   return (
-    <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+    <BrowserRouter
+      future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
+    >
       <AuthProvider>
         <AppContent />
       </AuthProvider>

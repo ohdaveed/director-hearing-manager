@@ -299,7 +299,7 @@ export default function ChronologyEditorTab({
       });
       setEntries(data.chronology);
       setExhibits(data.exhibits);
-      setComplaintId(data.complaintid ?? undefined);
+      setComplaintId(data.legacy_complaint_id ?? undefined);
       setPacketMeta(data.packetMeta ?? undefined);
       setLocationMeta(data.locationMeta ?? undefined);
     } catch {
@@ -423,31 +423,31 @@ export default function ChronologyEditorTab({
     );
   }
 
-   if (!complaintId) {
-     return (
-       <div className="p-8 text-center text-muted-foreground">
-         <BookOpen className="w-10 h-10 mx-auto mb-3 opacity-20" />
-         <p className="text-sm font-medium">
-           No complaint linked to this packet
-         </p>
-         <p className="text-xs mt-1">
-           A complaint must be linked before the chronology can be managed.
-         </p>
-       </div>
-     );
-   }
+  if (!complaintId) {
+    return (
+      <div className="p-8 text-center text-muted-foreground">
+        <BookOpen className="w-10 h-10 mx-auto mb-3 opacity-20" />
+        <p className="text-sm font-medium">
+          No complaint linked to this packet
+        </p>
+        <p className="text-xs mt-1">
+          A complaint must be linked before the chronology can be managed.
+        </p>
+      </div>
+    );
+  }
 
-   const nextLetter = entryLetter(sorted.length);
+  const nextLetter = entryLetter(sorted.length);
 
-   return (
-     <div className="flex flex-col h-full overflow-hidden">
-       {/* ── Context header ── */}
-       <ChronologyContextHeader
-         packetMeta={packetMeta}
-         locationMeta={locationMeta}
-       />
+  return (
+    <div className="flex flex-col h-full overflow-hidden">
+      {/* ── Context header ── */}
+      <ChronologyContextHeader
+        packetMeta={packetMeta}
+        locationMeta={locationMeta}
+      />
 
-       {/* ── Split workspace ── */}
+      {/* ── Split workspace ── */}
       <div className="flex flex-1 min-h-0 overflow-hidden">
         {/* LEFT: Chronology entries */}
         <div className="flex-1 min-w-0 p-5 space-y-4 overflow-y-auto">
@@ -524,7 +524,10 @@ export default function ChronologyEditorTab({
 
                 if (isEditing) {
                   return (
-                    <Card key={entry.id} className="p-4 border-primary/20 bg-primary/5">
+                    <Card
+                      key={entry.id}
+                      className="p-4 border-primary/20 bg-primary/5"
+                    >
                       <EntryForm
                         initial={{
                           entryDate:
@@ -533,8 +536,7 @@ export default function ChronologyEditorTab({
                           entryType: entry.entryType ?? "Other",
                           citationCode: entry.citationCode ?? "",
                           summary: entry.summary ?? "",
-                          attachmentPageRef:
-                            entry.attachmentPageRef ?? "",
+                          attachmentPageRef: entry.attachmentPageRef ?? "",
                         }}
                         onSave={(form) => handleUpdate(entry.id, form)}
                         onCancel={() => setEditingId(null)}
@@ -554,7 +556,7 @@ export default function ChronologyEditorTab({
                           {entry.exhibit_refs || letter}
                         </span>
                       </div>
-                      
+
                       {/* Entry Content */}
                       <div className="flex-1 min-w-0 space-y-2">
                         <div className="flex items-center gap-2 flex-wrap">
@@ -562,7 +564,10 @@ export default function ChronologyEditorTab({
                             {formatDateShort(entry.entryDate)}
                           </span>
                           {entry.citationCode && (
-                            <Badge variant="secondary" className="text-[10px] font-mono font-semibold px-1.5 py-0.5">
+                            <Badge
+                              variant="secondary"
+                              className="text-[10px] font-mono font-semibold px-1.5 py-0.5"
+                            >
                               <Shield className="w-2.5 h-2.5 mr-1" />
                               {entry.citationCode}
                             </Badge>
@@ -578,7 +583,7 @@ export default function ChronologyEditorTab({
                             </span>
                           )}
                         </div>
-                        
+
                         <p className="text-sm text-foreground leading-relaxed">
                           {entry.summary ?? "—"}
                         </p>
@@ -646,9 +651,9 @@ export default function ChronologyEditorTab({
                 <span className="font-semibold text-foreground">
                   SFHC articles only.
                 </span>{" "}
-                California state health and safety codes are completely blocked by
-                policy — use SFHC articles only (Article 11, Article 11A, Article
-                2, and other relevant sections).
+                California state health and safety codes are completely blocked
+                by policy — use SFHC articles only (Article 11, Article 11A,
+                Article 2, and other relevant sections).
               </p>
             </div>
           </Card>

@@ -10,14 +10,14 @@ type ComplaintUpdate = Database["public"]["Tables"]["complaints"]["Update"];
  * Centralize here so changes propagate everywhere.
  */
 export const COMPLAINT_LIST_COLUMNS = `
-  id, complaintid, address, status, description, assigned_to,
-  date_entered, hearing_status, hearing_date, locationid,
+  id, legacy_complaint_id, address, status, description, assigned_to,
+  date_entered, hearing_status, hearing_date, legacy_location_id,
   category, reinspection_due_on_after, deleted_at
 `;
 
 export const COMPLAINT_FULL_COLUMNS = `
-  id, complaintid, address, status, description, assigned_to,
-  date_entered, hearing_status, hearing_date, locationid,
+  id, legacy_complaint_id, address, status, description, assigned_to,
+  date_entered, hearing_status, hearing_date, legacy_location_id,
   category, reinspection_due_on_after, deleted_at,
   date_last_report_sent, attachments, complainant_name,
   complainant_phone, complainant_email, complainant_address,
@@ -95,11 +95,11 @@ export const complaintService = {
              id, photo_url, photo_type, caption, violation_label, deleted_at
            )
          ),
-         chronology!complaint_uuid (
+         chronology!complaint_id (
            id, summary, entry_date, entry_type, created_by,
            visibility, chronology_order, citation_code, deleted_at
          ),
-         hearing_packets!complaint_uuid (
+         hearing_packets!complaint_id (
            id, hearing_date, packet_status, assigned_to, case_number,
            program_code, packet_type
          )

@@ -131,19 +131,32 @@ export default function InspectionHistoryPage() {
 
   const filtered = useMemo(() => {
     return inspections.filter((i: any) => {
-      if (addressSearch && !i.facility_address?.toLowerCase().includes(addressSearch.toLowerCase()))
+      if (
+        addressSearch &&
+        !i.facility_address?.toLowerCase().includes(addressSearch.toLowerCase())
+      )
         return false;
-      if (filterInspector && i.inspector !== filterInspector) return false;
+      if (
+        filterInspector &&
+        i.inspector !== filterInspector &&
+        i.inspector !==
+          INSPECTORS.find((ins) => ins.email === filterInspector)?.name
+      )
+        return false;
       if (filterRating && i.inspection_rating !== filterRating) return false;
       if (filterStatus && i.status !== filterStatus) return false;
       return true;
     });
   }, [inspections, addressSearch, filterInspector, filterRating, filterStatus]);
 
-  const hasFilters = filterInspector || filterRating || filterStatus || addressSearch;
-  const activeFilterCount = [filterInspector, filterRating, filterStatus, addressSearch].filter(
-    Boolean,
-  ).length;
+  const hasFilters =
+    filterInspector || filterRating || filterStatus || addressSearch;
+  const activeFilterCount = [
+    filterInspector,
+    filterRating,
+    filterStatus,
+    addressSearch,
+  ].filter(Boolean).length;
 
   const clearFilters = () => {
     setFilterInspector("");
@@ -173,7 +186,11 @@ export default function InspectionHistoryPage() {
             {loading && <Loader2 className="w-3 h-3 animate-spin" />}
             Refresh
           </Button>
-          <Button size="sm" className="gap-1.5 h-8" onClick={() => navigate("/inspections/new")}>
+          <Button
+            size="sm"
+            className="gap-1.5 h-8"
+            onClick={() => navigate("/inspections/new")}
+          >
             <ClipboardCheck className="w-3.5 h-3.5" /> Start Inspection
           </Button>
         </div>
@@ -201,9 +218,9 @@ export default function InspectionHistoryPage() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Inspectors</SelectItem>
-              {INSPECTORS.map((name) => (
-                <SelectItem key={name} value={name}>
-                  {name}
+              {INSPECTORS.map((inspector) => (
+                <SelectItem key={inspector.email} value={inspector.email}>
+                  {inspector.name}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -291,9 +308,9 @@ export default function InspectionHistoryPage() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Inspectors</SelectItem>
-                {INSPECTORS.map((name) => (
-                  <SelectItem key={name} value={name}>
-                    {name}
+                {INSPECTORS.map((inspector) => (
+                  <SelectItem key={inspector.email} value={inspector.email}>
+                    {inspector.name}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -327,7 +344,12 @@ export default function InspectionHistoryPage() {
               </Select>
             </div>
             {hasFilters && (
-              <Button variant="ghost" size="sm" className="gap-1 w-full h-8" onClick={clearFilters}>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="gap-1 w-full h-8"
+                onClick={clearFilters}
+              >
                 <X className="w-3.5 h-3.5" /> Clear all filters
               </Button>
             )}
@@ -345,7 +367,8 @@ export default function InspectionHistoryPage() {
               <FileText className="w-10 h-10 mx-auto mb-3 opacity-30" />
               <p className="font-medium">No inspections found</p>
               <p className="text-sm mt-1">
-                Try adjusting your filters or submit an inspection from the form.
+                Try adjusting your filters or submit an inspection from the
+                form.
               </p>
             </div>
           ) : (
@@ -367,7 +390,11 @@ export default function InspectionHistoryPage() {
                     key={insp.inspection_id}
                     type="button"
                     onClick={() =>
-                      setSelectedId(selectedId === insp.inspection_id ? null : insp.inspection_id)
+                      setSelectedId(
+                        selectedId === insp.inspection_id
+                          ? null
+                          : insp.inspection_id,
+                      )
                     }
                     className={`w-full text-left transition-colors ${
                       selectedId === insp.inspection_id
@@ -394,10 +421,22 @@ export default function InspectionHistoryPage() {
                       </div>
                       <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                         {insp.inspection_date && (
-                          <span>{new Date(insp.inspection_date).toLocaleDateString()}</span>
+                          <span>
+                            {new Date(
+                              insp.inspection_date,
+                            ).toLocaleDateString()}
+                          </span>
                         )}
-                        {insp.inspector && <span>· {insp.inspector}</span>}
-                        {insp.inspection_type && <span>· {insp.inspection_type}</span>}
+                        {insp.inspector && (
+                          <span>
+                            ·{" "}
+                            {INSPECTORS.find((i) => i.email === insp.inspector)
+                              ?.name || insp.inspector}
+                          </span>
+                        )}
+                        {insp.inspection_type && (
+                          <span>· {insp.inspection_type}</span>
+                        )}
                       </div>
                       <div className="flex flex-wrap items-center gap-2 mt-2">
                         <RatingBadge rating={insp.inspection_rating} />
@@ -429,7 +468,10 @@ export default function InspectionHistoryPage() {
                         )}
                       </div>
                       <div className="col-span-2 text-xs text-foreground truncate">
-                        {insp.inspector || "—"}
+                        {INSPECTORS.find((i) => i.email === insp.inspector)
+                          ?.name ||
+                          insp.inspector ||
+                          "—"}
                       </div>
                       <div className="col-span-2 text-xs text-muted-foreground truncate">
                         {insp.inspection_type || "—"}
@@ -461,7 +503,10 @@ export default function InspectionHistoryPage() {
         {/* Detail Panel */}
         {selectedId && (
           <div className="xl:w-1/2 min-w-0">
-            <InspectionDetailPanel inspectionId={selectedId} onClose={() => setSelectedId(null)} />
+            <InspectionDetailPanel
+              inspectionId={selectedId}
+              onClose={() => setSelectedId(null)}
+            />
           </div>
         )}
       </div>

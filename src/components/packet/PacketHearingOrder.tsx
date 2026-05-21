@@ -54,7 +54,13 @@ const UNDERLINE: React.CSSProperties = {
   paddingBottom: "2px",
 };
 
-export function PacketHearingOrder({ packet, complaint, location, inspections, orderData }: Props) {
+export function PacketHearingOrder({
+  packet,
+  complaint,
+  location,
+  inspections,
+  orderData,
+}: Props) {
   const codeSections = [
     ...new Set(
       inspections.flatMap((i: any) =>
@@ -66,7 +72,11 @@ export function PacketHearingOrder({ packet, complaint, location, inspections, o
   const rpName = complaint?.hearingRpName || location?.owner_name || "";
   const rpAddr = complaint?.hearingRpAddress || location?.owner_address || "";
 
-  const orderDate = orderData.orderDate || complaint?.hearingOrderDate || packet.hearing_date || "";
+  const orderDate =
+    orderData.orderDate ||
+    complaint?.hearingOrderDate ||
+    packet.hearing_date ||
+    "";
 
   return (
     <div
@@ -108,8 +118,11 @@ export function PacketHearingOrder({ packet, complaint, location, inspections, o
           Director's Hearing Order
         </h2>
         <p style={{ fontSize: "10pt", color: "#444" }}>
-          {complaint?.assignedProgram ?? packet.program_code ?? "Environmental Health"} Program
-          &nbsp;|&nbsp; Case No.: {packet.case_number ?? "_______________"}
+          {complaint?.assignedProgram ??
+            packet.program_code ??
+            "Environmental Health"}{" "}
+          Program &nbsp;|&nbsp; Case No.:{" "}
+          {packet.case_number ?? "_______________"}
         </p>
       </div>
 
@@ -132,7 +145,7 @@ export function PacketHearingOrder({ packet, complaint, location, inspections, o
         </div>
         <div>
           <span style={LABEL as React.CSSProperties}>Complaint ID: </span>
-          {complaint?.complaintid ?? "___"}
+          {complaint?.legacy_complaint_id ?? "___"}
         </div>
         <div>
           <span style={LABEL as React.CSSProperties}>Program Code: </span>
@@ -151,31 +164,53 @@ export function PacketHearingOrder({ packet, complaint, location, inspections, o
           }}
         >
           <div>
-            <p style={{ fontSize: "9pt", margin: "0 0 2px", fontWeight: "bold" }}>
+            <p
+              style={{ fontSize: "9pt", margin: "0 0 2px", fontWeight: "bold" }}
+            >
               Address of Violation
             </p>
-            <div style={UNDERLINE}>{complaint?.address ?? location?.address ?? ""}</div>
+            <div style={UNDERLINE}>
+              {complaint?.address ?? location?.address ?? ""}
+            </div>
           </div>
           <div>
-            <p style={{ fontSize: "9pt", margin: "0 0 2px", fontWeight: "bold" }}>Block / Lot</p>
+            <p
+              style={{ fontSize: "9pt", margin: "0 0 2px", fontWeight: "bold" }}
+            >
+              Block / Lot
+            </p>
             <div style={UNDERLINE}>{location?.block_lot ?? ""}</div>
           </div>
           <div>
-            <p style={{ fontSize: "9pt", margin: "0 0 2px", fontWeight: "bold" }}>
+            <p
+              style={{ fontSize: "9pt", margin: "0 0 2px", fontWeight: "bold" }}
+            >
               Facility Name (DBA)
             </p>
             <div style={UNDERLINE}>{location?.dba ?? ""}</div>
           </div>
           <div>
-            <p style={{ fontSize: "9pt", margin: "0 0 2px", fontWeight: "bold" }}>Facility Type</p>
+            <p
+              style={{ fontSize: "9pt", margin: "0 0 2px", fontWeight: "bold" }}
+            >
+              Facility Type
+            </p>
             <div style={UNDERLINE}>{location?.facility_type ?? ""}</div>
           </div>
           <div>
-            <p style={{ fontSize: "9pt", margin: "0 0 2px", fontWeight: "bold" }}>Property Owner</p>
+            <p
+              style={{ fontSize: "9pt", margin: "0 0 2px", fontWeight: "bold" }}
+            >
+              Property Owner
+            </p>
             <div style={UNDERLINE}>{location?.owner_name ?? ""}</div>
           </div>
           <div>
-            <p style={{ fontSize: "9pt", margin: "0 0 2px", fontWeight: "bold" }}>Owner Address</p>
+            <p
+              style={{ fontSize: "9pt", margin: "0 0 2px", fontWeight: "bold" }}
+            >
+              Owner Address
+            </p>
             <div style={UNDERLINE}>{location?.owner_address ?? ""}</div>
           </div>
           {rpName !== location?.owner_name && (
@@ -273,7 +308,9 @@ export function PacketHearingOrder({ packet, complaint, location, inspections, o
             </tbody>
           </table>
         ) : (
-          <p style={{ color: "#777", fontSize: "10pt" }}>No attendance recorded.</p>
+          <p style={{ color: "#777", fontSize: "10pt" }}>
+            No attendance recorded.
+          </p>
         )}
       </div>
 
@@ -352,7 +389,9 @@ export function PacketHearingOrder({ packet, complaint, location, inspections, o
                   >
                     {d.determination}
                   </td>
-                  <td style={{ padding: "5px 8px", fontSize: "10pt" }}>{d.notes}</td>
+                  <td style={{ padding: "5px 8px", fontSize: "10pt" }}>
+                    {d.notes}
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -388,7 +427,9 @@ export function PacketHearingOrder({ packet, complaint, location, inspections, o
       </div>
 
       {/* Permit / Fee / Conditions */}
-      {(orderData.permitNumber || orderData.permitDecision || orderData.reinspectionFee) && (
+      {(orderData.permitNumber ||
+        orderData.permitDecision ||
+        orderData.reinspectionFee) && (
         <div style={BOX}>
           <p style={LABEL}>Permit &amp; Fee Decisions</p>
           <div
@@ -458,7 +499,9 @@ export function PacketHearingOrder({ packet, complaint, location, inspections, o
       {orderData.costRecovery && (
         <div style={BOX}>
           <p style={LABEL}>Cost Recovery</p>
-          <p style={{ fontSize: "10.5pt", whiteSpace: "pre-wrap" }}>{orderData.costRecovery}</p>
+          <p style={{ fontSize: "10.5pt", whiteSpace: "pre-wrap" }}>
+            {orderData.costRecovery}
+          </p>
         </div>
       )}
 
@@ -491,7 +534,9 @@ export function PacketHearingOrder({ packet, complaint, location, inspections, o
           >
             <span>{orderData.hearingOfficer}</span>
           </div>
-          <p style={{ fontSize: "9pt" }}>Hearing Officer — Environmental Health Branch, SFDPH</p>
+          <p style={{ fontSize: "9pt" }}>
+            Hearing Officer — Environmental Health Branch, SFDPH
+          </p>
         </div>
         <div>
           <div

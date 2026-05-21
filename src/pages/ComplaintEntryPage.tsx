@@ -81,7 +81,9 @@ function SectionHeader({
       <h2 className="font-semibold text-foreground text-lg flex items-center gap-2">
         {icon} {title}
       </h2>
-      {optional && <span className="text-xs text-muted-foreground ml-1">— optional</span>}
+      {optional && (
+        <span className="text-xs text-muted-foreground ml-1">— optional</span>
+      )}
     </div>
   );
 }
@@ -107,7 +109,9 @@ function StepBar({ steps }: { steps: { label: string; done: boolean }[] }) {
             {i < steps.length - 1 && <div className="w-2 flex-shrink-0" />}
           </div>
         ))}
-        <span className="ml-3 text-xs font-semibold tabular-nums text-primary">{pct}%</span>
+        <span className="ml-3 text-xs font-semibold tabular-nums text-primary">
+          {pct}%
+        </span>
       </div>
     </div>
   );
@@ -119,7 +123,10 @@ type Props = {
   onSuccess?: () => void;
 };
 
-export default function ComplaintEntryPage({ inspectorName, onSuccess: externalOnSuccess }: Props) {
+export default function ComplaintEntryPage({
+  inspectorName,
+  onSuccess: externalOnSuccess,
+}: Props) {
   const navigate = useNavigate();
   const [submitted, setSubmitted] = useState(false);
   const [submittedSummary, setSubmittedSummary] = useState<{
@@ -179,11 +186,15 @@ export default function ComplaintEntryPage({ inspectorName, onSuccess: externalO
     return (
       <div className="container mx-auto px-4 py-16 max-w-lg text-center">
         <CheckCircle2 className="w-16 h-16 text-primary mx-auto mb-4" />
-        <h2 className="text-2xl font-bold text-foreground mb-2">Complaint Created</h2>
+        <h2 className="text-2xl font-bold text-foreground mb-2">
+          Complaint Created
+        </h2>
         <p className="text-muted-foreground mb-1">{submittedSummary.address}</p>
         <p className="text-sm text-muted-foreground mb-1">
           Complaint ID:{" "}
-          <span className="font-mono font-semibold">{submittedSummary.complaintId}</span>
+          <span className="font-mono font-semibold">
+            {submittedSummary.complaintId}
+          </span>
         </p>
         <p className="text-sm text-muted-foreground mb-8">
           Assigned to: {submittedSummary.assignedTo}
@@ -217,9 +228,12 @@ export default function ComplaintEntryPage({ inspectorName, onSuccess: externalO
     <div className="container mx-auto px-3 sm:px-6 py-6 sm:py-8 max-w-3xl">
       <div className="mb-6 flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">New Complaint Entry</h1>
+          <h1 className="text-2xl font-bold text-foreground">
+            New Complaint Entry
+          </h1>
           <p className="text-muted-foreground text-sm mt-1">
-            Complete all relevant sections from the Environmental Health Branch Complaint Form.
+            Complete all relevant sections from the Environmental Health Branch
+            Complaint Form.
           </p>
         </div>
         <Button
@@ -344,14 +358,17 @@ export default function ComplaintEntryPage({ inspectorName, onSuccess: externalO
             >
               Assigned Inspector
             </label>
-            <Select value={state.assignedTo} onValueChange={(v) => setField("assignedTo", v)}>
+            <Select
+              value={state.assignedTo}
+              onValueChange={(v) => setField("assignedTo", v)}
+            >
               <SelectTrigger id="assignedTo" className="text-sm h-9">
                 <SelectValue placeholder="Assign inspector..." />
               </SelectTrigger>
               <SelectContent>
-                {INSPECTORS.map((n) => (
-                  <SelectItem key={n} value={n}>
-                    {n}
+                {INSPECTORS.map((inspector) => (
+                  <SelectItem key={inspector.email} value={inspector.email}>
+                    {inspector.name}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -384,8 +401,8 @@ export default function ComplaintEntryPage({ inspectorName, onSuccess: externalO
         />
         {submitAttempted && !hasLocation && (
           <div className="flex items-center gap-1.5 text-xs text-destructive mb-3 -mt-2">
-            <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />A property location is required to
-            save this complaint.
+            <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />A property
+            location is required to save this complaint.
           </div>
         )}
 
@@ -413,8 +430,11 @@ export default function ComplaintEntryPage({ inspectorName, onSuccess: externalO
                       }
                       className="w-full text-left px-3 py-2 rounded-lg border border-border bg-muted/30 hover:bg-muted transition-colors"
                     >
-                      <p className="text-sm font-medium text-foreground">{loc.address}</p>
-                      {((loc as any).facility_type || (loc as any).owner_name) && (
+                      <p className="text-sm font-medium text-foreground">
+                        {loc.address}
+                      </p>
+                      {((loc as any).facility_type ||
+                        (loc as any).owner_name) && (
                         <p className="text-xs text-muted-foreground">
                           {[(loc as any).facility_type, (loc as any).owner_name]
                             .filter(Boolean)
@@ -461,7 +481,9 @@ export default function ComplaintEntryPage({ inspectorName, onSuccess: externalO
                       onClick={() => handleSelectLocation(loc)}
                       className="w-full text-left px-4 py-3 hover:bg-muted border-b border-border last:border-0 transition-colors"
                     >
-                      <p className="text-sm font-medium text-foreground">{loc.address}</p>
+                      <p className="text-sm font-medium text-foreground">
+                        {loc.address}
+                      </p>
                       <p className="text-xs text-muted-foreground">
                         {[(loc as any).facility_type, (loc as any).owner_name]
                           .filter(Boolean)
@@ -472,7 +494,12 @@ export default function ComplaintEntryPage({ inspectorName, onSuccess: externalO
                 </motion.div>
               )}
             </AnimatePresence>
-            <Button variant="outline" size="sm" className="gap-2" onClick={handleCreateNew}>
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-2"
+              onClick={handleCreateNew}
+            >
               <Plus className="w-4 h-4" /> Create New Location
             </Button>
           </div>
@@ -481,7 +508,9 @@ export default function ComplaintEntryPage({ inspectorName, onSuccess: externalO
         {selectedLocation && (
           <div className="bg-primary/5 border border-primary/20 rounded-lg px-4 py-3 flex items-start justify-between mb-4">
             <div>
-              <p className="text-sm font-semibold text-foreground">{selectedLocation.address}</p>
+              <p className="text-sm font-semibold text-foreground">
+                {selectedLocation.address}
+              </p>
               <p className="text-xs text-muted-foreground mt-0.5">
                 {[
                   (selectedLocation as any).facility_type,
@@ -511,7 +540,9 @@ export default function ComplaintEntryPage({ inspectorName, onSuccess: externalO
         {creatingNewLocation && (
           <div className="space-y-4 mb-4">
             <div className="flex items-center justify-between">
-              <p className="text-sm font-semibold text-foreground">New Location Details</p>
+              <p className="text-sm font-semibold text-foreground">
+                New Location Details
+              </p>
               <Button
                 variant="ghost"
                 size="sm"
@@ -537,7 +568,11 @@ export default function ComplaintEntryPage({ inspectorName, onSuccess: externalO
                     setField("locAddress", e.target.value);
                   }}
                   onBlur={() => blurField("locAddress")}
-                  className={touched.locAddress && !state.locAddress ? "border-destructive" : ""}
+                  className={
+                    touched.locAddress && !state.locAddress
+                      ? "border-destructive"
+                      : ""
+                  }
                 />
               </div>
               <div className="space-y-1">
@@ -791,7 +826,9 @@ export default function ComplaintEntryPage({ inspectorName, onSuccess: externalO
                     id="complainantName"
                     placeholder="Full name"
                     value={state.complainantName}
-                    onChange={(e) => setField("complainantName", e.target.value)}
+                    onChange={(e) =>
+                      setField("complainantName", e.target.value)
+                    }
                   />
                 </div>
                 <div className="space-y-1">
@@ -805,7 +842,9 @@ export default function ComplaintEntryPage({ inspectorName, onSuccess: externalO
                     id="complainantPhone"
                     placeholder="(415) 555-5678"
                     value={state.complainantPhone}
-                    onChange={(e) => setField("complainantPhone", e.target.value)}
+                    onChange={(e) =>
+                      setField("complainantPhone", e.target.value)
+                    }
                   />
                 </div>
                 <div className="space-y-1">
@@ -828,16 +867,18 @@ export default function ComplaintEntryPage({ inspectorName, onSuccess: externalO
                     }}
                     onBlur={() => blurField("complainantEmail")}
                     className={
-                      touched.complainantEmail && formState.errors.complainantEmail
+                      touched.complainantEmail &&
+                      formState.errors.complainantEmail
                         ? "border-destructive"
                         : ""
                     }
                   />
-                  {touched.complainantEmail && formState.errors.complainantEmail && (
-                    <p className="text-xs text-destructive mt-1">
-                      {formState.errors.complainantEmail.message as string}
-                    </p>
-                  )}
+                  {touched.complainantEmail &&
+                    formState.errors.complainantEmail && (
+                      <p className="text-xs text-destructive mt-1">
+                        {formState.errors.complainantEmail.message as string}
+                      </p>
+                    )}
                 </div>
                 <div className="sm:col-span-2 space-y-1">
                   <label
@@ -850,7 +891,9 @@ export default function ComplaintEntryPage({ inspectorName, onSuccess: externalO
                     id="complainantAddress"
                     placeholder="Mailing address"
                     value={state.complainantAddress}
-                    onChange={(e) => setField("complainantAddress", e.target.value)}
+                    onChange={(e) =>
+                      setField("complainantAddress", e.target.value)
+                    }
                   />
                 </div>
                 <div className="sm:col-span-2 space-y-1">
@@ -864,7 +907,9 @@ export default function ComplaintEntryPage({ inspectorName, onSuccess: externalO
                     id="complainantContactDates"
                     placeholder="e.g. 4/2/26, 4/15/26"
                     value={state.complainantContactDates}
-                    onChange={(e) => setField("complainantContactDates", e.target.value)}
+                    onChange={(e) =>
+                      setField("complainantContactDates", e.target.value)
+                    }
                   />
                 </div>
               </div>
@@ -875,7 +920,12 @@ export default function ComplaintEntryPage({ inspectorName, onSuccess: externalO
 
       {/* ── Section 4: Complaint Details ──────────────────────────────────── */}
       <SectionCard>
-        <SectionHeader step="4" done={hasDetails} icon={undefined} title="Complaint Details" />
+        <SectionHeader
+          step="4"
+          done={hasDetails}
+          icon={undefined}
+          title="Complaint Details"
+        />
         <div className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1">
@@ -921,7 +971,8 @@ export default function ComplaintEntryPage({ inspectorName, onSuccess: externalO
               htmlFor="description"
               className="text-xs font-medium text-muted-foreground uppercase tracking-wide"
             >
-              Complaint Details / Description <span className="text-destructive">*</span>
+              Complaint Details / Description{" "}
+              <span className="text-destructive">*</span>
             </label>
             <Textarea
               id="description"
@@ -995,7 +1046,9 @@ export default function ComplaintEntryPage({ inspectorName, onSuccess: externalO
 
       {/* ── Section 5: Complaint Status ───────────────────────────────────── */}
       <SectionCard>
-        <h2 className="font-semibold text-foreground text-base mb-4">Complaint Status</h2>
+        <h2 className="font-semibold text-foreground text-base mb-4">
+          Complaint Status
+        </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-1">
             <label
@@ -1004,7 +1057,10 @@ export default function ComplaintEntryPage({ inspectorName, onSuccess: externalO
             >
               Status
             </label>
-            <Select value={state.status} onValueChange={(v) => setField("status", v)}>
+            <Select
+              value={state.status}
+              onValueChange={(v) => setField("status", v)}
+            >
               <SelectTrigger id="status" className="text-sm h-9">
                 <SelectValue />
               </SelectTrigger>
@@ -1107,7 +1163,9 @@ export default function ComplaintEntryPage({ inspectorName, onSuccess: externalO
             <Input
               type="date"
               value={state.notice_of_hearing_date}
-              onChange={(e) => setField("notice_of_hearing_date", e.target.value)}
+              onChange={(e) =>
+                setField("notice_of_hearing_date", e.target.value)
+              }
             />
           </div>
           <div className="space-y-1">
@@ -1128,7 +1186,12 @@ export default function ComplaintEntryPage({ inspectorName, onSuccess: externalO
         <p className="text-xs text-muted-foreground">
           <span className="text-destructive">*</span> Required fields
         </p>
-        <Button size="lg" className="gap-2 px-8" onClick={onSubmit} disabled={isSubmitting}>
+        <Button
+          size="lg"
+          className="gap-2 px-8"
+          onClick={onSubmit}
+          disabled={isSubmitting}
+        >
           {isSubmitting ? (
             <Loader2 className="w-4 h-4 animate-spin" />
           ) : (

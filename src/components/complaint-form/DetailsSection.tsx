@@ -2,12 +2,12 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
-   Select,
-   SelectContent,
-   SelectItem,
-   SelectTrigger,
-   SelectValue,
- } from "@/components/ui/select";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { CheckCircle2, ClipboardList, AlertCircle } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { INSPECTORS } from "@/utils/inspectors";
@@ -15,49 +15,53 @@ import { Label } from "@/components/ui/label";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 
 const COMPLAINT_TYPES = [
-   "Animals and Pests",
-   "Housing Code Violations",
-   "Vector Control",
-   "Sanitation / Waste",
-   "Hazardous Conditions",
-   "Rodents",
-   "Noise",
-   "Other",
+  "Animals and Pests",
+  "Housing Code Violations",
+  "Vector Control",
+  "Sanitation / Waste",
+  "Hazardous Conditions",
+  "Rodents",
+  "Noise",
+  "Other",
 ];
 const METHODS = ["Email", "Phone", "In-Person", "311", "Walk-In", "Letter"];
-const PROGRAMS = ["Healthy Housing and Vector Control", "Environmental Health", "Vector Control"];
+const PROGRAMS = [
+  "Healthy Housing and Vector Control",
+  "Environmental Health",
+  "Vector Control",
+];
 const CATEGORIES = [
-   "Overgrown Vegetation",
-   "Rodents",
-   "Pigeons",
-   "Animal/Human Waste",
-   "Hoarding",
-   "Vector Control",
-   "Other",
+  "Overgrown Vegetation",
+  "Rodents",
+  "Pigeons",
+  "Animal/Human Waste",
+  "Hoarding",
+  "Vector Control",
+  "Other",
 ];
 
 interface Props {
-   hasDetails: boolean;
-   complaintType: string;
-   setComplaintType: (v: string) => void;
-   complaintSubtype: string;
-   setComplaintSubtype: (v: string) => void;
-   methodReceived: string;
-   setMethodReceived: (v: string) => void;
-   assignedProgram: string;
-   setAssignedProgram: (v: string) => void;
-   dateAssigned: string;
-   setDateAssigned: (v: string) => void;
-   description: string;
-   setDescription: (v: string) => void;
-   categories: string[];
-   setCategories: (v: string[]) => void;
-   assignedTo: string;
-   setAssignedTo: (v: string) => void;
-   hasLocation: boolean;
-   submitAttempted: boolean;
-   touched: Record<string, boolean>;
-   blurField: (field: string) => void;
+  hasDetails: boolean;
+  complaintType: string;
+  setComplaintType: (v: string) => void;
+  complaintSubtype: string;
+  setComplaintSubtype: (v: string) => void;
+  methodReceived: string;
+  setMethodReceived: (v: string) => void;
+  assignedProgram: string;
+  setAssignedProgram: (v: string) => void;
+  dateAssigned: string;
+  setDateAssigned: (v: string) => void;
+  description: string;
+  setDescription: (v: string) => void;
+  categories: string[];
+  setCategories: (v: string[]) => void;
+  assignedTo: string;
+  setAssignedTo: (v: string) => void;
+  hasLocation: boolean;
+  submitAttempted: boolean;
+  touched: Record<string, boolean>;
+  blurField: (field: string) => void;
 }
 
 // ... (constants and interface Props remain unchanged)
@@ -173,16 +177,24 @@ export default function DetailsSection({
             <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
               Assigned Inspector
             </Label>
-            <Select value={assignedTo} onValueChange={setAssignedTo} disabled={!hasLocation}>
+            <Select
+              value={assignedTo}
+              onValueChange={setAssignedTo}
+              disabled={!hasLocation}
+            >
               <SelectTrigger className="text-sm h-9">
                 <SelectValue
-                  placeholder={hasLocation ? "Assign inspector..." : "Select location first..."}
+                  placeholder={
+                    hasLocation
+                      ? "Assign inspector..."
+                      : "Select location first..."
+                  }
                 />
               </SelectTrigger>
               <SelectContent>
-                {INSPECTORS.map((n) => (
-                  <SelectItem key={n} value={n}>
-                    {n}
+                {INSPECTORS.map((inspector) => (
+                  <SelectItem key={inspector.email} value={inspector.email}>
+                    {inspector.name}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -241,7 +253,9 @@ export default function DetailsSection({
                   checked={categories.includes(cat)}
                   onCheckedChange={(checked) =>
                     setCategories(
-                      checked ? [...categories, cat] : categories.filter((c) => c !== cat),
+                      checked
+                        ? [...categories, cat]
+                        : categories.filter((c) => c !== cat),
                     )
                   }
                 />

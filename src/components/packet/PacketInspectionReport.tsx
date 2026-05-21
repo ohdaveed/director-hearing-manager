@@ -24,7 +24,9 @@ const fmt = formatDateShort;
 function Row({ label, value }: { label: string; value?: string | null }) {
   return (
     <div className="flex text-xs border-b border-gray-200 py-0.5">
-      <span className="font-semibold w-40 flex-shrink-0 text-gray-700">{label}:</span>
+      <span className="font-semibold w-40 flex-shrink-0 text-gray-700">
+        {label}:
+      </span>
       <span>{value ?? "—"}</span>
     </div>
   );
@@ -57,11 +59,14 @@ export function PacketInspectionReport({
             Inspection Report #{index + 1}
           </h2>
           <p className="text-xs text-gray-600">
-            Case: {packet.case_number ?? "—"} | Complaint: {complaint?.complaintid ?? "—"}
+            Case: {packet.case_number ?? "—"} | Complaint:{" "}
+            {complaint?.legacy_complaint_id ?? "—"}
           </p>
         </div>
         {exhibitLetter && (
-          <div style={{ textAlign: "right", flexShrink: 0, marginLeft: "16px" }}>
+          <div
+            style={{ textAlign: "right", flexShrink: 0, marginLeft: "16px" }}
+          >
             <p
               style={{
                 fontSize: "18pt",
@@ -81,7 +86,11 @@ export function PacketInspectionReport({
       <div className="border border-black p-3 mb-4 grid grid-cols-2 gap-x-4">
         <Row
           label="Facility Address"
-          value={inspection.facilityAddress ?? complaint?.address ?? location?.address}
+          value={
+            inspection.facilityAddress ??
+            complaint?.address ??
+            location?.address
+          }
         />
         <Row label="DBA" value={inspection.dba ?? location?.dba} />
         <Row label="Inspection Date" value={fmt(inspection.inspection_date)} />
@@ -90,7 +99,9 @@ export function PacketInspectionReport({
         <Row
           label="Time In / Out"
           value={
-            inspection.timeIn ? `${inspection.timeIn} — ${inspection.timeOut ?? ""}` : undefined
+            inspection.timeIn
+              ? `${inspection.timeIn} — ${inspection.timeOut ?? ""}`
+              : undefined
           }
         />
         <Row label="Access Granted By" value={inspection.accessGrantedBy} />
@@ -104,37 +115,56 @@ export function PacketInspectionReport({
         Violations Found ({inspection.violations.length})
       </h3>
       {inspection.violations.length === 0 ? (
-        <p className="text-xs text-gray-400 mb-4">No violations recorded for this inspection.</p>
+        <p className="text-xs text-gray-400 mb-4">
+          No violations recorded for this inspection.
+        </p>
       ) : (
         <table className="w-full border-collapse text-xs mb-4">
           <thead>
             <tr className="bg-gray-100">
-              <th className="border border-black px-2 py-1 text-left w-32">Code Section</th>
-              <th className="border border-black px-2 py-1 text-left">Violation / Location</th>
+              <th className="border border-black px-2 py-1 text-left w-32">
+                Code Section
+              </th>
+              <th className="border border-black px-2 py-1 text-left">
+                Violation / Location
+              </th>
               <th className="border border-black px-2 py-1 text-left">
                 Corrective Action Required
               </th>
-              <th className="border border-black px-2 py-1 text-left w-20">Due Date</th>
-              <th className="border border-black px-2 py-1 text-left w-16">Status</th>
+              <th className="border border-black px-2 py-1 text-left w-20">
+                Due Date
+              </th>
+              <th className="border border-black px-2 py-1 text-left w-16">
+                Status
+              </th>
             </tr>
           </thead>
           <tbody>
             {inspection.violations.map((v: any, i: number) => (
-              <tr key={v.id} className={i % 2 === 0 ? "bg-white" : "bg-gray-50"}>
+              <tr
+                key={v.id}
+                className={i % 2 === 0 ? "bg-white" : "bg-gray-50"}
+              >
                 <td className="border border-black px-2 py-1 font-mono text-xs">
                   {v.violationCode ?? "—"}
                 </td>
                 <td className="border border-black px-2 py-1">
                   <div className="font-medium">{v.violation_label ?? "—"}</div>
                   {v.location_in_property && (
-                    <div className="text-gray-500">Location: {v.location_in_property}</div>
+                    <div className="text-gray-500">
+                      Location: {v.location_in_property}
+                    </div>
                   )}
                 </td>
-                <td className="border border-black px-2 py-1">{v.corrective_action ?? "—"}</td>
+                <td className="border border-black px-2 py-1">
+                  {v.corrective_action ?? "—"}
+                </td>
                 <td className="border border-black px-2 py-1 whitespace-nowrap">
                   {fmt(v.due_date)}
                 </td>
-                <td className="border border-black px-2 py-1">{v.status ?? "—"}</td>
+                <td className="border border-black px-2 py-1">
+                  {v.status ?? "—"}
+                </td>
               </tr>
             ))}
           </tbody>
@@ -143,7 +173,9 @@ export function PacketInspectionReport({
 
       {inspection.notes && (
         <div className="border border-black p-3 text-xs">
-          <p className="font-bold uppercase tracking-wider mb-1">Inspector Notes</p>
+          <p className="font-bold uppercase tracking-wider mb-1">
+            Inspector Notes
+          </p>
           <p className="whitespace-pre-wrap">{inspection.notes}</p>
         </div>
       )}

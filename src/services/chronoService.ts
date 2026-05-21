@@ -3,7 +3,7 @@ import { supabase } from "@/lib/supabase";
 /** Column selections to avoid SELECT * */
 export const CHRONOLOGY_LIST_COLUMNS = `
   id, summary, entry_date, entry_type, created_by,
-  related_inspection, visibility, chronology_order,
+  legacy_inspection_ref, visibility, chronology_order,
   citation_code, violations_observed, exhibit_refs,
   attachment_page_ref, frozen_at, source_record,
   deleted_at
@@ -13,7 +13,7 @@ export const chronoService = {
   async getChronologyForPacket({ packetId }: { packetId: string }) {
     const { data: packet } = await supabase
       .from("hearing_packets")
-      .select("complaint")
+      .select("legacy_complaint_ref")
       .eq("id", packetId)
       .single();
 
@@ -22,7 +22,7 @@ export const chronoService = {
     const { data, error } = await supabase
       .from("chronology")
       .select(CHRONOLOGY_LIST_COLUMNS)
-      .eq("complaint", packet.complaint)
+      .eq("legacy_complaint_ref", (packet as any).legacy_complaint_ref)
       .is("deleted_at", null)
       .order("chronology_order", { ascending: true });
 

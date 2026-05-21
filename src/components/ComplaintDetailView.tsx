@@ -7,7 +7,11 @@ import { complaintService } from "@/services/complaintService";
 import { locationService } from "@/services/locationService";
 import type { ComplaintSummary } from "@/types/complaint";
 import { Button } from "@/components/ui/button";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
@@ -58,8 +62,15 @@ import {
 import ComplaintChronologyPanel from "./ComplaintChronologyPanel";
 import { SectionHeader } from "@/components/ui/section-header";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
-import { ACTIVE_STATUSES, CLOSURE_STATUSES, STATUS_DESCRIPTIONS } from "@/utils/complaintStatuses";
-import { COMPLAINT_STATUS_THEME, INSPECTION_STATUS_THEME } from "@/utils/badgeThemes";
+import {
+  ACTIVE_STATUSES,
+  CLOSURE_STATUSES,
+  STATUS_DESCRIPTIONS,
+} from "@/utils/complaintStatuses";
+import {
+  COMPLAINT_STATUS_THEME,
+  INSPECTION_STATUS_THEME,
+} from "@/utils/badgeThemes";
 import { sanitizeText } from "@/utils/sanitizeText";
 
 const DESC_THRESHOLD = 200;
@@ -69,7 +80,11 @@ export function DescriptionText({ text }: { text: string }) {
   const isLong = text.length > DESC_THRESHOLD;
 
   if (!isLong) {
-    return <div className="mt-2 text-sm text-muted-foreground leading-relaxed">{text}</div>;
+    return (
+      <div className="mt-2 text-sm text-muted-foreground leading-relaxed">
+        {text}
+      </div>
+    );
   }
 
   return (
@@ -98,13 +113,23 @@ type Props = {
   actionsSlot?: React.ReactNode;
 };
 
-function InfoRow({ icon, label, value }: { icon: React.ReactNode; label: string; value?: string }) {
+function InfoRow({
+  icon,
+  label,
+  value,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value?: string;
+}) {
   if (!value) return null;
   return (
     <div className="flex items-start gap-2.5">
       <span className="text-muted-foreground mt-0.5 shrink-0">{icon}</span>
       <div className="flex flex-col gap-0.5">
-        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{label}</p>
+        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+          {label}
+        </p>
         <p className="text-sm font-semibold text-foreground">{value}</p>
       </div>
     </div>
@@ -151,13 +176,17 @@ export default function ComplaintDetailView({
     mutationFn: (newStatus: string) =>
       complaintService.update(complaint.id, { status: newStatus as any }),
     onSuccess: (data) => {
-      void queryClient.invalidateQueries({ queryKey: ["complaint", complaint.id] });
+      void queryClient.invalidateQueries({
+        queryKey: ["complaint", complaint.id],
+      });
       void queryClient.invalidateQueries({ queryKey: ["complaints"] });
       onStatusUpdate(data.status as any);
       toast.success("Status updated");
     },
     onError: () => {
-      setCurrentStatus((detail?.status as any) || (complaint.status as any) || "");
+      setCurrentStatus(
+        (detail?.status as any) || (complaint.status as any) || "",
+      );
       toast.error("Failed to update status");
     },
   });
@@ -171,7 +200,9 @@ export default function ComplaintDetailView({
         hearing_rp_email: updates.owner_email,
       }),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ["complaint", complaint.id] });
+      void queryClient.invalidateQueries({
+        queryKey: ["complaint", complaint.id],
+      });
       setRpEditing(false);
       toast.success("Responsible party saved");
     },
@@ -179,12 +210,14 @@ export default function ComplaintDetailView({
 
   const linkLocationMutation = useMutation({
     mutationFn: (locationId: string) =>
-      complaintService.update(complaint.id, { locationid: locationId }),
+      complaintService.update(complaint.id, { legacy_location_id: locationId }),
     onMutate: () => {
       setOptimisticallyLinked(true);
     },
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ["complaint", complaint.id] });
+      void queryClient.invalidateQueries({
+        queryKey: ["complaint", complaint.id],
+      });
       void queryClient.invalidateQueries({ queryKey: ["complaints"] });
       setLocationSearch("");
       setLocationResults([]);
@@ -252,10 +285,12 @@ export default function ComplaintDetailView({
     linkLocationMutation.mutate(locationId);
   };
 
-  const hasDraft = detail?.inspections?.some((i: any) => i.status === "Draft") ?? false;
+  const hasDraft =
+    detail?.inspections?.some((i: any) => i.status === "Draft") ?? false;
   const statusBadgeCls =
-    COMPLAINT_STATUS_THEME[currentStatus as keyof typeof COMPLAINT_STATUS_THEME] ??
-    "bg-muted text-muted-foreground";
+    COMPLAINT_STATUS_THEME[
+      currentStatus as keyof typeof COMPLAINT_STATUS_THEME
+    ] ?? "bg-muted text-muted-foreground";
   const canEditStatus = viewMode !== "readonly";
   const canStartInspection = viewMode === "inspector";
 
@@ -264,7 +299,9 @@ export default function ComplaintDetailView({
   const externalResourcesCard = (
     <Card className="overflow-hidden shadow-sm border-none bg-muted/30 print:hidden">
       <CardHeader className="px-5 py-2.5 border-b border-border/50">
-        <CardTitle className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Resources</CardTitle>
+        <CardTitle className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+          Resources
+        </CardTitle>
       </CardHeader>
       <CardContent className="p-4">
         <a
@@ -279,10 +316,15 @@ export default function ComplaintDetailView({
             </div>
             <div className="flex flex-col">
               <span className="text-sm font-bold text-foreground">SF PIM</span>
-              <span className="text-[10px] text-muted-foreground uppercase tracking-tight font-bold">Property Search</span>
+              <span className="text-[10px] text-muted-foreground uppercase tracking-tight font-bold">
+                Property Search
+              </span>
             </div>
           </div>
-          <ExternalLink data-icon="inline-end" className="size-3.5 text-muted-foreground/40 group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
+          <ExternalLink
+            data-icon="inline-end"
+            className="size-3.5 text-muted-foreground/40 group-hover:text-primary group-hover:translate-x-0.5 transition-all"
+          />
         </a>
       </CardContent>
     </Card>
@@ -321,7 +363,9 @@ export default function ComplaintDetailView({
         {CLOSURE_STATUSES.map((s) => (
           <SelectItem key={s} value={s}>
             <div className="flex items-center gap-1.5">
-              {s === "Closed — Compliant" && <Lock className="text-muted-foreground" />}
+              {s === "Closed — Compliant" && (
+                <Lock className="text-muted-foreground" />
+              )}
               <span className="font-semibold">{s}</span>
             </div>
           </SelectItem>
@@ -330,26 +374,65 @@ export default function ComplaintDetailView({
     </Select>
   );
 
-  const locationLinked = !!complaint.locationid || optimisticallyLinked;
+  const locationLinked = !!complaint.legacy_location_id || optimisticallyLinked;
 
   const detailsSection = (
     <Card className="overflow-hidden shadow-md border-primary/10 transition-all duration-300">
-      <SectionHeader
-        icon={<ClipboardList />}
-        title="Identity & Location"
-      />
+      <SectionHeader icon={<ClipboardList />} title="Identity & Location" />
       <CardContent className="p-6 flex flex-col gap-6">
         {/* Row 1: Complainant & Source */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-4">
           <div className="flex flex-col gap-2.5">
-            <InfoRow icon={<User />} label="Complainant" value={detail?.complainant_name} />
-            <InfoRow icon={<Phone />} label="Phone" value={detail?.complainant_phone} />
-            <InfoRow icon={<Mail />} label="Email" value={detail?.complainant_email} />
+            <InfoRow
+              icon={<User />}
+              label="Complainant"
+              value={detail?.complainant_name}
+            />
+            <InfoRow
+              icon={<Phone />}
+              label="Phone"
+              value={detail?.complainant_phone}
+            />
+            <InfoRow
+              icon={<Mail />}
+              label="Email"
+              value={detail?.complainant_email}
+            />
           </div>
           <div className="flex flex-col gap-2.5">
-            <InfoRow icon={<Calendar />} label="Entered" value={detail?.date_entered ? new Date(detail.date_entered + "T00:00:00").toLocaleDateString() : undefined} />
-            <InfoRow icon={<AlertCircle />} label="Due After" value={detail?.reinspection_due_on_after ? new Date(detail.reinspection_due_on_after + "T00:00:00").toLocaleDateString() : undefined} />
-            <InfoRow icon={<Calendar />} label="Last Report" value={detail?.date_last_report_sent ? new Date(detail.date_last_report_sent + "T00:00:00").toLocaleDateString() : undefined} />
+            <InfoRow
+              icon={<Calendar />}
+              label="Entered"
+              value={
+                detail?.date_entered
+                  ? new Date(
+                      detail.date_entered + "T00:00:00",
+                    ).toLocaleDateString()
+                  : undefined
+              }
+            />
+            <InfoRow
+              icon={<AlertCircle />}
+              label="Due After"
+              value={
+                detail?.reinspection_due_on_after
+                  ? new Date(
+                      detail.reinspection_due_on_after + "T00:00:00",
+                    ).toLocaleDateString()
+                  : undefined
+              }
+            />
+            <InfoRow
+              icon={<Calendar />}
+              label="Last Report"
+              value={
+                detail?.date_last_report_sent
+                  ? new Date(
+                      detail.date_last_report_sent + "T00:00:00",
+                    ).toLocaleDateString()
+                  : undefined
+              }
+            />
           </div>
         </div>
 
@@ -374,7 +457,9 @@ export default function ComplaintDetailView({
                     placeholder="Search master records by address..."
                     className="pl-9 h-10 text-sm shadow-inner bg-muted/20 border-border/60 focus:bg-background transition-all"
                   />
-                  {locationSearching && <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 animate-spin text-muted-foreground" />}
+                  {locationSearching && (
+                    <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 animate-spin text-muted-foreground" />
+                  )}
                 </div>
               )}
             </div>
@@ -385,15 +470,21 @@ export default function ComplaintDetailView({
                   <CheckCircle2 className="size-5" />
                 </div>
                 <div>
-                  <p className="text-sm font-bold text-foreground">Verified Location Record</p>
-                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest opacity-70">Master ID: {complaint.locationid || "Optimistic"}</p>
+                  <p className="text-sm font-bold text-foreground">
+                    Verified Location Record
+                  </p>
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest opacity-70">
+                    Master ID: {complaint.legacy_location_id || "Optimistic"}
+                  </p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={async () => {
-                  if (complaint.locationid) {
-                    const loc = await locationService.findByLocationId(complaint.locationid);
+                  if (complaint.legacy_location_id) {
+                    const loc = await locationService.findByLocationId(
+                      complaint.legacy_location_id,
+                    );
                     if (loc) navigate(`/locations/${loc.id}`);
                   }
                 }}
@@ -407,12 +498,24 @@ export default function ComplaintDetailView({
           {locationResults.length > 0 && (
             <div className="grid grid-cols-1 gap-1.5 border-l-2 border-primary/10 pl-4 py-1">
               {locationResults.slice(0, 3).map((loc: any) => (
-                <div key={loc.id} className="flex items-center justify-between gap-3 p-2 rounded-lg hover:bg-muted/50 transition-colors duration-200 group/item">
+                <div
+                  key={loc.id}
+                  className="flex items-center justify-between gap-3 p-2 rounded-lg hover:bg-muted/50 transition-colors duration-200 group/item"
+                >
                   <div className="min-w-0">
-                    <p className="text-xs font-bold truncate group-hover/item:text-primary transition-colors">{loc.address}</p>
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-tight font-medium">{loc.facility_type}</p>
+                    <p className="text-xs font-bold truncate group-hover/item:text-primary transition-colors">
+                      {loc.address}
+                    </p>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-tight font-medium">
+                      {loc.facility_type}
+                    </p>
                   </div>
-                  <Button size="sm" variant="outline" className="h-7 text-[10px] font-bold uppercase tracking-widest px-3" onClick={() => handleLinkLocation(loc.id)}>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-7 text-[10px] font-bold uppercase tracking-widest px-3"
+                    onClick={() => handleLinkLocation(loc.id)}
+                  >
                     Link
                   </Button>
                 </div>
@@ -430,7 +533,9 @@ export default function ComplaintDetailView({
         icon={<Home />}
         title="Responsible Party"
         right={
-          canEditStatus && !rpEditing && locationLinked && (
+          canEditStatus &&
+          !rpEditing &&
+          locationLinked && (
             <button
               onClick={() => setRpEditing(true)}
               className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-primary px-3 h-7 rounded-lg border border-primary/20 bg-card hover:bg-primary/5 transition-all duration-200"
@@ -452,14 +557,25 @@ export default function ComplaintDetailView({
                 {rpName || rpAddress || rpPhone || rpEmail ? (
                   <>
                     <InfoRow icon={<User />} label="Owner" value={rpName} />
-                    <InfoRow icon={<Home />} label="Mailing" value={rpAddress} />
+                    <InfoRow
+                      icon={<Home />}
+                      label="Mailing"
+                      value={rpAddress}
+                    />
                     <InfoRow icon={<Phone />} label="Phone" value={rpPhone} />
                     <InfoRow icon={<Mail />} label="Email" value={rpEmail} />
                   </>
                 ) : (
                   <div className="col-span-2 py-4 text-center">
-                    <p className="text-xs text-muted-foreground mb-3 font-medium">No party data logged in hearing records.</p>
-                    <Button variant="outline" size="sm" className="font-bold uppercase tracking-widest text-[10px] px-4" onClick={() => setRpEditing(true)}>
+                    <p className="text-xs text-muted-foreground mb-3 font-medium">
+                      No party data logged in hearing records.
+                    </p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="font-bold uppercase tracking-widest text-[10px] px-4"
+                      onClick={() => setRpEditing(true)}
+                    >
                       <Plus data-icon="inline-start" /> Add Record
                     </Button>
                   </div>
@@ -471,28 +587,71 @@ export default function ComplaintDetailView({
               <div className="flex flex-col gap-5 animate-in fade-in slide-in-from-top-2 duration-300">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="flex flex-col gap-1.5">
-                    <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest ml-1 opacity-70">Name</Label>
-                    <Input value={rpName} onChange={(e) => setRpName(e.target.value)} placeholder="Full name" className="h-9 shadow-inner bg-card/50" />
+                    <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest ml-1 opacity-70">
+                      Name
+                    </Label>
+                    <Input
+                      value={rpName}
+                      onChange={(e) => setRpName(e.target.value)}
+                      placeholder="Full name"
+                      className="h-9 shadow-inner bg-card/50"
+                    />
                   </div>
                   <div className="flex flex-col gap-1.5">
-                    <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest ml-1 opacity-70">Mailing Address</Label>
-                    <Input value={rpAddress} onChange={(e) => setRpAddress(e.target.value)} placeholder="Street, City, Zip" className="h-9 shadow-inner bg-card/50" />
+                    <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest ml-1 opacity-70">
+                      Mailing Address
+                    </Label>
+                    <Input
+                      value={rpAddress}
+                      onChange={(e) => setRpAddress(e.target.value)}
+                      placeholder="Street, City, Zip"
+                      className="h-9 shadow-inner bg-card/50"
+                    />
                   </div>
                   <div className="flex flex-col gap-1.5">
-                    <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest ml-1 opacity-70">Phone</Label>
-                    <Input value={rpPhone} onChange={(e) => setRpPhone(e.target.value)} placeholder="(415) 555-0000" className="h-9 shadow-inner bg-card/50" />
+                    <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest ml-1 opacity-70">
+                      Phone
+                    </Label>
+                    <Input
+                      value={rpPhone}
+                      onChange={(e) => setRpPhone(e.target.value)}
+                      placeholder="(415) 555-0000"
+                      className="h-9 shadow-inner bg-card/50"
+                    />
                   </div>
                   <div className="flex flex-col gap-1.5">
-                    <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest ml-1 opacity-70">Email</Label>
-                    <Input value={rpEmail} onChange={(e) => setRpEmail(e.target.value)} type="email" placeholder="owner@email.com" className="h-9 shadow-inner bg-card/50" />
+                    <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest ml-1 opacity-70">
+                      Email
+                    </Label>
+                    <Input
+                      value={rpEmail}
+                      onChange={(e) => setRpEmail(e.target.value)}
+                      type="email"
+                      placeholder="owner@email.com"
+                      className="h-9 shadow-inner bg-card/50"
+                    />
                   </div>
                 </div>
                 <div className="flex items-center gap-2 border-t border-border/40 pt-4">
-                  <Button onClick={handleSaveResponsibleParty} disabled={updateLocationMutation.isPending} size="sm" className="font-bold uppercase tracking-widest text-[10px] px-6">
-                    {updateLocationMutation.isPending ? <Loader2 className="animate-spin" /> : <Save data-icon="inline-start" />}
+                  <Button
+                    onClick={handleSaveResponsibleParty}
+                    disabled={updateLocationMutation.isPending}
+                    size="sm"
+                    className="font-bold uppercase tracking-widest text-[10px] px-6"
+                  >
+                    {updateLocationMutation.isPending ? (
+                      <Loader2 className="animate-spin" />
+                    ) : (
+                      <Save data-icon="inline-start" />
+                    )}
                     Save Record
                   </Button>
-                  <Button variant="ghost" size="sm" onClick={() => setRpEditing(false)} className="text-[10px] font-bold uppercase tracking-widest opacity-60 hover:opacity-100">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setRpEditing(false)}
+                    className="text-[10px] font-bold uppercase tracking-widest opacity-60 hover:opacity-100"
+                  >
                     Cancel
                   </Button>
                 </div>
@@ -507,38 +666,61 @@ export default function ComplaintDetailView({
   const actionsCard = (canEditStatus || actionsSlot) && (
     <Card className="overflow-hidden shadow-sm border-none bg-muted/30">
       <CardHeader className="px-5 py-2.5 border-b border-border/50">
-        <CardTitle className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Operations</CardTitle>
+        <CardTitle className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+          Operations
+        </CardTitle>
       </CardHeader>
       <CardContent className="p-5 flex flex-col gap-4">
         {canEditStatus && (
           <div className="flex flex-col gap-2">
-            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest ml-1 opacity-70">Status Management</p>
+            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest ml-1 opacity-70">
+              Status Management
+            </p>
             {statusSelector}
           </div>
         )}
         {actionsSlot && (
-          <div className={cn("flex flex-col gap-2", canEditStatus ? "border-t border-border/40 pt-4" : "")}>
+          <div
+            className={cn(
+              "flex flex-col gap-2",
+              canEditStatus ? "border-t border-border/40 pt-4" : "",
+            )}
+          >
             {actionsSlot}
           </div>
         )}
         <div className="border-t border-border/40 pt-4">
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button variant="ghost" className="w-full justify-start text-destructive hover:text-destructive hover:bg-destructive/5 h-8 text-[10px] font-bold uppercase tracking-widest opacity-60 hover:opacity-100 transition-all">
+              <Button
+                variant="ghost"
+                className="w-full justify-start text-destructive hover:text-destructive hover:bg-destructive/5 h-8 text-[10px] font-bold uppercase tracking-widest opacity-60 hover:opacity-100 transition-all"
+              >
                 <Trash2 data-icon="inline-start" /> Delete Case
               </Button>
             </AlertDialogTrigger>
             <AlertDialogContent className="rounded-2xl border-none shadow-2xl animate-in zoom-in-95 duration-200">
               <AlertDialogHeader>
-                <AlertDialogTitle className="font-black uppercase tracking-tight text-xl">Delete Complaint?</AlertDialogTitle>
+                <AlertDialogTitle className="font-black uppercase tracking-tight text-xl">
+                  Delete Complaint?
+                </AlertDialogTitle>
                 <AlertDialogDescription className="text-sm font-medium">
-                  This action is irreversible. All associated hearing packet data will be purged.
+                  This action is irreversible. All associated hearing packet
+                  data will be purged.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter className="mt-4">
-                <AlertDialogCancel className="font-bold uppercase tracking-widest text-[10px] rounded-xl">Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={() => deleteMutation.mutate()} disabled={deleteMutation.isPending} className="bg-destructive text-destructive-foreground hover:bg-destructive/90 font-bold uppercase tracking-widest text-[10px] rounded-xl px-6">
-                  {deleteMutation.isPending && <Loader2 className="animate-spin mr-2" />}
+                <AlertDialogCancel className="font-bold uppercase tracking-widest text-[10px] rounded-xl">
+                  Cancel
+                </AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={() => deleteMutation.mutate()}
+                  disabled={deleteMutation.isPending}
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90 font-bold uppercase tracking-widest text-[10px] rounded-xl px-6"
+                >
+                  {deleteMutation.isPending && (
+                    <Loader2 className="animate-spin mr-2" />
+                  )}
                   Confirm Purge
                 </AlertDialogAction>
               </AlertDialogFooter>
@@ -557,11 +739,18 @@ export default function ComplaintDetailView({
           <div className="flex flex-wrap items-start justify-between gap-8">
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-3 mb-4 flex-wrap">
-                <Badge variant="outline" className="bg-background/10 text-primary-foreground border-primary-foreground/30 font-mono font-bold text-xs h-6 px-2.5 backdrop-blur-sm">
-                  #{complaint.complaintid}
+                <Badge
+                  variant="outline"
+                  className="bg-background/10 text-primary-foreground border-primary-foreground/30 font-mono font-bold text-xs h-6 px-2.5 backdrop-blur-sm"
+                >
+                  #{complaint.legacy_complaint_id}
                 </Badge>
                 {complaint.category?.map((cat: string) => (
-                  <Badge key={cat} variant="secondary" className="bg-primary-foreground/10 text-primary-foreground hover:bg-primary-foreground/20 border-none font-bold text-[10px] uppercase tracking-widest h-5 transition-colors duration-200">
+                  <Badge
+                    key={cat}
+                    variant="secondary"
+                    className="bg-primary-foreground/10 text-primary-foreground hover:bg-primary-foreground/20 border-none font-bold text-[10px] uppercase tracking-widest h-5 transition-colors duration-200"
+                  >
                     {cat}
                   </Badge>
                 ))}
@@ -577,13 +766,31 @@ export default function ComplaintDetailView({
             </div>
             <div className="flex flex-col items-end gap-6 shrink-0">
               {canStartInspection && (
-                <Button onClick={handleStartInspection} className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 font-black uppercase tracking-widest text-xs h-14 px-10 rounded-2xl shadow-xl hover:shadow-white/10 hover:-translate-y-1 active:scale-95 transition-all duration-300">
-                  {hasDraft ? <><FileEdit data-icon="inline-start" /> Resume Draft</> : <><FilePlus data-icon="inline-start" /> Start New</>}
+                <Button
+                  onClick={handleStartInspection}
+                  className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 font-black uppercase tracking-widest text-xs h-14 px-10 rounded-2xl shadow-xl hover:shadow-white/10 hover:-translate-y-1 active:scale-95 transition-all duration-300"
+                >
+                  {hasDraft ? (
+                    <>
+                      <FileEdit data-icon="inline-start" /> Resume Draft
+                    </>
+                  ) : (
+                    <>
+                      <FilePlus data-icon="inline-start" /> Start New
+                    </>
+                  )}
                 </Button>
               )}
               <div className="flex flex-col items-end gap-1.5 pr-2">
-                <span className="text-[10px] font-bold uppercase tracking-widest opacity-50">Workflow Status</span>
-                <Badge className={cn("text-xs font-black uppercase tracking-widest h-7 px-4 shadow-lg border-none transition-all duration-300 group-hover/hero:scale-105", statusBadgeCls)}>
+                <span className="text-[10px] font-bold uppercase tracking-widest opacity-50">
+                  Workflow Status
+                </span>
+                <Badge
+                  className={cn(
+                    "text-xs font-black uppercase tracking-widest h-7 px-4 shadow-lg border-none transition-all duration-300 group-hover/hero:scale-105",
+                    statusBadgeCls,
+                  )}
+                >
                   {currentStatus || "Pending"}
                 </Badge>
               </div>
@@ -595,10 +802,16 @@ export default function ComplaintDetailView({
       {/* ── CONTENT GRID (7/5 Split) ──────────────────────── */}
       <div className="grid gap-8 lg:grid-cols-12 items-start">
         <div className="flex flex-col gap-8 lg:col-span-7">
-          <ErrorBoundary title="Identity Section Error">{detailsSection}</ErrorBoundary>
-          
+          <ErrorBoundary title="Identity Section Error">
+            {detailsSection}
+          </ErrorBoundary>
+
           <Card className="overflow-hidden shadow-sm border-none bg-muted/20 transition-all duration-300">
-            <SectionHeader icon={<ClipboardList />} title="Inspection History" count={detail?.inspections?.length} />
+            <SectionHeader
+              icon={<ClipboardList />}
+              title="Inspection History"
+              count={detail?.inspections?.length}
+            />
             <CardContent className="p-0">
               {loading ? (
                 <div className="p-6 flex flex-col gap-3">
@@ -608,18 +821,36 @@ export default function ComplaintDetailView({
               ) : (
                 <div className="divide-y divide-border/40">
                   {detail?.inspections?.map((ins: any) => (
-                    <div key={ins.id} className="px-6 py-4.5 flex items-center justify-between gap-4 hover:bg-card/60 transition-all duration-200 group/ins cursor-pointer">
+                    <div
+                      key={ins.id}
+                      className="px-6 py-4.5 flex items-center justify-between gap-4 hover:bg-card/60 transition-all duration-200 group/ins cursor-pointer"
+                    >
                       <div className="min-w-0">
-                        <p className="text-sm font-bold text-foreground group-hover/ins:text-primary transition-colors">{new Date(ins.inspection_date + "T00:00:00").toLocaleDateString()}</p>
-                        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-1 opacity-70">{ins.inspection_type} · {ins.inspector}</p>
+                        <p className="text-sm font-bold text-foreground group-hover/ins:text-primary transition-colors">
+                          {new Date(
+                            ins.inspection_date + "T00:00:00",
+                          ).toLocaleDateString()}
+                        </p>
+                        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-1 opacity-70">
+                          {ins.inspection_type} · {ins.inspector}
+                        </p>
                       </div>
                       <div className="flex items-center gap-4 shrink-0">
                         {ins.violation_count > 0 && (
-                          <Badge variant="destructive" className="text-[10px] font-black h-5 px-2 border-none shadow-sm">
+                          <Badge
+                            variant="destructive"
+                            className="text-[10px] font-black h-5 px-2 border-none shadow-sm"
+                          >
                             {ins.violation_count}v
                           </Badge>
                         )}
-                        <Badge variant="outline" className={cn("text-[10px] font-black h-5 px-2 border-none shadow-none", INSPECTION_STATUS_THEME[ins.status] ?? "bg-muted")}>
+                        <Badge
+                          variant="outline"
+                          className={cn(
+                            "text-[10px] font-black h-5 px-2 border-none shadow-none",
+                            INSPECTION_STATUS_THEME[ins.status] ?? "bg-muted",
+                          )}
+                        >
                           {ins.status}
                         </Badge>
                         <ChevronRight className="size-3.5 text-muted-foreground/30 group-hover/ins:text-primary group-hover/ins:translate-x-0.5 transition-all" />
@@ -644,10 +875,17 @@ export default function ComplaintDetailView({
 
         <div className="flex flex-col gap-8 lg:col-span-5 sticky top-20">
           <ErrorBoundary title="Actions Error">{actionsCard}</ErrorBoundary>
-          <ErrorBoundary title="Party Error">{responsiblePartyContent}</ErrorBoundary>
-          <ErrorBoundary title="Resources Error">{externalResourcesCard}</ErrorBoundary>
+          <ErrorBoundary title="Party Error">
+            {responsiblePartyContent}
+          </ErrorBoundary>
+          <ErrorBoundary title="Resources Error">
+            {externalResourcesCard}
+          </ErrorBoundary>
           <ErrorBoundary title="Chronology Error">
-            <ComplaintChronologyPanel chronology={detail?.chronology ?? []} loading={loading} />
+            <ComplaintChronologyPanel
+              chronology={detail?.chronology ?? []}
+              loading={loading}
+            />
           </ErrorBoundary>
         </div>
       </div>
@@ -658,8 +896,16 @@ export default function ComplaintDetailView({
           <div className="flex items-center gap-3">
             <div className="flex-1">{statusSelector}</div>
             {canStartInspection && (
-              <Button onClick={handleStartInspection} size="icon" className="size-12 rounded-2xl shrink-0 shadow-xl active:scale-90 transition-transform">
-                {hasDraft ? <FileEdit className="size-5" /> : <FilePlus className="size-5" />}
+              <Button
+                onClick={handleStartInspection}
+                size="icon"
+                className="size-12 rounded-2xl shrink-0 shadow-xl active:scale-90 transition-transform"
+              >
+                {hasDraft ? (
+                  <FileEdit className="size-5" />
+                ) : (
+                  <FilePlus className="size-5" />
+                )}
               </Button>
             )}
           </div>

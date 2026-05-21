@@ -1,5 +1,9 @@
 import { lazy, Suspense, useState } from "react";
-import { PACKET_STATUSES, PacketStatus, PacketValidationResult } from "@/services/packetService";
+import {
+  PACKET_STATUSES,
+  PacketStatus,
+  PacketValidationResult,
+} from "@/services/packetService";
 import { useAuth } from "@/context/AuthContext";
 import { usePacketForm } from "@/hooks/usePacketForm";
 import { usePacketGeneration } from "@/hooks/usePacketGeneration";
@@ -15,7 +19,11 @@ import {
   PROPOSED_ACTION_OPTIONS,
   STATUS_BADGE,
 } from "@/constants/packet";
-import { formatPacketDate, formatPacketDateTime, parsePacketHistory } from "@/utils/packetFormat";
+import {
+  formatPacketDate,
+  formatPacketDateTime,
+  parsePacketHistory,
+} from "@/utils/packetFormat";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -53,8 +61,12 @@ import {
   X,
 } from "lucide-react";
 
-const HearingPacketPreview = lazy(() => import("@/components/HearingPacketPreview"));
-const HearingOrderEditor = lazy(() => import("@/components/HearingOrderEditor"));
+const HearingPacketPreview = lazy(
+  () => import("@/components/HearingPacketPreview"),
+);
+const HearingOrderEditor = lazy(
+  () => import("@/components/HearingOrderEditor"),
+);
 
 export function PacketDetail({
   packetId,
@@ -66,18 +78,26 @@ export function PacketDetail({
   userRole?: string;
 }) {
   const { user } = useAuth();
-  const isManagerRole = userRole ? MANAGER_ROLES.includes(userRole as any) : false;
+  const isManagerRole = userRole
+    ? MANAGER_ROLES.includes(userRole as any)
+    : false;
   const userDisplayName =
-    [user?.firstName, user?.lastName].filter(Boolean).join(" ") || user?.email || undefined;
+    [user?.firstName, user?.lastName].filter(Boolean).join(" ") ||
+    user?.email ||
+    undefined;
 
   const { data: detail, isLoading } = usePacketDetailQuery(packetId);
   const { data: files = [] } = usePacketFilesQuery(packetId);
   const { data: events = [] } = usePacketEventsQuery(packetId);
 
   const packet = detail?.packet;
-  const validationResults = (packet?.validation_results_json ?? []) as PacketValidationResult[];
-  const currentStatus = (packet?.packet_status ?? "Not Started") as PacketStatus;
-  const statusHistory = parsePacketHistory(packet?.status_history_json ?? packet?.status_history);
+  const validationResults = (packet?.validation_results_json ??
+    []) as PacketValidationResult[];
+  const currentStatus = (packet?.packet_status ??
+    "Not Started") as PacketStatus;
+  const statusHistory = parsePacketHistory(
+    packet?.status_history_json ?? packet?.status_history,
+  );
   const { form, setField, toggleProposedAction, buildUpdatePayload, isDirty } =
     usePacketForm(packet);
   const workflow = usePacketWorkflow({
@@ -94,15 +114,21 @@ export function PacketDetail({
   const [showNOH, setShowNOH] = useState(false);
 
   const cachedData = detail;
-  const isComplete = ["Approved", "Complete", "Submitted"].includes(form.status);
-  const badgeCls = STATUS_BADGE[form.status] ?? "bg-muted text-muted-foreground";
+  const isComplete = ["Approved", "Complete", "Submitted"].includes(
+    form.status,
+  );
+  const badgeCls =
+    STATUS_BADGE[form.status] ?? "bg-muted text-muted-foreground";
   const history = [...statusHistory].reverse();
   const hasRevisionNotes = !!packet?.revision_notes?.trim();
   const statusOptions = PACKET_STATUSES.filter((status) => {
     if (status === currentStatus) return true;
     if (!workflow.canTransition(status)) return false;
     if (!isManagerRole && status === "Approved") return false;
-    if (status === "Changes Requested" && currentStatus !== "Changes Requested") {
+    if (
+      status === "Changes Requested" &&
+      currentStatus !== "Changes Requested"
+    ) {
       return false;
     }
     return true;
@@ -131,16 +157,26 @@ export function PacketDetail({
     return (
       <Suspense
         fallback={
-          <div className="p-8 text-center text-muted-foreground">Loading packet preview…</div>
+          <div className="p-8 text-center text-muted-foreground">
+            Loading packet preview…
+          </div>
         }
       >
-        <HearingPacketPreview data={cachedData} onClose={() => setShowFullPacket(false)} />
+        <HearingPacketPreview
+          data={cachedData}
+          onClose={() => setShowFullPacket(false)}
+        />
       </Suspense>
     );
   }
 
   if (showNOH && cachedData) {
-    return <NoticeOfHearingPrint data={cachedData} onClose={() => setShowNOH(false)} />;
+    return (
+      <NoticeOfHearingPrint
+        data={cachedData}
+        onClose={() => setShowNOH(false)}
+      />
+    );
   }
 
   if (isLoading || !detail || !packet) {
@@ -158,8 +194,12 @@ export function PacketDetail({
       <div className="flex items-center justify-between px-5 py-3.5 border-b border-border bg-muted/30">
         <div className="flex items-center gap-2.5 min-w-0">
           <Package className="w-4 h-4 text-muted-foreground shrink-0" />
-          <h2 className="text-sm font-semibold text-foreground truncate">Hearing Packet</h2>
-          <span className={`text-xs px-2 py-0.5 rounded-full font-medium shrink-0 ${badgeCls}`}>
+          <h2 className="text-sm font-semibold text-foreground truncate">
+            Hearing Packet
+          </h2>
+          <span
+            className={`text-xs px-2 py-0.5 rounded-full font-medium shrink-0 ${badgeCls}`}
+          >
             {form.status}
           </span>
           {packet.generated_at && (
@@ -180,23 +220,25 @@ export function PacketDetail({
         <div className="bg-muted/40 rounded-lg p-3 mb-4">
           <div className="flex items-start justify-between gap-2">
             <div>
-              {detail.complaint?.complaintid && (
+              {detail.complaint?.legacy_complaint_id && (
                 <span className="text-xs font-mono font-semibold text-primary bg-primary/10 px-1.5 py-0.5 rounded mr-2">
-                  #{detail.complaint.complaintid}
+                  #{detail.complaint.legacy_complaint_id}
                 </span>
               )}
               <p className="text-sm font-semibold text-foreground mt-1">
                 {detail.complaint?.address ?? detail.location?.address ?? "—"}
               </p>
               <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1">
-                <Clock className="w-3 h-3" /> Hearing: {formatPacketDate(packet.hearing_date)}
+                <Clock className="w-3 h-3" /> Hearing:{" "}
+                {formatPacketDate(packet.hearing_date)}
               </p>
             </div>
-            {detail.complaint?.hearing_status && detail.complaint.hearing_status !== "None" && (
-              <span className="text-xs px-2 py-0.5 rounded-full bg-accent/50 text-accent-foreground font-medium whitespace-nowrap">
-                {detail.complaint.hearing_status}
-              </span>
-            )}
+            {detail.complaint?.hearing_status &&
+              detail.complaint.hearing_status !== "None" && (
+                <span className="text-xs px-2 py-0.5 rounded-full bg-accent/50 text-accent-foreground font-medium whitespace-nowrap">
+                  {detail.complaint.hearing_status}
+                </span>
+              )}
           </div>
         </div>
 
@@ -294,7 +336,9 @@ export function PacketDetail({
           <div className="rounded-lg border border-border bg-card mb-3 p-3 space-y-3">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <p className="text-xs font-semibold text-foreground">Manager review actions</p>
+                <p className="text-xs font-semibold text-foreground">
+                  Manager review actions
+                </p>
                 <p className="text-[11px] text-muted-foreground">
                   Approve packet or request changes.
                 </p>
@@ -331,10 +375,16 @@ export function PacketDetail({
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="w-full rounded-none border-b border-border bg-muted/30 h-10 px-4 justify-start gap-0.5 overflow-x-auto scrollbar-none">
-          <TabsTrigger value="packet" className="text-xs h-7 rounded-md px-3 shrink-0">
+          <TabsTrigger
+            value="packet"
+            className="text-xs h-7 rounded-md px-3 shrink-0"
+          >
             Packet Details
           </TabsTrigger>
-          <TabsTrigger value="readiness" className="text-xs h-7 rounded-md px-3 shrink-0">
+          <TabsTrigger
+            value="readiness"
+            className="text-xs h-7 rounded-md px-3 shrink-0"
+          >
             Readiness
           </TabsTrigger>
           <TabsTrigger
@@ -401,7 +451,9 @@ export function PacketDetail({
               </Label>
               <Select
                 value={form.programCode || "none"}
-                onValueChange={(v) => setField("programCode", v === "none" ? "" : v)}
+                onValueChange={(v) =>
+                  setField("programCode", v === "none" ? "" : v)
+                }
               >
                 <SelectTrigger className="h-8 text-sm">
                   <SelectValue placeholder="Select..." />
@@ -492,7 +544,9 @@ export function PacketDetail({
             </Label>
             <Select
               value={form.status}
-              onValueChange={(value) => setField("status", value as PacketStatus)}
+              onValueChange={(value) =>
+                setField("status", value as PacketStatus)
+              }
             >
               <SelectTrigger className="h-9 text-sm">
                 <SelectValue />
@@ -574,7 +628,10 @@ export function PacketDetail({
         </TabsContent>
 
         {isComplete && (
-          <TabsContent value="order" className="p-5 mt-0 overflow-y-auto max-h-[calc(100vh-320px)]">
+          <TabsContent
+            value="order"
+            className="p-5 mt-0 overflow-y-auto max-h-[calc(100vh-320px)]"
+          >
             <Suspense
               fallback={
                 <div className="text-center py-12 text-muted-foreground">

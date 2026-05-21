@@ -10,7 +10,7 @@
  */
 export type ComplaintSummary = {
   id: string;
-  complaintid?: string;
+  legacy_complaint_id?: string;
   address?: string;
   description?: string;
   status?: string;
@@ -18,7 +18,7 @@ export type ComplaintSummary = {
   reinspection_due_on_after?: string;
   draftInspectionId?: string;
   locationRecordId?: string;
-  locationid?: string;
+  legacy_location_id?: string;
   hearing_status?: string;
   hearing_date?: string;
   assigned_to?: string;

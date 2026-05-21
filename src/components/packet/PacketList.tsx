@@ -9,7 +9,9 @@ export function PacketList({
 }: {
   packets: import("@/types/packet").PacketSummary[];
   selectedPacketId?: string | null;
-  onSelectPacket: (packet: import("@/types/packet").PacketSummary | null) => void;
+  onSelectPacket: (
+    packet: import("@/types/packet").PacketSummary | null,
+  ) => void;
 }) {
   return (
     <div className="bg-card border border-border rounded-xl overflow-hidden shadow-sm">
@@ -24,7 +26,8 @@ export function PacketList({
         {packets.map((packet) => {
           const isSelected = selectedPacketId === packet.id;
           const badgeCls =
-            STATUS_BADGE[packet.packet_status ?? ""] ?? "bg-muted text-muted-foreground";
+            STATUS_BADGE[packet.packet_status ?? ""] ??
+            "bg-muted text-muted-foreground";
           return (
             <button
               key={packet.id}
@@ -40,9 +43,9 @@ export function PacketList({
                     <p className="text-sm font-semibold text-foreground truncate">
                       {packet.address ?? "—"}
                     </p>
-                    {packet.complaintid && (
+                    {packet.legacy_complaint_id && (
                       <p className="text-xs text-muted-foreground font-mono">
-                        #{packet.complaintid}
+                        #{packet.legacy_complaint_id}
                       </p>
                     )}
                   </div>
@@ -58,19 +61,26 @@ export function PacketList({
               </div>
               <div className="hidden md:grid grid-cols-12 px-4 py-3 items-center gap-1">
                 <div className="col-span-2 text-xs text-muted-foreground flex items-center gap-1">
-                  <Clock className="w-3 h-3" /> {formatPacketDate(packet.hearing_date)}
+                  <Clock className="w-3 h-3" />{" "}
+                  {formatPacketDate(packet.hearing_date)}
                 </div>
                 <div className="col-span-2 text-xs font-mono text-foreground truncate">
                   {packet.case_number ?? "—"}
                 </div>
                 <div className="col-span-4">
-                  <p className="text-sm font-medium truncate">{packet.address ?? "—"}</p>
-                  {packet.complaintid && (
-                    <p className="text-xs text-muted-foreground font-mono">#{packet.complaintid}</p>
+                  <p className="text-sm font-medium truncate">
+                    {packet.address ?? "—"}
+                  </p>
+                  {packet.legacy_complaint_id && (
+                    <p className="text-xs text-muted-foreground font-mono">
+                      #{packet.legacy_complaint_id}
+                    </p>
                   )}
                 </div>
                 <div className="col-span-2 flex items-center gap-1.5 flex-wrap">
-                  <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${badgeCls}`}>
+                  <span
+                    className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${badgeCls}`}
+                  >
                     {packet.packet_status ?? "—"}
                   </span>
                   {packet.final_file_path && (

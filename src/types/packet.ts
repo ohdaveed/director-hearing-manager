@@ -43,7 +43,7 @@ export type PacketSummary = {
   locked_at?: string | null;
 
   address: string | null;
-  complaintid?: string | null;
+  legacy_complaint_id?: string | null;
   complaintId?: string | null;
   hearingStatus?: string | null;
 };

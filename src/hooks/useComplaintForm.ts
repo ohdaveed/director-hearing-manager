@@ -86,7 +86,14 @@ export const COMPLAINT_TYPES = [
   "Other",
 ];
 
-export const METHODS = ["Email", "Phone", "In-Person", "311", "Walk-In", "Letter"];
+export const METHODS = [
+  "Email",
+  "Phone",
+  "In-Person",
+  "311",
+  "Walk-In",
+  "Letter",
+];
 
 export const PROGRAMS = [
   "Healthy Housing and Vector Control",
@@ -97,7 +104,15 @@ export const PROGRAMS = [
 export const CATEGORY_GROUPS = [
   {
     group: "Pests, Vermin & Animals",
-    items: ["Bed Bugs", "Cockroaches", "Flies", "Mosquitoes", "Pigeons", "Poison Oak", "Rodents"],
+    items: [
+      "Bed Bugs",
+      "Cockroaches",
+      "Flies",
+      "Mosquitoes",
+      "Pigeons",
+      "Poison Oak",
+      "Rodents",
+    ],
   },
   {
     group: "Sanitation",
@@ -182,17 +197,23 @@ function inferCategoriesFromSubtype(subtype: string): string[] {
   if (/mosquito/.test(s)) result.push("Mosquitoes");
   if (/\bfly\b|flies/.test(s)) result.push("Flies");
   if (/poison.?oak/.test(s)) result.push("Poison Oak");
-  if (/vegetation|weed|overgrown|grass/.test(s)) result.push("Overgrown Vegetation");
-  if (/garbage|debris|trash|refuse/.test(s)) result.push("Garbage / Refuse / Waste / Debris");
-  if (/sewage|human.?waste|animal.?waste/.test(s)) result.push("Human / Animal Waste (Sewage)");
-  if (/garbage.?container|lid|bin/.test(s)) result.push("Inadequate Garbage Containers / Lids");
+  if (/vegetation|weed|overgrown|grass/.test(s))
+    result.push("Overgrown Vegetation");
+  if (/garbage|debris|trash|refuse/.test(s))
+    result.push("Garbage / Refuse / Waste / Debris");
+  if (/sewage|human.?waste|animal.?waste/.test(s))
+    result.push("Human / Animal Waste (Sewage)");
+  if (/garbage.?container|lid|bin/.test(s))
+    result.push("Inadequate Garbage Containers / Lids");
   if (/uncontainerized/.test(s)) result.push("Uncontainerized Garbage");
   if (/mold|mildew/.test(s)) result.push("Mold Growth");
   if (/bathroom|toilet/.test(s)) result.push("Unsanitary Bathroom / Toilet");
-  if (/floor|wall|ceiling/.test(s)) result.push("Unsanitary Floor, Walls & Ceiling");
+  if (/floor|wall|ceiling/.test(s))
+    result.push("Unsanitary Floor, Walls & Ceiling");
   if (/hallway/.test(s)) result.push("Unsanitary Hallways");
   if (/kitchen/.test(s)) result.push("Unsanitary Common Kitchen");
-  if (/paper|newspaper|cardboard/.test(s)) result.push("Accumulation of Paper Materials");
+  if (/paper|newspaper|cardboard/.test(s))
+    result.push("Accumulation of Paper Materials");
   if (/hoard|excess|accumul/.test(s)) result.push("Excessive Materials");
   if (/unpaid.?fee|fee/.test(s)) result.push("Unpaid Fees");
   return [...new Set(result)];
@@ -474,10 +495,12 @@ function generateDemoData(
     dateAssigned,
     description: pick(scenario.descriptions),
     categories: scenario.categories,
-    assignedTo: inspectorName || pick([...INSPECTORS]),
+    assignedTo: inspectorName || pick([...INSPECTORS]).email,
     complainantAnonymous: isAnonymous,
     complainantName: isAnonymous ? "" : `${firstName} ${lastName}`,
-    complainantPhone: isAnonymous ? "" : `(415) ${randInt(200, 999)}-${randDigits(4)}`,
+    complainantPhone: isAnonymous
+      ? ""
+      : `(415) ${randInt(200, 999)}-${randDigits(4)}`,
     complainantEmail: isAnonymous
       ? ""
       : `${firstName.toLowerCase()}.${lastName.toLowerCase()}@gmail.com`,
@@ -548,21 +571,32 @@ function makeInitialState(inspectorName?: string): FormState {
   };
 }
 
-export function useComplaintForm({ inspectorName, onSuccess }: UseComplaintFormProps = {}) {
+export function useComplaintForm({
+  inspectorName,
+  onSuccess,
+}: UseComplaintFormProps = {}) {
   const queryClient = useQueryClient();
   const form = useForm({
     resolver: zodResolver(complaintFormSchema),
     defaultValues: makeInitialState(inspectorName),
   });
 
-  const { handleSubmit: formHandleSubmit, formState, setValue, watch, reset: formReset } = form;
+  const {
+    handleSubmit: formHandleSubmit,
+    formState,
+    setValue,
+    watch,
+    reset: formReset,
+  } = form;
 
   const state = watch() as FormState;
 
   // Location UI state
   const [locationQuery, setLocationQuery] = useState("");
   const [locationResults, setLocationResults] = useState<Location[]>([]);
-  const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
+  const [selectedLocation, setSelectedLocation] = useState<Location | null>(
+    null,
+  );
   const [creatingNewLocation, setCreatingNewLocation] = useState(false);
   const [isSearchingLocations, setIsSearchingLocations] = useState(false);
   const [recentLocations] = useState<RecentLocation[]>(getRecentLocations);
@@ -600,8 +634,9 @@ export function useComplaintForm({ inspectorName, onSuccess }: UseComplaintFormP
       if (onSuccess) {
         onSuccess({
           id: data.id,
-          address: selectedLocation?.address || state.locAddress || "Unknown address",
-          complaintId: data.complaintid || "Unknown",
+          address:
+            selectedLocation?.address || state.locAddress || "Unknown address",
+          complaintId: data.legacy_complaint_id || "Unknown",
           assignedTo: state.assignedTo || "Unassigned",
         });
       }
@@ -629,7 +664,9 @@ export function useComplaintForm({ inspectorName, onSuccess }: UseComplaintFormP
     setSubmitAttempted(true);
 
     if (!hasLocation || !state.description.trim()) {
-      toast.error("Please provide a property location and description before saving.");
+      toast.error(
+        "Please provide a property location and description before saving.",
+      );
       return;
     }
 
@@ -647,7 +684,9 @@ export function useComplaintForm({ inspectorName, onSuccess }: UseComplaintFormP
           owner_phone: state.locOwnerPhone || undefined,
           owner_email: state.locOwnerEmail || undefined,
           facility_type: (state.locFacilityType as any) || undefined,
-          number_of_units: state.locNumUnits ? Number(state.locNumUnits) : undefined,
+          number_of_units: state.locNumUnits
+            ? Number(state.locNumUnits)
+            : undefined,
           healthy_housing: state.locHealthyHousing || undefined,
           census_tract: state.locCensusTract || undefined,
           block_lot: state.locBlockLot || undefined,
@@ -656,9 +695,9 @@ export function useComplaintForm({ inspectorName, onSuccess }: UseComplaintFormP
       }
 
       await createMutation.mutateAsync({
-        complaintid: state.complaintId || undefined,
+        legacy_complaint_id: state.complaintId || undefined,
         address: selectedLocation?.address || state.locAddress,
-        locationid: locationId || undefined,
+        legacy_location_id: locationId || undefined,
         description: state.description,
         status: state.status as any,
         assigned_to: state.assignedTo,
@@ -691,7 +730,9 @@ export function useComplaintForm({ inspectorName, onSuccess }: UseComplaintFormP
     } catch (err: any) {
       console.error(err);
       if (err?.code === "42501") {
-        toast.error("Permission denied. Please sign out and sign back in to refresh your session.");
+        toast.error(
+          "Permission denied. Please sign out and sign back in to refresh your session.",
+        );
       } else {
         toast.error("Failed to save complaint. Please check your inputs.");
       }
@@ -728,7 +769,10 @@ export function useComplaintForm({ inspectorName, onSuccess }: UseComplaintFormP
     setTouched({});
   };
 
-  const setField = <K extends keyof FormState>(field: K, value: FormState[K]) => {
+  const setField = <K extends keyof FormState>(
+    field: K,
+    value: FormState[K],
+  ) => {
     setValue(field as any, value);
 
     // Side effects for smart defaults

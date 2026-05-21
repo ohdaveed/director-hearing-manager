@@ -56,9 +56,17 @@ function parseFrozenSnapshot(snapshot: string): SnapshotRow[] {
     });
 }
 
-function ChronologyTable({ entries, showBy }: { entries: any[]; showBy: boolean }) {
+function ChronologyTable({
+  entries,
+  showBy,
+}: {
+  entries: any[];
+  showBy: boolean;
+}) {
   return (
-    <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "9.5pt" }}>
+    <table
+      style={{ width: "100%", borderCollapse: "collapse", fontSize: "9.5pt" }}
+    >
       <thead>
         <tr style={{ background: "#f0f0f0" }}>
           {/* Headers from STATIC_BLOCKS.chronology.tableHeader */}
@@ -162,7 +170,9 @@ function ChronologyTable({ entries, showBy }: { entries: any[]; showBy: boolean 
             </td>
             <td style={{ border: "1px solid black", padding: "4px 6px" }}>
               {entry.sourceRecord && (
-                <span style={{ color: "#777", marginRight: "4px", fontSize: "9pt" }}>
+                <span
+                  style={{ color: "#777", marginRight: "4px", fontSize: "9pt" }}
+                >
                   [{entry.sourceRecord}]
                 </span>
               )}
@@ -175,7 +185,8 @@ function ChronologyTable({ entries, showBy }: { entries: any[]; showBy: boolean 
                     fontSize: "8.5pt",
                   }}
                 >
-                  <strong>{S.fieldLabels.violationsObserved}</strong> {entry.violationsObserved}
+                  <strong>{S.fieldLabels.violationsObserved}</strong>{" "}
+                  {entry.violationsObserved}
                 </p>
               )}
             </td>
@@ -232,7 +243,9 @@ function ProposedHearingOrder({
 
   return (
     <div className="mt-8 pt-6 border-t-2 border-black break-inside-avoid">
-      <h3 className="text-center font-bold text-[14pt] mb-4 underline">{S.proposedOrderHeading}</h3>
+      <h3 className="text-center font-bold text-[14pt] mb-4 underline">
+        {S.proposedOrderHeading}
+      </h3>
       <p className="mb-6 leading-relaxed" style={{ fontSize: pt.body }}>
         {S.proposedOrder.replace("{address}", address)}
       </p>
@@ -286,7 +299,9 @@ export function PacketChronology({
   managerSig,
 }: Props) {
   const frozenSnapshot = packet.chronologySnapshot;
-  const publicEntries = chronology.filter((c: any) => c.visibility !== "Internal");
+  const publicEntries = chronology.filter(
+    (c: any) => c.visibility !== "Internal",
+  );
 
   const pages: any[][] = [];
   if (!frozenSnapshot) {
@@ -357,7 +372,9 @@ export function PacketChronology({
                 textAlign: "left",
               }}
             >
-              <span style={{ fontSize: "7.5pt", display: "block", color: "#555" }}>
+              <span
+                style={{ fontSize: "7.5pt", display: "block", color: "#555" }}
+              >
                 {S.fieldLabels.address}
               </span>
               <strong>{address}</strong>
@@ -370,7 +387,9 @@ export function PacketChronology({
                 textAlign: "left",
               }}
             >
-              <span style={{ fontSize: "7.5pt", display: "block", color: "#555" }}>
+              <span
+                style={{ fontSize: "7.5pt", display: "block", color: "#555" }}
+              >
                 {S.fieldLabels.blockLot}
               </span>
               {location?.block_lot ?? ""}
@@ -383,7 +402,9 @@ export function PacketChronology({
                 textAlign: "left",
               }}
             >
-              <span style={{ fontSize: "7.5pt", display: "block", color: "#555" }}>
+              <span
+                style={{ fontSize: "7.5pt", display: "block", color: "#555" }}
+              >
                 {S.fieldLabels.facility}
               </span>
               {location?.dba ?? ""}
@@ -396,7 +417,9 @@ export function PacketChronology({
                 textAlign: "left",
               }}
             >
-              <span style={{ fontSize: "7.5pt", display: "block", color: "#555" }}>
+              <span
+                style={{ fontSize: "7.5pt", display: "block", color: "#555" }}
+              >
                 {S.fieldLabels.submittalDate}
               </span>
               {today}
@@ -410,7 +433,9 @@ export function PacketChronology({
                 textAlign: "left",
               }}
             >
-              <span style={{ fontSize: "7.5pt", display: "block", color: "#555" }}>
+              <span
+                style={{ fontSize: "7.5pt", display: "block", color: "#555" }}
+              >
                 {S.fieldLabels.hearingDate}
               </span>
               {hearingDateFmt}
@@ -422,7 +447,9 @@ export function PacketChronology({
                 textAlign: "left",
               }}
             >
-              <span style={{ fontSize: "7.5pt", display: "block", color: "#555" }}>
+              <span
+                style={{ fontSize: "7.5pt", display: "block", color: "#555" }}
+              >
                 {S.fieldLabels.programCode}
               </span>
               {packet.program_code ?? ""}
@@ -435,10 +462,12 @@ export function PacketChronology({
                 textAlign: "left",
               }}
             >
-              <span style={{ fontSize: "7.5pt", display: "block", color: "#555" }}>
+              <span
+                style={{ fontSize: "7.5pt", display: "block", color: "#555" }}
+              >
                 {S.fieldLabels.caseNumber}
               </span>
-              {packet.case_number ?? complaint?.complaintid ?? "—"}
+              {packet.case_number ?? complaint?.legacy_complaint_id ?? "—"}
             </td>
           </tr>
         </tbody>
@@ -540,8 +569,12 @@ export function PacketChronology({
                 >
                   {row.date}
                 </td>
-                <td style={{ border: "1px solid black", padding: "4px 6px" }}>{row.type}</td>
-                <td style={{ border: "1px solid black", padding: "4px 6px" }}>{row.summary}</td>
+                <td style={{ border: "1px solid black", padding: "4px 6px" }}>
+                  {row.type}
+                </td>
+                <td style={{ border: "1px solid black", padding: "4px 6px" }}>
+                  {row.summary}
+                </td>
               </tr>
             ))}
           </tbody>
@@ -579,56 +612,62 @@ export function PacketChronology({
                 }}
               >
                 <tbody>
-                  {[...Array(Math.max(0, 5 - pageEntries.length))].map((_, i) => (
-                    <tr key={i}>
-                      <td
-                        style={{
-                          border: "1px solid black",
-                          padding: "6px",
-                          width: "80px",
-                        }}
-                      >
-                        &nbsp;
-                      </td>
-                      <td
-                        style={{
-                          border: "1px solid black",
-                          padding: "6px",
-                          width: "100px",
-                        }}
-                      >
-                        &nbsp;
-                      </td>
-                      <td style={{ border: "1px solid black", padding: "6px" }}>&nbsp;</td>
-                      <td
-                        style={{
-                          border: "1px solid black",
-                          padding: "6px",
-                          width: "60px",
-                        }}
-                      >
-                        &nbsp;
-                      </td>
-                      <td
-                        style={{
-                          border: "1px solid black",
-                          padding: "6px",
-                          width: "40px",
-                        }}
-                      >
-                        &nbsp;
-                      </td>
-                      <td
-                        style={{
-                          border: "1px solid black",
-                          padding: "6px",
-                          width: "80px",
-                        }}
-                      >
-                        &nbsp;
-                      </td>
-                    </tr>
-                  ))}
+                  {[...Array(Math.max(0, 5 - pageEntries.length))].map(
+                    (_, i) => (
+                      <tr key={i}>
+                        <td
+                          style={{
+                            border: "1px solid black",
+                            padding: "6px",
+                            width: "80px",
+                          }}
+                        >
+                          &nbsp;
+                        </td>
+                        <td
+                          style={{
+                            border: "1px solid black",
+                            padding: "6px",
+                            width: "100px",
+                          }}
+                        >
+                          &nbsp;
+                        </td>
+                        <td
+                          style={{ border: "1px solid black", padding: "6px" }}
+                        >
+                          &nbsp;
+                        </td>
+                        <td
+                          style={{
+                            border: "1px solid black",
+                            padding: "6px",
+                            width: "60px",
+                          }}
+                        >
+                          &nbsp;
+                        </td>
+                        <td
+                          style={{
+                            border: "1px solid black",
+                            padding: "6px",
+                            width: "40px",
+                          }}
+                        >
+                          &nbsp;
+                        </td>
+                        <td
+                          style={{
+                            border: "1px solid black",
+                            padding: "6px",
+                            width: "80px",
+                          }}
+                        >
+                          &nbsp;
+                        </td>
+                      </tr>
+                    ),
+                  )}
                 </tbody>
               </table>
             )}

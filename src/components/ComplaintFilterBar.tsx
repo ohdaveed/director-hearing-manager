@@ -18,7 +18,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Search } from "lucide-react";
-import { ALL_COMPLAINT_STATUSES, HEARING_STATUS_OPTIONS } from "@/utils/complaintStatuses";
+import {
+  ALL_COMPLAINT_STATUSES,
+  HEARING_STATUS_OPTIONS,
+} from "@/utils/complaintStatuses";
 import { INSPECTORS } from "@/utils/inspectors";
 import { DateRangePicker } from "@/components/ui/DateRangePicker";
 import type { DateRange } from "react-day-picker";
@@ -124,9 +127,9 @@ export default function ComplaintFilterBar({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Inspectors</SelectItem>
-                {INSPECTORS.map((n) => (
-                  <SelectItem key={n} value={n}>
-                    {n}
+                {INSPECTORS.map((inspector) => (
+                  <SelectItem key={inspector.email} value={inspector.email}>
+                    {inspector.name}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -146,12 +149,17 @@ export default function ComplaintFilterBar({
 
           {/* Date range filter */}
           {onDateRangeChange && (
-            <DateRangePicker onChange={onDateRangeChange} className="w-full sm:w-auto" />
+            <DateRangePicker
+              onChange={onDateRangeChange}
+              className="w-full sm:w-auto"
+            />
           )}
 
           {/* Result count */}
           <span className="text-sm text-muted-foreground tabular-nums sm:ml-auto">
-            {loading ? "Loading..." : `${resultCount} complaint${resultCount !== 1 ? "s" : ""}`}
+            {loading
+              ? "Loading..."
+              : `${resultCount} complaint${resultCount !== 1 ? "s" : ""}`}
           </span>
 
           {/* Optional action slot (e.g. "Add Complaint" button) */}

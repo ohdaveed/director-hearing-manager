@@ -1,13 +1,20 @@
 /**
  * inspectors.ts
  *
- * Single source of truth for the list of inspector names used throughout the app.
- * Names must exactly match the "Assigned To" field values stored in the database,
- * as they are used both for filtering complaints and for display in dropdowns.
+ * Single source of truth for the list of inspectors used throughout the app.
  *
- * When a new inspector joins, add their full name here and the inspector dropdown
- * on AllComplaintsPage, InspectionHistoryPage, and ComplaintEntryPage will update automatically.
+ * We store assignments using emails in the database for RLS compatibility,
+ * but display full names in the UI.
  */
 
-export const INSPECTORS = ["David Arrizon", "Adaku Ude"] as const;
-export type InspectorName = (typeof INSPECTORS)[number];
+export interface Inspector {
+  name: string;
+  email: string;
+}
+
+export const INSPECTORS: Inspector[] = [
+  { name: "David Arrizon", email: "david.arrizon@sfdph.org" },
+  { name: "Adaku Ude", email: "adaku.ude@sfdph.org" },
+];
+
+export type InspectorName = (typeof INSPECTORS)[number]["name"];

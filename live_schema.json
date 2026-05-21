@@ -1,0 +1,3005 @@
+{
+  "schemas": [
+    {
+      "name": "auth",
+      "tables": [
+        {
+          "name": "audit_log_entries",
+          "columns": [
+            { "name": "instance_id", "type": "uuid", "null": true },
+            { "name": "id", "type": "uuid" },
+            { "name": "payload", "type": "json", "null": true },
+            {
+              "name": "created_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            { "name": "ip_address", "type": "character varying" }
+          ],
+          "indexes": [
+            {
+              "name": "audit_logs_instance_id_idx",
+              "parts": [{ "column": "instance_id" }]
+            }
+          ],
+          "primary_key": { "parts": [{ "column": "id" }] },
+          "comment": "Auth: Audit trail for user actions."
+        },
+        {
+          "name": "custom_oauth_providers",
+          "columns": [
+            { "name": "id", "type": "uuid" },
+            { "name": "provider_type", "type": "text" },
+            { "name": "identifier", "type": "text" },
+            { "name": "name", "type": "text" },
+            { "name": "client_id", "type": "text" },
+            { "name": "client_secret", "type": "text" },
+            { "name": "acceptable_client_ids", "type": "ARRAY" },
+            { "name": "scopes", "type": "ARRAY" },
+            { "name": "pkce_enabled", "type": "boolean" },
+            { "name": "attribute_mapping", "type": "jsonb" },
+            { "name": "authorization_params", "type": "jsonb" },
+            { "name": "enabled", "type": "boolean" },
+            { "name": "email_optional", "type": "boolean" },
+            { "name": "issuer", "type": "text", "null": true },
+            { "name": "discovery_url", "type": "text", "null": true },
+            { "name": "skip_nonce_check", "type": "boolean" },
+            { "name": "cached_discovery", "type": "jsonb", "null": true },
+            {
+              "name": "discovery_cached_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            { "name": "authorization_url", "type": "text", "null": true },
+            { "name": "token_url", "type": "text", "null": true },
+            { "name": "userinfo_url", "type": "text", "null": true },
+            { "name": "jwks_uri", "type": "text", "null": true },
+            { "name": "created_at", "type": "timestamp with time zone" },
+            { "name": "updated_at", "type": "timestamp with time zone" }
+          ],
+          "indexes": [
+            {
+              "name": "custom_oauth_providers_created_at_idx",
+              "parts": [{ "column": "created_at" }]
+            },
+            {
+              "name": "custom_oauth_providers_enabled_idx",
+              "parts": [{ "column": "enabled" }]
+            },
+            {
+              "name": "custom_oauth_providers_identifier_idx",
+              "parts": [{ "column": "identifier" }]
+            },
+            {
+              "name": "custom_oauth_providers_identifier_key",
+              "unique": true,
+              "parts": [{ "column": "identifier" }]
+            },
+            {
+              "name": "custom_oauth_providers_provider_type_idx",
+              "parts": [{ "column": "provider_type" }]
+            }
+          ],
+          "primary_key": { "parts": [{ "column": "id" }] }
+        },
+        {
+          "name": "flow_state",
+          "columns": [
+            { "name": "id", "type": "uuid" },
+            { "name": "user_id", "type": "uuid", "null": true },
+            { "name": "auth_code", "type": "text", "null": true },
+            {
+              "name": "code_challenge_method",
+              "type": "auth.code_challenge_method",
+              "null": true
+            },
+            { "name": "code_challenge", "type": "text", "null": true },
+            { "name": "provider_type", "type": "text" },
+            { "name": "provider_access_token", "type": "text", "null": true },
+            { "name": "provider_refresh_token", "type": "text", "null": true },
+            {
+              "name": "created_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            {
+              "name": "updated_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            { "name": "authentication_method", "type": "text" },
+            {
+              "name": "auth_code_issued_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            { "name": "invite_token", "type": "text", "null": true },
+            { "name": "referrer", "type": "text", "null": true },
+            { "name": "oauth_client_state_id", "type": "uuid", "null": true },
+            { "name": "linking_target_id", "type": "uuid", "null": true },
+            { "name": "email_optional", "type": "boolean" }
+          ],
+          "indexes": [
+            {
+              "name": "flow_state_created_at_idx",
+              "parts": [{ "desc": true, "column": "created_at" }]
+            },
+            { "name": "idx_auth_code", "parts": [{ "column": "auth_code" }] },
+            {
+              "name": "idx_user_id_auth_method",
+              "parts": [
+                { "column": "user_id" },
+                { "column": "authentication_method" }
+              ]
+            }
+          ],
+          "primary_key": { "parts": [{ "column": "id" }] },
+          "comment": "Stores metadata for all OAuth/SSO login flows"
+        },
+        {
+          "name": "identities",
+          "columns": [
+            { "name": "provider_id", "type": "text" },
+            { "name": "user_id", "type": "uuid" },
+            { "name": "identity_data", "type": "jsonb" },
+            { "name": "provider", "type": "text" },
+            {
+              "name": "last_sign_in_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            {
+              "name": "created_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            {
+              "name": "updated_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            {
+              "name": "email",
+              "type": "text",
+              "null": true,
+              "comment": "Auth: Email is a generated column that references the optional email property in the identity_data"
+            },
+            { "name": "id", "type": "uuid" }
+          ],
+          "indexes": [
+            {
+              "name": "identities_email_idx",
+              "parts": [{ "column": "email" }]
+            },
+            {
+              "name": "identities_provider_id_provider_unique",
+              "unique": true,
+              "parts": [{ "column": "provider_id" }, { "column": "provider" }]
+            },
+            {
+              "name": "identities_user_id_idx",
+              "parts": [{ "column": "user_id" }]
+            }
+          ],
+          "primary_key": { "parts": [{ "column": "id" }] },
+          "foreign_keys": [
+            {
+              "name": "identities_user_id_fkey",
+              "columns": ["user_id"],
+              "references": { "table": "users", "columns": ["id"] }
+            }
+          ],
+          "comment": "Auth: Stores identities associated to a user."
+        },
+        {
+          "name": "instances",
+          "columns": [
+            { "name": "id", "type": "uuid" },
+            { "name": "uuid", "type": "uuid", "null": true },
+            { "name": "raw_base_config", "type": "text", "null": true },
+            {
+              "name": "created_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            {
+              "name": "updated_at",
+              "type": "timestamp with time zone",
+              "null": true
+            }
+          ],
+          "primary_key": { "parts": [{ "column": "id" }] },
+          "comment": "Auth: Manages users across multiple sites."
+        },
+        {
+          "name": "mfa_amr_claims",
+          "columns": [
+            { "name": "session_id", "type": "uuid" },
+            { "name": "created_at", "type": "timestamp with time zone" },
+            { "name": "updated_at", "type": "timestamp with time zone" },
+            { "name": "authentication_method", "type": "text" },
+            { "name": "id", "type": "uuid" }
+          ],
+          "indexes": [
+            {
+              "name": "mfa_amr_claims_session_id_authentication_method_pkey",
+              "unique": true,
+              "parts": [
+                { "column": "session_id" },
+                { "column": "authentication_method" }
+              ]
+            }
+          ],
+          "primary_key": { "parts": [{ "column": "id" }] },
+          "foreign_keys": [
+            {
+              "name": "mfa_amr_claims_session_id_fkey",
+              "columns": ["session_id"],
+              "references": { "table": "sessions", "columns": ["id"] }
+            }
+          ],
+          "comment": "auth: stores authenticator method reference claims for multi factor authentication"
+        },
+        {
+          "name": "mfa_challenges",
+          "columns": [
+            { "name": "id", "type": "uuid" },
+            { "name": "factor_id", "type": "uuid" },
+            { "name": "created_at", "type": "timestamp with time zone" },
+            {
+              "name": "verified_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            { "name": "ip_address", "type": "inet" },
+            { "name": "otp_code", "type": "text", "null": true },
+            { "name": "web_authn_session_data", "type": "jsonb", "null": true }
+          ],
+          "indexes": [
+            {
+              "name": "mfa_challenge_created_at_idx",
+              "parts": [{ "desc": true, "column": "created_at" }]
+            }
+          ],
+          "primary_key": { "parts": [{ "column": "id" }] },
+          "foreign_keys": [
+            {
+              "name": "mfa_challenges_auth_factor_id_fkey",
+              "columns": ["factor_id"],
+              "references": { "table": "mfa_factors", "columns": ["id"] }
+            }
+          ],
+          "comment": "auth: stores metadata about challenge requests made"
+        },
+        {
+          "name": "mfa_factors",
+          "columns": [
+            { "name": "id", "type": "uuid" },
+            { "name": "user_id", "type": "uuid" },
+            { "name": "friendly_name", "type": "text", "null": true },
+            { "name": "factor_type", "type": "auth.factor_type" },
+            { "name": "status", "type": "auth.factor_status" },
+            { "name": "created_at", "type": "timestamp with time zone" },
+            { "name": "updated_at", "type": "timestamp with time zone" },
+            { "name": "secret", "type": "text", "null": true },
+            { "name": "phone", "type": "text", "null": true },
+            {
+              "name": "last_challenged_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            { "name": "web_authn_credential", "type": "jsonb", "null": true },
+            { "name": "web_authn_aaguid", "type": "uuid", "null": true },
+            {
+              "name": "last_webauthn_challenge_data",
+              "type": "jsonb",
+              "null": true,
+              "comment": "Stores the latest WebAuthn challenge data including attestation/assertion for customer verification"
+            }
+          ],
+          "indexes": [
+            {
+              "name": "factor_id_created_at_idx",
+              "parts": [{ "column": "user_id" }, { "column": "created_at" }]
+            },
+            {
+              "name": "mfa_factors_last_challenged_at_key",
+              "unique": true,
+              "parts": [{ "column": "last_challenged_at" }]
+            },
+            {
+              "name": "mfa_factors_user_friendly_name_unique",
+              "unique": true,
+              "parts": [{ "column": "friendly_name" }, { "column": "user_id" }]
+            },
+            {
+              "name": "mfa_factors_user_id_idx",
+              "parts": [{ "column": "user_id" }]
+            },
+            {
+              "name": "unique_phone_factor_per_user",
+              "unique": true,
+              "parts": [{ "column": "user_id" }, { "column": "phone" }]
+            }
+          ],
+          "primary_key": { "parts": [{ "column": "id" }] },
+          "foreign_keys": [
+            {
+              "name": "mfa_factors_user_id_fkey",
+              "columns": ["user_id"],
+              "references": { "table": "users", "columns": ["id"] }
+            }
+          ],
+          "comment": "auth: stores metadata about factors"
+        },
+        {
+          "name": "oauth_authorizations",
+          "columns": [
+            { "name": "id", "type": "uuid" },
+            { "name": "authorization_id", "type": "text" },
+            { "name": "client_id", "type": "uuid" },
+            { "name": "user_id", "type": "uuid", "null": true },
+            { "name": "redirect_uri", "type": "text" },
+            { "name": "scope", "type": "text" },
+            { "name": "state", "type": "text", "null": true },
+            { "name": "resource", "type": "text", "null": true },
+            { "name": "code_challenge", "type": "text", "null": true },
+            {
+              "name": "code_challenge_method",
+              "type": "auth.code_challenge_method",
+              "null": true
+            },
+            { "name": "response_type", "type": "auth.oauth_response_type" },
+            { "name": "status", "type": "auth.oauth_authorization_status" },
+            { "name": "authorization_code", "type": "text", "null": true },
+            { "name": "created_at", "type": "timestamp with time zone" },
+            { "name": "expires_at", "type": "timestamp with time zone" },
+            {
+              "name": "approved_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            { "name": "nonce", "type": "text", "null": true }
+          ],
+          "indexes": [
+            {
+              "name": "oauth_auth_pending_exp_idx",
+              "parts": [{ "column": "expires_at" }]
+            },
+            {
+              "name": "oauth_authorizations_authorization_code_key",
+              "unique": true,
+              "parts": [{ "column": "authorization_code" }]
+            },
+            {
+              "name": "oauth_authorizations_authorization_id_key",
+              "unique": true,
+              "parts": [{ "column": "authorization_id" }]
+            }
+          ],
+          "primary_key": { "parts": [{ "column": "id" }] },
+          "foreign_keys": [
+            {
+              "name": "oauth_authorizations_client_id_fkey",
+              "columns": ["client_id"],
+              "references": { "table": "oauth_clients", "columns": ["id"] }
+            },
+            {
+              "name": "oauth_authorizations_user_id_fkey",
+              "columns": ["user_id"],
+              "references": { "table": "users", "columns": ["id"] }
+            }
+          ]
+        },
+        {
+          "name": "oauth_client_states",
+          "columns": [
+            { "name": "id", "type": "uuid" },
+            { "name": "provider_type", "type": "text" },
+            { "name": "code_verifier", "type": "text", "null": true },
+            { "name": "created_at", "type": "timestamp with time zone" }
+          ],
+          "indexes": [
+            {
+              "name": "idx_oauth_client_states_created_at",
+              "parts": [{ "column": "created_at" }]
+            }
+          ],
+          "primary_key": { "parts": [{ "column": "id" }] },
+          "comment": "Stores OAuth states for third-party provider authentication flows where Supabase acts as the OAuth client."
+        },
+        {
+          "name": "oauth_clients",
+          "columns": [
+            { "name": "id", "type": "uuid" },
+            { "name": "client_secret_hash", "type": "text", "null": true },
+            {
+              "name": "registration_type",
+              "type": "auth.oauth_registration_type"
+            },
+            { "name": "redirect_uris", "type": "text" },
+            { "name": "grant_types", "type": "text" },
+            { "name": "client_name", "type": "text", "null": true },
+            { "name": "client_uri", "type": "text", "null": true },
+            { "name": "logo_uri", "type": "text", "null": true },
+            { "name": "created_at", "type": "timestamp with time zone" },
+            { "name": "updated_at", "type": "timestamp with time zone" },
+            {
+              "name": "deleted_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            { "name": "client_type", "type": "auth.oauth_client_type" },
+            { "name": "token_endpoint_auth_method", "type": "text" }
+          ],
+          "indexes": [
+            {
+              "name": "oauth_clients_deleted_at_idx",
+              "parts": [{ "column": "deleted_at" }]
+            }
+          ],
+          "primary_key": { "parts": [{ "column": "id" }] }
+        },
+        {
+          "name": "oauth_consents",
+          "columns": [
+            { "name": "id", "type": "uuid" },
+            { "name": "user_id", "type": "uuid" },
+            { "name": "client_id", "type": "uuid" },
+            { "name": "scopes", "type": "text" },
+            { "name": "granted_at", "type": "timestamp with time zone" },
+            {
+              "name": "revoked_at",
+              "type": "timestamp with time zone",
+              "null": true
+            }
+          ],
+          "indexes": [
+            {
+              "name": "oauth_consents_active_client_idx",
+              "parts": [{ "column": "client_id" }]
+            },
+            {
+              "name": "oauth_consents_active_user_client_idx",
+              "parts": [{ "column": "user_id" }, { "column": "client_id" }]
+            },
+            {
+              "name": "oauth_consents_user_client_unique",
+              "unique": true,
+              "parts": [{ "column": "user_id" }, { "column": "client_id" }]
+            },
+            {
+              "name": "oauth_consents_user_order_idx",
+              "parts": [
+                { "column": "user_id" },
+                { "desc": true, "column": "granted_at" }
+              ]
+            }
+          ],
+          "primary_key": { "parts": [{ "column": "id" }] },
+          "foreign_keys": [
+            {
+              "name": "oauth_consents_client_id_fkey",
+              "columns": ["client_id"],
+              "references": { "table": "oauth_clients", "columns": ["id"] }
+            },
+            {
+              "name": "oauth_consents_user_id_fkey",
+              "columns": ["user_id"],
+              "references": { "table": "users", "columns": ["id"] }
+            }
+          ]
+        },
+        {
+          "name": "one_time_tokens",
+          "columns": [
+            { "name": "id", "type": "uuid" },
+            { "name": "user_id", "type": "uuid" },
+            { "name": "token_type", "type": "auth.one_time_token_type" },
+            { "name": "token_hash", "type": "text" },
+            { "name": "relates_to", "type": "text" },
+            { "name": "created_at", "type": "timestamp without time zone" },
+            { "name": "updated_at", "type": "timestamp without time zone" }
+          ],
+          "indexes": [
+            {
+              "name": "one_time_tokens_relates_to_hash_idx",
+              "parts": [{ "column": "relates_to" }]
+            },
+            {
+              "name": "one_time_tokens_token_hash_hash_idx",
+              "parts": [{ "column": "token_hash" }]
+            },
+            {
+              "name": "one_time_tokens_user_id_token_type_key",
+              "unique": true,
+              "parts": [{ "column": "user_id" }, { "column": "token_type" }]
+            }
+          ],
+          "primary_key": { "parts": [{ "column": "id" }] },
+          "foreign_keys": [
+            {
+              "name": "one_time_tokens_user_id_fkey",
+              "columns": ["user_id"],
+              "references": { "table": "users", "columns": ["id"] }
+            }
+          ]
+        },
+        {
+          "name": "refresh_tokens",
+          "columns": [
+            { "name": "instance_id", "type": "uuid", "null": true },
+            { "name": "id", "type": "bigserial" },
+            { "name": "token", "type": "character varying", "null": true },
+            { "name": "user_id", "type": "character varying", "null": true },
+            { "name": "revoked", "type": "boolean", "null": true },
+            {
+              "name": "created_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            {
+              "name": "updated_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            { "name": "parent", "type": "character varying", "null": true },
+            { "name": "session_id", "type": "uuid", "null": true }
+          ],
+          "indexes": [
+            {
+              "name": "refresh_tokens_instance_id_idx",
+              "parts": [{ "column": "instance_id" }]
+            },
+            {
+              "name": "refresh_tokens_instance_id_user_id_idx",
+              "parts": [{ "column": "instance_id" }, { "column": "user_id" }]
+            },
+            {
+              "name": "refresh_tokens_parent_idx",
+              "parts": [{ "column": "parent" }]
+            },
+            {
+              "name": "refresh_tokens_session_id_revoked_idx",
+              "parts": [{ "column": "session_id" }, { "column": "revoked" }]
+            },
+            {
+              "name": "refresh_tokens_token_unique",
+              "unique": true,
+              "parts": [{ "column": "token" }]
+            },
+            {
+              "name": "refresh_tokens_updated_at_idx",
+              "parts": [{ "desc": true, "column": "updated_at" }]
+            }
+          ],
+          "primary_key": { "parts": [{ "column": "id" }] },
+          "foreign_keys": [
+            {
+              "name": "refresh_tokens_session_id_fkey",
+              "columns": ["session_id"],
+              "references": { "table": "sessions", "columns": ["id"] }
+            }
+          ],
+          "comment": "Auth: Store of tokens used to refresh JWT tokens once they expire."
+        },
+        {
+          "name": "saml_providers",
+          "columns": [
+            { "name": "id", "type": "uuid" },
+            { "name": "sso_provider_id", "type": "uuid" },
+            { "name": "entity_id", "type": "text" },
+            { "name": "metadata_xml", "type": "text" },
+            { "name": "metadata_url", "type": "text", "null": true },
+            { "name": "attribute_mapping", "type": "jsonb", "null": true },
+            {
+              "name": "created_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            {
+              "name": "updated_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            { "name": "name_id_format", "type": "text", "null": true }
+          ],
+          "indexes": [
+            {
+              "name": "saml_providers_entity_id_key",
+              "unique": true,
+              "parts": [{ "column": "entity_id" }]
+            },
+            {
+              "name": "saml_providers_sso_provider_id_idx",
+              "parts": [{ "column": "sso_provider_id" }]
+            }
+          ],
+          "primary_key": { "parts": [{ "column": "id" }] },
+          "foreign_keys": [
+            {
+              "name": "saml_providers_sso_provider_id_fkey",
+              "columns": ["sso_provider_id"],
+              "references": { "table": "sso_providers", "columns": ["id"] }
+            }
+          ],
+          "comment": "Auth: Manages SAML Identity Provider connections."
+        },
+        {
+          "name": "saml_relay_states",
+          "columns": [
+            { "name": "id", "type": "uuid" },
+            { "name": "sso_provider_id", "type": "uuid" },
+            { "name": "request_id", "type": "text" },
+            { "name": "for_email", "type": "text", "null": true },
+            { "name": "redirect_to", "type": "text", "null": true },
+            {
+              "name": "created_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            {
+              "name": "updated_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            { "name": "flow_state_id", "type": "uuid", "null": true }
+          ],
+          "indexes": [
+            {
+              "name": "saml_relay_states_created_at_idx",
+              "parts": [{ "desc": true, "column": "created_at" }]
+            },
+            {
+              "name": "saml_relay_states_for_email_idx",
+              "parts": [{ "column": "for_email" }]
+            },
+            {
+              "name": "saml_relay_states_sso_provider_id_idx",
+              "parts": [{ "column": "sso_provider_id" }]
+            }
+          ],
+          "primary_key": { "parts": [{ "column": "id" }] },
+          "foreign_keys": [
+            {
+              "name": "saml_relay_states_flow_state_id_fkey",
+              "columns": ["flow_state_id"],
+              "references": { "table": "flow_state", "columns": ["id"] }
+            },
+            {
+              "name": "saml_relay_states_sso_provider_id_fkey",
+              "columns": ["sso_provider_id"],
+              "references": { "table": "sso_providers", "columns": ["id"] }
+            }
+          ],
+          "comment": "Auth: Contains SAML Relay State information for each Service Provider initiated login."
+        },
+        {
+          "name": "schema_migrations",
+          "columns": [{ "name": "version", "type": "character varying" }],
+          "primary_key": { "parts": [{ "column": "version" }] },
+          "comment": "Auth: Manages updates to the auth system."
+        },
+        {
+          "name": "sessions",
+          "columns": [
+            { "name": "id", "type": "uuid" },
+            { "name": "user_id", "type": "uuid" },
+            {
+              "name": "created_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            {
+              "name": "updated_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            { "name": "factor_id", "type": "uuid", "null": true },
+            { "name": "aal", "type": "auth.aal_level", "null": true },
+            {
+              "name": "not_after",
+              "type": "timestamp with time zone",
+              "null": true,
+              "comment": "Auth: Not after is a nullable column that contains a timestamp after which the session should be regarded as expired."
+            },
+            {
+              "name": "refreshed_at",
+              "type": "timestamp without time zone",
+              "null": true
+            },
+            { "name": "user_agent", "type": "text", "null": true },
+            { "name": "ip", "type": "inet", "null": true },
+            { "name": "tag", "type": "text", "null": true },
+            { "name": "oauth_client_id", "type": "uuid", "null": true },
+            {
+              "name": "refresh_token_hmac_key",
+              "type": "text",
+              "null": true,
+              "comment": "Holds a HMAC-SHA256 key used to sign refresh tokens for this session."
+            },
+            {
+              "name": "refresh_token_counter",
+              "type": "bigint",
+              "null": true,
+              "comment": "Holds the ID (counter) of the last issued refresh token."
+            },
+            { "name": "scopes", "type": "text", "null": true }
+          ],
+          "indexes": [
+            {
+              "name": "sessions_not_after_idx",
+              "parts": [{ "desc": true, "column": "not_after" }]
+            },
+            {
+              "name": "sessions_oauth_client_id_idx",
+              "parts": [{ "column": "oauth_client_id" }]
+            },
+            {
+              "name": "sessions_user_id_idx",
+              "parts": [{ "column": "user_id" }]
+            },
+            {
+              "name": "user_id_created_at_idx",
+              "parts": [{ "column": "user_id" }, { "column": "created_at" }]
+            }
+          ],
+          "primary_key": { "parts": [{ "column": "id" }] },
+          "foreign_keys": [
+            {
+              "name": "sessions_oauth_client_id_fkey",
+              "columns": ["oauth_client_id"],
+              "references": { "table": "oauth_clients", "columns": ["id"] }
+            },
+            {
+              "name": "sessions_user_id_fkey",
+              "columns": ["user_id"],
+              "references": { "table": "users", "columns": ["id"] }
+            }
+          ],
+          "comment": "Auth: Stores session data associated to a user."
+        },
+        {
+          "name": "sso_domains",
+          "columns": [
+            { "name": "id", "type": "uuid" },
+            { "name": "sso_provider_id", "type": "uuid" },
+            { "name": "domain", "type": "text" },
+            {
+              "name": "created_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            {
+              "name": "updated_at",
+              "type": "timestamp with time zone",
+              "null": true
+            }
+          ],
+          "indexes": [
+            {
+              "name": "sso_domains_domain_idx",
+              "unique": true,
+              "parts": [{ "expr": "lower(domain)" }]
+            },
+            {
+              "name": "sso_domains_sso_provider_id_idx",
+              "parts": [{ "column": "sso_provider_id" }]
+            }
+          ],
+          "primary_key": { "parts": [{ "column": "id" }] },
+          "foreign_keys": [
+            {
+              "name": "sso_domains_sso_provider_id_fkey",
+              "columns": ["sso_provider_id"],
+              "references": { "table": "sso_providers", "columns": ["id"] }
+            }
+          ],
+          "comment": "Auth: Manages SSO email address domain mapping to an SSO Identity Provider."
+        },
+        {
+          "name": "sso_providers",
+          "columns": [
+            { "name": "id", "type": "uuid" },
+            {
+              "name": "resource_id",
+              "type": "text",
+              "null": true,
+              "comment": "Auth: Uniquely identifies a SSO provider according to a user-chosen resource ID (case insensitive), useful in infrastructure as code."
+            },
+            {
+              "name": "created_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            {
+              "name": "updated_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            { "name": "disabled", "type": "boolean", "null": true }
+          ],
+          "indexes": [
+            {
+              "name": "sso_providers_resource_id_idx",
+              "unique": true,
+              "parts": [{ "expr": "lower(resource_id)" }]
+            },
+            {
+              "name": "sso_providers_resource_id_pattern_idx",
+              "parts": [{ "column": "resource_id" }]
+            }
+          ],
+          "primary_key": { "parts": [{ "column": "id" }] },
+          "comment": "Auth: Manages SSO identity provider information; see saml_providers for SAML."
+        },
+        {
+          "name": "users",
+          "columns": [
+            { "name": "instance_id", "type": "uuid", "null": true },
+            { "name": "id", "type": "uuid" },
+            { "name": "aud", "type": "character varying", "null": true },
+            { "name": "role", "type": "character varying", "null": true },
+            { "name": "email", "type": "character varying", "null": true },
+            {
+              "name": "encrypted_password",
+              "type": "character varying",
+              "null": true
+            },
+            {
+              "name": "email_confirmed_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            {
+              "name": "invited_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            {
+              "name": "confirmation_token",
+              "type": "character varying",
+              "null": true
+            },
+            {
+              "name": "confirmation_sent_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            {
+              "name": "recovery_token",
+              "type": "character varying",
+              "null": true
+            },
+            {
+              "name": "recovery_sent_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            {
+              "name": "email_change_token_new",
+              "type": "character varying",
+              "null": true
+            },
+            {
+              "name": "email_change",
+              "type": "character varying",
+              "null": true
+            },
+            {
+              "name": "email_change_sent_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            {
+              "name": "last_sign_in_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            { "name": "raw_app_meta_data", "type": "jsonb", "null": true },
+            { "name": "raw_user_meta_data", "type": "jsonb", "null": true },
+            { "name": "is_super_admin", "type": "boolean", "null": true },
+            {
+              "name": "created_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            {
+              "name": "updated_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            { "name": "phone", "type": "text", "null": true },
+            {
+              "name": "phone_confirmed_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            { "name": "phone_change", "type": "text", "null": true },
+            {
+              "name": "phone_change_token",
+              "type": "character varying",
+              "null": true
+            },
+            {
+              "name": "phone_change_sent_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            {
+              "name": "confirmed_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            {
+              "name": "email_change_token_current",
+              "type": "character varying",
+              "null": true
+            },
+            {
+              "name": "email_change_confirm_status",
+              "type": "smallint",
+              "null": true
+            },
+            {
+              "name": "banned_until",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            {
+              "name": "reauthentication_token",
+              "type": "character varying",
+              "null": true
+            },
+            {
+              "name": "reauthentication_sent_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            {
+              "name": "is_sso_user",
+              "type": "boolean",
+              "comment": "Auth: Set this column to true when the account comes from SSO. These accounts can have duplicate emails."
+            },
+            {
+              "name": "deleted_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            { "name": "is_anonymous", "type": "boolean" }
+          ],
+          "indexes": [
+            {
+              "name": "confirmation_token_idx",
+              "unique": true,
+              "parts": [{ "column": "confirmation_token" }]
+            },
+            {
+              "name": "email_change_token_current_idx",
+              "unique": true,
+              "parts": [{ "column": "email_change_token_current" }]
+            },
+            {
+              "name": "email_change_token_new_idx",
+              "unique": true,
+              "parts": [{ "column": "email_change_token_new" }]
+            },
+            {
+              "name": "idx_users_created_at_desc",
+              "parts": [{ "desc": true, "column": "created_at" }]
+            },
+            { "name": "idx_users_email", "parts": [{ "column": "email" }] },
+            {
+              "name": "idx_users_last_sign_in_at_desc",
+              "parts": [{ "desc": true, "column": "last_sign_in_at" }]
+            },
+            {
+              "name": "idx_users_name",
+              "parts": [
+                { "expr": "((raw_user_meta_data -\u003e\u003e 'name'::text))" }
+              ]
+            },
+            {
+              "name": "reauthentication_token_idx",
+              "unique": true,
+              "parts": [{ "column": "reauthentication_token" }]
+            },
+            {
+              "name": "recovery_token_idx",
+              "unique": true,
+              "parts": [{ "column": "recovery_token" }]
+            },
+            {
+              "name": "users_email_partial_key",
+              "unique": true,
+              "parts": [{ "column": "email" }]
+            },
+            {
+              "name": "users_instance_id_email_idx",
+              "parts": [
+                { "column": "instance_id" },
+                { "expr": "lower((email)::text)" }
+              ]
+            },
+            {
+              "name": "users_instance_id_idx",
+              "parts": [{ "column": "instance_id" }]
+            },
+            {
+              "name": "users_is_anonymous_idx",
+              "parts": [{ "column": "is_anonymous" }]
+            },
+            {
+              "name": "users_phone_key",
+              "unique": true,
+              "parts": [{ "column": "phone" }]
+            }
+          ],
+          "primary_key": { "parts": [{ "column": "id" }] },
+          "comment": "Auth: Stores user login data within a secure schema."
+        },
+        {
+          "name": "webauthn_challenges",
+          "columns": [
+            { "name": "id", "type": "uuid" },
+            { "name": "user_id", "type": "uuid", "null": true },
+            { "name": "challenge_type", "type": "text" },
+            { "name": "session_data", "type": "jsonb" },
+            { "name": "created_at", "type": "timestamp with time zone" },
+            { "name": "expires_at", "type": "timestamp with time zone" }
+          ],
+          "indexes": [
+            {
+              "name": "webauthn_challenges_expires_at_idx",
+              "parts": [{ "column": "expires_at" }]
+            },
+            {
+              "name": "webauthn_challenges_user_id_idx",
+              "parts": [{ "column": "user_id" }]
+            }
+          ],
+          "primary_key": { "parts": [{ "column": "id" }] },
+          "foreign_keys": [
+            {
+              "name": "webauthn_challenges_user_id_fkey",
+              "columns": ["user_id"],
+              "references": { "table": "users", "columns": ["id"] }
+            }
+          ]
+        },
+        {
+          "name": "webauthn_credentials",
+          "columns": [
+            { "name": "id", "type": "uuid" },
+            { "name": "user_id", "type": "uuid" },
+            { "name": "credential_id", "type": "bytea" },
+            { "name": "public_key", "type": "bytea" },
+            { "name": "attestation_type", "type": "text" },
+            { "name": "aaguid", "type": "uuid", "null": true },
+            { "name": "sign_count", "type": "bigint" },
+            { "name": "transports", "type": "jsonb" },
+            { "name": "backup_eligible", "type": "boolean" },
+            { "name": "backed_up", "type": "boolean" },
+            { "name": "friendly_name", "type": "text" },
+            { "name": "created_at", "type": "timestamp with time zone" },
+            { "name": "updated_at", "type": "timestamp with time zone" },
+            {
+              "name": "last_used_at",
+              "type": "timestamp with time zone",
+              "null": true
+            }
+          ],
+          "indexes": [
+            {
+              "name": "webauthn_credentials_credential_id_key",
+              "unique": true,
+              "parts": [{ "column": "credential_id" }]
+            },
+            {
+              "name": "webauthn_credentials_user_id_idx",
+              "parts": [{ "column": "user_id" }]
+            }
+          ],
+          "primary_key": { "parts": [{ "column": "id" }] },
+          "foreign_keys": [
+            {
+              "name": "webauthn_credentials_user_id_fkey",
+              "columns": ["user_id"],
+              "references": { "table": "users", "columns": ["id"] }
+            }
+          ]
+        }
+      ]
+    },
+    { "name": "extensions" },
+    { "name": "graphql" },
+    { "name": "graphql_public" },
+    { "name": "pgbouncer" },
+    { "name": "pgmq" },
+    { "name": "pgmq_public" },
+    { "name": "private" },
+    {
+      "name": "public",
+      "tables": [
+        {
+          "name": "chronology",
+          "columns": [
+            { "name": "summary", "type": "text", "null": true },
+            { "name": "entry_date", "type": "date", "null": true },
+            {
+              "name": "entry_type",
+              "type": "public.chronology_entry_type_enum",
+              "null": true
+            },
+            { "name": "created_by", "type": "text", "null": true },
+            { "name": "complaint", "type": "text", "null": true },
+            { "name": "related_inspection", "type": "text", "null": true },
+            {
+              "name": "frozen_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            { "name": "source_record", "type": "text", "null": true },
+            {
+              "name": "visibility",
+              "type": "public.chronology_visibility_enum",
+              "null": true
+            },
+            { "name": "violations_observed", "type": "text", "null": true },
+            { "name": "exhibit_refs", "type": "text", "null": true },
+            { "name": "chronology_order", "type": "numeric", "null": true },
+            { "name": "attachment_page_ref", "type": "text", "null": true },
+            {
+              "name": "citation_code",
+              "type": "public.chronology_citation_code_enum",
+              "null": true
+            },
+            { "name": "id", "type": "uuid" },
+            { "name": "created_at", "type": "timestamp with time zone" },
+            {
+              "name": "updated_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            {
+              "name": "deleted_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            { "name": "complaint_uuid", "type": "uuid", "null": true }
+          ],
+          "indexes": [
+            {
+              "name": "idx_chronology_complaint",
+              "parts": [{ "column": "complaint" }]
+            },
+            {
+              "name": "idx_chronology_complaint_uuid",
+              "parts": [{ "column": "complaint_uuid" }]
+            },
+            {
+              "name": "idx_chronology_entry_date",
+              "parts": [{ "column": "entry_date" }]
+            },
+            {
+              "name": "idx_chronology_entry_type",
+              "parts": [{ "column": "entry_type" }]
+            },
+            {
+              "name": "idx_chronology_order",
+              "parts": [{ "column": "chronology_order" }]
+            },
+            {
+              "name": "idx_chronology_visibility",
+              "parts": [{ "column": "visibility" }]
+            }
+          ],
+          "primary_key": { "parts": [{ "column": "id" }] },
+          "foreign_keys": [
+            {
+              "name": "chronology_complaint_uuid_fkey",
+              "columns": ["complaint_uuid"],
+              "references": { "table": "complaints", "columns": ["id"] }
+            }
+          ]
+        },
+        {
+          "name": "complaints",
+          "columns": [
+            { "name": "id", "type": "uuid" },
+            { "name": "date_entered", "type": "date", "null": true },
+            { "name": "address", "type": "text", "null": true },
+            { "name": "complaintid", "type": "text", "null": true },
+            { "name": "locationid", "type": "text", "null": true },
+            {
+              "name": "status",
+              "type": "public.complaints_status_enum",
+              "null": true
+            },
+            { "name": "description", "type": "text", "null": true },
+            { "name": "assigned_to", "type": "text", "null": true },
+            { "name": "category", "type": "ARRAY", "null": true },
+            { "name": "date_last_report_sent", "type": "text", "null": true },
+            {
+              "name": "reinspection_due_on_after",
+              "type": "date",
+              "null": true
+            },
+            { "name": "attachments", "type": "boolean", "null": true },
+            { "name": "inspections", "type": "text", "null": true },
+            { "name": "location", "type": "text", "null": true },
+            { "name": "complainant_name", "type": "text", "null": true },
+            { "name": "complainant_phone", "type": "text", "null": true },
+            { "name": "complainant_email", "type": "text", "null": true },
+            { "name": "chronology", "type": "text", "null": true },
+            { "name": "owner_documents", "type": "text", "null": true },
+            { "name": "exhibits", "type": "text", "null": true },
+            { "name": "service_log", "type": "text", "null": true },
+            { "name": "hearing_packets", "type": "text", "null": true },
+            {
+              "name": "hearing_status",
+              "type": "public.complaints_hearing_status_enum",
+              "null": true
+            },
+            { "name": "hearing_date", "type": "date", "null": true },
+            { "name": "thread_parent", "type": "text", "null": true },
+            { "name": "violations", "type": "text", "null": true },
+            { "name": "inspection_photos", "type": "text", "null": true },
+            { "name": "311_case_number", "type": "text", "null": true },
+            { "name": "unit_number", "type": "text", "null": true },
+            { "name": "complaint_type", "type": "text", "null": true },
+            { "name": "complaint_subtype", "type": "text", "null": true },
+            {
+              "name": "method_received",
+              "type": "public.complaints_method_received_enum",
+              "null": true
+            },
+            {
+              "name": "assigned_program",
+              "type": "public.complaints_assigned_program_enum",
+              "null": true
+            },
+            { "name": "date_assigned", "type": "date", "null": true },
+            {
+              "name": "complainant_anonymous",
+              "type": "boolean",
+              "null": true
+            },
+            { "name": "complainant_address", "type": "text", "null": true },
+            {
+              "name": "complainant_contact_dates",
+              "type": "text",
+              "null": true
+            },
+            { "name": "facility_name", "type": "text", "null": true },
+            { "name": "facility_ownership", "type": "text", "null": true },
+            { "name": "date_closed", "type": "date", "null": true },
+            {
+              "name": "deleted_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            { "name": "hearing_rp_name", "type": "text", "null": true },
+            { "name": "hearing_rp_phone", "type": "text", "null": true },
+            { "name": "hearing_rp_email", "type": "text", "null": true },
+            { "name": "hearing_rp_address", "type": "text", "null": true },
+            { "name": "purpose_of_hearing", "type": "text", "null": true },
+            { "name": "notice_of_hearing_date", "type": "date", "null": true },
+            { "name": "hearing_order_date", "type": "date", "null": true },
+            { "name": "created_at", "type": "timestamp with time zone" },
+            {
+              "name": "updated_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            { "name": "case_number", "type": "text", "null": true },
+            {
+              "name": "date_referred_to_hearing",
+              "type": "date",
+              "null": true
+            },
+            { "name": "hearing_officer_name", "type": "text", "null": true },
+            { "name": "post_order_service_date", "type": "date", "null": true },
+            { "name": "is_sample", "type": "boolean", "null": true },
+            {
+              "name": "date_last_report_sent_parsed",
+              "type": "date",
+              "null": true
+            }
+          ],
+          "indexes": [
+            {
+              "name": "idx_complaints_assigned_date",
+              "parts": [
+                { "column": "assigned_to" },
+                { "desc": true, "column": "date_entered" }
+              ]
+            },
+            {
+              "name": "idx_complaints_assigned_program",
+              "parts": [{ "column": "assigned_program" }]
+            },
+            {
+              "name": "idx_complaints_assigned_to",
+              "parts": [{ "column": "assigned_to" }]
+            },
+            {
+              "name": "idx_complaints_case_number",
+              "parts": [{ "column": "case_number" }]
+            },
+            {
+              "name": "idx_complaints_complaintid",
+              "parts": [{ "column": "complaintid" }]
+            },
+            {
+              "name": "idx_complaints_date_entered",
+              "parts": [{ "desc": true, "column": "date_entered" }]
+            },
+            {
+              "name": "idx_complaints_deleted_at",
+              "parts": [{ "column": "deleted_at" }]
+            },
+            {
+              "name": "idx_complaints_hearing_status",
+              "parts": [{ "column": "hearing_status" }]
+            },
+            {
+              "name": "idx_complaints_locationid",
+              "parts": [{ "column": "locationid" }]
+            },
+            {
+              "name": "idx_complaints_status",
+              "parts": [{ "column": "status" }]
+            }
+          ],
+          "primary_key": { "parts": [{ "column": "id" }] }
+        },
+        {
+          "name": "demo",
+          "columns": [
+            { "name": "id", "type": "text", "null": true },
+            { "name": "url", "type": "text", "null": true },
+            {
+              "name": "created_time",
+              "type": "timestamp without time zone",
+              "null": true
+            },
+            {
+              "name": "last_edited_time",
+              "type": "timestamp without time zone",
+              "null": true
+            },
+            { "name": "archived", "type": "boolean", "null": true },
+            { "name": "attrs", "type": "jsonb", "null": true }
+          ]
+        },
+        {
+          "name": "documents",
+          "columns": [
+            { "name": "id", "type": "uuid" },
+            { "name": "title", "type": "text" },
+            { "name": "category", "type": "public.document_category_enum" },
+            { "name": "file_path", "type": "text" },
+            { "name": "file_type", "type": "text", "null": true },
+            { "name": "version", "type": "text", "null": true },
+            { "name": "metadata", "type": "jsonb", "null": true },
+            {
+              "name": "created_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            {
+              "name": "updated_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            {
+              "name": "deleted_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            { "name": "uploaded_by", "type": "uuid", "null": true }
+          ],
+          "primary_key": { "parts": [{ "column": "id" }] },
+          "foreign_keys": [
+            {
+              "name": "documents_uploaded_by_fkey",
+              "columns": ["uploaded_by"],
+              "references": { "table": "users", "columns": ["id"] }
+            }
+          ],
+          "comment": "Central registry for all uploaded files (SOPs, drafts, etc.)"
+        },
+        {
+          "name": "exhibit_default_sequence",
+          "columns": [
+            { "name": "id", "type": "uuid" },
+            { "name": "exhibit_letter", "type": "text" },
+            { "name": "default_content", "type": "text" },
+            { "name": "description", "type": "text", "null": true },
+            { "name": "sort_order", "type": "integer" },
+            { "name": "is_required", "type": "boolean", "null": true },
+            {
+              "name": "created_at",
+              "type": "timestamp with time zone",
+              "null": true
+            }
+          ],
+          "indexes": [
+            {
+              "name": "exhibit_default_sequence_exhibit_letter_key",
+              "unique": true,
+              "parts": [{ "column": "exhibit_letter" }]
+            }
+          ],
+          "primary_key": { "parts": [{ "column": "id" }] }
+        },
+        {
+          "name": "exhibits",
+          "columns": [
+            { "name": "exhibit_label", "type": "text", "null": true },
+            {
+              "name": "exhibit_type",
+              "type": "public.exhibits_exhibit_type_enum",
+              "null": true
+            },
+            { "name": "description", "type": "text", "null": true },
+            { "name": "sort_order", "type": "numeric", "null": true },
+            { "name": "complaint", "type": "text", "null": true },
+            { "name": "source_inspection", "type": "text", "null": true },
+            { "name": "source_photo", "type": "text", "null": true },
+            { "name": "file", "type": "jsonb", "null": true },
+            { "name": "caption", "type": "text", "null": true },
+            {
+              "name": "category",
+              "type": "public.exhibits_category_enum",
+              "null": true
+            },
+            {
+              "name": "deleted_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            { "name": "exhibit_date", "type": "date", "null": true },
+            { "name": "page_count", "type": "numeric", "null": true },
+            { "name": "id", "type": "uuid" },
+            { "name": "created_at", "type": "timestamp with time zone" },
+            {
+              "name": "updated_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            { "name": "complaint_uuid", "type": "uuid", "null": true },
+            { "name": "source_inspection_id", "type": "bigint", "null": true },
+            { "name": "included_in_packet", "type": "boolean" },
+            { "name": "packet_sort_order", "type": "integer", "null": true },
+            { "name": "packet_page_start", "type": "integer", "null": true },
+            { "name": "packet_page_end", "type": "integer", "null": true }
+          ],
+          "indexes": [
+            {
+              "name": "idx_exhibits_category",
+              "parts": [{ "column": "category" }]
+            },
+            {
+              "name": "idx_exhibits_complaint",
+              "parts": [{ "column": "complaint" }]
+            },
+            {
+              "name": "idx_exhibits_complaint_uuid",
+              "parts": [{ "column": "complaint_uuid" }]
+            },
+            {
+              "name": "idx_exhibits_deleted_at",
+              "parts": [{ "column": "deleted_at" }]
+            },
+            {
+              "name": "idx_exhibits_inspection_id",
+              "parts": [{ "column": "source_inspection_id" }]
+            },
+            {
+              "name": "idx_exhibits_source_inspection",
+              "parts": [{ "column": "source_inspection" }]
+            }
+          ],
+          "primary_key": { "parts": [{ "column": "id" }] },
+          "foreign_keys": [
+            {
+              "name": "exhibits_complaint_uuid_fkey",
+              "columns": ["complaint_uuid"],
+              "references": { "table": "complaints", "columns": ["id"] }
+            },
+            {
+              "name": "exhibits_source_inspection_id_fkey",
+              "columns": ["source_inspection_id"],
+              "references": {
+                "table": "inspections",
+                "columns": ["inspection_id"]
+              }
+            }
+          ]
+        },
+        {
+          "name": "generated_packet_files",
+          "columns": [
+            { "name": "id", "type": "uuid" },
+            { "name": "hearing_packet_id", "type": "uuid", "null": true },
+            { "name": "complaint_uuid", "type": "uuid", "null": true },
+            { "name": "file_type", "type": "text" },
+            { "name": "file_path", "type": "text" },
+            { "name": "file_name", "type": "text", "null": true },
+            { "name": "mime_type", "type": "text", "null": true },
+            { "name": "version_number", "type": "integer" },
+            { "name": "generated_by", "type": "uuid", "null": true },
+            { "name": "generated_at", "type": "timestamp with time zone" },
+            { "name": "packet_hash", "type": "text", "null": true },
+            { "name": "is_final", "type": "boolean" },
+            { "name": "notes", "type": "text", "null": true },
+            { "name": "metadata", "type": "jsonb" },
+            { "name": "created_at", "type": "timestamp with time zone" },
+            {
+              "name": "updated_at",
+              "type": "timestamp with time zone",
+              "null": true
+            }
+          ],
+          "indexes": [
+            {
+              "name": "idx_generated_packet_files_complaint",
+              "parts": [{ "column": "complaint_uuid" }]
+            },
+            {
+              "name": "idx_generated_packet_files_final",
+              "parts": [
+                { "column": "hearing_packet_id" },
+                { "column": "is_final" }
+              ]
+            },
+            {
+              "name": "idx_generated_packet_files_packet",
+              "parts": [{ "column": "hearing_packet_id" }]
+            }
+          ],
+          "primary_key": { "parts": [{ "column": "id" }] },
+          "foreign_keys": [
+            {
+              "name": "generated_packet_files_complaint_uuid_fkey",
+              "columns": ["complaint_uuid"],
+              "references": { "table": "complaints", "columns": ["id"] }
+            },
+            {
+              "name": "generated_packet_files_generated_by_fkey",
+              "columns": ["generated_by"],
+              "references": { "table": "users", "columns": ["id"] }
+            },
+            {
+              "name": "generated_packet_files_hearing_packet_id_fkey",
+              "columns": ["hearing_packet_id"],
+              "references": { "table": "hearing_packets", "columns": ["id"] }
+            }
+          ],
+          "comment": "Registry of all generated Director hearing packet files and versions."
+        },
+        {
+          "name": "hearing_packets",
+          "columns": [
+            { "name": "hearing_date", "type": "date", "null": true },
+            {
+              "name": "packet_status",
+              "type": "public.hearing_packets_packet_status_enum",
+              "null": true
+            },
+            { "name": "assigned_to", "type": "text", "null": true },
+            { "name": "notes", "type": "text", "null": true },
+            {
+              "name": "generated_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            { "name": "complaint", "type": "text", "null": true },
+            { "name": "case_number", "type": "text", "null": true },
+            {
+              "name": "program_code",
+              "type": "public.hearing_packets_program_code_enum",
+              "null": true
+            },
+            { "name": "proposed_actions", "type": "ARRAY", "null": true },
+            { "name": "hearing_time", "type": "text", "null": true },
+            { "name": "hearing_location", "type": "text", "null": true },
+            { "name": "chronology_snapshot", "type": "text", "null": true },
+            {
+              "name": "packet_type",
+              "type": "public.hearing_packets_packet_type_enum",
+              "null": true
+            },
+            { "name": "bates_start", "type": "numeric", "null": true },
+            { "name": "bates_end", "type": "numeric", "null": true },
+            { "name": "hearing_order_data", "type": "text", "null": true },
+            { "name": "selected_report_ids", "type": "text", "null": true },
+            { "name": "selected_photo_ids", "type": "text", "null": true },
+            { "name": "admin_fee", "type": "text", "null": true },
+            { "name": "checklist_data", "type": "text", "null": true },
+            { "name": "enforcement_flags", "type": "text", "null": true },
+            { "name": "selected_reports", "type": "ARRAY", "null": true },
+            { "name": "selected_photos", "type": "ARRAY", "null": true },
+            { "name": "inspector_signature", "type": "text", "null": true },
+            { "name": "manager_signature", "type": "text", "null": true },
+            { "name": "revision_notes", "type": "text", "null": true },
+            { "name": "status_history", "type": "text", "null": true },
+            { "name": "id", "type": "uuid" },
+            { "name": "created_at", "type": "timestamp with time zone" },
+            {
+              "name": "updated_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            {
+              "name": "deleted_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            { "name": "complaint_uuid", "type": "uuid", "null": true },
+            { "name": "deadline_14day_met", "type": "boolean", "null": true },
+            { "name": "deadline_5day_met", "type": "boolean", "null": true },
+            { "name": "deadline_24hr_met", "type": "boolean", "null": true },
+            {
+              "name": "hearing_coordinator_name",
+              "type": "text",
+              "null": true
+            },
+            {
+              "name": "hearing_coordinator_email",
+              "type": "text",
+              "null": true
+            },
+            { "name": "notice_service_date", "type": "date", "null": true },
+            { "name": "final_reinspection_date", "type": "date", "null": true },
+            {
+              "name": "coordinator_submittal_date",
+              "type": "date",
+              "null": true
+            },
+            { "name": "teams_upload_date", "type": "date", "null": true },
+            { "name": "post_order_service_date", "type": "date", "null": true },
+            { "name": "internal_review_date", "type": "date", "null": true },
+            {
+              "name": "page_numbering_complete",
+              "type": "boolean",
+              "null": true
+            },
+            {
+              "name": "exhibit_labeling_complete",
+              "type": "boolean",
+              "null": true
+            },
+            { "name": "checklist_json", "type": "jsonb", "null": true },
+            { "name": "enforcement_json", "type": "jsonb", "null": true },
+            { "name": "status_history_json", "type": "jsonb", "null": true },
+            { "name": "hearing_rp_name", "type": "text", "null": true },
+            { "name": "hearing_rp_email", "type": "text", "null": true },
+            { "name": "hearing_rp_phone", "type": "text", "null": true },
+            {
+              "name": "selected_report_ids_json",
+              "type": "jsonb",
+              "comment": "Structured list of report/document IDs selected for the hearing packet."
+            },
+            {
+              "name": "selected_photo_ids_json",
+              "type": "jsonb",
+              "comment": "Structured list of inspection photo IDs selected for the hearing packet."
+            },
+            {
+              "name": "packet_snapshot_json",
+              "type": "jsonb",
+              "comment": "Frozen structured packet object used to generate a draft or final packet."
+            },
+            {
+              "name": "validation_results_json",
+              "type": "jsonb",
+              "comment": "Latest readiness/validation result set for the packet."
+            },
+            { "name": "generated_file_path", "type": "text", "null": true },
+            { "name": "final_file_path", "type": "text", "null": true },
+            {
+              "name": "approved_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            {
+              "name": "submitted_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            {
+              "name": "locked_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            { "name": "locked_by", "type": "uuid", "null": true }
+          ],
+          "indexes": [
+            {
+              "name": "idx_hearing_packets_case_number",
+              "parts": [{ "column": "case_number" }]
+            },
+            {
+              "name": "idx_hearing_packets_complaint",
+              "parts": [{ "column": "complaint_uuid" }]
+            },
+            {
+              "name": "idx_hearing_packets_complaint_uuid",
+              "parts": [{ "column": "complaint_uuid" }]
+            },
+            {
+              "name": "idx_packets_assigned",
+              "parts": [{ "column": "assigned_to" }]
+            },
+            {
+              "name": "idx_packets_complaint",
+              "parts": [{ "column": "complaint" }]
+            },
+            {
+              "name": "idx_packets_hearing_date",
+              "parts": [{ "column": "hearing_date" }]
+            },
+            {
+              "name": "idx_packets_status",
+              "parts": [{ "column": "packet_status" }]
+            },
+            {
+              "name": "idx_packets_type",
+              "parts": [{ "column": "packet_type" }]
+            }
+          ],
+          "primary_key": { "parts": [{ "column": "id" }] },
+          "foreign_keys": [
+            {
+              "name": "hearing_packets_complaint_uuid_fkey",
+              "columns": ["complaint_uuid"],
+              "references": { "table": "complaints", "columns": ["id"] }
+            }
+          ]
+        },
+        {
+          "name": "imported_reports",
+          "columns": [
+            { "name": "report_title", "type": "text", "null": true },
+            { "name": "location", "type": "text", "null": true },
+            { "name": "pdf_file", "type": "jsonb", "null": true },
+            { "name": "inspection_date", "type": "date", "null": true },
+            { "name": "inspection_type", "type": "text", "null": true },
+            { "name": "inspection_rating", "type": "text", "null": true },
+            { "name": "inspector_name", "type": "text", "null": true },
+            { "name": "violation_count", "type": "numeric", "null": true },
+            {
+              "name": "parsing_status",
+              "type": "public.imported_reports_parsing_status_enum",
+              "null": true
+            },
+            { "name": "uploaded_by", "type": "text", "null": true },
+            {
+              "name": "uploaded_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            { "name": "linked_inspection", "type": "text", "null": true },
+            { "name": "hearing_packets", "type": "ARRAY", "null": true },
+            { "name": "id", "type": "uuid" },
+            { "name": "created_at", "type": "timestamp with time zone" },
+            {
+              "name": "updated_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            {
+              "name": "deleted_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            { "name": "location_uuid", "type": "uuid", "null": true },
+            { "name": "linked_inspection_id", "type": "bigint", "null": true }
+          ],
+          "indexes": [
+            {
+              "name": "idx_imported_reports_linked_inspection",
+              "parts": [{ "column": "linked_inspection" }]
+            },
+            {
+              "name": "idx_imported_reports_location",
+              "parts": [{ "column": "location" }]
+            },
+            {
+              "name": "idx_imported_reports_parsing_status",
+              "parts": [{ "column": "parsing_status" }]
+            }
+          ],
+          "primary_key": { "parts": [{ "column": "id" }] },
+          "foreign_keys": [
+            {
+              "name": "imported_reports_linked_inspection_id_fkey",
+              "columns": ["linked_inspection_id"],
+              "references": {
+                "table": "inspections",
+                "columns": ["inspection_id"]
+              }
+            },
+            {
+              "name": "imported_reports_location_uuid_fkey",
+              "columns": ["location_uuid"],
+              "references": { "table": "locations", "columns": ["id"] }
+            }
+          ]
+        },
+        {
+          "name": "inspection_photos",
+          "columns": [
+            { "name": "photo_url", "type": "text", "null": true },
+            {
+              "name": "photo_type",
+              "type": "public.inspection_photos_photo_type_enum",
+              "null": true
+            },
+            { "name": "caption", "type": "text", "null": true },
+            { "name": "violation_label", "type": "text", "null": true },
+            { "name": "complaint_id", "type": "text", "null": true },
+            { "name": "inspector", "type": "text", "null": true },
+            {
+              "name": "uploaded_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            { "name": "exhibits", "type": "text", "null": true },
+            { "name": "complaint", "type": "text", "null": true },
+            { "name": "inspection", "type": "text", "null": true },
+            { "name": "hearing_packets", "type": "ARRAY", "null": true },
+            { "name": "id", "type": "uuid" },
+            { "name": "created_at", "type": "timestamp with time zone" },
+            {
+              "name": "updated_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            {
+              "name": "deleted_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            { "name": "inspection_id", "type": "bigint", "null": true },
+            {
+              "name": "photo_taken_at",
+              "type": "timestamp with time zone",
+              "null": true,
+              "comment": "Timestamp used for hearing packet photo page date and time display."
+            },
+            {
+              "name": "display_address",
+              "type": "text",
+              "null": true,
+              "comment": "Address shown on generated hearing packet photo page."
+            },
+            {
+              "name": "exhibit_label",
+              "type": "text",
+              "null": true,
+              "comment": "Exhibit label stamped or printed for this photo in a hearing packet."
+            },
+            { "name": "packet_include", "type": "boolean" },
+            { "name": "packet_sort_order", "type": "integer", "null": true }
+          ],
+          "indexes": [
+            {
+              "name": "idx_inspection_photos_inspection_id",
+              "parts": [{ "column": "inspection_id" }]
+            },
+            {
+              "name": "idx_photos_complaint_id",
+              "parts": [{ "column": "complaint_id" }]
+            },
+            {
+              "name": "idx_photos_photo_type",
+              "parts": [{ "column": "photo_type" }]
+            }
+          ],
+          "primary_key": { "parts": [{ "column": "id" }] },
+          "foreign_keys": [
+            {
+              "name": "inspection_photos_inspection_id_fkey",
+              "columns": ["inspection_id"],
+              "references": {
+                "table": "inspections",
+                "columns": ["inspection_id"]
+              }
+            }
+          ]
+        },
+        {
+          "name": "inspections",
+          "columns": [
+            { "name": "inspection_id", "type": "bigint" },
+            { "name": "location", "type": "text", "null": true },
+            { "name": "complaint", "type": "text", "null": true },
+            { "name": "inspector", "type": "text", "null": true },
+            { "name": "inspection_date", "type": "date", "null": true },
+            { "name": "time_in", "type": "text", "null": true },
+            { "name": "time_out", "type": "text", "null": true },
+            {
+              "name": "inspection_type",
+              "type": "public.inspections_inspection_type_enum",
+              "null": true
+            },
+            {
+              "name": "inspection_rating",
+              "type": "public.inspections_inspection_rating_enum",
+              "null": true
+            },
+            {
+              "name": "access_granted_by",
+              "type": "public.inspections_access_granted_by_enum",
+              "null": true
+            },
+            { "name": "dba", "type": "text", "null": true },
+            { "name": "contact_phone", "type": "text", "null": true },
+            { "name": "contact_email", "type": "text", "null": true },
+            { "name": "facility_address", "type": "text", "null": true },
+            { "name": "complaint_id", "type": "text", "null": true },
+            { "name": "location_id", "type": "text", "null": true },
+            { "name": "notes", "type": "text", "null": true },
+            { "name": "completed_report", "type": "text", "null": true },
+            { "name": "violation_count", "type": "numeric", "null": true },
+            { "name": "violations", "type": "text", "null": true },
+            {
+              "name": "status",
+              "type": "public.inspections_status_enum",
+              "null": true
+            },
+            {
+              "name": "submitted_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            { "name": "chronology", "type": "text", "null": true },
+            { "name": "exhibits", "type": "text", "null": true },
+            {
+              "name": "deleted_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            { "name": "imported_reports", "type": "text", "null": true },
+            { "name": "inspection_photos", "type": "text", "null": true },
+            { "name": "complaint_id_uuid", "type": "uuid", "null": true },
+            { "name": "location_id_uuid", "type": "uuid", "null": true },
+            { "name": "photo_count", "type": "integer", "null": true },
+            { "name": "nov_issued", "type": "boolean", "null": true },
+            { "name": "nov_date", "type": "date", "null": true },
+            { "name": "nov_posted_date", "type": "date", "null": true },
+            {
+              "name": "created_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            {
+              "name": "updated_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            {
+              "name": "time_in_parsed",
+              "type": "time without time zone",
+              "null": true
+            },
+            {
+              "name": "time_out_parsed",
+              "type": "time without time zone",
+              "null": true
+            }
+          ],
+          "indexes": [
+            {
+              "name": "idx_inspections_complaint",
+              "parts": [{ "column": "complaint" }]
+            },
+            {
+              "name": "idx_inspections_complaint_id",
+              "parts": [{ "column": "complaint_id" }]
+            },
+            {
+              "name": "idx_inspections_complaint_uuid",
+              "parts": [{ "column": "complaint_id_uuid" }]
+            },
+            {
+              "name": "idx_inspections_date",
+              "parts": [{ "desc": true, "column": "inspection_date" }]
+            },
+            {
+              "name": "idx_inspections_deleted_at",
+              "parts": [{ "column": "deleted_at" }]
+            },
+            {
+              "name": "idx_inspections_inspector",
+              "parts": [{ "column": "inspector" }]
+            },
+            {
+              "name": "idx_inspections_location",
+              "parts": [{ "column": "location" }]
+            },
+            {
+              "name": "idx_inspections_location_id",
+              "parts": [{ "column": "location_id" }]
+            },
+            {
+              "name": "idx_inspections_location_uuid",
+              "parts": [{ "column": "location_id_uuid" }]
+            },
+            {
+              "name": "idx_inspections_status",
+              "parts": [{ "column": "status" }]
+            }
+          ],
+          "primary_key": { "parts": [{ "column": "inspection_id" }] },
+          "foreign_keys": [
+            {
+              "name": "inspections_complaint_id_uuid_fkey",
+              "columns": ["complaint_id_uuid"],
+              "references": { "table": "complaints", "columns": ["id"] }
+            },
+            {
+              "name": "inspections_location_id_uuid_fkey",
+              "columns": ["location_id_uuid"],
+              "references": { "table": "locations", "columns": ["id"] }
+            }
+          ]
+        },
+        {
+          "name": "locations",
+          "columns": [
+            { "name": "address", "type": "text", "null": true },
+            { "name": "location_id", "type": "text", "null": true },
+            { "name": "owner_name", "type": "text", "null": true },
+            { "name": "owner_address", "type": "text", "null": true },
+            { "name": "owner_phone", "type": "text", "null": true },
+            { "name": "owner_email", "type": "text", "null": true },
+            {
+              "name": "facility_type",
+              "type": "public.locations_facility_type_enum",
+              "null": true
+            },
+            { "name": "number_of_units", "type": "numeric", "null": true },
+            { "name": "number_of_rooms", "type": "numeric", "null": true },
+            { "name": "healthy_housing", "type": "boolean", "null": true },
+            { "name": "census_tract", "type": "text", "null": true },
+            { "name": "current_fees", "type": "numeric", "null": true },
+            { "name": "inspections", "type": "text", "null": true },
+            {
+              "name": "open_complaint_inspections_list",
+              "type": "text",
+              "null": true
+            },
+            { "name": "block_lot", "type": "text", "null": true },
+            { "name": "dba", "type": "text", "null": true },
+            { "name": "management_name", "type": "text", "null": true },
+            { "name": "responsible_party", "type": "text", "null": true },
+            { "name": "responsible_party_phone", "type": "text", "null": true },
+            { "name": "responsible_party_email", "type": "text", "null": true },
+            { "name": "building_features", "type": "ARRAY", "null": true },
+            { "name": "verification_date", "type": "date", "null": true },
+            { "name": "imported_reports", "type": "text", "null": true },
+            { "name": "id", "type": "uuid" },
+            { "name": "created_at", "type": "timestamp with time zone" },
+            {
+              "name": "updated_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            {
+              "name": "deleted_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            { "name": "apn", "type": "text", "null": true },
+            { "name": "city", "type": "text", "null": true },
+            { "name": "state", "type": "text", "null": true },
+            { "name": "zip", "type": "text", "null": true },
+            { "name": "latitude", "type": "numeric", "null": true },
+            { "name": "longitude", "type": "numeric", "null": true },
+            { "name": "notes", "type": "text", "null": true }
+          ],
+          "indexes": [
+            {
+              "name": "idx_locations_address_trgm",
+              "parts": [{ "column": "address" }]
+            },
+            {
+              "name": "idx_locations_facility_type",
+              "parts": [{ "column": "facility_type" }]
+            },
+            {
+              "name": "idx_locations_location_id",
+              "parts": [{ "column": "location_id" }]
+            },
+            {
+              "name": "idx_locations_owner_name",
+              "parts": [{ "column": "owner_name" }]
+            }
+          ],
+          "primary_key": { "parts": [{ "column": "id" }] }
+        },
+        {
+          "name": "owner_documents",
+          "columns": [
+            { "name": "document_type", "type": "text", "null": true },
+            { "name": "submission_date", "type": "date", "null": true },
+            { "name": "notes", "type": "text", "null": true },
+            { "name": "received_by", "type": "text", "null": true },
+            { "name": "complaint", "type": "text", "null": true },
+            {
+              "name": "category",
+              "type": "public.owner_documents_category_enum",
+              "null": true
+            },
+            { "name": "id", "type": "uuid" },
+            { "name": "created_at", "type": "timestamp with time zone" },
+            {
+              "name": "updated_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            {
+              "name": "deleted_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            { "name": "complaint_uuid", "type": "uuid", "null": true }
+          ],
+          "indexes": [
+            {
+              "name": "idx_owner_docs_category",
+              "parts": [{ "column": "category" }]
+            },
+            {
+              "name": "idx_owner_docs_complaint",
+              "parts": [{ "column": "complaint" }]
+            },
+            {
+              "name": "idx_owner_docs_complaint_uuid",
+              "parts": [{ "column": "complaint_uuid" }]
+            },
+            {
+              "name": "idx_owner_documents_complaint_uuid",
+              "parts": [
+                { "column": "complaint_uuid" },
+                { "column": "submission_date" }
+              ]
+            }
+          ],
+          "primary_key": { "parts": [{ "column": "id" }] },
+          "foreign_keys": [
+            {
+              "name": "owner_documents_complaint_uuid_fkey",
+              "columns": ["complaint_uuid"],
+              "references": { "table": "complaints", "columns": ["id"] }
+            }
+          ]
+        },
+        {
+          "name": "packet_generation_events",
+          "columns": [
+            { "name": "id", "type": "uuid" },
+            { "name": "hearing_packet_id", "type": "uuid", "null": true },
+            { "name": "complaint_uuid", "type": "uuid", "null": true },
+            { "name": "event_type", "type": "text" },
+            { "name": "event_status", "type": "text" },
+            { "name": "event_message", "type": "text", "null": true },
+            { "name": "event_data", "type": "jsonb" },
+            { "name": "created_by", "type": "uuid", "null": true },
+            { "name": "created_at", "type": "timestamp with time zone" }
+          ],
+          "indexes": [
+            {
+              "name": "idx_packet_generation_events_complaint",
+              "parts": [
+                { "column": "complaint_uuid" },
+                { "desc": true, "column": "created_at" }
+              ]
+            },
+            {
+              "name": "idx_packet_generation_events_packet",
+              "parts": [
+                { "column": "hearing_packet_id" },
+                { "desc": true, "column": "created_at" }
+              ]
+            }
+          ],
+          "primary_key": { "parts": [{ "column": "id" }] },
+          "foreign_keys": [
+            {
+              "name": "packet_generation_events_complaint_uuid_fkey",
+              "columns": ["complaint_uuid"],
+              "references": { "table": "complaints", "columns": ["id"] }
+            },
+            {
+              "name": "packet_generation_events_created_by_fkey",
+              "columns": ["created_by"],
+              "references": { "table": "users", "columns": ["id"] }
+            },
+            {
+              "name": "packet_generation_events_hearing_packet_id_fkey",
+              "columns": ["hearing_packet_id"],
+              "references": { "table": "hearing_packets", "columns": ["id"] }
+            }
+          ],
+          "comment": "Audit log of packet validation, generation, review, finalization, and submission events."
+        },
+        {
+          "name": "packet_reviewers",
+          "columns": [
+            { "name": "id", "type": "uuid" },
+            { "name": "name", "type": "text" },
+            { "name": "role", "type": "text" },
+            { "name": "review_order", "type": "integer" },
+            { "name": "review_notes", "type": "text", "null": true },
+            { "name": "is_active", "type": "boolean", "null": true },
+            {
+              "name": "created_at",
+              "type": "timestamp with time zone",
+              "null": true
+            }
+          ],
+          "indexes": [
+            {
+              "name": "packet_reviewers_name_key",
+              "unique": true,
+              "parts": [{ "column": "name" }]
+            }
+          ],
+          "primary_key": { "parts": [{ "column": "id" }] }
+        },
+        {
+          "name": "parsed_document_content",
+          "columns": [
+            { "name": "id", "type": "uuid" },
+            { "name": "document_id", "type": "uuid", "null": true },
+            { "name": "raw_text", "type": "text", "null": true },
+            { "name": "structured_data", "type": "jsonb", "null": true },
+            { "name": "tokens_used", "type": "integer", "null": true },
+            { "name": "ai_model", "type": "text", "null": true },
+            {
+              "name": "processed_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            {
+              "name": "created_at",
+              "type": "timestamp with time zone",
+              "null": true
+            }
+          ],
+          "primary_key": { "parts": [{ "column": "id" }] },
+          "foreign_keys": [
+            {
+              "name": "parsed_document_content_document_id_fkey",
+              "columns": ["document_id"],
+              "references": { "table": "documents", "columns": ["id"] }
+            }
+          ],
+          "comment": "Stored results of AI extraction and analysis to prevent redundant processing"
+        },
+        {
+          "name": "pdf_field_map",
+          "columns": [
+            { "name": "id", "type": "uuid" },
+            { "name": "template_name", "type": "text" },
+            { "name": "pdf_field_name", "type": "text" },
+            { "name": "canonical_field", "type": "text" },
+            { "name": "field_type", "type": "text", "null": true },
+            { "name": "source_table", "type": "text", "null": true },
+            { "name": "source_column", "type": "text", "null": true },
+            { "name": "notes", "type": "text", "null": true },
+            {
+              "name": "created_at",
+              "type": "timestamp with time zone",
+              "null": true
+            }
+          ],
+          "indexes": [
+            {
+              "name": "pdf_field_map_template_name_pdf_field_name_key",
+              "unique": true,
+              "parts": [
+                { "column": "template_name" },
+                { "column": "pdf_field_name" }
+              ]
+            }
+          ],
+          "primary_key": { "parts": [{ "column": "id" }] }
+        },
+        {
+          "name": "proposed_order_terms",
+          "columns": [
+            { "name": "id", "type": "uuid" },
+            { "name": "sort_order", "type": "integer" },
+            { "name": "slug", "type": "text" },
+            { "name": "term_text", "type": "text" },
+            { "name": "is_default", "type": "boolean", "null": true },
+            { "name": "source_section", "type": "text", "null": true },
+            {
+              "name": "created_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            {
+              "name": "updated_at",
+              "type": "timestamp with time zone",
+              "null": true
+            }
+          ],
+          "indexes": [
+            {
+              "name": "proposed_order_terms_slug_key",
+              "unique": true,
+              "parts": [{ "column": "slug" }]
+            }
+          ],
+          "primary_key": { "parts": [{ "column": "id" }] }
+        },
+        {
+          "name": "regulatory_reference",
+          "columns": [
+            { "name": "id", "type": "uuid" },
+            { "name": "violation_code", "type": "text" },
+            { "name": "short_title", "type": "text" },
+            { "name": "verbatim_text", "type": "text" },
+            { "name": "source_document_id", "type": "uuid", "null": true },
+            { "name": "source_section", "type": "text", "null": true },
+            {
+              "name": "standard_corrective_action",
+              "type": "text",
+              "null": true
+            },
+            { "name": "is_active", "type": "boolean", "null": true },
+            { "name": "metadata", "type": "jsonb", "null": true },
+            {
+              "name": "created_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            {
+              "name": "updated_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            { "name": "fts", "type": "tsvector", "null": true }
+          ],
+          "indexes": [
+            {
+              "name": "idx_regulatory_ref_code",
+              "parts": [{ "column": "violation_code" }]
+            },
+            {
+              "name": "idx_regulatory_reference_fts",
+              "parts": [{ "column": "fts" }]
+            },
+            {
+              "name": "regulatory_reference_violation_code_key",
+              "unique": true,
+              "parts": [{ "column": "violation_code" }]
+            }
+          ],
+          "primary_key": { "parts": [{ "column": "id" }] },
+          "foreign_keys": [
+            {
+              "name": "regulatory_reference_source_document_id_fkey",
+              "columns": ["source_document_id"],
+              "references": { "table": "documents", "columns": ["id"] }
+            }
+          ],
+          "comment": "Source of truth for pre-authorized legal language and standard corrective actions"
+        },
+        {
+          "name": "service_log",
+          "columns": [
+            { "name": "notice_type", "type": "text", "null": true },
+            {
+              "name": "service_method",
+              "type": "public.service_log_service_method_enum",
+              "null": true
+            },
+            { "name": "service_date", "type": "date", "null": true },
+            { "name": "recipient", "type": "text", "null": true },
+            { "name": "tracking_number", "type": "text", "null": true },
+            { "name": "proof_of_service", "type": "boolean", "null": true },
+            { "name": "notes", "type": "text", "null": true },
+            {
+              "name": "status",
+              "type": "public.service_log_status_enum",
+              "null": true
+            },
+            { "name": "complaint", "type": "text", "null": true },
+            { "name": "id", "type": "uuid" },
+            { "name": "created_at", "type": "timestamp with time zone" },
+            {
+              "name": "updated_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            {
+              "name": "deleted_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            { "name": "complaint_uuid", "type": "uuid", "null": true }
+          ],
+          "indexes": [
+            {
+              "name": "idx_service_log_complaint",
+              "parts": [{ "column": "complaint" }]
+            },
+            {
+              "name": "idx_service_log_complaint_uuid",
+              "parts": [{ "column": "complaint_uuid" }]
+            },
+            {
+              "name": "idx_service_log_status",
+              "parts": [{ "column": "status" }]
+            }
+          ],
+          "primary_key": { "parts": [{ "column": "id" }] },
+          "foreign_keys": [
+            {
+              "name": "service_log_complaint_uuid_fkey",
+              "columns": ["complaint_uuid"],
+              "references": { "table": "complaints", "columns": ["id"] }
+            }
+          ]
+        },
+        {
+          "name": "sop_validation_rules",
+          "columns": [
+            { "name": "id", "type": "uuid" },
+            { "name": "rule_slug", "type": "text" },
+            { "name": "rule_name", "type": "text" },
+            { "name": "description", "type": "text" },
+            { "name": "threshold_value", "type": "integer", "null": true },
+            { "name": "threshold_unit", "type": "text", "null": true },
+            { "name": "severity", "type": "text", "null": true },
+            { "name": "source_section", "type": "text", "null": true },
+            { "name": "is_active", "type": "boolean", "null": true },
+            {
+              "name": "created_at",
+              "type": "timestamp with time zone",
+              "null": true
+            }
+          ],
+          "indexes": [
+            {
+              "name": "sop_validation_rules_rule_slug_key",
+              "unique": true,
+              "parts": [{ "column": "rule_slug" }]
+            }
+          ],
+          "primary_key": { "parts": [{ "column": "id" }] }
+        },
+        {
+          "name": "users",
+          "columns": [
+            { "name": "email", "type": "text", "null": true },
+            { "name": "first_name", "type": "text", "null": true },
+            { "name": "last_name", "type": "text", "null": true },
+            { "name": "role", "type": "public.users_role_enum", "null": true },
+            {
+              "name": "last_login",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            { "name": "signature_text", "type": "text", "null": true },
+            {
+              "name": "signature_style",
+              "type": "public.users_signature_style_enum",
+              "null": true
+            },
+            { "name": "id", "type": "uuid" },
+            { "name": "created_at", "type": "timestamp with time zone" },
+            {
+              "name": "updated_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            {
+              "name": "deleted_at",
+              "type": "timestamp with time zone",
+              "null": true
+            }
+          ],
+          "indexes": [
+            { "name": "idx_users_email", "parts": [{ "column": "email" }] },
+            { "name": "idx_users_role", "parts": [{ "column": "role" }] }
+          ],
+          "primary_key": { "parts": [{ "column": "id" }] }
+        },
+        {
+          "name": "violations",
+          "columns": [
+            { "name": "violation_label", "type": "text", "null": true },
+            { "name": "inspection", "type": "text", "null": true },
+            { "name": "violation_code", "type": "text", "null": true },
+            { "name": "category", "type": "text", "null": true },
+            { "name": "location_in_property", "type": "text", "null": true },
+            { "name": "corrective_action", "type": "text", "null": true },
+            { "name": "due_date", "type": "date", "null": true },
+            {
+              "name": "responsible_party",
+              "type": "public.violations_responsible_party_enum",
+              "null": true
+            },
+            {
+              "name": "status",
+              "type": "public.violations_status_enum",
+              "null": true
+            },
+            { "name": "complaint", "type": "text", "null": true },
+            {
+              "name": "deleted_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            { "name": "observation", "type": "text", "null": true },
+            { "name": "exhibit_refs", "type": "text", "null": true },
+            { "name": "id", "type": "uuid" },
+            { "name": "inspection_id", "type": "bigint", "null": true },
+            { "name": "regulatory_reference_id", "type": "uuid", "null": true },
+            { "name": "complaint_uuid", "type": "uuid", "null": true },
+            {
+              "name": "abatement_deadline_days",
+              "type": "integer",
+              "null": true
+            },
+            { "name": "exhibit_label", "type": "text", "null": true },
+            {
+              "name": "created_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            {
+              "name": "updated_at",
+              "type": "timestamp with time zone",
+              "null": true
+            }
+          ],
+          "indexes": [
+            {
+              "name": "idx_violations_complaint",
+              "parts": [{ "column": "complaint" }]
+            },
+            {
+              "name": "idx_violations_complaint_uuid",
+              "parts": [{ "column": "complaint_uuid" }]
+            },
+            {
+              "name": "idx_violations_deleted_at",
+              "parts": [{ "column": "deleted_at" }]
+            },
+            {
+              "name": "idx_violations_inspection",
+              "parts": [{ "column": "inspection" }]
+            },
+            {
+              "name": "idx_violations_inspection_id",
+              "parts": [{ "column": "inspection_id" }]
+            },
+            {
+              "name": "idx_violations_reg_ref_id",
+              "parts": [{ "column": "regulatory_reference_id" }]
+            },
+            {
+              "name": "idx_violations_status",
+              "parts": [{ "column": "status" }]
+            }
+          ],
+          "primary_key": { "parts": [{ "column": "id" }] },
+          "foreign_keys": [
+            {
+              "name": "violations_complaint_uuid_fkey",
+              "columns": ["complaint_uuid"],
+              "references": { "table": "complaints", "columns": ["id"] }
+            },
+            {
+              "name": "violations_inspection_id_fkey",
+              "columns": ["inspection_id"],
+              "references": {
+                "table": "inspections",
+                "columns": ["inspection_id"]
+              }
+            },
+            {
+              "name": "violations_regulatory_reference_id_fkey",
+              "columns": ["regulatory_reference_id"],
+              "references": {
+                "table": "regulatory_reference",
+                "columns": ["id"]
+              }
+            }
+          ]
+        }
+      ],
+      "comment": "standard public schema"
+    },
+    {
+      "name": "realtime",
+      "tables": [
+        {
+          "name": "messages",
+          "columns": [
+            { "name": "topic", "type": "text" },
+            { "name": "extension", "type": "text" },
+            { "name": "payload", "type": "jsonb", "null": true },
+            { "name": "event", "type": "text", "null": true },
+            { "name": "private", "type": "boolean", "null": true },
+            { "name": "updated_at", "type": "timestamp without time zone" },
+            { "name": "inserted_at", "type": "timestamp without time zone" },
+            { "name": "id", "type": "uuid" }
+          ],
+          "indexes": [
+            {
+              "name": "messages_inserted_at_topic_index",
+              "parts": [
+                { "desc": true, "column": "inserted_at" },
+                { "column": "topic" }
+              ]
+            }
+          ],
+          "primary_key": {
+            "parts": [{ "column": "id" }, { "column": "inserted_at" }]
+          }
+        },
+        {
+          "name": "schema_migrations",
+          "columns": [
+            { "name": "version", "type": "bigint" },
+            {
+              "name": "inserted_at",
+              "type": "timestamp without time zone",
+              "null": true
+            }
+          ],
+          "primary_key": { "parts": [{ "column": "version" }] }
+        },
+        {
+          "name": "subscription",
+          "columns": [
+            { "name": "id", "type": "bigint" },
+            { "name": "subscription_id", "type": "uuid" },
+            { "name": "entity", "type": "regclass" },
+            { "name": "filters", "type": "ARRAY" },
+            { "name": "claims", "type": "jsonb" },
+            { "name": "claims_role", "type": "regrole" },
+            { "name": "created_at", "type": "timestamp without time zone" },
+            { "name": "action_filter", "type": "text", "null": true }
+          ],
+          "indexes": [
+            {
+              "name": "ix_realtime_subscription_entity",
+              "parts": [{ "column": "entity" }]
+            },
+            {
+              "name": "subscription_subscription_id_entity_filters_action_filter_key",
+              "unique": true,
+              "parts": [
+                { "column": "subscription_id" },
+                { "column": "entity" },
+                { "column": "filters" },
+                { "column": "action_filter" }
+              ]
+            }
+          ],
+          "primary_key": { "parts": [{ "column": "id" }] }
+        }
+      ]
+    },
+    {
+      "name": "storage",
+      "tables": [
+        {
+          "name": "buckets",
+          "columns": [
+            { "name": "id", "type": "text" },
+            { "name": "name", "type": "text" },
+            {
+              "name": "owner",
+              "type": "uuid",
+              "null": true,
+              "comment": "Field is deprecated, use owner_id instead"
+            },
+            {
+              "name": "created_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            {
+              "name": "updated_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            { "name": "public", "type": "boolean", "null": true },
+            { "name": "avif_autodetection", "type": "boolean", "null": true },
+            { "name": "file_size_limit", "type": "bigint", "null": true },
+            { "name": "allowed_mime_types", "type": "ARRAY", "null": true },
+            { "name": "owner_id", "type": "text", "null": true },
+            { "name": "type", "type": "storage.buckettype" }
+          ],
+          "indexes": [
+            { "name": "bname", "unique": true, "parts": [{ "column": "name" }] }
+          ],
+          "primary_key": { "parts": [{ "column": "id" }] }
+        },
+        {
+          "name": "buckets_analytics",
+          "columns": [
+            { "name": "name", "type": "text" },
+            { "name": "type", "type": "storage.buckettype" },
+            { "name": "format", "type": "text" },
+            { "name": "created_at", "type": "timestamp with time zone" },
+            { "name": "updated_at", "type": "timestamp with time zone" },
+            { "name": "id", "type": "uuid" },
+            {
+              "name": "deleted_at",
+              "type": "timestamp with time zone",
+              "null": true
+            }
+          ],
+          "indexes": [
+            {
+              "name": "buckets_analytics_unique_name_idx",
+              "unique": true,
+              "parts": [{ "column": "name" }]
+            }
+          ],
+          "primary_key": { "parts": [{ "column": "id" }] }
+        },
+        {
+          "name": "buckets_vectors",
+          "columns": [
+            { "name": "id", "type": "text" },
+            { "name": "type", "type": "storage.buckettype" },
+            { "name": "created_at", "type": "timestamp with time zone" },
+            { "name": "updated_at", "type": "timestamp with time zone" }
+          ],
+          "primary_key": { "parts": [{ "column": "id" }] }
+        },
+        {
+          "name": "migrations",
+          "columns": [
+            { "name": "id", "type": "integer" },
+            { "name": "name", "type": "character varying" },
+            { "name": "hash", "type": "character varying" },
+            {
+              "name": "executed_at",
+              "type": "timestamp without time zone",
+              "null": true
+            }
+          ],
+          "indexes": [
+            {
+              "name": "migrations_name_key",
+              "unique": true,
+              "parts": [{ "column": "name" }]
+            }
+          ],
+          "primary_key": { "parts": [{ "column": "id" }] }
+        },
+        {
+          "name": "objects",
+          "columns": [
+            { "name": "id", "type": "uuid" },
+            { "name": "bucket_id", "type": "text", "null": true },
+            { "name": "name", "type": "text", "null": true },
+            {
+              "name": "owner",
+              "type": "uuid",
+              "null": true,
+              "comment": "Field is deprecated, use owner_id instead"
+            },
+            {
+              "name": "created_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            {
+              "name": "updated_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            {
+              "name": "last_accessed_at",
+              "type": "timestamp with time zone",
+              "null": true
+            },
+            { "name": "metadata", "type": "jsonb", "null": true },
+            { "name": "path_tokens", "type": "ARRAY", "null": true },
+            { "name": "version", "type": "text", "null": true },
+            { "name": "owner_id", "type": "text", "null": true },
+            { "name": "user_metadata", "type": "jsonb", "null": true }
+          ],
+          "indexes": [
+            {
+              "name": "bucketid_objname",
+              "unique": true,
+              "parts": [{ "column": "bucket_id" }, { "column": "name" }]
+            },
+            {
+              "name": "idx_objects_bucket_id_name",
+              "parts": [{ "column": "bucket_id" }, { "column": "name" }]
+            },
+            {
+              "name": "idx_objects_bucket_id_name_lower",
+              "parts": [{ "column": "bucket_id" }, { "expr": "lower(name)" }]
+            },
+            { "name": "name_prefix_search", "parts": [{ "column": "name" }] }
+          ],
+          "primary_key": { "parts": [{ "column": "id" }] },
+          "foreign_keys": [
+            {
+              "name": "objects_bucketId_fkey",
+              "columns": ["bucket_id"],
+              "references": { "table": "buckets", "columns": ["id"] }
+            }
+          ]
+        },
+        {
+          "name": "s3_multipart_uploads",
+          "columns": [
+            { "name": "id", "type": "text" },
+            { "name": "in_progress_size", "type": "bigint" },
+            { "name": "upload_signature", "type": "text" },
+            { "name": "bucket_id", "type": "text" },
+            { "name": "key", "type": "text", "collate": "C" },
+            { "name": "version", "type": "text" },
+            { "name": "owner_id", "type": "text", "null": true },
+            { "name": "created_at", "type": "timestamp with time zone" },
+            { "name": "user_metadata", "type": "jsonb", "null": true },
+            { "name": "metadata", "type": "jsonb", "null": true }
+          ],
+          "indexes": [
+            {
+              "name": "idx_multipart_uploads_list",
+              "parts": [
+                { "column": "bucket_id" },
+                { "column": "key" },
+                { "column": "created_at" }
+              ]
+            }
+          ],
+          "primary_key": { "parts": [{ "column": "id" }] },
+          "foreign_keys": [
+            {
+              "name": "s3_multipart_uploads_bucket_id_fkey",
+              "columns": ["bucket_id"],
+              "references": { "table": "buckets", "columns": ["id"] }
+            }
+          ]
+        },
+        {
+          "name": "s3_multipart_uploads_parts",
+          "columns": [
+            { "name": "id", "type": "uuid" },
+            { "name": "upload_id", "type": "text" },
+            { "name": "size", "type": "bigint" },
+            { "name": "part_number", "type": "integer" },
+            { "name": "bucket_id", "type": "text" },
+            { "name": "key", "type": "text", "collate": "C" },
+            { "name": "etag", "type": "text" },
+            { "name": "owner_id", "type": "text", "null": true },
+            { "name": "version", "type": "text" },
+            { "name": "created_at", "type": "timestamp with time zone" }
+          ],
+          "primary_key": { "parts": [{ "column": "id" }] },
+          "foreign_keys": [
+            {
+              "name": "s3_multipart_uploads_parts_bucket_id_fkey",
+              "columns": ["bucket_id"],
+              "references": { "table": "buckets", "columns": ["id"] }
+            },
+            {
+              "name": "s3_multipart_uploads_parts_upload_id_fkey",
+              "columns": ["upload_id"],
+              "references": {
+                "table": "s3_multipart_uploads",
+                "columns": ["id"]
+              }
+            }
+          ]
+        },
+        {
+          "name": "vector_indexes",
+          "columns": [
+            { "name": "id", "type": "text" },
+            { "name": "name", "type": "text", "collate": "C" },
+            { "name": "bucket_id", "type": "text" },
+            { "name": "data_type", "type": "text" },
+            { "name": "dimension", "type": "integer" },
+            { "name": "distance_metric", "type": "text" },
+            { "name": "metadata_configuration", "type": "jsonb", "null": true },
+            { "name": "created_at", "type": "timestamp with time zone" },
+            { "name": "updated_at", "type": "timestamp with time zone" }
+          ],
+          "indexes": [
+            {
+              "name": "vector_indexes_name_bucket_id_idx",
+              "unique": true,
+              "parts": [{ "column": "name" }, { "column": "bucket_id" }]
+            }
+          ],
+          "primary_key": { "parts": [{ "column": "id" }] },
+          "foreign_keys": [
+            {
+              "name": "vector_indexes_bucket_id_fkey",
+              "columns": ["bucket_id"],
+              "references": { "table": "buckets_vectors", "columns": ["id"] }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "supabase_functions",
+      "tables": [
+        {
+          "name": "hooks",
+          "columns": [
+            { "name": "id", "type": "bigserial" },
+            { "name": "hook_table_id", "type": "integer" },
+            { "name": "hook_name", "type": "text" },
+            { "name": "created_at", "type": "timestamp with time zone" },
+            { "name": "request_id", "type": "bigint", "null": true }
+          ],
+          "indexes": [
+            {
+              "name": "supabase_functions_hooks_h_table_id_h_name_idx",
+              "parts": [
+                { "column": "hook_table_id" },
+                { "column": "hook_name" }
+              ]
+            },
+            {
+              "name": "supabase_functions_hooks_request_id_idx",
+              "parts": [{ "column": "request_id" }]
+            }
+          ],
+          "primary_key": { "parts": [{ "column": "id" }] },
+          "comment": "Supabase Functions Hooks: Audit trail for triggered hooks."
+        },
+        {
+          "name": "migrations",
+          "columns": [
+            { "name": "version", "type": "text" },
+            { "name": "inserted_at", "type": "timestamp with time zone" }
+          ],
+          "primary_key": { "parts": [{ "column": "version" }] }
+        }
+      ]
+    },
+    {
+      "name": "supabase_migrations",
+      "tables": [
+        {
+          "name": "schema_migrations",
+          "columns": [
+            { "name": "version", "type": "text" },
+            { "name": "statements", "type": "ARRAY", "null": true },
+            { "name": "name", "type": "text", "null": true },
+            { "name": "created_by", "type": "text", "null": true },
+            { "name": "idempotency_key", "type": "text", "null": true },
+            { "name": "rollback", "type": "ARRAY", "null": true }
+          ],
+          "indexes": [
+            {
+              "name": "schema_migrations_idempotency_key_key",
+              "unique": true,
+              "parts": [{ "column": "idempotency_key" }]
+            }
+          ],
+          "primary_key": { "parts": [{ "column": "version" }] }
+        }
+      ]
+    },
+    { "name": "vault" }
+  ]
+}

@@ -19,7 +19,8 @@ type AnalyzingSubState = "queuing" | "polling" | "processing";
 export default function DraftPacketAnalysisPage() {
   const navigate = useNavigate();
   const [viewState, setViewState] = useState<ViewState>("upload");
-  const [analyzingSubState, setAnalyzingSubState] = useState<AnalyzingSubState>("queuing");
+  const [analyzingSubState, setAnalyzingSubState] =
+    useState<AnalyzingSubState>("queuing");
   const [extractedText, setExtractedText] = useState("");
   const [fileName, setFileName] = useState("");
   const [elapsedTime, setElapsedTime] = useState(0);
@@ -38,11 +39,17 @@ export default function DraftPacketAnalysisPage() {
 
     try {
       setAnalyzingSubState("polling");
-      const doc = await documentService.uploadDocument(file, "Draft Hearing Packet");
+      const doc = await documentService.uploadDocument(
+        file,
+        "Draft Hearing Packet",
+      );
       setDocumentId(doc.id);
 
       setAnalyzingSubState("processing");
-      const complianceResult = await aiService.analyzePacketCompliance(text, file.name);
+      const complianceResult = await aiService.analyzePacketCompliance(
+        text,
+        file.name,
+      );
 
       await documentService.saveParsedContent(doc.id, {
         rawText: text,
@@ -65,7 +72,10 @@ export default function DraftPacketAnalysisPage() {
     if (!result || !documentId) return;
     setViewState("generating");
     try {
-      const newText = await aiService.generateCorrectedPacket(extractedText, result);
+      const newText = await aiService.generateCorrectedPacket(
+        extractedText,
+        result,
+      );
 
       await documentService.saveParsedContent(documentId, {
         rawText: newText,
@@ -102,7 +112,10 @@ export default function DraftPacketAnalysisPage() {
         id: "approve-packet",
       });
 
-      const mappedData = packetMapperService.extractPacketData(result, fileName);
+      const mappedData = packetMapperService.extractPacketData(
+        result,
+        fileName,
+      );
 
       let complaintId = "";
       if (mappedData.caseNumber) {
@@ -110,7 +123,7 @@ export default function DraftPacketAnalysisPage() {
         const { data: complaints } = await supabase
           .from("complaints")
           .select("id")
-          .ilike("complaintid", `%${cleanCase}%`)
+          .ilike("legacy_complaint_id", `%${cleanCase}%`)
           .limit(1);
 
         if (complaints && complaints.length > 0) {
@@ -205,7 +218,11 @@ ${extractedText.substring(0, 5000)}
   if (viewState === "analyzing") {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
-        <AnalysisProgress stage={analyzingSubState} progress={0} elapsedTime={elapsedTime} />
+        <AnalysisProgress
+          stage={analyzingSubState}
+          progress={0}
+          elapsedTime={elapsedTime}
+        />
       </div>
     );
   }
@@ -228,7 +245,9 @@ ${extractedText.substring(0, 5000)}
   if (viewState === "generating") {
     return (
       <div className="max-w-2xl mx-auto p-12 text-center">
-        <h2 className="text-2xl font-bold mb-4">Generating Corrected Packet...</h2>
+        <h2 className="text-2xl font-bold mb-4">
+          Generating Corrected Packet...
+        </h2>
         <p className="text-muted-foreground">
           The AI is applying the recommended changes to your draft packet.
         </p>
@@ -246,11 +265,16 @@ ${extractedText.substring(0, 5000)}
           <div>
             <h2 className="text-2xl font-bold">Compliance-Corrected Draft</h2>
             <p className="text-muted-foreground text-sm">
-              The AI has applied corrections based on the SOP compliance analysis.
+              The AI has applied corrections based on the SOP compliance
+              analysis.
             </p>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={() => setViewState("review")}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setViewState("review")}
+            >
               Back to Review
             </Button>
             <Button
@@ -301,7 +325,9 @@ ${extractedText.substring(0, 5000)}
                       </span>
                       <span className="font-medium">{issue.category}</span>
                     </div>
-                    <p className="text-muted-foreground mb-1 text-xs">{issue.description}</p>
+                    <p className="text-muted-foreground mb-1 text-xs">
+                      {issue.description}
+                    </p>
                     <p className="text-emerald-600 text-xs font-medium">
                       ✓ Suggestion applied: {issue.suggestion}
                     </p>
@@ -312,9 +338,13 @@ ${extractedText.substring(0, 5000)}
           </div>
 
           <div className="lg:col-span-2 flex flex-col h-full overflow-hidden">
-            <h3 className="text-sm font-semibold mb-2">Corrected Document Preview</h3>
+            <h3 className="text-sm font-semibold mb-2">
+              Corrected Document Preview
+            </h3>
             <div className="flex-1 bg-white border rounded-lg shadow-inner p-8 overflow-y-auto font-serif text-sm leading-relaxed">
-              <pre className="whitespace-pre-wrap font-serif">{correctedText}</pre>
+              <pre className="whitespace-pre-wrap font-serif">
+                {correctedText}
+              </pre>
             </div>
           </div>
         </div>
@@ -347,8 +377,13 @@ ${extractedText.substring(0, 5000)}
       <div className="mt-8 p-4 bg-muted/50 rounded-lg">
         <h3 className="font-medium mb-2">How it works</h3>
         <ol className="list-decimal list-inside text-sm text-muted-foreground space-y-1">
-          <li>Upload a PDF or Word document containing your draft hearing packet</li>
-          <li>Our AI will extract the text and analyze it against the SOP requirements</li>
+          <li>
+            Upload a PDF or Word document containing your draft hearing packet
+          </li>
+          <li>
+            Our AI will extract the text and analyze it against the SOP
+            requirements
+          </li>
           <li>Review any compliance issues and recommendations</li>
           <li>Approve the draft to continue with the workflow</li>
         </ol>

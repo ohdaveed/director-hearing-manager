@@ -2,7 +2,15 @@ import { useState, useRef, useCallback } from "react";
 
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Upload, FileText, CheckCircle2, AlertCircle, Download, X, Loader2 } from "lucide-react";
+import {
+  Upload,
+  FileText,
+  CheckCircle2,
+  AlertCircle,
+  Download,
+  X,
+  Loader2,
+} from "lucide-react";
 import { complaintService } from "@/services/complaintService";
 
 // ── CSV parsing ───────────────────────────────────────────────────────────────
@@ -43,7 +51,7 @@ const HEADER_MAP: Record<string, string> = {
   // Complaint ID / Number
   "complaint id": "complaintId",
   complaint_id: "complaintId",
-  complaintid: "complaintId",
+  legacy_complaint_id: "complaintId",
   "complaint number": "complaintId",
   complaint_number: "complaintId",
   complaintnumber: "complaintId",
@@ -84,7 +92,7 @@ const HEADER_MAP: Record<string, string> = {
   // Location ID
   "location id": "locationId",
   location_id: "locationId",
-  locationid: "locationId",
+  legacy_location_id: "locationId",
 };
 
 /** Normalize date strings to YYYY-MM-DD. Handles MM/DD/YYYY and YYYY-MM-DD. */
@@ -136,9 +144,12 @@ function parseCSV(text: string): { rows: ParsedRow[]; strippedCount: number } {
 
     const errors: string[] = [];
     if (!mapped.address?.trim()) errors.push("Address missing");
-    const normalizedDate = mapped.dateReceived?.trim() ? normalizeDate(mapped.dateReceived) : "";
+    const normalizedDate = mapped.dateReceived?.trim()
+      ? normalizeDate(mapped.dateReceived)
+      : "";
     if (!mapped.dateReceived?.trim()) errors.push("Date Received missing");
-    else if (isNaN(new Date(normalizedDate).getTime())) errors.push("Date Received invalid");
+    else if (isNaN(new Date(normalizedDate).getTime()))
+      errors.push("Date Received invalid");
     if (!mapped.description?.trim()) errors.push("Description missing");
 
     return {
@@ -146,7 +157,7 @@ function parseCSV(text: string): { rows: ParsedRow[]; strippedCount: number } {
       address: mapped.address ?? "",
       dateReceived: normalizedDate,
       description: mapped.description ?? "",
-      complaintId: mapped.complaintid || undefined,
+      complaintId: mapped.legacy_complaint_id || undefined,
       caseNumber311: mapped.caseNumber311 || undefined,
       complaintType: mapped.complaintType || undefined,
       category: mapped.category || undefined,
@@ -164,7 +175,10 @@ function parseCSV(text: string): { rows: ParsedRow[]; strippedCount: number } {
   // Strip rows where ALL key fields are empty — catches EHB footer metadata and blank lines
   const dataRows = allRows.filter(
     (r) =>
-      r.address.trim() || r.dateReceived.trim() || r.description.trim() || r.complaintId?.trim(),
+      r.address.trim() ||
+      r.dateReceived.trim() ||
+      r.description.trim() ||
+      r.complaintId?.trim(),
   );
   const strippedCount = allRows.length - dataRows.length;
 
@@ -199,7 +213,13 @@ const TEMPLATE_CSV = [
 
 // ── Sub-components ────────────────────────────────────────────────────────────
 
-function DropZone({ onFile, hasFile }: { onFile: (file: File) => void; hasFile: boolean }) {
+function DropZone({
+  onFile,
+  hasFile,
+}: {
+  onFile: (file: File) => void;
+  hasFile: boolean;
+}) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
 
@@ -232,17 +252,21 @@ function DropZone({ onFile, hasFile }: { onFile: (file: File) => void; hasFile: 
       <div
         className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${dragging ? "bg-primary/10" : "bg-muted"}`}
       >
-        <Upload className={`w-6 h-6 ${dragging ? "text-primary" : "text-muted-foreground"}`} />
+        <Upload
+          className={`w-6 h-6 ${dragging ? "text-primary" : "text-muted-foreground"}`}
+        />
       </div>
       <div>
         <p className="font-semibold text-foreground">
           {hasFile ? "Drop a new file to replace" : "Drop a CSV file here"}
         </p>
-        <p className="text-sm text-muted-foreground mt-0.5">or click to browse your files</p>
+        <p className="text-sm text-muted-foreground mt-0.5">
+          or click to browse your files
+        </p>
       </div>
       <p className="text-xs text-muted-foreground bg-muted px-3 py-1.5 rounded-full">
-        Required columns: <strong>Address</strong>, <strong>Date Received</strong>,{" "}
-        <strong>Complaint Details</strong>
+        Required columns: <strong>Address</strong>,{" "}
+        <strong>Date Received</strong>, <strong>Complaint Details</strong>
       </p>
       <input
         ref={inputRef}
@@ -259,7 +283,13 @@ function DropZone({ onFile, hasFile }: { onFile: (file: File) => void; hasFile: 
   );
 }
 
-function PreviewTable({ rows, onClear }: { rows: ParsedRow[]; onClear: () => void }) {
+function PreviewTable({
+  rows,
+  onClear,
+}: {
+  rows: ParsedRow[];
+  onClear: () => void;
+}) {
   const valid = rows.filter((r) => r.valid).length;
   const invalid = rows.length - valid;
   return (
@@ -301,22 +331,33 @@ function PreviewTable({ rows, onClear }: { rows: ParsedRow[]; onClear: () => voi
           </thead>
           <tbody className="divide-y divide-border">
             {rows.map((row) => (
-              <tr key={row.rowNum} className={row.valid ? "" : "bg-destructive/5"}>
-                <td className="px-3 py-2.5 text-muted-foreground font-mono">{row.rowNum}</td>
+              <tr
+                key={row.rowNum}
+                className={row.valid ? "" : "bg-destructive/5"}
+              >
+                <td className="px-3 py-2.5 text-muted-foreground font-mono">
+                  {row.rowNum}
+                </td>
                 <td
                   className="px-3 py-2.5 max-w-[200px] truncate text-foreground"
                   title={row.address}
                 >
-                  {row.address || <span className="text-destructive italic">—</span>}
+                  {row.address || (
+                    <span className="text-destructive italic">—</span>
+                  )}
                 </td>
                 <td className="px-3 py-2.5">
                   {row.errors.some((e) => e.includes("Date")) ? (
-                    <span className="text-destructive italic">{row.dateReceived || "Missing"}</span>
+                    <span className="text-destructive italic">
+                      {row.dateReceived || "Missing"}
+                    </span>
                   ) : (
                     row.dateReceived
                   )}
                 </td>
-                <td className="px-3 py-2.5 text-muted-foreground">{row.complaintType || "—"}</td>
+                <td className="px-3 py-2.5 text-muted-foreground">
+                  {row.complaintType || "—"}
+                </td>
                 <td className="px-3 py-2.5">
                   {row.valid ? (
                     <span className="bg-muted text-muted-foreground px-1.5 py-0.5 rounded-full">
@@ -340,7 +381,8 @@ function PreviewTable({ rows, onClear }: { rows: ParsedRow[]; onClear: () => voi
         <div className="px-5 py-2.5 border-t border-border bg-muted/20">
           <p className="text-xs text-muted-foreground">
             <AlertCircle className="inline w-3 h-3 mr-1 text-destructive" />
-            Rows with errors are skipped. Fix them in your spreadsheet and re-upload.
+            Rows with errors are skipped. Fix them in your spreadsheet and
+            re-upload.
           </p>
         </div>
       )}
@@ -373,7 +415,9 @@ export default function ImportComplaintsPage() {
       }
       // Limit applies to real data rows only, after metadata stripping
       if (parsed.length > 200) {
-        toast.error("Maximum 200 rows per import. Split your file and try again.");
+        toast.error(
+          "Maximum 200 rows per import. Split your file and try again.",
+        );
         return;
       }
       setRows(parsed);
@@ -427,7 +471,9 @@ export default function ImportComplaintsPage() {
           `Imported ${res.created} complaint${res.created !== 1 ? "s" : ""} successfully.`,
         );
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Import failed. Please try again.");
+      toast.error(
+        err instanceof Error ? err.message : "Import failed. Please try again.",
+      );
     } finally {
       setImporting(false);
     }
@@ -450,12 +496,19 @@ export default function ImportComplaintsPage() {
       {/* Header */}
       <div className="flex items-start justify-between mb-6 gap-4">
         <div>
-          <h1 className="text-xl font-bold text-foreground">Import Complaints from CSV</h1>
+          <h1 className="text-xl font-bold text-foreground">
+            Import Complaints from CSV
+          </h1>
           <p className="text-sm text-muted-foreground mt-0.5">
             Upload a spreadsheet to create multiple complaints at once.
           </p>
         </div>
-        <Button variant="outline" size="sm" className="gap-2 shrink-0" onClick={downloadTemplate}>
+        <Button
+          variant="outline"
+          size="sm"
+          className="gap-2 shrink-0"
+          onClick={downloadTemplate}
+        >
           <Download className="w-3.5 h-3.5" /> Template
         </Button>
       </div>
@@ -468,7 +521,8 @@ export default function ImportComplaintsPage() {
           <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
           <div className="flex-1">
             <p className="font-semibold text-foreground">
-              {result.created} complaint{result.created !== 1 ? "s" : ""} imported
+              {result.created} complaint{result.created !== 1 ? "s" : ""}{" "}
+              imported
               {result.skipped > 0 ? `, ${result.skipped} skipped` : ""}
             </p>
             {result.errors.length > 0 && (
@@ -504,9 +558,11 @@ export default function ImportComplaintsPage() {
                 <AlertCircle className="w-4 h-4 text-muted-foreground shrink-0 mt-0.5" />
                 <p className="text-sm text-foreground">
                   <span className="font-semibold">
-                    {strippedCount} row{strippedCount !== 1 ? "s" : ""} automatically removed
+                    {strippedCount} row{strippedCount !== 1 ? "s" : ""}{" "}
+                    automatically removed
                   </span>{" "}
-                  — system-generated metadata (report header, filter settings, column config).
+                  — system-generated metadata (report header, filter settings,
+                  column config).
                 </p>
               </div>
               <button
@@ -527,7 +583,8 @@ export default function ImportComplaintsPage() {
 
           <div className="flex items-center justify-between">
             <p className="text-sm text-muted-foreground">
-              {validCount} of {rows.length} row{rows.length !== 1 ? "s" : ""} will be imported.
+              {validCount} of {rows.length} row{rows.length !== 1 ? "s" : ""}{" "}
+              will be imported.
             </p>
             <Button
               onClick={handleImport}
@@ -539,7 +596,9 @@ export default function ImportComplaintsPage() {
               ) : (
                 <Upload className="w-4 h-4" />
               )}
-              {importing ? "Importing…" : `Import ${validCount} row${validCount !== 1 ? "s" : ""}`}
+              {importing
+                ? "Importing…"
+                : `Import ${validCount} row${validCount !== 1 ? "s" : ""}`}
             </Button>
           </div>
         </div>
@@ -578,10 +637,10 @@ export default function ImportComplaintsPage() {
           </div>
           <p className="text-xs text-muted-foreground mt-4">
             Dates can be in <span className="font-mono">MM/DD/YYYY</span> or{" "}
-            <span className="font-mono">YYYY-MM-DD</span> format. Column names are flexible — e.g.{" "}
-            <span className="font-mono">Description</span> or{" "}
-            <span className="font-mono">Complaint Details</span> both work. Download the template
-            above to get started quickly.
+            <span className="font-mono">YYYY-MM-DD</span> format. Column names
+            are flexible — e.g. <span className="font-mono">Description</span>{" "}
+            or <span className="font-mono">Complaint Details</span> both work.
+            Download the template above to get started quickly.
           </p>
         </div>
       )}

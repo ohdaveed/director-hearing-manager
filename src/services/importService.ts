@@ -4,15 +4,22 @@ import { pdfService } from "./pdfService";
 import { wordService } from "./wordService";
 
 /** Column selections to avoid SELECT * */
-const PACKET_COMPLAINT_COLUMNS = "id, complaint, complaint_uuid";
+const PACKET_COMPLAINT_COLUMNS = "id, legacy_complaint_ref, complaint_id";
 const INSPECTION_IMPORT_COLUMNS = `
   inspection_id, inspection_date, inspector, inspection_type,
   status, notes, deleted_at
 `;
-const CHRONO_RELATED_COLUMNS = "id, related_inspection, complaint, complaint_uuid, deleted_at";
+const CHRONO_RELATED_COLUMNS =
+  "id, legacy_inspection_ref, legacy_complaint_ref, complaint_id, deleted_at";
 
 export const importService = {
-  async importDraftPacket({ packetId, file }: { packetId: string; file: File }) {
+  async importDraftPacket({
+    packetId,
+    file,
+  }: {
+    packetId: string;
+    file: File;
+  }) {
     let text = "";
     if (file.name.toLowerCase().endsWith(".pdf")) {
       text = await pdfService.extractText(file);
@@ -34,8 +41,8 @@ export const importService = {
 
     const { error: chronoError } = await supabase.from("chronology").insert([
       {
-        complaint: packet.complaint,
-        complaint_uuid: packet.complaint_uuid,
+        legacy_complaint_ref: (packet as any).legacy_complaint_ref,
+        complaint_id: packet.complaint_id,
         entry_date: new Date().toISOString().split("T")[0],
         entry_type: "Inspection",
         summary: `Imported from draft: ${file.name}. ${extractedViolations.length} violations found.`,
@@ -69,7 +76,7 @@ export const importService = {
         inspection_photos!inspection_id ( id, photo_url, caption, deleted_at )
       `,
       )
-      .eq("complaint", packet.complaint)
+      .eq("legacy_complaint_ref", (packet as any).legacy_complaint_ref)
       .eq("status", "Submitted")
       .is("deleted_at", null);
 
@@ -79,11 +86,13 @@ export const importService = {
     const { data: existingChrono } = await supabase
       .from("chronology")
       .select(CHRONO_RELATED_COLUMNS)
-      .eq("complaint", packet.complaint)
+      .eq("legacy_complaint_ref", (packet as any).legacy_complaint_ref)
       .is("deleted_at", null);
 
     const importedIds = new Set(
-      (existingChrono ?? []).map((c) => c.related_inspection).filter(Boolean),
+      (existingChrono ?? [])
+        .map((c) => (c as any).legacy_inspection_ref)
+        .filter(Boolean),
     );
 
     return {
@@ -134,9 +143,9 @@ export const importService = {
     }
 
     const chronologyEntries = inspections.map((insp: any) => ({
-      complaint: packet.complaint,
-      complaint_uuid: packet.complaint_uuid,
-      related_inspection: String(insp.inspection_id),
+      legacy_complaint_ref: (packet as any).legacy_complaint_ref,
+      complaint_id: packet.complaint_id,
+      legacy_inspection_ref: String(insp.inspection_id),
       entry_date: insp.inspection_date,
       entry_type: "Inspection" as const,
       summary: `Inspection conducted by ${insp.inspector}.`,
@@ -150,9 +159,9 @@ export const importService = {
     if (chronoBatchError) throw chronoBatchError;
 
     const exhibitEntries = inspections.map((insp: any) => ({
-      complaint: packet.complaint,
-      complaint_uuid: packet.complaint_uuid,
-      source_inspection: String(insp.inspection_id),
+      legacy_complaint_ref: (packet as any).legacy_complaint_ref,
+      complaint_id: packet.complaint_id,
+      legacy_inspection_ref: String(insp.inspection_id),
       source_inspection_id: insp.inspection_id,
       exhibit_type: "Inspection Report" as const,
       category: "Inspection Report" as const,
@@ -160,7 +169,9 @@ export const importService = {
       exhibit_date: insp.inspection_date,
     }));
 
-    const { error: exhibitBatchError } = await supabase.from("exhibits").insert(exhibitEntries);
+    const { error: exhibitBatchError } = await supabase
+      .from("exhibits")
+      .insert(exhibitEntries);
 
     if (exhibitBatchError) throw exhibitBatchError;
 

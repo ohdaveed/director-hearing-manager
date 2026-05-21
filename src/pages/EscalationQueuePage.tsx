@@ -71,7 +71,9 @@ function EscalationEditor({
   onComplaintPacketCreated: (complaintId: string, packetId: string) => void;
 }) {
   const queryClient = useQueryClient();
-  const [hearingStatus, setHearingStatus] = useState(complaint.hearing_status ?? "None");
+  const [hearingStatus, setHearingStatus] = useState(
+    complaint.hearing_status ?? "None",
+  );
   const [hearingDate, setHearingDate] = useState(complaint.hearing_date ?? "");
   const [chronologySummary, setChronologySummary] = useState("");
   const [entryType, setEntryType] = useState("Hearing Referral");
@@ -80,7 +82,8 @@ function EscalationEditor({
   const saving = false;
 
   const updateMutation = useMutation({
-    mutationFn: (updates: any) => complaintService.update(complaint.id, updates),
+    mutationFn: (updates: any) =>
+      complaintService.update(complaint.id, updates),
     onSuccess: (data) => {
       onUpdated(data);
       setChronologySummary("");
@@ -92,7 +95,9 @@ function EscalationEditor({
   const createPacketMutation = useMutation({
     mutationFn: () => packetService.create(complaint.id),
     onSuccess: (data) => {
-      toast.success("Hearing packet created! Navigate to Hearing Packets to manage it.");
+      toast.success(
+        "Hearing packet created! Navigate to Hearing Packets to manage it.",
+      );
       onComplaintPacketCreated(complaint.id, data.id);
     },
   });
@@ -121,7 +126,8 @@ function EscalationEditor({
   };
 
   const hsCls =
-    HEARING_STATUS_COLORS[hearingStatus] ?? "bg-muted text-muted-foreground border-border";
+    HEARING_STATUS_COLORS[hearingStatus] ??
+    "bg-muted text-muted-foreground border-border";
   const isPacketEligible = PACKET_ELIGIBLE_STATUSES.includes(hearingStatus);
   const hasPacket = !!complaint.hearing_packet_id;
 
@@ -176,9 +182,13 @@ function EscalationEditor({
             <div className="flex items-center gap-2">
               <Package className="w-4 h-4 text-muted-foreground flex-shrink-0" />
               <div>
-                <p className="text-sm font-medium text-foreground">Director's Hearing Packet</p>
+                <p className="text-sm font-medium text-foreground">
+                  Director's Hearing Packet
+                </p>
                 <p className="text-xs text-muted-foreground">
-                  {hasPacket ? "A packet exists for this case." : "No packet created yet."}
+                  {hasPacket
+                    ? "A packet exists for this case."
+                    : "No packet created yet."}
                 </p>
               </div>
             </div>
@@ -234,7 +244,11 @@ function EscalationEditor({
       </div>
 
       <Button onClick={handleSave} disabled={saving} className="gap-2">
-        {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+        {saving ? (
+          <Loader2 className="w-4 h-4 animate-spin" />
+        ) : (
+          <Save className="w-4 h-4" />
+        )}
         Save Escalation Record
       </Button>
 
@@ -247,17 +261,23 @@ function EscalationEditor({
             </AlertDialogTitle>
             <AlertDialogDescription asChild>
               <div className="space-y-3 text-sm">
-                <p>This will create a new Director's Hearing Packet for this case.</p>
+                <p>
+                  This will create a new Director's Hearing Packet for this
+                  case.
+                </p>
                 <div className="bg-muted rounded-lg p-3 space-y-1 text-foreground">
-                  {complaint.complaintid && (
+                  {complaint.legacy_complaint_id && (
                     <p>
                       <span className="font-medium">Complaint:</span>{" "}
-                      <span className="font-mono">#{complaint.complaintid}</span>
+                      <span className="font-mono">
+                        #{complaint.legacy_complaint_id}
+                      </span>
                     </p>
                   )}
                   {complaint.address && (
                     <p>
-                      <span className="font-medium">Address:</span> {complaint.address}
+                      <span className="font-medium">Address:</span>{" "}
+                      {complaint.address}
                     </p>
                   )}
                   {hearingDate && (
@@ -268,20 +288,23 @@ function EscalationEditor({
                   )}
                   {complaint.assigned_to && (
                     <p>
-                      <span className="font-medium">Inspector:</span> {complaint.assigned_to}
+                      <span className="font-medium">Inspector:</span>{" "}
+                      {complaint.assigned_to}
                     </p>
                   )}
                 </div>
                 <p className="text-muted-foreground">
-                  Navigate to the <strong>Hearing Packets</strong> section to manage and print the
-                  packet.
+                  Navigate to the <strong>Hearing Packets</strong> section to
+                  manage and print the packet.
                 </p>
               </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleCreatePacket}>Create Packet</AlertDialogAction>
+            <AlertDialogAction onClick={handleCreatePacket}>
+              Create Packet
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
@@ -305,7 +328,9 @@ export default function EscalationQueuePage() {
             c.status === "Non-Compliant" ||
             (c.hearing_status && c.hearing_status !== "None"),
         )
-        .sort((a: any, b: any) => (b.date_entered ?? "").localeCompare(a.date_entered ?? ""));
+        .sort((a: any, b: any) =>
+          (b.date_entered ?? "").localeCompare(a.date_entered ?? ""),
+        );
     },
   });
 
@@ -313,7 +338,9 @@ export default function EscalationQueuePage() {
     if (!search) return complaints;
     const q = search.toLowerCase();
     return complaints.filter(
-      (c: any) => c.address?.toLowerCase().includes(q) || c.complaintid?.includes(q),
+      (c: any) =>
+        c.address?.toLowerCase().includes(q) ||
+        c.legacy_complaint_id?.includes(q),
     );
   }, [complaints, search]);
 
@@ -351,7 +378,9 @@ export default function EscalationQueuePage() {
 
       <div className="container mx-auto px-4 sm:px-6 py-5 max-w-7xl">
         <div className="flex flex-col lg:flex-row gap-5">
-          <div className={`flex-1 min-w-0 ${showDetail ? "hidden lg:block" : ""}`}>
+          <div
+            className={`flex-1 min-w-0 ${showDetail ? "hidden lg:block" : ""}`}
+          >
             {loading ? (
               <div className="space-y-2">
                 {Array.from({ length: 5 }).map((_, i) => (
@@ -375,13 +404,15 @@ export default function EscalationQueuePage() {
               <div className="text-center py-20 text-muted-foreground">
                 <AlertTriangle className="w-10 h-10 mx-auto mb-3 opacity-30" />
                 <p className="text-sm font-medium">No escalated cases</p>
-                <p className="text-xs mt-1">Cases marked Escalated or Non-Compliant appear here</p>
+                <p className="text-xs mt-1">
+                  Cases marked Escalated or Non-Compliant appear here
+                </p>
               </div>
             ) : (
               <SimpleTable
                 data={filtered}
                 columns={[
-                  { key: "complaintid", header: "ID" },
+                  { key: "legacy_complaint_id", header: "ID" },
                   { key: "address", header: "Address" },
                   { key: "status", header: "Status" },
                   { key: "hearing_status", header: "Hearing Status" },
@@ -389,7 +420,12 @@ export default function EscalationQueuePage() {
                     key: "hearing_date",
                     header: "Hearing Date",
                     render: (v) =>
-                      v ? format(new Date((v as string) + "T00:00:00"), "MMM d, yyyy") : "-",
+                      v
+                        ? format(
+                            new Date((v as string) + "T00:00:00"),
+                            "MMM d, yyyy",
+                          )
+                        : "-",
                   },
                 ]}
                 searchable={false}
@@ -402,7 +438,9 @@ export default function EscalationQueuePage() {
             )}
           </div>
 
-          <div className={`flex-1 min-w-0 space-y-4 ${showDetail ? "block" : "hidden md:block"}`}>
+          <div
+            className={`flex-1 min-w-0 space-y-4 ${showDetail ? "block" : "hidden md:block"}`}
+          >
             {selected ? (
               <>
                 <Button
@@ -430,7 +468,8 @@ export default function EscalationQueuePage() {
                 <ClipboardList className="w-14 h-14 mb-4 opacity-20" />
                 <p className="font-semibold text-foreground">Select a case</p>
                 <p className="text-sm mt-1">
-                  Review complaint history and update hearing status or add a chronology note.
+                  Review complaint history and update hearing status or add a
+                  chronology note.
                 </p>
               </div>
             )}

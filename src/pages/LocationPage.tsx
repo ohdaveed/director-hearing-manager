@@ -80,7 +80,11 @@ function OwnerTab({ loc }: { loc: LocationData }) {
             label="Block / Lot"
             value={loc.block_lot}
           />
-          <InfoItem icon={<Building2 className="w-3.5 h-3.5" />} label="DBA" value={loc.dba} />
+          <InfoItem
+            icon={<Building2 className="w-3.5 h-3.5" />}
+            label="DBA"
+            value={loc.dba}
+          />
           <InfoItem
             icon={<Building2 className="w-3.5 h-3.5" />}
             label="Units"
@@ -108,7 +112,9 @@ function OwnerTab({ loc }: { loc: LocationData }) {
         </div>
         {loc.building_features && loc.building_features.length > 0 && (
           <div className="mt-4">
-            <p className="text-xs text-muted-foreground mb-2">Building Features</p>
+            <p className="text-xs text-muted-foreground mb-2">
+              Building Features
+            </p>
             <div className="flex flex-wrap gap-1.5">
               {loc.building_features.map((f: string) => (
                 <Badge key={f} variant="secondary" className="text-xs">
@@ -146,11 +152,20 @@ function OwnerTab({ loc }: { loc: LocationData }) {
             label="Phone"
             value={loc.owner_phone}
           />
-          <InfoItem icon={<Mail className="w-3.5 h-3.5" />} label="Email" value={loc.owner_email} />
+          <InfoItem
+            icon={<Mail className="w-3.5 h-3.5" />}
+            label="Email"
+            value={loc.owner_email}
+          />
         </div>
-        {!loc.owner_name && !loc.owner_address && !loc.owner_phone && !loc.owner_email && (
-          <p className="text-xs text-muted-foreground italic">No owner info on file.</p>
-        )}
+        {!loc.owner_name &&
+          !loc.owner_address &&
+          !loc.owner_phone &&
+          !loc.owner_email && (
+            <p className="text-xs text-muted-foreground italic">
+              No owner info on file.
+            </p>
+          )}
       </div>
 
       {/* Management */}
@@ -192,7 +207,9 @@ function InspectionsTab({ inspections }: { inspections: Inspection[] }) {
     return (
       <div className="bg-card border border-border rounded-xl p-12 text-center shadow-sm">
         <ClipboardList className="w-10 h-10 mx-auto mb-3 text-muted-foreground opacity-30" />
-        <p className="text-sm font-medium text-muted-foreground">No inspections on record</p>
+        <p className="text-sm font-medium text-muted-foreground">
+          No inspections on record
+        </p>
       </div>
     );
   }
@@ -201,15 +218,18 @@ function InspectionsTab({ inspections }: { inspections: Inspection[] }) {
     <div className="bg-card border border-border rounded-xl overflow-hidden shadow-sm">
       <div className="divide-y divide-border">
         {inspections.map((ins: any) => (
-          <div key={ins.id} className="px-5 py-4 flex items-start justify-between gap-3">
+          <div
+            key={ins.id}
+            className="px-5 py-4 flex items-start justify-between gap-3"
+          >
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2 flex-wrap mb-1">
                 <span className="text-sm font-semibold text-foreground">
                   {fmt(ins.inspection_date)}
                 </span>
-                {ins.complaintid && (
+                {ins.legacy_complaint_id && (
                   <span className="text-xs font-mono text-primary bg-primary/10 px-1.5 py-0.5 rounded">
-                    #{ins.complaintid}
+                    #{ins.legacy_complaint_id}
                   </span>
                 )}
               </div>
@@ -266,7 +286,9 @@ function ComplaintsTab({ complaints }: { complaints: Complaint[] }) {
     return (
       <div className="bg-card border border-border rounded-xl p-12 text-center shadow-sm">
         <FileText className="w-10 h-10 mx-auto mb-3 text-muted-foreground opacity-30" />
-        <p className="text-sm font-medium text-muted-foreground">No complaints on record</p>
+        <p className="text-sm font-medium text-muted-foreground">
+          No complaints on record
+        </p>
       </div>
     );
   }
@@ -276,15 +298,19 @@ function ComplaintsTab({ complaints }: { complaints: Complaint[] }) {
       <div className="divide-y divide-border">
         {complaints.map((c: any) => {
           const badgeCls =
-            COMPLAINT_STATUS_THEME[c.status as keyof typeof COMPLAINT_STATUS_THEME] ??
-            "bg-muted text-muted-foreground";
+            COMPLAINT_STATUS_THEME[
+              c.status as keyof typeof COMPLAINT_STATUS_THEME
+            ] ?? "bg-muted text-muted-foreground";
           return (
-            <div key={c.id} className="px-5 py-4 flex items-start justify-between gap-3">
+            <div
+              key={c.id}
+              className="px-5 py-4 flex items-start justify-between gap-3"
+            >
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2 flex-wrap mb-1">
-                  {c.complaintid && (
+                  {c.legacy_complaint_id && (
                     <span className="text-xs font-mono font-semibold text-primary bg-primary/10 px-1.5 py-0.5 rounded">
-                      #{c.complaintid}
+                      #{c.legacy_complaint_id}
                     </span>
                   )}
                   <span className="text-sm font-semibold text-foreground">
@@ -298,7 +324,9 @@ function ComplaintsTab({ complaints }: { complaints: Complaint[] }) {
                 </div>
                 <div className="flex items-center gap-2 flex-wrap text-xs text-muted-foreground">
                   {c.complaint_type && <span>{c.complaint_type}</span>}
-                  {c.assigned_to && <span>· {c.assigned_to.replace(" (DPH)", "")}</span>}
+                  {c.assigned_to && (
+                    <span>· {c.assigned_to.replace(" (DPH)", "")}</span>
+                  )}
                 </div>
                 {c.description && (
                   <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
@@ -320,7 +348,9 @@ function ComplaintsTab({ complaints }: { complaints: Complaint[] }) {
               </div>
               <div className="flex-shrink-0">
                 {c.status && (
-                  <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${badgeCls}`}>
+                  <span
+                    className={`text-xs font-medium px-2 py-0.5 rounded-full ${badgeCls}`}
+                  >
                     {c.status}
                   </span>
                 )}
@@ -339,7 +369,12 @@ export default function LocationPage() {
 
   if (!locationRecordId) return <Navigate to="/all-locations" replace />;
 
-  return <LocationPageContent locationRecordId={locationRecordId} onBack={() => navigate(-1)} />;
+  return (
+    <LocationPageContent
+      locationRecordId={locationRecordId}
+      onBack={() => navigate(-1)}
+    />
+  );
 }
 
 function LocationPageContent({
@@ -383,7 +418,9 @@ function LocationPageContent({
               </div>
               <div className="flex items-center gap-3 text-sm text-muted-foreground flex-wrap">
                 {data.location.location_id && (
-                  <span className="font-mono">ID: {data.location.location_id}</span>
+                  <span className="font-mono">
+                    ID: {data.location.location_id}
+                  </span>
                 )}
                 {data.location.facility_type && (
                   <span className="bg-muted px-2 py-0.5 rounded-full text-xs">
