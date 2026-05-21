@@ -94,13 +94,14 @@ Example: `.select('*, inspections!location_uuid(*)')` to disambiguate which FK t
 - **Migrations**: `migrations/` — managed by Atlas CLI (run `atlas migrate diff <name>` to generate)
 - **RLS policies**: Defined in `migrations/001c_rls_policies.sql` and `001d_rls_remaining_and_fks.sql`
 - **Schema management with Atlas**:
-  - `npm run db:diff -- <name>` — generate a new migration from schema changes
-  - `npm run db:lint` — lint the latest migration for safety issues
+  - `npm run db:diff -- <name> -- --dev-url '<dev-db-url>'` — generate a new migration from schema changes
+  - `npm run db:lint -- --dev-url '<dev-db-url>'` — lint the latest migration for safety issues
   - `npm run db:apply` — apply pending migrations to the database
-  - `npm run db:validate` — validate that schema files are parseable
-  - `npm run db:inspect` — inspect live database and export to `schema.sql`
+  - `npm run db:validate -- --dev-url '<dev-db-url>'` — validate that schema files are parseable
+  - `npm run db:inspect -- --url '<target-db-url>'` — inspect live database
   - Config: `atlas.hcl` — defines the `director_hearing_manager` env
-  - Requires `ATLAS_DATABASE_URL` and `ATLAS_DEV_URL` env vars (see `.env.example`)
+  - Every Atlas command that computes diffs needs `--dev-url` (clean Postgres database for diff computation)
+  - Set `ATLAS_DATABASE_URL` in your `.env` file (see `.env.example`)
 - All tables have `created_at`/`updated_at` with auto-update trigger; most have `deleted_at` soft-delete
 - Run migrations via Atlas (`npm run db:apply`) — never mutate schema directly
 - Linked skill: `supabase-postgres-best-practices` (see `skills-lock.json`)

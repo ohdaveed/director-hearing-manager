@@ -12,11 +12,11 @@
     "prepare": "vp config",
     "sync:pdf-worker": "cp node_modules/pdfjs-dist/build/pdf.worker.min.mjs public/pdf.worker.min.mjs",
     "sync:skills": "node scripts/sync_skills.cjs",
-    "db:diff": "atlas migrate diff --env director_hearing_manager",
-    "db:apply": "atlas migrate apply --env director_hearing_manager",
-    "db:lint": "atlas migrate lint --env director_hearing_manager --latest 1",
-    "db:inspect": "atlas schema inspect --url \"$DATABASE_URL\" --format '{{ sql . }}' > schema.sql",
-    "db:validate": "atlas schema validate --env director_hearing_manager",
+    "db:diff": "atlas migrate diff --to 'file://sql/schema.sql'",
+    "db:apply": "atlas migrate apply",
+    "db:lint": "atlas migrate lint --latest 1",
+    "db:inspect": "atlas schema inspect --schema public --format '{{ sql . }}'",
+    "db:validate": "atlas schema validate --url file://sql/schema.sql",
     "postinstall": "npm run sync:pdf-worker && npm run sync:skills"
   },
   "dependencies": {
