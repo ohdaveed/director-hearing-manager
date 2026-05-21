@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { complaintService } from "@/services/complaintService";
 import { packetService } from "@/services/packetService";
@@ -102,11 +102,13 @@ function EscalationEditor({
     },
   });
 
-  useEffect(() => {
+  const [prevComplaintId, setPrevComplaintId] = useState(complaint.id);
+  if (complaint.id !== prevComplaintId) {
+    setPrevComplaintId(complaint.id);
     setHearingStatus(complaint.hearing_status ?? "None");
     setHearingDate(complaint.hearing_date ?? "");
     setChronologySummary("");
-  }, [complaint.id, complaint.hearing_date, complaint.hearing_status]);
+  }
 
   const handleSave = async () => {
     try {

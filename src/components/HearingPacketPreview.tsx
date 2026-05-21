@@ -53,11 +53,18 @@ export default function HearingPacketPreview({ data, onClose }: Props) {
     "rendering" | "numbering" | "ready"
   >("rendering");
 
-  useEffect(() => {
+  const [prevDataId, setPrevDataId] = useState(data.packet.id);
+  if (data.packet.id !== prevDataId) {
+    setPrevDataId(data.packet.id);
     setRenderStage("rendering");
-    const t = setTimeout(() => setRenderStage("numbering"), 450);
-    return () => clearTimeout(t);
-  }, [data.packet.id]);
+  }
+
+  useEffect(() => {
+    if (renderStage === "rendering") {
+      const t = setTimeout(() => setRenderStage("numbering"), 450);
+      return () => clearTimeout(t);
+    }
+  }, [renderStage]);
 
   // ── Signature state ─────────────────────────────────────────────────────
   const [inspectorSig, setInspectorSig] = useState<ParsedSignature | null>(
@@ -68,7 +75,9 @@ export default function HearingPacketPreview({ data, onClose }: Props) {
   const [isSavingPdf, setIsSavingPdf] = useState(false);
 
   // Initialize signatures from saved packet data, or auto-fill from user profile
-  useEffect(() => {
+  const [prevPacketId, setPrevPacketId] = useState(packet.id);
+  if (packet.id !== prevPacketId) {
+    setPrevPacketId(packet.id);
     const savedInspector = tryParseSignature(packet.inspector_signature);
     const savedManager = tryParseSignature(packet.manager_signature);
 
@@ -89,8 +98,7 @@ export default function HearingPacketPreview({ data, onClose }: Props) {
         })
         .catch(() => {});
     }
-    // oxlint-disable-next-line react-hooks/exhaustive-deps
-  }, [packet.id]);
+  }
 
   const isManagerRole = user?.role && MANAGER_ROLES.includes(user.role);
   const hasNoSignature = !user?.signatureText;
@@ -173,10 +181,11 @@ export default function HearingPacketPreview({ data, onClose }: Props) {
     });
   });
 
-  let photoOffset = 0;
-  const photoOffsets: number[] = inspections.map((_: any, idx: number) => {
-    const offset = photoOffset;
-    photoOffset += allPhotosPerInspection[idx].length;
+  const photoOffsets: number[] = inspections.map((_: unknown, idx: number) => {
+    let offset = 0;
+    for (let i = 0; i < idx; i++) {
+      offset += allPhotosPerInspection[i].length;
+    }
     return offset;
   });
 

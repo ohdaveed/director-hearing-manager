@@ -15,6 +15,8 @@ export default tseslint.config(
       "node_modules",
       "scripts/**",
       "vite.config.ts",
+      "supabase/functions/**",
+      "tailwind.config.ts",
     ],
   },
   {
@@ -116,6 +118,7 @@ export default tseslint.config(
       "no-console": ["warn", { allow: ["warn", "error"] }],
       "prefer-const": "error",
       "no-var": "error",
+      "@typescript-eslint/no-explicit-any": "warn",
     },
   }
 );

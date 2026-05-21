@@ -7,7 +7,7 @@
  * Right: drag-and-drop exhibit upload panel with auto page-range calculation.
  */
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { chronoService } from "@/services/chronoService";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -309,9 +309,11 @@ export default function ChronologyEditorTab({
     }
   }, [packetId]);
 
-  useEffect(() => {
+  const [hasLoaded, setHasLoaded] = useState(false);
+  if (!hasLoaded) {
+    setHasLoaded(true);
     load();
-  }, [load]);
+  }
 
   const sorted = [...entries].sort((a, b) => {
     if (a.chronologyOrder != null && b.chronologyOrder != null)

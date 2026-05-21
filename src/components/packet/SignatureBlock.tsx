@@ -7,7 +7,7 @@
  */
 
 import type { CSSProperties } from "react";
-import { getSignatureFont } from "@/pages/ProfilePage";
+import { getSignatureFont } from "@/constants/signatureStyles";
 
 export interface ParsedSignature {
   text: string;
@@ -15,7 +15,9 @@ export interface ParsedSignature {
 }
 
 /** Try to parse a stored signature JSON string */
-export function tryParseSignature(raw: string | undefined | null): ParsedSignature | null {
+export function tryParseSignature(
+  raw: string | undefined | null,
+): ParsedSignature | null {
   if (!raw) return null;
   try {
     const parsed = JSON.parse(raw);
@@ -34,7 +36,12 @@ interface Props {
   labelStyle: CSSProperties;
 }
 
-export function SignatureBlock({ label, signature, cellStyle, labelStyle }: Props) {
+export function SignatureBlock({
+  label,
+  signature,
+  cellStyle,
+  labelStyle,
+}: Props) {
   const { font, size } = getSignatureFont(signature?.style);
   return (
     <td style={cellStyle}>

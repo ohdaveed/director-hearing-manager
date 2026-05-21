@@ -11,7 +11,7 @@
  */
 
 import { formatDateShort } from "@/utils/formatDate";
-import { getSignatureFont } from "@/pages/ProfilePage";
+import { getSignatureFont } from "@/constants/signatureStyles";
 import { STATIC_BLOCKS, LAYOUT_TOKENS } from "../../config/documentTemplates";
 import type { ParsedSignature } from "./SignatureBlock";
 
