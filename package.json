@@ -9,7 +9,7 @@
     "lint": "eslint . --report-unused-disable-directives --max-warnings 0",
     "test": "vp test",
     "preview": "vp preview",
-    "prepare": "vp config",
+    "prepare": "vp config && husky",
     "sync:pdf-worker": "cp node_modules/pdfjs-dist/build/pdf.worker.min.mjs public/pdf.worker.min.mjs",
     "sync:skills": "node scripts/sync_skills.cjs",
     "db:diff": "atlas migrate diff --to 'file://sql/schema.sql'",
@@ -90,7 +90,9 @@
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.2",
     "globals": "^17.6.0",
+    "husky": "^9.1.7",
     "jsdom": "^29.1.1",
+    "lint-staged": "^17.0.5",
     "markdownlint-cli2": "^0.22.1",
     "markdownlint-rule-helpers": "^0.30.0",
     "postcss": "^8.5.14",
@@ -109,5 +111,8 @@
     "vite": "npm:@voidzero-dev/vite-plus-core@latest",
     "vitest": "npm:@voidzero-dev/vite-plus-test@latest"
   },
-  "packageManager": "npm@11.14.1"
+  "packageManager": "npm@11.14.1",
+  "lint-staged": {
+    "src/**/*.{ts,tsx}": "eslint --fix"
+  }
 }
