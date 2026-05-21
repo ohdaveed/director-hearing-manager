@@ -83,12 +83,26 @@ Example: `.select('*, inspections!location_uuid(*)')` to disambiguate which FK t
 
 ## Database
 
-- **Schema**: `schema.sql` (12+ tables, UUID PKs for most, BIGINT for `inspections`, RLS on all tables)
+- **Schema as Code**: The desired state lives in `sql/schema.sql` (one-file-per-object in `sql/`).
+  - `sql/types/` — ENUM type definitions
+  - `sql/tables/` — Table definitions (one file per table)
+  - `sql/functions/` — PostgreSQL functions
+  - `sql/views/` — Database views
+  - `sql/indexes/` — All indexes
+  - `sql/extensions/` — Extensions (uuid-ossp, pg_trgm, vector)
 - **Types**: `src/types/database.ts` is the authoritative source for database interfaces.
-- **Migrations**: `migrations/` numbered `001a_`–`003a_` (idempotent — uses `IF NOT EXISTS`/`DROP IF EXISTS`)
-- RLS policies are defined in `migrations/001c_rls_policies.sql` and `001d_rls_remaining_and_fks.sql`
+- **Migrations**: `migrations/` — managed by Atlas CLI (run `atlas migrate diff <name>` to generate)
+- **RLS policies**: Defined in `migrations/001c_rls_policies.sql` and `001d_rls_remaining_and_fks.sql`
+- **Schema management with Atlas**:
+  - `npm run db:diff -- <name>` — generate a new migration from schema changes
+  - `npm run db:lint` — lint the latest migration for safety issues
+  - `npm run db:apply` — apply pending migrations to the database
+  - `npm run db:validate` — validate that schema files are parseable
+  - `npm run db:inspect` — inspect live database and export to `schema.sql`
+  - Config: `atlas.hcl` — defines the `director_hearing_manager` env
+  - Requires `ATLAS_DATABASE_URL` and `ATLAS_DEV_URL` env vars (see `.env.example`)
 - All tables have `created_at`/`updated_at` with auto-update trigger; most have `deleted_at` soft-delete
-- Run migrations via Supabase CLI (`supabase db push`) — never mutate schema directly
+- Run migrations via Atlas (`npm run db:apply`) — never mutate schema directly
 - Linked skill: `supabase-postgres-best-practices` (see `skills-lock.json`)
 
 ## TypeScript Rules (Team Conventions)
@@ -122,12 +136,18 @@ Route guards in `App.tsx`; impersonation via header banner (Super Admin only, ne
 
 <!--VITE PLUS START-->
 
-## Vite+ Toolchain
+# Using Vite+, the Unified Toolchain for the Web
 
-- Use `vp` commands (`vp dev`, `vp build`, `vp test`, `vp lint`, `vp fmt`)
-- Do NOT use pnpm/npm/yarn directly for dependency management; use `vp install` / `vp add` / `vp remove`
-- Vitest is bundled — import test utilities from `vite-plus/test`, NOT from `vitest`
-- Type-aware linting: `vp lint --type-aware` works out of the box
+This project is using Vite+, a unified toolchain built on top of Vite, Rolldown, Vitest, tsdown, Oxlint, Oxfmt, and Vite Task. Vite+ wraps runtime management, package management, and frontend tooling in a single global CLI called `vp`. Vite+ is distinct from Vite, and it invokes Vite through `vp dev` and `vp build`. Run `vp help` to print a list of commands and `vp <command> --help` for information about a specific command.
+
+Docs are local at `node_modules/vite-plus/docs` or online at https://viteplus.dev/guide/.
+
+## Review Checklist
+
+- [ ] Run `vp install` after pulling remote changes and before getting started.
+- [ ] Run `vp check` and `vp test` to format, lint, type check and test changes.
+- [ ] Check if there are `vite.config.ts` tasks or `package.json` scripts necessary for validation, run via `vp run <script>`.
+- [ ] If setup, runtime, or package-manager behavior looks wrong, run `vp env doctor` and include its output when asking for help.
 
 <!--VITE PLUS END-->
 

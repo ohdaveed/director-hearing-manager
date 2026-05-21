@@ -1,0 +1,1 @@
+CREATE TYPE inspections_access_granted_by_enum AS ENUM ('Tenant', 'Owner', 'Property Manager', 'Could Not Access', 'Memo of Visit Left on Site', 'Observed from Adjacent Lot', 'Observed from Public Right of Way');

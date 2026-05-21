@@ -1,0 +1,57 @@
+-- atlas:import ../types/enum_complaints_status.sql
+-- atlas:import ../types/enum_complaints_hearing_status.sql
+-- atlas:import ../types/enum_complaints_method_received.sql
+-- atlas:import ../types/enum_complaints_assigned_program.sql
+
+CREATE TABLE complaints (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  date_entered DATE,
+  address TEXT,
+  legacy_complaint_id TEXT,  -- renamed from complaintid in 004
+  legacy_location_id TEXT,   -- renamed from locationid in 004
+  status complaints_status_enum,
+  description TEXT,
+  assigned_to TEXT,
+  category TEXT[],
+  date_last_report_sent TEXT,
+  reinspection_due_on_after DATE,
+  attachments BOOLEAN,
+  inspections TEXT,
+  location TEXT,
+  complainant_name TEXT,
+  complainant_phone TEXT,
+  complainant_email TEXT,
+  chronology TEXT,
+  owner_documents TEXT,
+  exhibits TEXT,
+  service_log TEXT,
+  hearing_packets TEXT,
+  hearing_status complaints_hearing_status_enum,
+  hearing_date DATE,
+  thread_parent TEXT,
+  violations TEXT,
+  inspection_photos TEXT,
+  "311_case_number" TEXT,
+  unit_number TEXT,
+  complaint_type TEXT,
+  complaint_subtype TEXT,
+  method_received complaints_method_received_enum,
+  assigned_program complaints_assigned_program_enum,
+  date_assigned DATE,
+  complainant_anonymous BOOLEAN,
+  complainant_address TEXT,
+  complainant_contact_dates TEXT,
+  facility_name TEXT,
+  facility_ownership TEXT,
+  date_closed DATE,
+  deleted_at TIMESTAMPTZ,
+  hearing_rp_name TEXT,
+  hearing_rp_phone TEXT,
+  hearing_rp_email TEXT,
+  hearing_rp_address TEXT,
+  purpose_of_hearing TEXT,
+  notice_of_hearing_date DATE,
+  hearing_order_date DATE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ
+);

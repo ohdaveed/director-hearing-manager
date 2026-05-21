@@ -1,0 +1,1 @@
+CREATE TYPE inspections_inspection_type_enum AS ENUM ('Routine', 'Routine Re-inspection', 'Complaint', 'Complaint Re-inspection', 'Citation to Hearing Issued', 'Field Consultation / Survey', 'Imported');

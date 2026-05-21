@@ -52,14 +52,20 @@
     "impeccable": {
       "source": "pbakaus/impeccable",
       "sourceType": "github",
-      "skillPath": "skill/SKILL.md",
-      "computedHash": "ada9c434d56c794352ccd5c7a6901e5ebb4b7f3b7fe42e8c17c2c4b96c3735c8"
+      "skillPath": "skills/impeccable/SKILL.md",
+      "computedHash": "8cd41bea10b0830c0f7776cdc56a38ab8debd42af3a2d1e45e0f9184cc4bccb4"
     },
     "memory-leak-debugging": {
       "source": "chromedevtools/chrome-devtools-mcp",
       "sourceType": "github",
       "skillPath": "skills/memory-leak-debugging/SKILL.md",
       "computedHash": "25ff728d6eed6dd6810c0f1eba306613e019613ac709e1797482b4450b71e1d2"
+    },
+    "plankton-code-quality": {
+      "source": "community",
+      "sourceType": "local",
+      "skillPath": "skills/plankton-code-quality/SKILL.md",
+      "computedHash": "a050ad0fa0305985a95ecfea297f22895070de64006a3248f57dd374ecac4d5e"
     },
     "playwright-cli": {
       "source": "microsoft/playwright-cli",

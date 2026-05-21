@@ -1,0 +1,69 @@
+-- ──────────────────────────────────────────────────────────────────────────────
+-- Director Hearing Manager — Composite Schema Manifest
+-- ──────────────────────────────────────────────────────────────────────────────
+-- This file imports all type, table, function, view, and extension definitions
+-- from the structured sql/ directory.  It is the single source of truth for
+-- Atlas schema management.
+--
+-- Edit the per-object files in sql/types/, sql/tables/, etc., then run:
+--   atlas migrate diff <name> --env director_hearing_manager
+-- to generate a new migration.
+-- ──────────────────────────────────────────────────────────────────────────────
+
+-- ── Extensions ──
+-- atlas:import extensions/_all.sql
+
+-- ── Type (ENUM) Definitions ──
+-- atlas:import types/enum_inspection_photos_photo_type.sql
+-- atlas:import types/enum_complaints_status.sql
+-- atlas:import types/enum_complaints_hearing_status.sql
+-- atlas:import types/enum_complaints_method_received.sql
+-- atlas:import types/enum_complaints_assigned_program.sql
+-- atlas:import types/enum_locations_facility_type.sql
+-- atlas:import types/enum_inspections_inspection_type.sql
+-- atlas:import types/enum_inspections_inspection_rating.sql
+-- atlas:import types/enum_inspections_access_granted_by.sql
+-- atlas:import types/enum_inspections_status.sql
+-- atlas:import types/enum_violations_responsible_party.sql
+-- atlas:import types/enum_violations_status.sql
+-- atlas:import types/enum_chronology_entry_type.sql
+-- atlas:import types/enum_chronology_visibility.sql
+-- atlas:import types/enum_chronology_citation_code.sql
+-- atlas:import types/enum_owner_documents_category.sql
+-- atlas:import types/enum_exhibits_exhibit_type.sql
+-- atlas:import types/enum_exhibits_category.sql
+-- atlas:import types/enum_service_log_service_method.sql
+-- atlas:import types/enum_service_log_status.sql
+-- atlas:import types/enum_hearing_packets_packet_status.sql
+-- atlas:import types/enum_hearing_packets_program_code.sql
+-- atlas:import types/enum_hearing_packets_packet_type.sql
+-- atlas:import types/enum_users_role.sql
+-- atlas:import types/enum_users_signature_style.sql
+-- atlas:import types/enum_imported_reports_parsing_status.sql
+
+-- ── Table Definitions ──
+-- atlas:import tables/users.sql
+-- atlas:import tables/locations.sql
+-- atlas:import tables/complaints.sql
+-- atlas:import tables/inspections.sql
+-- atlas:import tables/violations.sql
+-- atlas:import tables/inspection_photos.sql
+-- atlas:import tables/chronology.sql
+-- atlas:import tables/exhibits.sql
+-- atlas:import tables/owner_documents.sql
+-- atlas:import tables/service_log.sql
+-- atlas:import tables/hearing_packets.sql
+-- atlas:import tables/imported_reports.sql
+-- atlas:import tables/async_tasks.sql
+-- atlas:import tables/compliance_rules.sql
+-- atlas:import tables/sop_embeddings.sql
+
+-- ── Function Definitions ──
+-- atlas:import functions/update_updated_at_column.sql
+-- atlas:import functions/get_current_user_role.sql
+
+-- ── View Definitions ──
+-- atlas:import views/packet_analysis_tasks.sql
+
+-- ── Index Definitions ──
+-- atlas:import indexes/_all.sql
