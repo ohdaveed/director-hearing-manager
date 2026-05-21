@@ -2,6 +2,9 @@
 
 ## Recently Completed
 
+- **Environment Template Workflow:**
+  - Added `.env.template.pass` as an alternate Proton Pass template spelling with placeholders for Supabase, Atlas, and AI provider values.
+  - Documented Proton Pass template naming and AI/local tooling environment variables in `AGENTS.md`.
 - **Draft Compliance Track (Phase 4):**
   - Implemented `saveComplianceAnalysis` in `packetService.ts` with full type safety (`ComplianceResult`, `PacketData`).
   - Created `elementToPdfBlob` utility for multi-page PDF generation from HTML.
@@ -41,6 +44,7 @@
 - Store final packets in Supabase `documents` bucket under `packets/${packetId}/`.
 - Update `notes` field in database with the public URL of the final stored PDF.
 - **Atlas schema-as-code**: Use `sql/` one-file-per-object directory as the desired state. Atlas `migrate diff` compares this against `migrations/` to generate new migrations. RLS policies remain in existing migration files (not in the schema directory) since they require Postgres-specific auth context.
+- **Proton Pass template naming**: `.env.pass.template.example` remains the committed example for `scripts/populate-env.cjs`; `.env.template.pass` is maintained as an alternate suffix-based template and should be copied to `.env.pass.template` before `npm run env:inject`.
 
 ## Changed Patterns / Gotchas
 

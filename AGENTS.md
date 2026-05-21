@@ -173,7 +173,10 @@ To prevent "performative agreement" and ensure architectural integrity, all code
 - **Goal:** Instead of checking if the code works, the reviewer must find exactly three ways the implementation diverges from the patterns in `AGENTS.md` or introduces a pattern that wasn't reconciled in the plan.
 - **Remediation:** All three identified violations MUST be addressed or formally reconciled in the track's `plan.md` before the task can be considered "Done".
 
-## Quality Gates
+### UX Audit
+
+- Use `node scripts/run-audit.js <file-path>` to proactively audit components against enterprise UX standards (Hick's, Fitts's, and Jakob's Laws).
+- **Mandate:** Always run this audit on new UI components before requesting a review from the "Contrarian Reviewer" subagent.
 
 Before marking done: tests pass, coverage >80%, lint clean, code style guides followed
 
@@ -192,6 +195,19 @@ Runtime (Vite-prefixed, set in `.env` / `.env.local`):
 
 - `VITE_SUPABASE_URL`
 - `VITE_SUPABASE_ANON_KEY`
+- `VITE_ANTHROPIC_API_KEY` — used by `aiService` and browser-side model fallback logic.
+- `VITE_OPENAI_API_KEY` — used by `modelSelector` for OpenAI fallback logic.
+
+Local tooling / non-Vite values:
+
+- `ATLAS_DATABASE_URL` — target database URL for Atlas schema commands.
+- `GEMINI_API_KEY` — used by local AI audit scripts.
+
+Templates:
+
+- `.env.example` documents manual `.env` values.
+- `.env.pass.template.example` is the committed Proton Pass example for the local `scripts/populate-env.cjs` workflow.
+- `.env.template.pass` is an alternate Proton Pass template spelling for tooling that expects suffix-based pass templates; copy it to `.env.pass.template` before running `npm run env:inject`.
 
 ## Skills & MCP Servers
 

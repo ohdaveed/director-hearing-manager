@@ -27,6 +27,7 @@ out
 
 # Environment variables
 .env
+.env.pass.template
 .env.development.local
 .env.test.local
 .env.production.local
