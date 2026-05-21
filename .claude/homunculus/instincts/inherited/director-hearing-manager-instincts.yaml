@@ -1,0 +1,335 @@
+# Instincts generated from https://github.com/ohdaveed/director-hearing-manager
+# Generated: 2026-05-18T23:12:18.582Z
+# Version: 2.0
+# NOTE: This file supplements (does not replace) any existing curated instincts.
+# High-confidence manually curated instincts should be preserved alongside these.
+
+---
+id: director-hearing-manager-commit-length
+trigger: "when writing a commit message"
+confidence: 0.6
+domain: git
+source: repo-analysis
+source_repo: https://github.com/ohdaveed/director-hearing-manager
+---
+
+# Director Hearing Manager Commit Length
+
+## Action
+
+Keep commit messages concise (~34 characters)
+
+## Evidence
+
+- Average commit message length: 34 chars
+- Based on 3 commits
+
+---
+id: director-hearing-manager-naming-files
+trigger: "when creating a new file"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/ohdaveed/director-hearing-manager
+---
+
+# Director Hearing Manager Naming Files
+
+## Action
+
+Use PascalCase naming convention
+
+## Evidence
+
+- Analyzed file naming patterns in repository
+- Dominant pattern: PascalCase
+
+---
+id: director-hearing-manager-import-alias
+trigger: "when importing modules"
+confidence: 0.85
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/ohdaveed/director-hearing-manager
+---
+
+# Director Hearing Manager Import Alias
+
+## Action
+
+Use path aliases (@/, ~/) instead of relative imports
+
+## Evidence
+
+- Import analysis shows alias pattern
+- Example: import { x } from '@/lib/x'
+
+---
+id: director-hearing-manager-export-style
+trigger: "when exporting from a module"
+confidence: 0.7
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/ohdaveed/director-hearing-manager
+---
+
+# Director Hearing Manager Export Style
+
+## Action
+
+Prefer mixed exports
+
+## Evidence
+
+- Export pattern analysis
+- Dominant style: mixed
+
+---
+id: director-hearing-manager-arch-type-based
+trigger: "when adding new code"
+confidence: 0.8
+domain: architecture
+source: repo-analysis
+source_repo: https://github.com/ohdaveed/director-hearing-manager
+---
+
+# Director Hearing Manager Arch Type Based
+
+## Action
+
+Place code in the appropriate type folder (components/, services/, utils/, etc.)
+
+## Evidence
+
+- Type-based module organization detected
+- Folders: components, pages
+
+---
+id: director-hearing-manager-test-separate
+trigger: "when writing tests"
+confidence: 0.8
+domain: testing
+source: repo-analysis
+source_repo: https://github.com/ohdaveed/director-hearing-manager
+---
+
+# Director Hearing Manager Test Separate
+
+## Action
+
+Place tests in the tests/ or __tests__/ directory, mirroring src structure
+
+## Evidence
+
+- Separate test directory pattern detected
+- Tests live in dedicated test folders
+
+---
+id: director-hearing-manager-instinct-file-naming
+trigger: "When creating a new file"
+confidence: 0.9
+domain: code-style
+source: repo-analysis
+source_repo: ohdaveed/director-hearing-manager
+---
+
+# Director Hearing Manager Instinct File Naming
+
+## Action
+
+Name the file using PascalCase
+
+## Evidence
+
+- Pattern in namingConventions.files
+
+---
+id: director-hearing-manager-instinct-function-naming
+trigger: "When defining a new function"
+confidence: 0.9
+domain: code-style
+source: repo-analysis
+source_repo: ohdaveed/director-hearing-manager
+---
+
+# Director Hearing Manager Instinct Function Naming
+
+## Action
+
+Name the function using camelCase
+
+## Evidence
+
+- Pattern in namingConventions.functions
+
+---
+id: director-hearing-manager-instinct-class-naming
+trigger: "When creating a new class"
+confidence: 0.9
+domain: code-style
+source: repo-analysis
+source_repo: ohdaveed/director-hearing-manager
+---
+
+# Director Hearing Manager Instinct Class Naming
+
+## Action
+
+Name the class using PascalCase
+
+## Evidence
+
+- Pattern in namingConventions.classes
+
+---
+id: director-hearing-manager-instinct-constant-naming
+trigger: "When defining a constant"
+confidence: 0.9
+domain: code-style
+source: repo-analysis
+source_repo: ohdaveed/director-hearing-manager
+---
+
+# Director Hearing Manager Instinct Constant Naming
+
+## Action
+
+Name the constant using SCREAMING_SNAKE_CASE
+
+## Evidence
+
+- Pattern in namingConventions.constants
+
+---
+id: director-hearing-manager-instinct-import-style
+trigger: "When importing modules"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: ohdaveed/director-hearing-manager
+---
+
+# Director Hearing Manager Instinct Import Style
+
+## Action
+
+Use alias import style
+
+## Evidence
+
+- Pattern in importStyle
+
+---
+id: director-hearing-manager-instinct-export-style
+trigger: "When exporting modules or components"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: ohdaveed/director-hearing-manager
+---
+
+# Director Hearing Manager Instinct Export Style
+
+## Action
+
+Use mixed export style (both default and named exports as appropriate)
+
+## Evidence
+
+- Pattern in exportStyle
+
+---
+id: director-hearing-manager-instinct-commit-format
+trigger: "When writing a git commit message"
+confidence: 0.8
+domain: git
+source: repo-analysis
+source_repo: ohdaveed/director-hearing-manager
+---
+
+# Director Hearing Manager Instinct Commit Format
+
+## Action
+
+Write a concise, freeform message without a prefix, averaging around 34 characters
+
+## Evidence
+
+- Seen in commit examples: 'Extract packet readiness panel', 'Extract packet activity panel', 'Use extracted packet panels in hearing page'
+
+---
+id: director-hearing-manager-instinct-test-location
+trigger: "When adding or updating tests"
+confidence: 0.8
+domain: testing
+source: repo-analysis
+source_repo: ohdaveed/director-hearing-manager
+---
+
+# Director Hearing Manager Instinct Test Location
+
+## Action
+
+Place tests in a separate location from source files
+
+## Evidence
+
+- Pattern in testLocation: separate
+
+---
+id: director-hearing-manager-instinct-error-handling
+trigger: "When handling errors in code"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: ohdaveed/director-hearing-manager
+---
+
+# Director Hearing Manager Instinct Error Handling
+
+## Action
+
+Use try-catch blocks for error handling
+
+## Evidence
+
+- Pattern in errorHandling.style: try-catch
+
+---
+id: director-hearing-manager-instinct-no-custom-errors
+trigger: "When considering custom error classes"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: ohdaveed/director-hearing-manager
+---
+
+# Director Hearing Manager Instinct No Custom Errors
+
+## Action
+
+Do not define custom error classes
+
+## Evidence
+
+- Pattern in errorHandling.customErrorClasses: false
+
+---
+id: director-hearing-manager-instinct-no-error-boundaries
+trigger: "When considering React error boundaries"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: ohdaveed/director-hearing-manager
+---
+
+# Director Hearing Manager Instinct No Error Boundaries
+
+## Action
+
+Do not implement error boundaries
+
+## Evidence
+
+- Pattern in errorHandling.errorBoundaries: false
+
