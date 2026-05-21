@@ -4,11 +4,11 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const statCardVariants = cva(
-  "relative rounded-xl border bg-card overflow-hidden shadow-sm transition-all",
+  "relative rounded-xl border bg-card overflow-hidden shadow-sm transition-all duration-300",
   {
     variants: {
       interactive: {
-        true: "hover:shadow-md hover:border-primary/20 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
+        true: "hover:shadow-md hover:border-primary/30 hover:-translate-y-0.5 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
       },
     },
     defaultVariants: {
@@ -18,7 +18,7 @@ const statCardVariants = cva(
 );
 
 const statValueVariants = cva(
-  "text-3xl font-black tabular-nums leading-none tracking-tight",
+  "text-3xl font-black tabular-nums leading-none tracking-tighter animate-in fade-in slide-in-from-bottom-1 duration-700",
   {
     variants: {
       accent: {
@@ -35,7 +35,7 @@ const statValueVariants = cva(
   },
 );
 
-const statIconVariants = cva("flex-shrink-0 size-4", {
+const statIconVariants = cva("flex-shrink-0 size-4 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3", {
   variants: {
     accent: {
       red: "text-destructive/50",
@@ -76,9 +76,9 @@ const StatCard = memo(function StatCard({
   const interactive = !!(to || onClick);
 
   const content = (
-    <div className="p-4 flex flex-col gap-3">
+    <div className="p-4 flex flex-col gap-3 group">
       <div className="flex items-center justify-between gap-2">
-        <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-60">
           {label}
         </p>
         {icon && <span className={statIconVariants({ accent })}>{icon}</span>}
@@ -86,7 +86,7 @@ const StatCard = memo(function StatCard({
       <p className={statValueVariants({ accent })}>
         {typeof value === "number" ? value.toLocaleString() : value}
       </p>
-      {sub && <p className="text-[10px] font-medium text-muted-foreground/70 uppercase tracking-tight">{sub}</p>}
+      {sub && <p className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest">{sub}</p>}
     </div>
   );
 
