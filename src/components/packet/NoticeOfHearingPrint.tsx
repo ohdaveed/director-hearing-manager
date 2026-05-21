@@ -10,7 +10,7 @@ const PacketNoticeOfHearing = lazy(() =>
 
 export function NoticeOfHearingPrint({ data, onClose }: { data: any; onClose: () => void }) {
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 overflow-auto">
+    <div className="fixed inset-0 z-50 bg-deep/60 overflow-auto">
       <style>{`
         @media print {
           body * { visibility: hidden; }

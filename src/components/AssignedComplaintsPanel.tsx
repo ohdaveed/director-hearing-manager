@@ -81,47 +81,44 @@ export default function AssignedComplaintsPanel({ inspector, onSelectComplaint }
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-0.5">
                     {c.complaintid && (
-                      <Badge
-                        variant="secondary"
-                        className="text-[10px] font-mono font-bold bg-primary/10 text-primary border-none px-1.5"
-                      >
+                      <span className="text-[10px] font-mono font-bold text-primary/60 bg-primary/5 px-1.5 py-0.5 rounded border border-primary/10">
                         #{c.complaintid}
-                      </Badge>
+                      </span>
                     )}
                     {c.status === "Inspection Scheduled" && (
-                      <span className="inline-flex items-center gap-1 text-xs font-medium text-warning bg-warning/10 px-2 py-0.5 rounded-full">
-                        <FileEdit /> Scheduled
+                      <span className="inline-flex items-center gap-1 text-[10px] font-bold text-warning uppercase tracking-tight">
+                        <FileEdit className="size-3" /> Scheduled
                       </span>
                     )}
                     {c.status === "New" && (
-                      <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
-                        <FilePlus /> New inspection
+                      <span className="inline-flex items-center gap-1 text-[10px] font-bold text-muted-foreground uppercase tracking-tight">
+                        <FilePlus className="size-3" /> New
                       </span>
                     )}
                   </div>
-                  <p className="text-sm font-semibold text-foreground truncate">{c.address}</p>
+                  <p className="text-sm font-bold text-foreground truncate group-hover:text-primary transition-colors">
+                    {c.address}
+                  </p>
                   {c.description && (
-                    <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
-                      {sanitizeText(c.description)}
-                    </p>
-                  )}
-                  {c.reinspection_due_on_after && (
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      Reinspection due: {new Date(c.reinspection_due_on_after).toLocaleDateString()}
+                    <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1 italic">
+                      &ldquo;{sanitizeText(c.description)}&rdquo;
                     </p>
                   )}
                 </div>
-                <div className="flex flex-col items-end gap-1 shrink-0">
+                <div className="flex flex-col items-end gap-1 shrink-0 pt-0.5">
                   {c.status && (
                     <Badge
                       variant="outline"
-                      className={cn("text-[10px] whitespace-nowrap", statusCls)}
+                      className={cn("text-[10px] h-4.5 px-1.5 font-bold border-none shadow-none", statusCls)}
                     >
                       {c.status}
                     </Badge>
                   )}
                   {c.category && c.category.length > 0 && (
-                    <span className="text-xs text-muted-foreground">{c.category.join(", ")}</span>
+                    <span className="text-[10px] font-medium text-muted-foreground/70 uppercase tracking-wider">
+                      {c.category[0]}
+                      {c.category.length > 1 && ` +${c.category.length - 1}`}
+                    </span>
                   )}
                 </div>
               </div>

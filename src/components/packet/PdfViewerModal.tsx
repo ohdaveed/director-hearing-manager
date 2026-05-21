@@ -26,7 +26,7 @@ export function PdfViewerModal({ url, onClose }: PdfViewerModalProps) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 bg-deep/50 flex items-center justify-center p-4">
       <div className="bg-card border border-border rounded-xl shadow-lg w-full max-w-4xl h-[90vh] flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-border">

@@ -160,7 +160,7 @@ export default function HearingPacketPreview({ data, onClose }: Props) {
   const totalPhotos = (data.allPhotos || []).length;
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 overflow-auto print:bg-transparent print:static">
+    <div className="fixed inset-0 z-50 bg-deep/60 overflow-auto print:bg-transparent print:static">
       <style>{`
         @media print {
           body * { visibility: hidden; }

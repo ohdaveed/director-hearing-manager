@@ -137,7 +137,7 @@ export default function HearingOrderEditor({ packet, complaint, location, inspec
 
   if (showPreview) {
     return (
-      <div className="fixed inset-0 z-50 bg-black/60 overflow-auto">
+      <div className="fixed inset-0 z-50 bg-deep/60 overflow-auto">
         <style>{`
           @media print {
             body * { visibility: hidden; }

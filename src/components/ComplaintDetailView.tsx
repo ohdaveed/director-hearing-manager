@@ -271,6 +271,33 @@ export default function ComplaintDetailView({
 
   // ── Shared JSX pieces ──────────────────────────────────────────────────────
 
+  const externalResourcesCard = (
+    <Card className="overflow-hidden shadow-sm print:hidden">
+      <CardHeader className="px-5 py-3 bg-muted/40 border-b border-border">
+        <CardTitle className="text-xs tracking-widest">Resources</CardTitle>
+      </CardHeader>
+      <CardContent className="p-5 flex flex-col gap-3">
+        <a
+          href="https://sfplanninggis.org/pim/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center justify-between group p-2 rounded-lg border border-border hover:border-primary/30 hover:bg-primary/5 transition-all"
+        >
+          <div className="flex items-center gap-2.5">
+            <div className="p-1.5 rounded bg-background border border-border group-hover:border-primary/20">
+              <MapPin className="size-3.5 text-primary/70" />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-xs font-bold text-foreground">SF PIM</span>
+              <span className="text-[10px] text-muted-foreground uppercase tracking-tight font-medium">Property Information</span>
+            </div>
+          </div>
+          <ExternalLink data-icon="inline-end" className="text-muted-foreground group-hover:text-primary transition-colors" />
+        </a>
+      </CardContent>
+    </Card>
+  );
+
   const statusSelector = (
     <Select
       value={currentStatus || "_"}
@@ -324,28 +351,18 @@ export default function ComplaintDetailView({
         title="Location"
         right={
           complaint.locationid && (
-            <div className="flex items-center gap-3">
-              <a
-                href="https://sfplanninggis.org/pim/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-1 text-xs text-primary hover:underline"
-              >
-                <ExternalLink data-icon="inline-start" /> SF PIM
-              </a>
-              <button
-                type="button"
-                onClick={async () => {
-                  if (complaint.locationid) {
-                    const loc = await locationService.findByLocationId(complaint.locationid);
-                    if (loc) navigate(`/locations/${loc.id}`);
-                  }
-                }}
-                className="flex items-center gap-1 text-xs text-primary hover:underline font-medium"
-              >
-                <ExternalLink data-icon="inline-start" /> View Location
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={async () => {
+                if (complaint.locationid) {
+                  const loc = await locationService.findByLocationId(complaint.locationid);
+                  if (loc) navigate(`/locations/${loc.id}`);
+                }
+              }}
+              className="flex items-center gap-1 text-[11px] text-primary hover:underline font-bold uppercase tracking-tight"
+            >
+              <ExternalLink data-icon="inline-start" /> View Records
+            </button>
           )
         }
       />
@@ -496,24 +513,14 @@ export default function ComplaintDetailView({
         icon={<Home />}
         title="Responsible Party"
         right={
-          <div className="flex items-center gap-3">
-            <a
-              href="https://sfplanninggis.org/pim/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1 text-xs text-primary hover:underline"
+          canEditStatus && !rpEditing && locationLinked && (
+            <button
+              onClick={() => setRpEditing(true)}
+              className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground transition-colors font-bold uppercase tracking-tight"
             >
-              <ExternalLink data-icon="inline-start" /> SF PIM
-            </a>
-            {canEditStatus && !rpEditing && locationLinked && (
-              <button
-                onClick={() => setRpEditing(true)}
-                className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
-              >
-                <Pencil data-icon="inline-start" /> Edit
-              </button>
-            )}
-          </div>
+              <Pencil data-icon="inline-start" /> Edit
+            </button>
+          )
         }
       />
       <CardContent className="p-5">
@@ -1001,6 +1008,7 @@ export default function ComplaintDetailView({
         <div className="hidden lg:block lg:col-span-5">
           <div className="sticky top-20 flex flex-col gap-4">
             {actionsCard}
+            {externalResourcesCard}
             <ErrorBoundary title="Chronology Error">
               <ComplaintChronologyPanel chronology={detail?.chronology ?? []} loading={loading} />
             </ErrorBoundary>
