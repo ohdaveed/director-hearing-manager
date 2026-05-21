@@ -1,5 +1,10 @@
 # Plan: Enhance AI Extraction for Automated Violation Chronology
 
+## Phase 0: Research & Reconcile (Context7)
+
+- Reconcile Anthropic SDK usage with Context7 best practices for prompt engineering.
+- Verify Zod schema validation patterns against Context7 documentation.
+
 ## Phase 1: Research and Baselining [checkpoint: 74f61d1]
 
 - [x] Task: Audit current AI extraction logic and identify common failure points in PDF parsing. (Logic is currently missing/mocked in UI via zite-endpoints-sdk; Anthropic SDK installed but unused)

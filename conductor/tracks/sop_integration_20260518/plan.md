@@ -4,6 +4,11 @@
 
 Integrate the formal "Director's Hearing SOP" into the application's database and AI validation logic to ensure all generated packets meet SFDPH legal standards.
 
+## Phase 0: Research & Reconcile (Context7)
+
+- Reconcile SOP requirements with existing database schema using Context7 documentation.
+- Verify existing `compliance_rules` table structure against planned enhancements.
+
 ## Phase 1: Database Rules Table
 
 - Create `compliance_rules` table to store formal SOP requirements (Completed in Migration 003b).

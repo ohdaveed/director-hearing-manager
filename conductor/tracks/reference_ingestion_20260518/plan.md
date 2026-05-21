@@ -1,5 +1,10 @@
 # Implementation Plan: Reference Hearing Ingestion
 
+## Phase 0: Research & Reconcile (Context7)
+
+- Reconcile PDF extraction requirements with Context7-verified `pdfjs-dist` patterns.
+- Ensure Supabase schema alignment using Context7 for the ingest script.
+
 ## Phase 1: Research & Tool Setup
 
 - Verify `pdfjs-dist` version and worker setup.

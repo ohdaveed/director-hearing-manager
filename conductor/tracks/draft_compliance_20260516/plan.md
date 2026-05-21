@@ -1,5 +1,10 @@
 # Plan: Draft Packet SOP Compliance Generator
 
+## Research & Reconcile (Context7 Phase)
+
+- Consult `@supabase/supabase-js` for best practices on joining packet and analysis tables.
+- Consult `@react-pdf/renderer` for efficient tiling of compliance markers on PDF pages.
+
 ## Phase 1: Document Upload and Parsing
 
 - [x] Task: Create UI for uploading draft packets (.pdf, .docx). [77c1831]
