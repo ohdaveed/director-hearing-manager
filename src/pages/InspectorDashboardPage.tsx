@@ -30,6 +30,7 @@ import {
   CheckCircle2,
   Bell,
   PhoneOff,
+  FilePlus,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -54,22 +55,22 @@ type Inspection = Database["public"]["Tables"]["inspections"]["Row"];
 
 const PANEL_CAP = 5;
 
-// ── Shared row components — semantic, modular, three-tier typography ──────────
+// ── Shared row component — semantic, modular, three-tier typography ──────────
 
-function ComplaintRow({
-  address,
-  complaintId,
-  meta,
-  statusLabel,
+function FeedRow({
+  title,
+  subtitle,
+  id,
+  status,
   statusCls,
   leftSlot,
   urgent,
   onClick,
 }: {
-  address: string;
-  complaintId?: string;
-  meta: string;
-  statusLabel?: string;
+  title: string;
+  subtitle: string;
+  id?: string;
+  status?: string;
   statusCls?: string;
   leftSlot?: React.ReactNode;
   urgent?: boolean;
@@ -80,113 +81,42 @@ function ComplaintRow({
       type="button"
       onClick={onClick}
       className={cn(
-        "w-full flex items-center gap-4 px-5 py-3.5 text-left transition-colors group",
-        urgent ? "hover:bg-destructive/5" : "hover:bg-muted/40",
-        "active:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-inset",
+        "w-full flex items-start gap-3.5 px-5 py-3 text-left transition-all group",
+        urgent ? "bg-destructive/5 hover:bg-destructive/10" : "hover:bg-muted/50",
+        "active:bg-muted/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
       )}
     >
-      {leftSlot && <div className="shrink-0 w-9 text-center">{leftSlot}</div>}
+      {leftSlot && <div className="shrink-0 w-8 pt-0.5">{leftSlot}</div>}
       <div className="min-w-0 flex-1">
-        <p className="text-sm font-semibold text-foreground group-hover:text-primary truncate transition-colors">
-          {address}
+        <p className="text-sm font-bold text-foreground group-hover:text-primary transition-colors truncate">
+          {title}
         </p>
         <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-          {complaintId && (
-            <Badge
-              variant="secondary"
-              className="text-[10px] font-mono font-bold bg-primary/10 text-primary border-none h-4 px-1"
-            >
-              #{complaintId}
-            </Badge>
+          {id && (
+            <span className="text-[10px] font-mono font-bold text-primary/60 bg-primary/5 px-1 rounded border border-primary/10">
+              #{id}
+            </span>
           )}
-          <span className="text-[10px] text-muted-foreground">{meta}</span>
-        </div>
-      </div>
-      {statusLabel && (
-        <Badge
-          variant="outline"
-          className={cn(
-            "text-[10px] h-4.5 px-2 font-semibold whitespace-nowrap shrink-0",
-            statusCls ?? "bg-muted text-muted-foreground",
-          )}
-        >
-          {statusLabel}
-        </Badge>
-      )}
-      <div className="w-7 h-7 rounded-full bg-muted/60 flex items-center justify-center shrink-0 transition-all group-hover:bg-primary group-hover:translate-x-0.5">
-        <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary-foreground transition-colors" />
-      </div>
-    </button>
-  );
-}
-
-function InspectionRow({ inspection, onClick }: { inspection: Inspection; onClick: () => void }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="w-full flex items-center gap-4 px-5 py-3.5 text-left hover:bg-muted/40 transition-colors group active:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-inset"
-    >
-      <div className="min-w-0 flex-1">
-        <p className="text-sm font-semibold text-foreground group-hover:text-primary truncate transition-colors">
-          {inspection.facility_address ?? "—"}
-        </p>
-        <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-          {inspection.complaint_id && (
-            <Badge
-              variant="secondary"
-              className="text-[10px] font-mono font-bold bg-primary/10 text-primary border-none h-4 px-1"
-            >
-              #{inspection.complaint_id}
-            </Badge>
-          )}
-          <span className="text-[10px] text-muted-foreground">
-            {[
-              inspection.inspection_type,
-              inspection.inspection_date && formatDate(inspection.inspection_date),
-            ]
-              .filter(Boolean)
-              .join(" · ")}
+          <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-tight">
+            {subtitle}
           </span>
         </div>
       </div>
-      <div className="flex items-center gap-2 shrink-0">
-        {inspection.inspection_rating && (
+      <div className="flex flex-col items-end gap-1.5 shrink-0 pt-0.5">
+        {status && (
           <Badge
             variant="outline"
             className={cn(
-              "text-[10px] h-4.5 px-2 font-semibold",
-              inspection.inspection_rating === "Satisfactory"
-                ? "bg-success/10 text-success border-success/20"
-                : inspection.inspection_rating === "Unsatisfactory"
-                  ? "bg-destructive/10 text-destructive border-destructive/20"
-                  : "bg-muted text-muted-foreground",
+              "text-[10px] h-4.5 px-1.5 font-bold border-none shadow-none",
+              statusCls ?? "bg-muted text-muted-foreground",
             )}
           >
-            {inspection.inspection_rating}
+            {status}
           </Badge>
         )}
-        {inspection.violation_count != null && inspection.violation_count > 0 && (
-          <span className="text-[10px] text-muted-foreground tabular-nums">
-            {inspection.violation_count}v
-          </span>
-        )}
-        <div className="w-7 h-7 rounded-full bg-muted/60 flex items-center justify-center shrink-0 transition-all group-hover:bg-primary group-hover:translate-x-0.5 ml-1">
-          <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary-foreground transition-colors" />
-        </div>
+        <ChevronRight className="size-3 text-muted-foreground/40 group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
       </div>
     </button>
-  );
-}
-
-// ── All-clear message ─────────────────────────────────────────────────────────
-
-function AllClear({ message }: { message: string }) {
-  return (
-    <div className="flex items-center gap-2 text-sm text-success bg-success/10 border border-success/20 rounded-lg px-4 py-2.5">
-      <CheckCircle2 className="w-4 h-4 shrink-0" />
-      <span>{message}</span>
-    </div>
   );
 }
 
@@ -198,7 +128,7 @@ function FeedPanel({
   badge,
   badgeCls,
   borderCls,
-  emptyContent,
+  emptyMessage,
   allRows,
   showAll,
   onToggleShowAll,
@@ -208,7 +138,7 @@ function FeedPanel({
   badge?: string;
   badgeCls?: string;
   borderCls?: string;
-  emptyContent: React.ReactNode;
+  emptyMessage?: string;
   allRows: React.ReactNode[];
   showAll: boolean;
   onToggleShowAll: () => void;
@@ -216,16 +146,20 @@ function FeedPanel({
   const visibleRows = showAll ? allRows : allRows.slice(0, PANEL_CAP);
   const hasMore = allRows.length > PANEL_CAP;
 
+  if (allRows.length === 0 && !emptyMessage) return null;
+
   return (
-    <Card size="sm" className={cn("overflow-hidden", borderCls)}>
-      <CardHeader className="border-b border-border/60 py-3">
+    <Card size="sm" className={cn("overflow-hidden shadow-sm", borderCls)}>
+      <CardHeader className="border-b border-border/60 py-2.5">
         <div className="flex items-center gap-2">
-          <span className="shrink-0 text-primary/70">{icon}</span>
-          <CardTitle className="text-xs tracking-widest">{title}</CardTitle>
+          <span className="shrink-0 text-primary/60">{icon}</span>
+          <CardTitle className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+            {title}
+          </CardTitle>
         </div>
         {badge && (
           <CardAction>
-            <Badge variant="outline" className={cn("text-[10px] font-bold px-1.5 py-0", badgeCls)}>
+            <Badge variant="outline" className={cn("text-[10px] font-bold h-4 px-1.5 border-none bg-muted", badgeCls)}>
               {badge}
             </Badge>
           </CardAction>
@@ -234,22 +168,27 @@ function FeedPanel({
 
       <CardContent className="p-0">
         {allRows.length === 0 ? (
-          <div className="px-5 py-4">{emptyContent}</div>
+          <div className="px-5 py-6 text-center">
+            <div className="inline-flex items-center justify-center size-8 rounded-full bg-success/10 text-success mb-2">
+              <CheckCircle2 className="size-4" />
+            </div>
+            <p className="text-xs font-medium text-muted-foreground px-4">
+              {emptyMessage}
+            </p>
+          </div>
         ) : (
-          <>
+          <div className="divide-y divide-border/40">
             {showAll && allRows.length > 8 ? (
-              /* Expanded + long list — height-capped scroll region with fade */
               <div className="relative">
-                <div className="divide-y divide-border/40 max-h-[480px] overflow-y-auto pr-2 feed-scroll">
+                <div className="max-h-[480px] overflow-y-auto pr-2 feed-scroll">
                   {visibleRows}
                 </div>
                 <div className="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-t from-card to-transparent pointer-events-none" />
               </div>
             ) : (
-              /* Collapsed or short list — flat rendering, no scroll */
-              <div className="divide-y divide-border/40">{visibleRows}</div>
+              visibleRows
             )}
-          </>
+          </div>
         )}
       </CardContent>
 
@@ -258,9 +197,9 @@ function FeedPanel({
           <button
             type="button"
             onClick={onToggleShowAll}
-            className="w-full py-2.5 text-xs font-semibold text-primary hover:text-primary/70 transition-colors"
+            className="w-full py-2 text-[10px] font-bold uppercase tracking-widest text-primary hover:bg-primary/5 transition-all"
           >
-            {showAll ? `↑ Show fewer` : `Show all ${allRows.length} →`}
+            {showAll ? `Show fewer` : `Show all ${allRows.length}`}
           </button>
         </CardFooter>
       )}
@@ -301,8 +240,8 @@ export default function InspectorDashboardPage({ inspectorName }: { inspectorNam
   const loading = complaintsLoading || inspectionsLoading;
   const refreshing = refreshingComplaints || refreshingInspections;
   const fetchData = () => {
-    refetchComplaints();
-    refetchInspections();
+    void refetchComplaints();
+    void refetchInspections();
   };
 
   // Progressive-disclosure state — each panel collapses independently
@@ -382,8 +321,6 @@ export default function InspectorDashboardPage({ inspectorName }: { inspectorNam
       (a.reinspection_due_on_after ?? "").localeCompare(b.reinspection_due_on_after ?? ""),
     );
 
-  const hour = new Date().getHours();
-  const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
   const firstName = user?.firstName || inspectorName.split(" ")[0] || "Inspector";
   const alerts = {
     newAssignments: [] as AlertComplaint[],
@@ -403,12 +340,12 @@ export default function InspectorDashboardPage({ inspectorName }: { inspectorNam
   // ── Pre-render all rows for each panel (keys live here) ──────────────────
 
   const newAssignmentRows = newAssignments.map((c: AlertComplaint) => (
-    <ComplaintRow
+    <FeedRow
       key={c.id}
-      address={(c.address as any) ?? "—"}
-      complaintId={(c.complaintid as any) || undefined}
-      meta={c.date_assigned ? `Assigned ${formatDate(c.date_assigned)}` : "Recently assigned"}
-      statusLabel={(c.status as any) ?? undefined}
+      title={(c.address as any) ?? "—"}
+      id={(c.complaintid as any) || undefined}
+      subtitle={c.date_assigned ? `Assigned ${formatDate(c.date_assigned)}` : "Recently assigned"}
+      status={(c.status as any) ?? undefined}
       statusCls={COMPLAINT_STATUS_THEME[c.status as keyof typeof COMPLAINT_STATUS_THEME]}
       onClick={() => navigate(`/complaints/${c.id}`)}
     />
@@ -417,15 +354,17 @@ export default function InspectorDashboardPage({ inspectorName }: { inspectorNam
   const noContactRows = noContactAttempt.map((c: AlertComplaint) => {
     const days = daysSince(c.date_entered || undefined);
     return (
-      <ComplaintRow
+      <FeedRow
         key={c.id}
-        address={(c.address as any) ?? "—"}
-        complaintId={(c.complaintid as any) || undefined}
-        meta={
+        title={(c.address as any) ?? "—"}
+        id={(c.complaintid as any) || undefined}
+        subtitle={
           days > 0
-            ? `Entered ${days} day${days !== 1 ? "s" : ""} ago · No contact logged`
+            ? `Entered ${days} day${days !== 1 ? "s" : ""} ago`
             : "No contact logged"
         }
+        status="Contact Pending"
+        statusCls="bg-warning/10 text-warning"
         onClick={() => navigate(`/complaints/${c.id}`)}
       />
     );
@@ -438,18 +377,18 @@ export default function InspectorDashboardPage({ inspectorName }: { inspectorNam
     );
     const urgent = daysOut <= 3;
     return (
-      <ComplaintRow
+      <FeedRow
         key={c.id}
-        address={(c.address as any) ?? "—"}
-        complaintId={(c.complaintid as any) || undefined}
-        meta={`Due ${formatDate(c.reinspection_due_on_after!)}`}
-        statusLabel={(c.status as any) ?? undefined}
+        title={(c.address as any) ?? "—"}
+        id={(c.complaintid as any) || undefined}
+        subtitle={`Due ${formatDate(c.reinspection_due_on_after!)}`}
+        status={(c.status as any) ?? undefined}
         statusCls={COMPLAINT_STATUS_THEME[c.status as keyof typeof COMPLAINT_STATUS_THEME]}
         urgent={urgent}
         leftSlot={
-          <div className={urgent ? "text-destructive" : "text-muted-foreground"}>
-            <p className="text-base font-black tabular-nums leading-none">{daysOut}</p>
-            <p className="text-[9px] uppercase tracking-wide leading-none mt-0.5">days</p>
+          <div className={cn("flex flex-col items-center leading-none", urgent ? "text-destructive" : "text-muted-foreground/60")}>
+            <span className="text-sm font-black tabular-nums">{daysOut}</span>
+            <span className="text-[8px] font-bold uppercase tracking-tighter">days</span>
           </div>
         }
         onClick={() => navigate(`/inspections/${c.id}`)}
@@ -463,16 +402,16 @@ export default function InspectorDashboardPage({ inspectorName }: { inspectorNam
         (1000 * 60 * 60 * 24),
     );
     return (
-      <ComplaintRow
+      <FeedRow
         key={c.id}
-        address={(c.address as any) ?? "—"}
-        complaintId={(c.complaintid as any) || undefined}
-        meta={`Was due ${formatDate(c.reinspection_due_on_after!)}`}
+        title={(c.address as any) ?? "—"}
+        id={(c.complaintid as any) || undefined}
+        subtitle={`Was due ${formatDate(c.reinspection_due_on_after!)}`}
         urgent
         leftSlot={
-          <div className="text-destructive">
-            <p className="text-base font-black tabular-nums leading-none">{daysPast}</p>
-            <p className="text-[9px] uppercase tracking-wide leading-none mt-0.5">past</p>
+          <div className="flex flex-col items-center leading-none text-destructive">
+            <span className="text-sm font-black tabular-nums">{daysPast}</span>
+            <span className="text-[8px] font-bold uppercase tracking-tighter">past</span>
           </div>
         }
         onClick={() => navigate(`/inspections/${c.id}`)}
@@ -481,9 +420,24 @@ export default function InspectorDashboardPage({ inspectorName }: { inspectorNam
   });
 
   const inspectionRows = (_allInspections as Inspection[]).map((insp) => (
-    <InspectionRow
+    <FeedRow
       key={insp.inspection_id}
-      inspection={insp}
+      title={insp.facility_address ?? "—"}
+      id={insp.complaint_id?.toString()}
+      subtitle={[
+        insp.inspection_type,
+        insp.inspection_date && formatDate(insp.inspection_date),
+      ]
+        .filter(Boolean)
+        .join(" · ")}
+      status={insp.inspection_rating ?? undefined}
+      statusCls={
+        insp.inspection_rating === "Satisfactory"
+          ? "bg-success/10 text-success"
+          : insp.inspection_rating === "Unsatisfactory"
+            ? "bg-destructive/10 text-destructive"
+            : undefined
+      }
       onClick={() => navigate(`/inspections/${insp.inspection_id}`)}
     />
   ));
@@ -495,31 +449,31 @@ export default function InspectorDashboardPage({ inspectorName }: { inspectorNam
       <StatCard
         label="Active Cases"
         value={active.length}
-        sub="Assigned to you"
+        sub="Assigned"
         accent="blue"
-        icon={<ClipboardList className="w-5 h-5" />}
+        icon={<ClipboardList />}
         to="/complaints"
       />
       <StatCard
-        label="New Assignments"
+        label="New"
         value={newAssignments.length}
-        sub="Since last login"
+        sub="Since Login"
         accent={newAssignments.length > 0 ? "blue" : undefined}
-        icon={<Bell className="w-5 h-5" />}
+        icon={<Bell />}
       />
       <StatCard
-        label="No Contact Yet"
+        label="Pending"
         value={noContactAttempt.length}
-        sub="Contact Pending, no attempt"
+        sub="No Contact"
         accent={noContactAttempt.length > 0 ? "yellow" : undefined}
-        icon={<PhoneOff className="w-5 h-5" />}
+        icon={<PhoneOff />}
       />
       <StatCard
         label="Overdue"
         value={overdue.length}
-        sub="Past reinspection date"
+        sub="Immediate Action"
         accent={overdue.length > 0 ? "red" : undefined}
-        icon={<AlertTriangle className="w-5 h-5" />}
+        icon={<AlertTriangle />}
         to="/complaints"
       />
     </>
@@ -528,147 +482,132 @@ export default function InspectorDashboardPage({ inspectorName }: { inspectorNam
   return (
     <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
       {/* ── Page header ─────────────────────────────────────────────────── */}
-      <div className="flex items-center justify-between py-5 border-b border-border">
-        <div>
-          <h1 className="text-xl font-bold text-foreground">
-            {greeting}, {firstName} 👋
+      <div className="flex items-center justify-between py-6 border-b border-border mb-2">
+        <div className="flex items-baseline gap-2">
+          <h1 className="text-xl font-black text-foreground uppercase tracking-tight">
+            Dashboard
           </h1>
-          <p className="text-sm text-muted-foreground mt-0.5">Here's your caseload at a glance</p>
+          <p className="text-sm text-muted-foreground font-medium border-l border-border pl-2">
+            {firstName}
+          </p>
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => fetchData()}
-          disabled={refreshing}
-          className="text-xs h-8 gap-1.5"
-        >
-          {refreshing && <Loader2 className="w-3 h-3 animate-spin" />}
-          Refresh
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => fetchData()}
+            disabled={refreshing}
+            className="text-[10px] font-bold uppercase tracking-widest h-8"
+          >
+            {refreshing ? <Loader2 className="size-3 animate-spin mr-1.5" /> : null}
+            Sync
+          </Button>
+        </div>
       </div>
 
       {/* ── Body ─────────────────────────────────────────────────────────── */}
       <div className="flex flex-col lg:flex-row gap-5 py-6">
-        {/* ── LEFT: stat rail ─────────────────────────────────────────────
-            Mobile  → 2×2 grid above feed, not sticky
-            Desktop → vertical column, sticky alongside scrolling feed     */}
+        {/* ── LEFT: stat rail ───────────────────────────────────────────── */}
 
         {/* Mobile stat rail */}
-        <div className="lg:hidden space-y-4">
+        <div className="lg:hidden flex flex-col gap-4">
           <div className="grid grid-cols-2 gap-3">{statCards}</div>
-          <div className="flex gap-2">
-            <Button size="sm" className="gap-2 flex-1" onClick={() => navigate("/complaints")}>
-              <ClipboardList className="w-4 h-4" /> My Complaints
+          <div className="grid grid-cols-2 gap-2">
+            <Button size="sm" className="font-bold uppercase tracking-widest text-[10px]" onClick={() => navigate("/complaints")}>
+              <ClipboardList data-icon="inline-start" /> My Complaints
             </Button>
             <Button
               variant="outline"
               size="sm"
-              className="gap-2 flex-1"
+              className="font-bold uppercase tracking-widest text-[10px]"
               onClick={() => navigate("/inspections/new")}
             >
-              <ClipboardCheck className="w-4 h-4" /> Start Inspection
+              <FilePlus data-icon="inline-start" /> Start New
             </Button>
           </div>
         </div>
 
         {/* Desktop sticky stat rail */}
         <div className="hidden lg:block w-56 xl:w-64 shrink-0">
-          <div className="sticky top-[73px] space-y-3">
+          <div className="sticky top-[73px] flex flex-col gap-3">
             {statCards}
-            <div className="space-y-2 pt-1">
+            <div className="flex flex-col gap-2 pt-1 border-t border-border/40 mt-1">
               <Button
-                className="w-full gap-2 justify-start"
+                className="w-full justify-start font-bold uppercase tracking-widest text-[10px]"
                 size="sm"
                 onClick={() => navigate("/complaints")}
               >
-                <ClipboardList className="w-4 h-4" /> My Complaints
+                <ClipboardList data-icon="inline-start" /> My Complaints
               </Button>
               <Button
                 variant="outline"
-                className="w-full gap-2 justify-start"
+                className="w-full justify-start font-bold uppercase tracking-widest text-[10px]"
                 size="sm"
                 onClick={() => navigate("/inspections/new")}
               >
-                <ClipboardCheck className="w-4 h-4" /> Start Inspection
+                <FilePlus data-icon="inline-start" /> Start New
               </Button>
             </div>
           </div>
         </div>
 
         {/* ── RIGHT: feed panels ──────────────────────────────────────────── */}
-        <div className="flex-1 min-w-0 space-y-4">
+        <div className="flex-1 min-w-0 flex flex-col gap-4">
           {/* New Assignments */}
           <FeedPanel
-            icon={<Bell className="w-3.5 h-3.5" />}
+            icon={<Bell />}
             title="New Assignments"
             badge={newAssignments.length > 0 ? `${newAssignments.length} new` : undefined}
             allRows={newAssignmentRows}
             showAll={showAllNew}
             onToggleShowAll={() => setShowAllNew((v) => !v)}
-            emptyContent={
-              !alerts.previousLastLogin ? (
-                <div className="flex items-start gap-2 text-sm text-muted-foreground bg-muted/40 border border-border rounded-lg px-4 py-3">
-                  <Bell className="w-4 h-4 shrink-0 mt-0.5 opacity-60" />
-                  New assignments will appear here after your next login.
-                </div>
-              ) : (
-                <AllClear message="You're all caught up — no new assignments since last login." />
-              )
-            }
+            emptyMessage={alerts.previousLastLogin ? "You're caught up — no new assignments." : "New assignments will appear here after your next login."}
           />
 
           {/* No Contact Attempt */}
           <FeedPanel
-            icon={<PhoneOff className="w-3.5 h-3.5" />}
+            icon={<PhoneOff />}
             title="No Contact Attempt"
             badge={noContactAttempt.length > 0 ? `${noContactAttempt.length} pending` : undefined}
-            badgeCls="bg-accent/20 text-accent-foreground border-accent/30"
+            badgeCls="bg-warning/10 text-warning"
             allRows={noContactRows}
             showAll={showAllNoContact}
             onToggleShowAll={() => setShowAllNoContact((v) => !v)}
-            emptyContent={
-              <AllClear message="All contact-pending cases have a contact attempt logged." />
-            }
+            emptyMessage="All contact-pending cases have a logged attempt."
           />
 
           {/* Upcoming Reinspections */}
           <FeedPanel
-            icon={<Calendar className="w-3.5 h-3.5" />}
-            title="Upcoming Reinspections (14 days)"
-            badge={
-              upcomingReinspections.length > 0
-                ? `${upcomingReinspections.length} upcoming`
-                : undefined
-            }
+            icon={<Calendar />}
+            title="Upcoming (14 days)"
+            badge={upcomingReinspections.length > 0 ? `${upcomingReinspections.length} total` : undefined}
             allRows={reinspectRows}
             showAll={showAllReinspect}
             onToggleShowAll={() => setShowAllReinspect((v) => !v)}
-            emptyContent={<AllClear message="No upcoming reinspections in the next 14 days." />}
+            emptyMessage="No upcoming reinspections in the next 14 days."
           />
 
           {/* Overdue Cases */}
           <FeedPanel
-            icon={<Clock className="w-3.5 h-3.5" />}
-            title="Overdue Cases"
-            badge={overdue.length > 0 ? `${overdue.length} overdue` : undefined}
-            badgeCls="bg-destructive/10 text-destructive border-destructive/20"
-            borderCls={overdue.length > 0 ? "border-destructive/25" : undefined}
+            icon={<Clock />}
+            title="Overdue"
+            badge={overdue.length > 0 ? `${overdue.length} cases` : undefined}
+            badgeCls="bg-destructive/10 text-destructive"
+            borderCls={overdue.length > 0 ? "border-destructive/20 ring-1 ring-destructive/5" : undefined}
             allRows={overdueRows}
             showAll={showAllOverdue}
             onToggleShowAll={() => setShowAllOverdue((v) => !v)}
-            emptyContent={<AllClear message="No overdue cases — great work!" />}
+            emptyMessage="No overdue cases — excellent."
           />
 
           {/* Recent Submitted Inspections */}
           <FeedPanel
-            icon={<ClipboardCheck className="w-3.5 h-3.5" />}
+            icon={<ClipboardCheck />}
             title="Recent Inspections"
             allRows={inspectionRows}
             showAll={showAllInspections}
             onToggleShowAll={() => setShowAllInspections((v) => !v)}
-            emptyContent={
-              <p className="text-sm text-muted-foreground">No submitted inspections yet.</p>
-            }
+            emptyMessage="No submitted inspections yet."
           />
         </div>
       </div>
