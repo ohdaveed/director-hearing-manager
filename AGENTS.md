@@ -163,6 +163,16 @@ Docs are local at `node_modules/vite-plus/docs` or online at https://viteplus.de
 - Run coverage: `CI=true vp test -- --coverage`
 - Target >80% coverage for new service/utility code
 
+## Code Review Process
+
+### Automated Review Mandate (The Contrarian Reviewer)
+
+To prevent "performative agreement" and ensure architectural integrity, all code implementations MUST be audited using the "Contrarian Reviewer" prompt.
+
+- **Requirement:** Before marking any task as complete, invoke a review subagent using the system prompt defined in `conductor/code-reviewer-prompt.md`.
+- **Goal:** Instead of checking if the code works, the reviewer must find exactly three ways the implementation diverges from the patterns in `AGENTS.md` or introduces a pattern that wasn't reconciled in the plan.
+- **Remediation:** All three identified violations MUST be addressed or formally reconciled in the track's `plan.md` before the task can be considered "Done".
+
 ## Quality Gates
 
 Before marking done: tests pass, coverage >80%, lint clean, code style guides followed
