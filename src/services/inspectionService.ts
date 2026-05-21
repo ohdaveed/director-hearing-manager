@@ -51,10 +51,10 @@ export const inspectionService = {
       .select(
         `
         ${INSPECTION_FULL_COLUMNS},
-        violations!inspection_id_fk (
+        violations!inspection_id (
           ${VIOLATION_COLUMNS}
         ),
-        inspection_photos!inspection_id_fk (
+        inspection_photos!inspection_id (
           ${PHOTO_COLUMNS}
         )
       `,
@@ -94,7 +94,7 @@ export const inspectionService = {
       const violationsWithId = violations.map((v: any) => ({
         ...v,
         inspection: String(inspectionId),
-        inspection_id_fk: inspectionId,
+        inspection_id: inspectionId,
         updated_at: new Date().toISOString(),
       }));
 
@@ -112,8 +112,7 @@ export const inspectionService = {
     if (photos && photos.length > 0) {
       const photosWithInspectionId = photos.map((p: any) => ({
         ...p,
-        inspection_id: String(inspectionId),
-        inspection_id_fk: inspectionId,
+        inspection_id: inspectionId,
         updated_at: new Date().toISOString(),
       }));
 

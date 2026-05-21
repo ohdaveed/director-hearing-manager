@@ -83,15 +83,15 @@ export const complaintService = {
       .select(
         `
          ${COMPLAINT_FULL_COLUMNS},
-         inspections!complaint_uuid (
+         inspections!complaint_id (
            inspection_id, inspection_date, inspector, inspection_type,
            inspection_rating, status, notes, deleted_at,
-           violations!inspection_id_fk (
+           violations!inspection_id (
              id, violation_label, violation_code, category,
              location_in_property, corrective_action, due_date,
              responsible_party, status, observation, deleted_at
            ),
-           inspection_photos!inspection_id_fk (
+           inspection_photos!inspection_id (
              id, photo_url, photo_type, caption, violation_label, deleted_at
            )
          ),

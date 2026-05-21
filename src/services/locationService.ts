@@ -44,7 +44,7 @@ export const locationService = {
       .select(
         `
         ${LOCATION_FULL_COLUMNS},
-        inspections!location_uuid (
+        inspections!location_id (
           inspection_id, inspection_date, inspector, inspection_type,
           inspection_rating, status, deleted_at
         )

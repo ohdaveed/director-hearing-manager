@@ -195,25 +195,20 @@ export const packetService = {
           category, deleted_at,
           hearing_rp_name, hearing_rp_phone, hearing_rp_email,
           hearing_rp_address, purpose_of_hearing,
-          inspections!complaint_uuid (
+          inspections!complaint_id (
             inspection_id, inspection_date, inspector, inspection_type,
             inspection_rating, status, notes, deleted_at,
-            violations!inspection_id_fk (
+            violations!inspection_id (
               id, violation_label, violation_code, category,
               location_in_property, corrective_action, due_date,
               responsible_party, status, observation, deleted_at,
               regulatory_reference_id
             ),
-            inspection_photos!inspection_id_fk (
+            inspection_photos!inspection_id (
               id, photo_url, photo_type, caption, violation_label,
               photo_taken_at, display_address, exhibit_label,
               packet_include, packet_sort_order, deleted_at
             )
-          ),
-          locations!location_uuid (
-            id, address, location_id, owner_name, owner_address,
-            owner_phone, owner_email, facility_type, verification_date,
-            responsible_party, responsible_party_phone, responsible_party_email
           ),
           chronology!complaint_uuid (
             id, summary, entry_date, entry_type, created_by,

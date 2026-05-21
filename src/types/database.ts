@@ -23,6 +23,7 @@ export interface Database {
           exhibits: string | null;
           complaint: string | null;
           inspection: string | null;
+          inspection_id: number | null;
           hearing_packets: string[] | null;
           created_at: string;
           updated_at: string | null;
@@ -40,6 +41,7 @@ export interface Database {
           exhibits?: string | null;
           complaint?: string | null;
           inspection?: string | null;
+          inspection_id?: number | null;
           hearing_packets?: string[] | null;
           created_at?: string;
           updated_at?: string | null;
@@ -57,6 +59,7 @@ export interface Database {
           exhibits?: string | null;
           complaint?: string | null;
           inspection?: string | null;
+          inspection_id?: number | null;
           hearing_packets?: string[] | null;
           created_at?: string;
           updated_at?: string | null;
@@ -560,6 +563,7 @@ export interface Database {
           id: string;
           violation_label: string | null;
           inspection: string | null;
+          inspection_id: number | null;
           violation_code: string | null;
           category: string | null;
           location_in_property: string | null;
@@ -578,6 +582,7 @@ export interface Database {
           id?: string;
           violation_label?: string | null;
           inspection?: string | null;
+          inspection_id?: number | null;
           violation_code?: string | null;
           category?: string | null;
           location_in_property?: string | null;
@@ -596,6 +601,7 @@ export interface Database {
           id?: string;
           violation_label?: string | null;
           inspection?: string | null;
+          inspection_id?: number | null;
           violation_code?: string | null;
           category?: string | null;
           location_in_property?: string | null;

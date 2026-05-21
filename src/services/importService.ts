@@ -65,8 +65,8 @@ export const importService = {
       .select(
         `
         ${INSPECTION_IMPORT_COLUMNS},
-        violations!inspection_id_fk ( id, violation_label, violation_code, status, deleted_at ),
-        inspection_photos!inspection_id_fk ( id, photo_url, caption, deleted_at )
+        violations!inspection_id ( id, violation_label, violation_code, status, deleted_at ),
+        inspection_photos!inspection_id ( id, photo_url, caption, deleted_at )
       `,
       )
       .eq("complaint", packet.complaint)
@@ -155,7 +155,7 @@ export const importService = {
       complaint: packet.complaint,
       complaint_uuid: packet.complaint_uuid,
       source_inspection: String(insp.inspection_id),
-      source_inspection_id_fk: insp.inspection_id,
+      source_inspection_id: insp.inspection_id,
       exhibit_type: "Inspection Report" as const,
       category: "Inspection Report" as const,
       description: `Inspection Report - ${insp.inspection_date}`,
