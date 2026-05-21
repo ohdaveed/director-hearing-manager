@@ -4,7 +4,6 @@ import { toast } from "sonner";
 import { inspectionService } from "@/services/inspectionService";
 import { complaintService } from "@/services/complaintService";
 import { Violation } from "@/components/ViolationRow";
-import { PhotoEntry } from "@/components/PhotoCard";
 import { VIOLATION_TYPES, calcDueDate } from "@/components/violationTypes";
 import { getFieldValidationError } from "@/utils/validationRules";
 

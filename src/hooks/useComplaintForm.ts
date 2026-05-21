@@ -6,7 +6,6 @@ import { toast } from "sonner";
 import { complaintService } from "@/services/complaintService";
 import { locationService } from "@/services/locationService";
 import { complaintFormSchema } from "@/schemas/complaintSchema";
-import { ALL_COMPLAINT_STATUSES } from "@/utils/complaintStatuses";
 import { INSPECTORS } from "@/utils/inspectors";
 import { Database } from "@/types/database";
 import { useDebouncedCallback } from "use-debounce";

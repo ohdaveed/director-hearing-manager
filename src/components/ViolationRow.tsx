@@ -1,11 +1,11 @@
 import { useState, useEffect, useRef } from "react";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Trash2, Clock, Zap, CheckCircle2, Circle, X, Plus } from "lucide-react";
+import { Label } from "@/components/ui/label";
+import { Clock } from "lucide-react";
 import { VIOLATION_TYPES, calcDueDate } from "./violationTypes";
-import ViolationTypeSelector from "./violation/ViolationTypeSelector";
-import ObservationChips from "./violation/ObservationChips";
+import { ViolationHeader } from "./violation/ViolationHeader";
+import { ViolationObservationsSection } from "./violation/ViolationObservationsSection";
 import ActionAssignmentPanel from "./violation/ActionAssignmentPanel";
 import { VIOLATION_DUE_BADGE_THEME } from "@/utils/badgeThemes";
 
@@ -327,192 +327,180 @@ export default function ViolationRow({
   // ── Render ────────────────────────────────────────────────────────────────
   return (
     <div className="bg-card border border-border rounded-xl shadow-sm overflow-hidden">
-      import {ViolationHeader} from "./violation/ViolationHeader"; import {ViolationTypeSelector}{" "}
-      from "./violation/ViolationTypeSelector"; import {ObservationChips} from
-      "./violation/ObservationChips"; import {ActionAssignmentPanel} from
-      "./violation/ActionAssignmentPanel"; // ... (rest of imports) ... // ── Render
-      ──────────────────────────────────────────────────────────────── return (
-      <div className="bg-card border border-border rounded-xl shadow-sm overflow-hidden">
-        <ViolationHeader
-          index={index}
-          violation={violation}
-          onRemove={() => onRemove(violation.id)}
-          onViolationSelect={handleViolationSelect}
-          readOnly={readOnly}
-        />
-        {/* Status + Badges row */}
-        {selectedType && (
-          <div className="px-4 pb-3 flex items-center gap-2 flex-wrap border-b border-border/60">
-            <span className="text-xs font-mono font-semibold text-foreground bg-muted rounded-md px-2.5 py-1">
-              {selectedType.code}
+      <ViolationHeader
+        index={index}
+        violation={violation}
+        onRemove={() => onRemove(violation.id)}
+        onViolationSelect={handleViolationSelect}
+        readOnly={readOnly}
+      />
+      {/* Status + Badges row */}
+      {selectedType && (
+        <div className="px-4 pb-3 flex items-center gap-2 flex-wrap border-b border-border/60">
+          <span className="text-xs font-mono font-semibold text-foreground bg-muted rounded-md px-2.5 py-1">
+            {selectedType.code}
+          </span>
+          {badge && (
+            <span
+              className={`inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded border ${badge.cls}`}
+            >
+              <Clock className="w-3 h-3" /> {badge.label}
             </span>
-            {badge && (
-              <span
-                className={`inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded border ${badge.cls}`}
+          )}
+          <div className="ml-auto flex rounded-md border border-border overflow-hidden">
+            {STATUSES.map((s, idx) => (
+              <button
+                key={s}
+                type="button"
+                disabled={readOnly}
+                onClick={() => onChange(violation.id, "status", s)}
+                className={`px-2.5 py-1 text-xs font-medium transition-colors focus-visible:outline-none ${
+                  idx > 0 ? "border-l border-border" : ""
+                } ${statusStyle(s)}`}
               >
-                <Clock className="w-3 h-3" /> {badge.label}
-              </span>
-            )}
-            <div className="ml-auto flex rounded-md border border-border overflow-hidden">
-              {STATUSES.map((s, idx) => (
-                <button
-                  key={s}
-                  type="button"
-                  disabled={readOnly}
-                  onClick={() => onChange(violation.id, "status", s)}
-                  className={`px-2.5 py-1 text-xs font-medium transition-colors focus-visible:outline-none ${
-                    idx > 0 ? "border-l border-border" : ""
-                  } ${statusStyle(s)}`}
+                {s === "Corrected on Site" ? "On Site" : s}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Card Body */}
+      {selectedType && (
+        <div className="px-4 py-4 space-y-4">
+          {/* ── Observations ──────────────────────────────────────────── */}
+          {showObsSection && (
+            <ViolationObservationsSection
+              selectedType={selectedType}
+              selectedObs={selectedObs}
+              customObsList={customObsList}
+              readOnly={readOnly}
+              onToggleObservation={handleToggleObservation}
+              onRemoveCustomObs={handleRemoveCustomObs}
+              onAddCustomObs={handleAddCustomObs}
+              customObsInput={customObsInput}
+              setCustomObsInput={setCustomObsInput}
+            />
+          )}
+
+          {/* Corrective action pickers for each custom observation */}
+          {!readOnly &&
+            customObsList.map((obsText) => {
+              if (ownerPredefined.length === 0 && tenantPredefined.length === 0) return null;
+              const actions = customObsActions[obsText];
+              const label = obsText.length > 45 ? obsText.slice(0, 45) + "…" : obsText;
+              return (
+                <div
+                  key={`picker-${obsText}`}
+                  className="pl-3 border-l-2 border-border/50 space-y-1.5"
                 >
-                  {s === "Corrected on Site" ? "On Site" : s}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-        ... import {ViolationHeader} from "./violation/ViolationHeader"; import{" "}
-        {ViolationTypeSelector} from "./violation/ViolationTypeSelector"; import{" "}
-        {ViolationObservationsSection} from "./violation/ViolationObservationsSection"; import{" "}
-        {ObservationChips} from "./violation/ObservationChips"; import {ActionAssignmentPanel} from
-        "./violation/ActionAssignmentPanel"; // ... (rest of imports) ...
-        {/* Card Body */}
-        {selectedType && (
-          <div className="px-4 py-4 space-y-4">
-            {/* ── Observations ──────────────────────────────────────────── */}
-            {showObsSection && (
-              <ViolationObservationsSection
-                selectedType={selectedType}
-                selectedObs={selectedObs}
-                customObsList={customObsList}
-                readOnly={readOnly}
-                onToggleObservation={handleToggleObservation}
-                onRemoveCustomObs={handleRemoveCustomObs}
-                onAddCustomObs={handleAddCustomObs}
-                customObsInput={customObsInput}
-                setCustomObsInput={setCustomObsInput}
-              />
-            )}
-
-            {/* Corrective action pickers for each custom observation */}
-            {!readOnly &&
-              customObsList.map((obsText) => {
-                if (ownerPredefined.length === 0 && tenantPredefined.length === 0) return null;
-                const actions = customObsActions[obsText];
-                const label = obsText.length > 45 ? obsText.slice(0, 45) + "…" : obsText;
-                return (
-                  <div
-                    key={`picker-${obsText}`}
-                    className="pl-3 border-l-2 border-border/50 space-y-1.5"
-                  >
-                    <p className="text-[10px] text-muted-foreground italic">
-                      Corrective actions for "
-                      <span className="font-medium not-italic">{label}</span>
-                      ":
-                    </p>
-                    <div className="flex flex-wrap gap-1.5">
-                      {ownerPredefined.map((a) => (
-                        <label
-                          key={`o-${a.text}`}
-                          className="flex items-center gap-1.5 px-2 py-1 rounded-md text-xs border border-border bg-card cursor-pointer hover:bg-muted transition-colors select-none"
-                        >
-                          <Checkbox
-                            checked={actions?.owner.has(a.text) ?? false}
-                            onCheckedChange={() =>
-                              handleToggleCustomObsAction(obsText, a.text, "Owner")
-                            }
-                            className="w-3 h-3"
-                          />
-                          <span className="text-foreground font-semibold text-[10px]">Owner</span>
-                          <span>{a.text}</span>
-                        </label>
-                      ))}
-                      {tenantPredefined.map((a) => (
-                        <label
-                          key={`t-${a.text}`}
-                          className="flex items-center gap-1.5 px-2 py-1 rounded-md text-xs border border-border bg-card cursor-pointer hover:bg-muted transition-colors select-none"
-                        >
-                          <Checkbox
-                            checked={actions?.tenant.has(a.text) ?? false}
-                            onCheckedChange={() =>
-                              handleToggleCustomObsAction(obsText, a.text, "Tenant")
-                            }
-                            className="w-3 h-3"
-                          />
-                          <span className="text-foreground font-semibold text-[10px]">Tenant</span>
-                          <span>{a.text}</span>
-                        </label>
-                      ))}
-                    </div>
+                  <p className="text-[10px] text-muted-foreground italic">
+                    Corrective actions for "
+                    <span className="font-medium not-italic">{label}</span>
+                    ":
+                  </p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {ownerPredefined.map((a) => (
+                      <label
+                        key={`o-${a.text}`}
+                        className="flex items-center gap-1.5 px-2 py-1 rounded-md text-xs border border-border bg-card cursor-pointer hover:bg-muted transition-colors select-none"
+                      >
+                        <Checkbox
+                          checked={actions?.owner.has(a.text) ?? false}
+                          onCheckedChange={() =>
+                            handleToggleCustomObsAction(obsText, a.text, "Owner")
+                          }
+                          className="w-3 h-3"
+                        />
+                        <span className="text-foreground font-semibold text-[10px]">Owner</span>
+                        <span>{a.text}</span>
+                      </label>
+                    ))}
+                    {tenantPredefined.map((a) => (
+                      <label
+                        key={`t-${a.text}`}
+                        className="flex items-center gap-1.5 px-2 py-1 rounded-md text-xs border border-border bg-card cursor-pointer hover:bg-muted transition-colors select-none"
+                      >
+                        <Checkbox
+                          checked={actions?.tenant.has(a.text) ?? false}
+                          onCheckedChange={() =>
+                            handleToggleCustomObsAction(obsText, a.text, "Tenant")
+                          }
+                          className="w-3 h-3"
+                        />
+                        <span className="text-foreground font-semibold text-[10px]">Tenant</span>
+                        <span>{a.text}</span>
+                      </label>
+                    ))}
                   </div>
-                );
-              })}
+                </div>
+              );
+            })}
 
-            {/* ── Corrective Actions ─────────────────────────────────────── */}
-            {(showOwner || showTenant) && (
-              <div className="space-y-3">
-                <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-                  Corrective Actions
-                </Label>
-                {showOwner && (
-                  <ActionAssignmentPanel
-                    party="Owner"
-                    predefinedActions={ownerPredefined}
-                    selectedTexts={selectedOwnerActions}
-                    customText={ownerCustom}
-                    onToggle={handleToggleOwner}
-                    onCustomChange={handleOwnerCustomChange}
-                    readOnly={readOnly}
-                    autoSelectedTexts={autoOwner}
-                    expandTrigger={expandOwnerTrigger}
-                  />
-                )}
-                {showTenant && (
-                  <ActionAssignmentPanel
-                    party="Tenant"
-                    predefinedActions={tenantPredefined}
-                    selectedTexts={selectedTenantActions}
-                    customText={tenantCustom}
-                    onToggle={handleToggleTenant}
-                    onCustomChange={handleTenantCustomChange}
-                    readOnly={readOnly}
-                    autoSelectedTexts={autoTenant}
-                    expandTrigger={expandTenantTrigger}
-                  />
-                )}
-              </div>
-            )}
+          {/* ── Corrective Actions ─────────────────────────────────────── */}
+          {(showOwner || showTenant) && (
+            <div className="space-y-3">
+              <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                Corrective Actions
+              </Label>
+              {showOwner && (
+                <ActionAssignmentPanel
+                  party="Owner"
+                  predefinedActions={ownerPredefined}
+                  selectedTexts={selectedOwnerActions}
+                  customText={ownerCustom}
+                  onToggle={handleToggleOwner}
+                  onCustomChange={handleOwnerCustomChange}
+                  readOnly={readOnly}
+                  autoSelectedTexts={autoOwner}
+                  expandTrigger={expandOwnerTrigger}
+                />
+              )}
+              {showTenant && (
+                <ActionAssignmentPanel
+                  party="Tenant"
+                  predefinedActions={tenantPredefined}
+                  selectedTexts={selectedTenantActions}
+                  customText={tenantCustom}
+                  onToggle={handleToggleTenant}
+                  onCustomChange={handleTenantCustomChange}
+                  readOnly={readOnly}
+                  autoSelectedTexts={autoTenant}
+                  expandTrigger={expandTenantTrigger}
+                />
+              )}
+            </div>
+          )}
 
-            {/* ── Location + Due Date ────────────────────────────────────── */}
-            <div className="grid grid-cols-2 gap-3 pt-1">
-              <div className="space-y-1">
-                <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-                  Location
-                </Label>
-                <Input
-                  placeholder="e.g. Unit 3B, Basement"
-                  value={violation.location}
-                  onChange={(e) => onChange(violation.id, "location", e.target.value)}
-                  className="text-sm h-8"
-                  disabled={readOnly}
-                />
-              </div>
-              <div className="space-y-1">
-                <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-                  Due Date
-                </Label>
-                <Input
-                  type="date"
-                  value={violation.dueDate}
-                  onChange={(e) => onChange(violation.id, "dueDate", e.target.value)}
-                  className="text-sm h-8"
-                  disabled={readOnly}
-                />
-              </div>
+          {/* ── Location + Due Date ────────────────────────────────────── */}
+          <div className="grid grid-cols-2 gap-3 pt-1">
+            <div className="space-y-1">
+              <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                Location
+              </Label>
+              <Input
+                placeholder="e.g. Unit 3B, Basement"
+                value={violation.location}
+                onChange={(e) => onChange(violation.id, "location", e.target.value)}
+                className="text-sm h-8"
+                disabled={readOnly}
+              />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                Due Date
+              </Label>
+              <Input
+                type="date"
+                value={violation.dueDate}
+                onChange={(e) => onChange(violation.id, "dueDate", e.target.value)}
+                className="text-sm h-8"
+                disabled={readOnly}
+              />
             </div>
           </div>
-        )}
-      </div>
-      );
+        </div>
+      )}
     </div>
   );
 }

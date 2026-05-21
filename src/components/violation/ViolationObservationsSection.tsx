@@ -1,7 +1,7 @@
 import { CheckCircle2, Circle, X, Plus, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ObservationChips } from "./ObservationChips";
+import ObservationChips from "./ObservationChips";
 
 export function ViolationObservationsSection({
   selectedType,

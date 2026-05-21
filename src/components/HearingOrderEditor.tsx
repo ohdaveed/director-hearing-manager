@@ -11,6 +11,8 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import { Loader2, Plus, Trash2, CheckCircle2, Printer } from "lucide-react";
 import { toast } from "sonner";
 import { packetService } from "@/services/packetService";

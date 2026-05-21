@@ -38,6 +38,7 @@ import {
   FACILITY_TYPES,
   CATEGORY_GROUPS,
   CLOSED_STATUSES,
+  COMPLAINT_TYPES,
 } from "@/hooks/useComplaintForm";
 
 // ── Sub-components ────────────────────────────────────────────────────────────

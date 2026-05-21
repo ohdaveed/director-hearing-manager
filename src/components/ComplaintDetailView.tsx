@@ -8,7 +8,7 @@ import { locationService } from "@/services/locationService";
 import type { ComplaintSummary } from "@/types/complaint";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Card, CardHeader, CardTitle, CardContent, CardAction } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Label } from "@/components/ui/label";
@@ -58,6 +58,7 @@ import {
   Trash2,
 } from "lucide-react";
 import ComplaintChronologyPanel from "./ComplaintChronologyPanel";
+import { SectionHeader } from "@/components/ui/section-header";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ACTIVE_STATUSES, CLOSURE_STATUSES, STATUS_DESCRIPTIONS } from "@/utils/complaintStatuses";
 import { COMPLAINT_STATUS_THEME, INSPECTION_STATUS_THEME } from "@/utils/badgeThemes";
@@ -75,7 +76,7 @@ export function DescriptionText({ text }: { text: string }) {
 
   return (
     <Collapsible open={open} onOpenChange={setOpen} className="mt-2">
-      <div className="text-sm text-muted-foreground leading-relaxed">
+      <div className="flex flex-col gap-0.5 text-sm text-muted-foreground leading-relaxed">
         {!open && <p>{text.slice(0, DESC_THRESHOLD)}…</p>}
         <CollapsibleContent>
           <p>{text}</p>
@@ -103,44 +104,12 @@ function InfoRow({ icon, label, value }: { icon: React.ReactNode; label: string;
   if (!value) return null;
   return (
     <div className="flex items-start gap-2.5">
-      <span className="text-muted-foreground mt-0.5 flex-shrink-0">{icon}</span>
+      <span className="text-muted-foreground mt-0.5 shrink-0">{icon}</span>
       <div className="flex flex-col gap-0.5">
         <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">{label}</p>
         <p className="text-sm font-medium text-foreground">{value}</p>
       </div>
     </div>
-  );
-}
-
-function SectionHeader({
-  icon,
-  title,
-  count,
-  right,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  count?: number;
-  right?: React.ReactNode;
-}) {
-  return (
-    <CardHeader className="border-b border-border/60 py-3 px-5">
-      <div className="flex items-center gap-2">
-        <span className="text-primary/70 shrink-0">{icon}</span>
-        <CardTitle className="text-xs tracking-widest font-bold text-foreground uppercase">
-          {title}
-        </CardTitle>
-        {count !== undefined && (
-          <Badge
-            variant="secondary"
-            className="text-xs h-4 px-1.5 font-bold bg-muted/80 text-muted-foreground border-none"
-          >
-            {count}
-          </Badge>
-        )}
-      </div>
-      {right && <CardAction>{right}</CardAction>}
-    </CardHeader>
   );
 }
 
@@ -311,7 +280,7 @@ export default function ComplaintDetailView({
       <SelectTrigger className="w-full h-9 text-sm">
         {updateStatusMutation.isPending ? (
           <span className="flex items-center gap-1.5">
-            <Loader2 className="w-3 h-3 animate-spin" /> Updating...
+            <Loader2 className="animate-spin" /> Updating...
           </span>
         ) : (
           <SelectValue placeholder="Change status..." />
@@ -335,7 +304,7 @@ export default function ComplaintDetailView({
         {CLOSURE_STATUSES.map((s) => (
           <SelectItem key={s} value={s}>
             <div className="flex items-center gap-1.5">
-              {s === "Closed — Compliant" && <Lock className="w-3 h-3 text-muted-foreground" />}
+              {s === "Closed — Compliant" && <Lock className="text-muted-foreground" />}
               <span className="font-medium">{s}</span>
             </div>
           </SelectItem>
@@ -351,7 +320,7 @@ export default function ComplaintDetailView({
   const locationSectionContent = (
     <Card className="overflow-hidden shadow-sm">
       <SectionHeader
-        icon={<MapPin className="w-4 h-4" />}
+        icon={<MapPin />}
         title="Location"
         right={
           complaint.locationid && (
@@ -362,7 +331,7 @@ export default function ComplaintDetailView({
                 rel="noopener noreferrer"
                 className="flex items-center gap-1 text-xs text-primary hover:underline"
               >
-                <ExternalLink className="w-3 h-3" /> SF PIM
+                <ExternalLink data-icon="inline-start" /> SF PIM
               </a>
               <button
                 type="button"
@@ -374,7 +343,7 @@ export default function ComplaintDetailView({
                 }}
                 className="flex items-center gap-1 text-xs text-primary hover:underline font-medium"
               >
-                <ExternalLink className="w-3 h-3" /> View Location
+                <ExternalLink data-icon="inline-start" /> View Location
               </button>
             </div>
           )
@@ -399,7 +368,7 @@ export default function ComplaintDetailView({
                     Search Location
                   </Label>
                   <div className="relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
                     <Input
                       id="location-search"
                       value={locationSearch}
@@ -411,7 +380,7 @@ export default function ComplaintDetailView({
                       className="pl-9 h-9 text-sm"
                     />
                     {locationSearching && (
-                      <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 animate-spin text-muted-foreground" />
+                      <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 animate-spin text-muted-foreground" />
                     )}
                   </div>
                 </div>
@@ -459,9 +428,9 @@ export default function ComplaintDetailView({
                           disabled={linkLocationMutation.isPending}
                         >
                           {linkingLocationId === loc.id ? (
-                            <Loader2 className="w-3 h-3 animate-spin" />
+                            <Loader2 className="animate-spin" />
                           ) : (
-                            <Link2 className="w-3 h-3" />
+                            <Link2 data-icon="inline-start" />
                           )}
                           Link
                         </Button>
@@ -489,7 +458,7 @@ export default function ComplaintDetailView({
                             })
                           }
                         >
-                          <PlusCircle className="w-3 h-3" /> Create New Location
+                          <PlusCircle data-icon="inline-start" /> Create New Location
                         </Button>
                         <a
                           href="https://sfplanninggis.org/pim/"
@@ -497,7 +466,7 @@ export default function ComplaintDetailView({
                           rel="noopener noreferrer"
                           className="flex items-center gap-1 text-xs text-primary hover:underline"
                         >
-                          <ExternalLink className="w-3 h-3" /> Verify via SF PIM
+                          <ExternalLink data-icon="inline-start" /> Verify via SF PIM
                         </a>
                       </div>
                     </div>
@@ -510,9 +479,9 @@ export default function ComplaintDetailView({
         {/* Location linked confirmation */}
         {locationLinked && (
           <div className="flex items-center gap-2 text-xs font-medium text-success bg-success/10 border border-success/30 rounded-md px-3 py-2">
-            <CheckCircle2 className="w-3.5 h-3.5 flex-shrink-0" />
+            <CheckCircle2 className="shrink-0" />
             Location linked
-            {optimisticallyLinked && <Loader2 className="w-3 h-3 animate-spin ml-1" />}
+            {optimisticallyLinked && <Loader2 className="animate-spin ml-1" />}
           </div>
         )}
       </CardContent>
@@ -524,7 +493,7 @@ export default function ComplaintDetailView({
   const responsiblePartyContent = (
     <Card className="overflow-hidden shadow-sm">
       <SectionHeader
-        icon={<Home className="w-4 h-4" />}
+        icon={<Home />}
         title="Responsible Party"
         right={
           <div className="flex items-center gap-3">
@@ -534,14 +503,14 @@ export default function ComplaintDetailView({
               rel="noopener noreferrer"
               className="flex items-center gap-1 text-xs text-primary hover:underline"
             >
-              <ExternalLink className="w-3 h-3" /> SF PIM
+              <ExternalLink data-icon="inline-start" /> SF PIM
             </a>
             {canEditStatus && !rpEditing && locationLinked && (
               <button
                 onClick={() => setRpEditing(true)}
                 className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
               >
-                <Pencil className="w-3 h-3" /> Edit
+                <Pencil data-icon="inline-start" /> Edit
               </button>
             )}
           </div>
@@ -561,17 +530,17 @@ export default function ComplaintDetailView({
             {rpName || rpAddress || rpPhone || rpEmail ? (
               <>
                 <InfoRow
-                  icon={<User className="w-3.5 h-3.5" />}
+                  icon={<User />}
                   label="Owner / Responsible Party"
                   value={rpName}
                 />
                 <InfoRow
-                  icon={<Home className="w-3.5 h-3.5" />}
+                  icon={<Home />}
                   label="Mailing Address"
                   value={rpAddress}
                 />
-                <InfoRow icon={<Phone className="w-3.5 h-3.5" />} label="Phone" value={rpPhone} />
-                <InfoRow icon={<Mail className="w-3.5 h-3.5" />} label="Email" value={rpEmail} />
+                <InfoRow icon={<Phone />} label="Phone" value={rpPhone} />
+                <InfoRow icon={<Mail />} label="Email" value={rpEmail} />
               </>
             ) : (
               <p className="text-xs text-muted-foreground italic col-span-2">
@@ -652,12 +621,11 @@ export default function ComplaintDetailView({
                 onClick={handleSaveResponsibleParty}
                 disabled={updateLocationMutation.isPending}
                 size="sm"
-                className="gap-1.5"
               >
                 {updateLocationMutation.isPending ? (
-                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  <Loader2 className="animate-spin" data-icon="inline-start" />
                 ) : (
-                  <Save className="w-3.5 h-3.5" />
+                  <Save data-icon="inline-start" />
                 )}
                 Save
               </Button>
@@ -686,7 +654,7 @@ export default function ComplaintDetailView({
   ) : detail && detail.inspections.length > 0 ? (
     <Card className="overflow-hidden shadow-sm">
       <SectionHeader
-        icon={<ClipboardList className="w-4 h-4" />}
+        icon={<ClipboardList />}
         title="Inspection History"
         count={detail.inspections.length}
       />
@@ -720,13 +688,13 @@ export default function ComplaintDetailView({
                   )}
                 </div>
               </div>
-              <div className="flex items-center gap-2 flex-shrink-0">
+              <div className="flex items-center gap-2 shrink-0">
                 {ins.inspection_rating === "Satisfactory" && (
                   <Badge
                     variant="outline"
                     className="text-xs h-4.5 px-2 font-bold bg-success/10 text-success border-success/20"
                   >
-                    <CheckCircle2 className="w-3 h-3 mr-1" /> Sat.
+                    <CheckCircle2 data-icon="inline-start" /> Sat.
                   </Badge>
                 )}
                 {ins.inspection_rating === "Unsatisfactory" && (
@@ -734,7 +702,7 @@ export default function ComplaintDetailView({
                     variant="outline"
                     className="text-xs h-4.5 px-2 font-bold bg-destructive/10 text-destructive border-destructive/20"
                   >
-                    <XCircle className="w-3 h-3 mr-1" /> Unsat.
+                    <XCircle data-icon="inline-start" /> Unsat.
                   </Badge>
                 )}
                 {/* Draft: dashed border neutral; Submitted: primary tint */}
@@ -746,9 +714,9 @@ export default function ComplaintDetailView({
                   )}
                 >
                   {ins.status === "Submitted" ? (
-                    <CheckCircle2 className="w-3 h-3" />
+                    <CheckCircle2 />
                   ) : (
-                    <Clock className="w-3 h-3" />
+                    <Clock />
                   )}
                   {ins.status}
                 </Badge>
@@ -760,7 +728,7 @@ export default function ComplaintDetailView({
     </Card>
   ) : !loading ? (
     <Card className="p-8 text-center text-muted-foreground shadow-sm">
-      <ClipboardList className="w-8 h-8 mx-auto mb-2 opacity-30" />
+      <ClipboardList className="mx-auto mb-2 opacity-30" />
       <p className="text-sm font-medium">No inspections yet</p>
       {canStartInspection && (
         <p className="text-xs mt-1">Click &ldquo;Start Inspection&rdquo; to begin.</p>
@@ -786,10 +754,10 @@ export default function ComplaintDetailView({
               {statusSelector}
               {blockedViolations && blockedViolations.length > 0 && (
                 <Alert variant="destructive">
-                  <Lock className="h-4 w-4" />
+                  <Lock />
                   <AlertTitle>Cannot mark as Closed — Compliant</AlertTitle>
                   <AlertDescription>
-                    <ul className="mt-2 list-disc space-y-1 pl-5">
+                    <ul className="mt-2 list-disc flex flex-col gap-1 pl-5">
                       {blockedViolations.map((v, i) => (
                         <li key={i} className="text-xs">
                           {v}
@@ -802,15 +770,15 @@ export default function ComplaintDetailView({
             </div>
           )}
           {actionsSlot && (
-            <div className={canEditStatus ? "border-t border-border pt-5" : ""}>{actionsSlot}</div>
+            <div className={cn(canEditStatus ? "border-t border-border pt-5" : "")}>{actionsSlot}</div>
           )}
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <Button
                 variant="outline"
-                className="w-full justify-start text-destructive hover:text-destructive hover:bg-destructive/5 border-destructive/20 gap-2 h-9 text-xs"
+                className="w-full justify-start text-destructive hover:text-destructive hover:bg-destructive/5 border-destructive/20 h-9 text-xs"
               >
-                <Trash2 className="w-3.5 h-3.5" /> Delete Complaint
+                <Trash2 data-icon="inline-start" /> Delete Complaint
               </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
@@ -828,7 +796,7 @@ export default function ComplaintDetailView({
                   className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                 >
                   {deleteMutation.isPending ? (
-                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                    <Loader2 className="animate-spin" data-icon="inline-start" />
                   ) : null}
                   Delete
                 </AlertDialogAction>
@@ -895,15 +863,15 @@ export default function ComplaintDetailView({
                         ? "Resume your draft inspection for this complaint"
                         : "Start a new inspection for this complaint"
                     }
-                    className="gap-2 flex-shrink-0 h-10 px-5 text-sm font-bold shadow-sm"
+                    className="flex-shrink-0 h-10 px-5 text-sm font-bold shadow-sm"
                   >
                     {hasDraft ? (
                       <>
-                        <FileEdit className="w-4 h-4" /> Resume Draft
+                        <FileEdit data-icon="inline-start" /> Resume Draft
                       </>
                     ) : (
                       <>
-                        <FilePlus className="w-4 h-4" /> Start Inspection
+                        <FilePlus data-icon="inline-start" /> Start Inspection
                       </>
                     )}
                   </Button>
@@ -920,7 +888,7 @@ export default function ComplaintDetailView({
                   {currentStatus || "—"}
                 </Badge>
                 {updateStatusMutation.isPending && (
-                  <Loader2 className="w-3 h-3 animate-spin text-muted-foreground" />
+                  <Loader2 className="animate-spin text-muted-foreground" />
                 )}
               </div>
             </CardContent>
@@ -942,13 +910,13 @@ export default function ComplaintDetailView({
             detail && (
               <Card className="overflow-hidden shadow-sm">
                 <SectionHeader
-                  icon={<ClipboardList className="w-4 h-4" />}
+                  icon={<ClipboardList />}
                   title="Complaint Info"
                 />
                 <CardContent className="p-5">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <InfoRow
-                      icon={<Calendar className="w-3.5 h-3.5" />}
+                      icon={<Calendar />}
                       label="Date Entered"
                       value={
                         detail.date_entered
@@ -957,7 +925,7 @@ export default function ComplaintDetailView({
                       }
                     />
                     <InfoRow
-                      icon={<AlertCircle className="w-3.5 h-3.5" />}
+                      icon={<AlertCircle />}
                       label="Reinspection Due"
                       value={
                         detail.reinspection_due_on_after
@@ -968,7 +936,7 @@ export default function ComplaintDetailView({
                       }
                     />
                     <InfoRow
-                      icon={<Calendar className="w-3.5 h-3.5" />}
+                      icon={<Calendar />}
                       label="Last Report Sent"
                       value={
                         detail.date_last_report_sent
@@ -979,17 +947,17 @@ export default function ComplaintDetailView({
                       }
                     />
                     <InfoRow
-                      icon={<User className="w-3.5 h-3.5" />}
+                      icon={<User />}
                       label="Complainant"
                       value={detail.complainant_name}
                     />
                     <InfoRow
-                      icon={<Phone className="w-3.5 h-3.5" />}
+                      icon={<Phone />}
                       label="Phone"
                       value={detail.complainant_phone}
                     />
                     <InfoRow
-                      icon={<Mail className="w-3.5 h-3.5" />}
+                      icon={<Mail />}
                       label="Email"
                       value={detail.complainant_email}
                     />
@@ -1048,11 +1016,11 @@ export default function ComplaintDetailView({
               <p className="text-xs font-medium text-muted-foreground shrink-0">Status</p>
               <div className="flex-1">{statusSelector}</div>
               {canStartInspection && (
-                <Button onClick={handleStartInspection} size="sm" className="shrink-0 gap-1.5">
+                <Button onClick={handleStartInspection} size="sm" className="shrink-0">
                   {hasDraft ? (
-                    <FileEdit className="w-3.5 h-3.5" />
+                    <FileEdit data-icon="inline-start" />
                   ) : (
-                    <FilePlus className="w-3.5 h-3.5" />
+                    <FilePlus data-icon="inline-start" />
                   )}
                   <span className="hidden xs:inline">{hasDraft ? "Resume" : "Inspect"}</span>
                 </Button>
@@ -1060,7 +1028,7 @@ export default function ComplaintDetailView({
             </div>
             {blockedViolations && blockedViolations.length > 0 && (
               <p className="mt-1.5 text-xs text-destructive flex items-center gap-1.5">
-                <Lock className="w-3 h-3 shrink-0" />
+                <Lock shrink-0 />
                 Cannot close — {blockedViolations.length} unresolved violation
                 {blockedViolations.length !== 1 ? "s" : ""}
               </p>

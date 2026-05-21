@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { Loader2, CheckCircle2, FileText, Image, ExternalLink, ClipboardList } from "lucide-react";
 import InspectionImportWizard from "@/components/InspectionImportWizard";
 import { packetService } from "@/services/packetService";
-import { SectionHeader } from "@/components/ComplaintDetailView";
+import { SectionHeader } from "@/components/ui/section-header";
 
 type PacketData = any;
 
@@ -43,7 +43,7 @@ function EvidenceRow({
         checked ? "bg-primary/5 border-primary/20" : "hover:bg-muted/40",
       )}
     >
-      <Checkbox checked={checked} onCheckedChange={onToggle} className="mt-0.5 flex-shrink-0" />
+      <Checkbox checked={checked} onCheckedChange={onToggle} className="mt-0.5 shrink-0" />
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 flex-wrap mb-0.5">
           <span className="text-sm font-medium text-foreground">{item.title}</span>
@@ -59,9 +59,9 @@ function EvidenceRow({
           target="_blank"
           rel="noopener noreferrer"
           onClick={(e) => e.stopPropagation()}
-          className="text-xs text-primary flex items-center gap-1 flex-shrink-0"
+          className="text-xs text-primary flex items-center gap-1 shrink-0"
         >
-          <ExternalLink className="w-3 h-3" />
+          <ExternalLink data-icon="inline-start" />
         </a>
       )}
     </label>
@@ -93,7 +93,7 @@ function PhotoThumb({
           />
         ) : (
           <div className="w-full h-full bg-muted flex items-center justify-center">
-            <Image className="w-5 h-5 text-muted-foreground opacity-40" />
+            <Image className="shrink-0 text-muted-foreground opacity-40" />
           </div>
         )}
         <div className={cn("absolute inset-0 rounded-lg", checked ? "bg-primary/10" : "")} />
@@ -214,7 +214,7 @@ export default function AttachmentsEvidenceTab({
   };
 
   return (
-    <div className="p-5 space-y-5 overflow-y-auto max-h-[calc(100vh-320px)]">
+    <div className="p-5 flex flex-col gap-5 overflow-y-auto max-h-[calc(100vh-320px)]">
       {/* Import Inspections */}
       <Card>
         <CardContent className="flex items-center justify-between p-3">
@@ -229,10 +229,10 @@ export default function AttachmentsEvidenceTab({
           <Button
             size="sm"
             variant="outline"
-            className="shrink-0 gap-1.5 text-xs h-8 ml-3"
+            className="shrink-0 h-8 ml-3"
             onClick={() => setImportWizardOpen(true)}
           >
-            <ClipboardList className="w-3 h-3" />
+            <ClipboardList data-icon="inline-start" />
             Import
           </Button>
         </CardContent>
@@ -242,7 +242,7 @@ export default function AttachmentsEvidenceTab({
       <Card>
         <CardHeader className="p-5 pb-0">
           <SectionHeader
-            icon={<FileText className="w-4 h-4" />}
+            icon={<FileText />}
             title="Evidence & Reports"
             count={evidenceItems.length}
             right={
@@ -256,7 +256,7 @@ export default function AttachmentsEvidenceTab({
               No imported reports or exhibits found for this location
             </p>
           ) : (
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               {evidenceItems.map((item) => (
                 <EvidenceRow
                   key={item.id}
@@ -274,7 +274,7 @@ export default function AttachmentsEvidenceTab({
       <Card>
         <CardHeader className="p-5 pb-0">
           <SectionHeader
-            icon={<Image className="w-4 h-4" />}
+            icon={<Image />}
             title="Photos"
             count={data.allPhotos.length}
             right={
@@ -303,7 +303,7 @@ export default function AttachmentsEvidenceTab({
               No photos on file for this complaint
             </p>
           ) : (
-            <div className="space-y-4">
+            <div className="flex flex-col gap-4">
               {photoGroups.map((group, gi) => (
                 <div key={gi}>
                   <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
@@ -330,11 +330,11 @@ export default function AttachmentsEvidenceTab({
         </CardContent>
       </Card>
 
-      <Button onClick={handleSave} disabled={saving} className="w-full gap-2">
+      <Button onClick={handleSave} disabled={saving} className="w-full">
         {saving ? (
-          <Loader2 className="w-4 h-4 animate-spin" />
+          <Loader2 className="animate-spin" data-icon="inline-start" />
         ) : (
-          <CheckCircle2 className="w-4 h-4" />
+          <CheckCircle2 data-icon="inline-start" />
         )}
         Save Selections
       </Button>

@@ -2,17 +2,14 @@ import { useQuery } from "@tanstack/react-query";
 import { complaintService } from "@/services/complaintService";
 import { FileEdit, FilePlus, AlertCircle, ClipboardList } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { COMPLAINT_STATUS_THEME } from "@/utils/badgeThemes";
 import { sanitizeText } from "@/utils/sanitizeText";
 import { Database } from "@/types/database";
 
-// Assuming SectionHeader is available in local components or should be imported.
-// Given it was used in ComplaintDetailView, I will assume it's a reusable component.
-// If it's missing, I'll inline the header structure.
-import { SectionHeader } from "@/components/ComplaintDetailView";
+import { SectionHeader } from "@/components/ui/section-header";
 
 type Complaint = Database["public"]["Tables"]["complaints"]["Row"];
 
@@ -31,11 +28,11 @@ export default function AssignedComplaintsPanel({ inspector, onSelectComplaint }
   if (loading) {
     return (
       <Card className="shadow-sm overflow-hidden mb-6">
-        <SectionHeader icon={<ClipboardList className="w-4 h-4" />} title="Assigned Complaints" />
+        <SectionHeader icon={<ClipboardList />} title="Assigned Complaints" />
         <div className="divide-y divide-border">
           {[1, 2, 3].map((i) => (
             <div key={i} className="px-5 py-4 flex items-start justify-between gap-3">
-              <div className="flex-1 space-y-2">
+              <div className="flex-1 flex flex-col gap-2">
                 <div className="flex items-center gap-2">
                   <Skeleton className="h-5 w-14 rounded" />
                   <Skeleton className="h-5 w-28 rounded-full" />
@@ -43,7 +40,7 @@ export default function AssignedComplaintsPanel({ inspector, onSelectComplaint }
                 <Skeleton className="h-4 w-56" />
                 <Skeleton className="h-3 w-40" />
               </div>
-              <Skeleton className="h-5 w-20 rounded-full flex-shrink-0" />
+              <Skeleton className="h-5 w-20 rounded-full shrink-0" />
             </div>
           ))}
         </div>
@@ -54,7 +51,7 @@ export default function AssignedComplaintsPanel({ inspector, onSelectComplaint }
   if (complaints.length === 0) {
     return (
       <Card className="p-5 mb-6 text-center text-muted-foreground text-sm shadow-sm">
-        <AlertCircle className="w-5 h-5 mx-auto mb-1 opacity-50" />
+        <AlertCircle className="mx-auto mb-1 opacity-50" />
         No open complaints assigned to <strong>{inspector}</strong>. You can still fill out the form
         manually below.
       </Card>
@@ -64,7 +61,7 @@ export default function AssignedComplaintsPanel({ inspector, onSelectComplaint }
   return (
     <Card className="shadow-sm overflow-hidden mb-6">
       <SectionHeader
-        icon={<ClipboardList className="w-4 h-4" />}
+        icon={<ClipboardList />}
         title="Assigned Complaints"
         count={complaints.length}
       />
@@ -93,12 +90,12 @@ export default function AssignedComplaintsPanel({ inspector, onSelectComplaint }
                     )}
                     {c.status === "Inspection Scheduled" && (
                       <span className="inline-flex items-center gap-1 text-xs font-medium text-warning bg-warning/10 px-2 py-0.5 rounded-full">
-                        <FileEdit className="w-3 h-3" /> Scheduled
+                        <FileEdit /> Scheduled
                       </span>
                     )}
                     {c.status === "New" && (
                       <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
-                        <FilePlus className="w-3 h-3" /> New inspection
+                        <FilePlus /> New inspection
                       </span>
                     )}
                   </div>
@@ -114,7 +111,7 @@ export default function AssignedComplaintsPanel({ inspector, onSelectComplaint }
                     </p>
                   )}
                 </div>
-                <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                <div className="flex flex-col items-end gap-1 shrink-0">
                   {c.status && (
                     <Badge
                       variant="outline"

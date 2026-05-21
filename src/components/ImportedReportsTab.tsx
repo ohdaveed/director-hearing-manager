@@ -33,6 +33,7 @@ import {
   CheckCircle2,
   Info,
 } from "lucide-react";
+import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { supabase } from "@/lib/supabase";
 
 type ImportedReport = any["reports"][0];

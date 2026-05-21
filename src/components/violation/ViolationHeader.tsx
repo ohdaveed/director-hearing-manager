@@ -1,6 +1,5 @@
-import { useState } from "react";
 import { Zap, Trash2 } from "lucide-react";
-import ViolationTypeSelector from "./violation/ViolationTypeSelector";
+import ViolationTypeSelector from "./ViolationTypeSelector";
 
 export function ViolationHeader({
   index,
