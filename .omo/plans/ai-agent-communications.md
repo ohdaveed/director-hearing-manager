@@ -211,7 +211,7 @@ Save this output to `.sisyphus/evidence/baseline-line-counts.txt`. After all tas
   New structure:
 
   ```
-  # Director Hearing Manager (Zite)
+  # Director Hearing Manager
 
   > Enterprise case-management system for SFDPH Environmental Health Division (HHVC program).
   > Automates Director's Hearing Packet compilation for SF Health Code Article 11 enforcement.
@@ -569,7 +569,7 @@ Save this output to `.sisyphus/evidence/baseline-line-counts.txt`. After all tas
 
   ### Project at a Glance
 
-  Zite is an enterprise operational tool for SFDPH Environmental Health Division (HHVC program).
+  Director Hearing Manager is an enterprise operational tool for SFDPH Environmental Health Division (HHVC program).
   It automates Director's Hearing Packet compilation for SF Health Code Article 11 enforcement.
   ```
 

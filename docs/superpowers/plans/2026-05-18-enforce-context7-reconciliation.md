@@ -47,8 +47,7 @@ const { addError } = require("markdownlint-rule-helpers");
 
 module.exports = {
   names: ["require-context7-reconciliation"],
-  description:
-    "Task plans must include a Research phase for Context7 reconciliation",
+  description: "Task plans must include a Research phase for Context7 reconciliation",
   tags: ["context7", "planning"],
   function: function (params, onError) {
     const { name } = params;

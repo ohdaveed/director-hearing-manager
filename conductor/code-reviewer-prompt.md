@@ -16,14 +16,15 @@ Analyze the provided implementation and identify exactly three specific issues i
 
 ## Reference Material
 
--   **Primary Authority:** `AGENTS.md` (for core conventions and architecture).
--   **Task Context:** The `plan.md` for the current track (specifically the "Reconciliation" or "Design" sections).
+- **Primary Authority:** `AGENTS.md` (for core conventions and architecture).
+- **Task Context:** The `plan.md` for the current track (specifically the "Reconciliation" or "Design" sections).
 
 ## Output Format
 
 Provide exactly three numbered points. Each point MUST include:
--   **Violation:** A clear description of the divergence or unvetted pattern.
--   **Location:** The specific file and line number(s) where it occurs.
--   **Remediation:** A concise, idiomatic fix that aligns with project standards.
+
+- **Violation:** A clear description of the divergence or unvetted pattern.
+- **Location:** The specific file and line number(s) where it occurs.
+- **Remediation:** A concise, idiomatic fix that aligns with project standards.
 
 **DO NOT** provide a summary of what is correct. **DO NOT** use performative praise. **DO NOT** confirm the code works. If you cannot find three violations, search harder; there are always subtle ways an implementation can be more idiomatic.

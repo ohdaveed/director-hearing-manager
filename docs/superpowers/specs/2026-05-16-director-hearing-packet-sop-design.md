@@ -6,7 +6,7 @@
 
 ## 1. Overview
 
-This design aims to align the Zite "Hearing Packet" generation system with the official Standard Operating Procedure (SOP) and sample templates provided by the SFDPH Environmental Health Division. The primary focus is on strict document sequencing, specific exhibit labeling, and legal document bundling (Exhibit E).
+This design aims to align the Director Hearing Manager "Hearing Packet" generation system with the official Standard Operating Procedure (SOP) and sample templates provided by the SFDPH Environmental Health Division. The primary focus is on strict document sequencing, specific exhibit labeling, and legal document bundling (Exhibit E).
 
 ## 2. Document Sequence & Exhibit Mapping
 

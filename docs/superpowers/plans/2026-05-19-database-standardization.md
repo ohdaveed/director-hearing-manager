@@ -13,6 +13,7 @@
 ### Task 1: Database Migration - Standardization
 
 **Files:**
+
 - Create: `migrations/004_standardize_fks.sql`
 - Modify: `schema.sql` (to reflect final state)
 
@@ -103,6 +104,7 @@ git commit -m "db: standardize foreign key naming to _id and add indexes"
 ### Task 2: Update TypeScript Types
 
 **Files:**
+
 - Modify: `src/types/database.ts`
 
 - [ ] **Step 1: Regenerate Types (or manually update)**
@@ -120,6 +122,7 @@ git commit -m "types: update database types for standardized schema"
 ### Task 3: Update Service Layer (PostgREST Queries)
 
 **Files:**
+
 - Modify: `src/services/complaintService.ts`
 - Modify: `src/services/inspectionService.ts`
 - Modify: `src/services/packetService.ts`
@@ -157,6 +160,7 @@ git commit -m "feat: update service layer to use standardized foreign keys"
 ### Task 4: Update Frontend UI Components
 
 **Files:**
+
 - Modify: `src/components/ComplaintListItem.tsx`
 - Modify: `src/components/ComplaintDetailView.tsx`
 - Modify: `src/components/LocationOwnerPanel.tsx`
