@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { complaintService } from "@/services/complaintService";
+import { complaintService, type EscalationQueueComplaint } from "@/services/complaintService";
 import { packetService } from "@/services/packetService";
 import {
   Select,
@@ -11,7 +12,6 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -37,13 +37,40 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { SimpleTable } from "@/components/ui/SimpleTable";
 import ComplaintDetailView from "@/components/ComplaintDetailView";
 import { toast } from "sonner";
-import { HEARING_STATUS_OPTIONS } from "@/utils/complaintStatuses";
+import { HEARING_STATUS_OPTIONS, type HearingStatus } from "@/utils/complaintStatuses";
 import { format } from "date-fns";
+import type { ComplaintSummary } from "@/types/complaint";
 
-type Complaint = any;
+type Complaint = EscalationQueueComplaint;
+type HearingPacketRelation = {
+  id: string;
+  deleted_at?: string | null;
+};
+type EscalationUpdate = Pick<Complaint, "hearing_status" | "hearing_date">;
+
+function toHearingStatus(value: string | null | undefined): HearingStatus {
+  const matched = HEARING_STATUS_OPTIONS.find((status) => status === value);
+  return matched ?? "None";
+}
+
+function toComplaintSummary(complaint: Complaint): ComplaintSummary {
+  return {
+    id: complaint.id,
+    legacy_complaint_id: complaint.legacy_complaint_id ?? undefined,
+    address: complaint.address ?? undefined,
+    description: complaint.description ?? undefined,
+    status: complaint.status ?? undefined,
+    category: complaint.category ?? undefined,
+    reinspection_due_on_after: complaint.reinspection_due_on_after ?? undefined,
+    legacy_location_id: complaint.legacy_location_id ?? undefined,
+    hearing_status: complaint.hearing_status ?? undefined,
+    hearing_date: complaint.hearing_date ?? undefined,
+    assigned_to: complaint.assigned_to ?? undefined,
+    date_entered: complaint.date_entered ?? undefined,
+  };
+}
 
 const HEARING_STATUSES = HEARING_STATUS_OPTIONS;
-const ENTRY_TYPES = ["Hearing Referral", "NOV", "Contact Attempt", "Other"];
 
 const HEARING_STATUS_COLORS: Record<string, string> = {
   "Referral Pending": "bg-warning/10 text-warning border-warning/20",
@@ -71,55 +98,59 @@ function EscalationEditor({
   onComplaintPacketCreated: (complaintId: string, packetId: string) => void;
 }) {
   const queryClient = useQueryClient();
-  const [hearingStatus, setHearingStatus] = useState(
-    complaint.hearing_status ?? "None",
+  const navigate = useNavigate();
+  const [hearingStatus, setHearingStatus] = useState<HearingStatus>(
+    toHearingStatus(complaint.hearing_status),
   );
   const [hearingDate, setHearingDate] = useState(complaint.hearing_date ?? "");
-  const [chronologySummary, setChronologySummary] = useState("");
-  const [entryType, setEntryType] = useState("Hearing Referral");
   const [showCreateDialog, setShowCreateDialog] = useState(false);
-  const creatingPacket = false;
-  const saving = false;
 
   const updateMutation = useMutation({
-    mutationFn: (updates: any) =>
-      complaintService.update(complaint.id, updates),
+    mutationFn: (updates: EscalationUpdate) => complaintService.update(complaint.id, updates),
     onSuccess: (data) => {
-      onUpdated(data);
-      setChronologySummary("");
+      onUpdated({
+        hearing_status: data.hearing_status,
+        hearing_date: data.hearing_date,
+      });
       toast.success("Escalation record updated");
       queryClient.invalidateQueries({ queryKey: ["complaints"] });
+    },
+    onError: () => {
+      toast.error("Failed to save escalation record");
     },
   });
 
   const createPacketMutation = useMutation({
-    mutationFn: () => packetService.create(complaint.id),
+    mutationFn: () =>
+      packetService.create(complaint.id, {
+        hearingDate: hearingDate || complaint.hearing_date || null,
+        assignedTo: complaint.assigned_to ?? null,
+        caseNumber: complaint.legacy_complaint_id ?? null,
+      }),
     onSuccess: (data) => {
-      toast.success(
-        "Hearing packet created! Navigate to Hearing Packets to manage it.",
-      );
+      toast.success("Hearing packet is ready.");
       onComplaintPacketCreated(complaint.id, data.id);
+      queryClient.invalidateQueries({ queryKey: ["complaints", "escalated"] });
+      queryClient.invalidateQueries({ queryKey: ["packets"] });
+      navigate(`/enforcement/hearings/${data.id}`);
+    },
+    onError: () => {
+      toast.error("Failed to create hearing packet");
     },
   });
 
   const [prevComplaintId, setPrevComplaintId] = useState(complaint.id);
   if (complaint.id !== prevComplaintId) {
     setPrevComplaintId(complaint.id);
-    setHearingStatus(complaint.hearing_status ?? "None");
+    setHearingStatus(toHearingStatus(complaint.hearing_status));
     setHearingDate(complaint.hearing_date ?? "");
-    setChronologySummary("");
   }
 
   const handleSave = async () => {
-    try {
-      updateMutation.mutate({
-        hearing_status: hearingStatus,
-        hearing_date: hearingDate,
-      });
-      toast.success("Escalation record saved");
-    } catch {
-      toast.error("Failed to save escalation record");
-    }
+    updateMutation.mutate({
+      hearing_status: hearingStatus,
+      hearing_date: hearingDate || null,
+    });
   };
 
   const handleCreatePacket = async () => {
@@ -128,10 +159,14 @@ function EscalationEditor({
   };
 
   const hsCls =
-    HEARING_STATUS_COLORS[hearingStatus] ??
-    "bg-muted text-muted-foreground border-border";
+    HEARING_STATUS_COLORS[hearingStatus] ?? "bg-muted text-muted-foreground border-border";
   const isPacketEligible = PACKET_ELIGIBLE_STATUSES.includes(hearingStatus);
-  const hasPacket = !!complaint.hearing_packet_id;
+  const existingPacket = Array.isArray(complaint.hearing_packets)
+    ? complaint.hearing_packets.find((packet: HearingPacketRelation) => !packet.deleted_at)
+    : null;
+  const hasPacket = !!existingPacket;
+  const creatingPacket = createPacketMutation.isPending;
+  const saving = updateMutation.isPending;
 
   return (
     <div className="bg-card border border-border rounded-xl p-5 shadow-sm space-y-4">
@@ -144,7 +179,10 @@ function EscalationEditor({
           <label className="text-xs font-medium text-muted-foreground mb-1 block">
             Hearing Status
           </label>
-          <Select value={hearingStatus} onValueChange={setHearingStatus}>
+          <Select
+            value={hearingStatus}
+            onValueChange={(value) => setHearingStatus(toHearingStatus(value))}
+          >
             <SelectTrigger className="h-9 text-sm">
               <SelectValue />
             </SelectTrigger>
@@ -184,20 +222,21 @@ function EscalationEditor({
             <div className="flex items-center gap-2">
               <Package className="w-4 h-4 text-muted-foreground flex-shrink-0" />
               <div>
-                <p className="text-sm font-medium text-foreground">
-                  Director's Hearing Packet
-                </p>
+                <p className="text-sm font-medium text-foreground">Director's Hearing Packet</p>
                 <p className="text-xs text-muted-foreground">
-                  {hasPacket
-                    ? "A packet exists for this case."
-                    : "No packet created yet."}
+                  {hasPacket ? "A packet exists for this case." : "No packet created yet."}
                 </p>
               </div>
             </div>
             {hasPacket ? (
-              <span className="text-xs px-2 py-1 rounded-full bg-success/10 text-success font-medium flex items-center gap-1">
-                <ExternalLink className="w-3 h-3" /> Packet Created
-              </span>
+              <Button
+                size="sm"
+                variant="outline"
+                className="gap-1.5 text-xs border-success/30 text-success hover:bg-success/5"
+                onClick={() => navigate(`/enforcement/hearings/${existingPacket.id}`)}
+              >
+                <ExternalLink className="w-3 h-3" /> Open Packet
+              </Button>
             ) : (
               <Button
                 size="sm"
@@ -205,6 +244,7 @@ function EscalationEditor({
                 className="gap-1.5 text-xs border-primary/30 text-primary hover:bg-primary/5"
                 onClick={() => setShowCreateDialog(true)}
                 disabled={creatingPacket}
+                data-testid="create-hearing-packet"
               >
                 {creatingPacket ? (
                   <Loader2 className="w-3 h-3 animate-spin" />
@@ -218,39 +258,8 @@ function EscalationEditor({
         </div>
       )}
 
-      <div className="border-t border-border pt-4 space-y-3">
-        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-          Add Chronology Entry
-        </p>
-        <div className="flex gap-2">
-          <Select value={entryType} onValueChange={setEntryType}>
-            <SelectTrigger className="w-40 h-8 text-xs">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {ENTRY_TYPES.map((t) => (
-                <SelectItem key={t} value={t}>
-                  {t}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        <Textarea
-          placeholder="Describe the escalation action or decision..."
-          value={chronologySummary}
-          onChange={(e) => setChronologySummary(e.target.value)}
-          className="text-sm resize-none"
-          rows={3}
-        />
-      </div>
-
       <Button onClick={handleSave} disabled={saving} className="gap-2">
-        {saving ? (
-          <Loader2 className="w-4 h-4 animate-spin" />
-        ) : (
-          <Save className="w-4 h-4" />
-        )}
+        {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
         Save Escalation Record
       </Button>
 
@@ -263,23 +272,17 @@ function EscalationEditor({
             </AlertDialogTitle>
             <AlertDialogDescription asChild>
               <div className="space-y-3 text-sm">
-                <p>
-                  This will create a new Director's Hearing Packet for this
-                  case.
-                </p>
+                <p>This will create a new Director's Hearing Packet for this case.</p>
                 <div className="bg-muted rounded-lg p-3 space-y-1 text-foreground">
                   {complaint.legacy_complaint_id && (
                     <p>
                       <span className="font-medium">Complaint:</span>{" "}
-                      <span className="font-mono">
-                        #{complaint.legacy_complaint_id}
-                      </span>
+                      <span className="font-mono">#{complaint.legacy_complaint_id}</span>
                     </p>
                   )}
                   {complaint.address && (
                     <p>
-                      <span className="font-medium">Address:</span>{" "}
-                      {complaint.address}
+                      <span className="font-medium">Address:</span> {complaint.address}
                     </p>
                   )}
                   {hearingDate && (
@@ -290,21 +293,24 @@ function EscalationEditor({
                   )}
                   {complaint.assigned_to && (
                     <p>
-                      <span className="font-medium">Inspector:</span>{" "}
-                      {complaint.assigned_to}
+                      <span className="font-medium">Inspector:</span> {complaint.assigned_to}
                     </p>
                   )}
                 </div>
                 <p className="text-muted-foreground">
-                  Navigate to the <strong>Hearing Packets</strong> section to
-                  manage and print the packet.
+                  Navigate to the <strong>Hearing Packets</strong> section to manage and print the
+                  packet.
                 </p>
               </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleCreatePacket}>
+            <AlertDialogAction
+              disabled={creatingPacket}
+              onClick={handleCreatePacket}
+              data-testid="confirm-create-packet"
+            >
               Create Packet
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -322,17 +328,15 @@ export default function EscalationQueuePage() {
   const { data: complaints = [], isLoading: loading } = useQuery({
     queryKey: ["complaints", "escalated"],
     queryFn: async () => {
-      const data = await complaintService.getAll();
+      const data = await complaintService.getEscalationQueue();
       return data
         .filter(
-          (c: any) =>
+          (c) =>
             c.status === "Escalated" ||
             c.status === "Non-Compliant" ||
             (c.hearing_status && c.hearing_status !== "None"),
         )
-        .sort((a: any, b: any) =>
-          (b.date_entered ?? "").localeCompare(a.date_entered ?? ""),
-        );
+        .sort((a, b) => (b.date_entered ?? "").localeCompare(a.date_entered ?? ""));
     },
   });
 
@@ -340,9 +344,7 @@ export default function EscalationQueuePage() {
     if (!search) return complaints;
     const q = search.toLowerCase();
     return complaints.filter(
-      (c: any) =>
-        c.address?.toLowerCase().includes(q) ||
-        c.legacy_complaint_id?.includes(q),
+      (c) => c.address?.toLowerCase().includes(q) || c.legacy_complaint_id?.includes(q),
     );
   }, [complaints, search]);
 
@@ -353,7 +355,21 @@ export default function EscalationQueuePage() {
 
   const handlePacketCreated = (complaintId: string, packetId: string) => {
     if (selected?.id === complaintId) {
-      setSelected({ ...selected, hearing_packet_id: packetId });
+      setSelected({
+        ...selected,
+        hearing_packets: [
+          {
+            id: packetId,
+            hearing_date: selected.hearing_date ?? null,
+            packet_status: "Not Started",
+            assigned_to: selected.assigned_to ?? null,
+            case_number: selected.legacy_complaint_id ?? null,
+            program_code: null,
+            packet_type: "Draft",
+            deleted_at: null,
+          },
+        ],
+      });
     }
   };
 
@@ -369,6 +385,7 @@ export default function EscalationQueuePage() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="h-8 text-sm pl-8"
+                data-testid="escalation-search"
               />
             </div>
             <span className="text-sm text-muted-foreground tabular-nums ml-auto">
@@ -380,9 +397,7 @@ export default function EscalationQueuePage() {
 
       <div className="container mx-auto px-4 sm:px-6 py-5 max-w-7xl">
         <div className="flex flex-col lg:flex-row gap-5">
-          <div
-            className={`flex-1 min-w-0 ${showDetail ? "hidden lg:block" : ""}`}
-          >
+          <div className={`flex-1 min-w-0 ${showDetail ? "hidden lg:block" : ""}`}>
             {loading ? (
               <div className="space-y-2">
                 {Array.from({ length: 5 }).map((_, i) => (
@@ -406,9 +421,7 @@ export default function EscalationQueuePage() {
               <div className="text-center py-20 text-muted-foreground">
                 <AlertTriangle className="w-10 h-10 mx-auto mb-3 opacity-30" />
                 <p className="text-sm font-medium">No escalated cases</p>
-                <p className="text-xs mt-1">
-                  Cases marked Escalated or Non-Compliant appear here
-                </p>
+                <p className="text-xs mt-1">Cases marked Escalated or Non-Compliant appear here</p>
               </div>
             ) : (
               <SimpleTable
@@ -422,12 +435,7 @@ export default function EscalationQueuePage() {
                     key: "hearing_date",
                     header: "Hearing Date",
                     render: (v) =>
-                      v
-                        ? format(
-                            new Date((v as string) + "T00:00:00"),
-                            "MMM d, yyyy",
-                          )
-                        : "-",
+                      v ? format(new Date((v as string) + "T00:00:00"), "MMM d, yyyy") : "-",
                   },
                 ]}
                 searchable={false}
@@ -440,9 +448,7 @@ export default function EscalationQueuePage() {
             )}
           </div>
 
-          <div
-            className={`flex-1 min-w-0 space-y-4 ${showDetail ? "block" : "hidden md:block"}`}
-          >
+          <div className={`flex-1 min-w-0 space-y-4 ${showDetail ? "block" : "hidden md:block"}`}>
             {selected ? (
               <>
                 <Button
@@ -460,7 +466,7 @@ export default function EscalationQueuePage() {
                 />
                 <ComplaintDetailView
                   key={selected.id}
-                  complaint={selected}
+                  complaint={toComplaintSummary(selected)}
                   onStatusUpdate={() => {}}
                   viewMode="readonly"
                 />
@@ -470,8 +476,7 @@ export default function EscalationQueuePage() {
                 <ClipboardList className="w-14 h-14 mb-4 opacity-20" />
                 <p className="font-semibold text-foreground">Select a case</p>
                 <p className="text-sm mt-1">
-                  Review complaint history and update hearing status or add a
-                  chronology note.
+                  Review complaint history and update hearing status or add a chronology note.
                 </p>
               </div>
             )}

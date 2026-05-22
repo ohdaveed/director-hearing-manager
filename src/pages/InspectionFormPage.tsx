@@ -32,11 +32,7 @@ import PhotoUploadSection from "@/components/PhotoUploadSection";
 import CollapsibleSection from "@/components/CollapsibleSection";
 import PrintForm, { PrintFormProps } from "@/components/PrintForm";
 import { PhotoEntry } from "@/components/PhotoCard";
-import {
-  VIOLATION_TYPES,
-  ViolationType,
-  calcDueDate,
-} from "@/components/violationTypes";
+import { VIOLATION_TYPES, ViolationType, calcDueDate } from "@/components/violationTypes";
 import { getFieldValidationError } from "@/utils/validationRules";
 import { Database } from "@/types/database";
 
@@ -68,9 +64,7 @@ const AREAS = [
 
 const AREA_GROUPS: Record<string, readonly string[]> = {
   Exterior: AREAS.filter((a) =>
-    ["Alleyway/Easement", "Front/Backyard", "Garage/Driveway", "Roof"].includes(
-      a,
-    ),
+    ["Alleyway/Easement", "Front/Backyard", "Garage/Driveway", "Roof"].includes(a),
   ),
   Interior: AREAS.filter((a) =>
     [
@@ -125,41 +119,28 @@ const COMMON_VIOLATION_KEYS = [
 
 const COMMON_VIOLATION_LABELS: Record<string, string> = {
   "Pests, Vermin & Animals (Sec. 581(b)(8) unless noted)||Rodents": "Rodents",
-  "Sanitation (Sec. 581(b)(1)–(2))||Overgrown Vegetation":
-    "Overgrown Vegetation",
-  "Pests, Vermin & Animals (Sec. 581(b)(8) unless noted)||Cockroaches":
-    "Cockroaches",
-  "Sanitation (Sec. 581(b)(1)–(2))||Garbage / Refuse / Waste / Debris":
-    "Garbage / Debris",
+  "Sanitation (Sec. 581(b)(1)–(2))||Overgrown Vegetation": "Overgrown Vegetation",
+  "Pests, Vermin & Animals (Sec. 581(b)(8) unless noted)||Cockroaches": "Cockroaches",
+  "Sanitation (Sec. 581(b)(1)–(2))||Garbage / Refuse / Waste / Debris": "Garbage / Debris",
   "Pests, Vermin & Animals (Sec. 581(b)(8) unless noted)||Pigeons": "Pigeons",
   "Pests, Vermin & Animals (Sec. 581(b)(8) unless noted)||Bed Bugs": "Bed Bugs",
-  "Structural / Conditions (Sec. 581(b)(4) unless noted)||Mold Growth":
-    "Mold Growth",
+  "Structural / Conditions (Sec. 581(b)(4) unless noted)||Mold Growth": "Mold Growth",
 };
 
-function buildAutoViolations(
-  categories: string[],
-  inspectionDate: string,
-): Violation[] {
+function buildAutoViolations(categories: string[], inspectionDate: string): Violation[] {
   return categories
-    .map((cat) =>
-      VIOLATION_TYPES.find((v) => v.label.toLowerCase() === cat.toLowerCase()),
-    )
+    .map((cat) => VIOLATION_TYPES.find((v) => v.label.toLowerCase() === cat.toLowerCase()))
     .filter((v): v is ViolationType => v !== undefined)
     .filter((v, idx, arr) => arr.findIndex((x) => x.label === v.label) === idx)
     .map((vType) => ({
       id: crypto.randomUUID(),
       violationKey: `${vType.category}||${vType.label}`,
       location: "",
-      correctiveAction: !vType.correctiveActions
-        ? vType.defaultCorrectiveAction
-        : "",
+      correctiveAction: !vType.correctiveActions ? vType.defaultCorrectiveAction : "",
       dueDate: calcDueDate(inspectionDate, vType),
       responsibleParty: "Owner" as const,
       status: "Violation" as const,
-      ownerActions: !vType.correctiveActions
-        ? [vType.defaultCorrectiveAction]
-        : [],
+      ownerActions: !vType.correctiveActions ? [vType.defaultCorrectiveAction] : [],
       tenantActions: [],
       selectedObservations: [],
       isAuto: true,
@@ -170,9 +151,7 @@ function makeDefaultState(complaintId: string): FormState {
   const now = new Date();
   const date = now.toISOString().split("T")[0];
   const timeIn = now.toTimeString().slice(0, 5);
-  const timeOut = new Date(now.getTime() + 60 * 60 * 1000)
-    .toTimeString()
-    .slice(0, 5);
+  const timeOut = new Date(now.getTime() + 60 * 60 * 1000).toTimeString().slice(0, 5);
   return {
     legacy_complaint_id: complaintId,
     inspection_date: date,
@@ -196,10 +175,7 @@ function makeDefaultState(complaintId: string): FormState {
 
 function makeFormWithAutoViolations(complaint: ComplaintDetail): FormState {
   const base = makeDefaultState(complaint.id);
-  const autoViolations = buildAutoViolations(
-    complaint.category ?? [],
-    base.inspection_date,
-  );
+  const autoViolations = buildAutoViolations(complaint.category ?? [], base.inspection_date);
   return { ...base, violations: autoViolations };
 }
 
@@ -244,16 +220,12 @@ function buildPrintProps(
     currentBalance: undefined,
     inspectionType: form.inspection_type,
     inspectionRating:
-      form.violations.filter((v) => v.violationKey).length > 0
-        ? "Unsatisfactory"
-        : "Satisfactory",
+      form.violations.filter((v) => v.violationKey).length > 0 ? "Unsatisfactory" : "Satisfactory",
     areasInspected: form.areasInspected,
     violations: form.violations,
     summary: form.summary,
     globalObservations: form.globalObservations ?? [],
-    observations: form.summary
-      ? [{ id: "1", text: form.summary, linkedViolationKey: "" }]
-      : [],
+    observations: form.summary ? [{ id: "1", text: form.summary, linkedViolationKey: "" }] : [],
     checkedStandardCAs: {},
     standardCADetails: {},
     customCAs: [],
@@ -274,9 +246,7 @@ export default function InspectionFormPage({ inspectorName }: Props) {
   const [form, setForm] = useState<FormState | null>(null);
   const [saving, setSaving] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [fieldErrors, setFieldErrors] = useState<{ inspection_type?: string }>(
-    {},
-  );
+  const [fieldErrors, setFieldErrors] = useState<{ inspection_type?: string }>({});
   const [, setTextErrors] = useState<{
     summary?: string;
     hearingNotes?: string;
@@ -387,10 +357,7 @@ export default function InspectionFormPage({ inspectorName }: Props) {
     if (!form?.legacy_complaint_id) return;
     if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
     autoSaveTimer.current = setTimeout(() => {
-      localStorage.setItem(
-        DRAFT_KEY(form.legacy_complaint_id),
-        JSON.stringify(form),
-      );
+      localStorage.setItem(DRAFT_KEY(form.legacy_complaint_id), JSON.stringify(form));
       setDraftSavedAt(new Date());
     }, 1000);
     return () => {
@@ -398,10 +365,7 @@ export default function InspectionFormPage({ inspectorName }: Props) {
     };
   }, [form]);
 
-  const setField = <K extends keyof FormState>(
-    field: K,
-    value: FormState[K],
-  ) => {
+  const setField = <K extends keyof FormState>(field: K, value: FormState[K]) => {
     markDirty();
     setForm((prev) => (prev ? { ...prev, [field]: value } : prev));
   };
@@ -434,19 +398,13 @@ export default function InspectionFormPage({ inspectorName }: Props) {
     });
   };
 
-  const handleViolationChange = (
-    id: string,
-    field: keyof Violation,
-    value: string | string[],
-  ) => {
+  const handleViolationChange = (id: string, field: keyof Violation, value: string | string[]) => {
     markDirty();
     setForm((prev) =>
       prev
         ? {
             ...prev,
-            violations: prev.violations.map((v) =>
-              v.id === id ? { ...v, [field]: value } : v,
-            ),
+            violations: prev.violations.map((v) => (v.id === id ? { ...v, [field]: value } : v)),
           }
         : prev,
     );
@@ -455,18 +413,14 @@ export default function InspectionFormPage({ inspectorName }: Props) {
   const handleViolationRemove = (id: string) => {
     markDirty();
     setForm((prev) =>
-      prev
-        ? { ...prev, violations: prev.violations.filter((v) => v.id !== id) }
-        : prev,
+      prev ? { ...prev, violations: prev.violations.filter((v) => v.id !== id) } : prev,
     );
   };
 
   const handleAddViolation = () => {
     markDirty();
     setForm((prev) =>
-      prev
-        ? { ...prev, violations: [...prev.violations, newViolation()] }
-        : prev,
+      prev ? { ...prev, violations: [...prev.violations, newViolation()] } : prev,
     );
   };
 
@@ -480,30 +434,22 @@ export default function InspectionFormPage({ inspectorName }: Props) {
   const handleSave = async (isDraft: boolean) => {
     if (!form || !selectedComplaint) return;
 
-    const summaryErr = form.summary
-      ? getFieldValidationError(form.summary)
-      : undefined;
-    const hearingErr = form.hearingNotes
-      ? getFieldValidationError(form.hearingNotes)
-      : undefined;
+    const summaryErr = form.summary ? getFieldValidationError(form.summary) : undefined;
+    const hearingErr = form.hearingNotes ? getFieldValidationError(form.hearingNotes) : undefined;
     if (summaryErr || hearingErr) {
       setTextErrors({ summary: summaryErr, hearingNotes: hearingErr });
-      if (summaryErr)
-        setOpenSections((prev) => ({ ...prev, observations: true }));
+      if (summaryErr) setOpenSections((prev) => ({ ...prev, observations: true }));
       if (hearingErr) setOpenSections((prev) => ({ ...prev, hearing: true }));
       toast.error("Remove California state code references before saving.");
       return;
     }
 
     const derivedRating =
-      form.violations.filter((v) => v.violationKey).length > 0
-        ? "Unsatisfactory"
-        : "Satisfactory";
+      form.violations.filter((v) => v.violationKey).length > 0 ? "Unsatisfactory" : "Satisfactory";
 
     if (!isDraft) {
       const errors: { inspection_type?: string } = {};
-      if (!form.inspection_type)
-        errors.inspection_type = "Inspection type is required";
+      if (!form.inspection_type) errors.inspection_type = "Inspection type is required";
       if (Object.keys(errors).length > 0) {
         setFieldErrors(errors);
         setOpenSections((prev) => ({ ...prev, details: true }));
@@ -553,13 +499,8 @@ export default function InspectionFormPage({ inspectorName }: Props) {
   const fillInspectionDemoData = () => {
     if (!form) return;
 
-    const buildDemoViolation = (
-      violationKey: string,
-      location: string,
-    ): Violation => {
-      const vType = VIOLATION_TYPES.find(
-        (v) => `${v.category}||${v.label}` === violationKey,
-      );
+    const buildDemoViolation = (violationKey: string, location: string): Violation => {
+      const vType = VIOLATION_TYPES.find((v) => `${v.category}||${v.label}` === violationKey);
       const base = newViolation();
       if (!vType) return base;
       return {
@@ -569,9 +510,7 @@ export default function InspectionFormPage({ inspectorName }: Props) {
         correctiveAction: vType.defaultCorrectiveAction ?? "",
         dueDate: calcDueDate(form.inspection_date, vType),
         responsibleParty: "Owner",
-        ownerActions: vType.defaultCorrectiveAction
-          ? [vType.defaultCorrectiveAction]
-          : [],
+        ownerActions: vType.defaultCorrectiveAction ? [vType.defaultCorrectiveAction] : [],
       };
     };
 
@@ -607,12 +546,7 @@ export default function InspectionFormPage({ inspectorName }: Props) {
   };
 
   if (showPrint && form && selectedComplaint) {
-    const printProps = buildPrintProps(
-      form,
-      selectedComplaint,
-      inspectorName,
-      photos,
-    );
+    const printProps = buildPrintProps(form, selectedComplaint, inspectorName, photos);
     return (
       <div>
         <div className="print:hidden sticky top-0 z-10 bg-card border-b border-border px-6 py-3 flex items-center justify-between">
@@ -637,23 +571,16 @@ export default function InspectionFormPage({ inspectorName }: Props) {
     return (
       <div className="container mx-auto px-4 py-16 max-w-lg text-center">
         <CheckCircle2 className="w-16 h-16 text-primary mx-auto mb-4" />
-        <h2 className="text-2xl font-bold text-foreground mb-2">
-          Inspection Saved
-        </h2>
-        <p className="text-muted-foreground mb-1">
-          {selectedComplaint.address}
-        </p>
+        <h2 className="text-2xl font-bold text-foreground mb-2">Inspection Saved</h2>
+        <p className="text-muted-foreground mb-1">{selectedComplaint.address}</p>
         <p className="text-sm text-muted-foreground mb-8">
-          {form?.violations.filter((v) => v.violationKey).length ?? 0}{" "}
-          violation(s) recorded
+          {form?.violations.filter((v) => v.violationKey).length ?? 0} violation(s) recorded
         </p>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <Button onClick={handlePrint} variant="outline" className="gap-2">
             <Printer className="w-4 h-4" /> Print Report
           </Button>
-          <Button onClick={() => navigate("/inspections/new")}>
-            Start New Inspection
-          </Button>
+          <Button onClick={() => navigate("/inspections/new")}>Start New Inspection</Button>
         </div>
       </div>
     );
@@ -682,9 +609,7 @@ export default function InspectionFormPage({ inspectorName }: Props) {
   if (!selectedComplaint || !form) {
     return (
       <div className="container mx-auto px-4 sm:px-6 py-6 max-w-3xl">
-        <h1 className="text-2xl font-bold text-foreground mb-1">
-          Inspection Form
-        </h1>
+        <h1 className="text-2xl font-bold text-foreground mb-1">Inspection Form</h1>
         <p className="text-muted-foreground text-sm mb-6">
           Select a complaint to begin the inspection.
         </p>
@@ -714,14 +639,9 @@ export default function InspectionFormPage({ inspectorName }: Props) {
           >
             <ChevronLeft className="w-4 h-4" /> Change complaint
           </button>
-          <h1 className="text-xl font-bold text-foreground">
-            {selectedComplaint.address}
-          </h1>
+          <h1 className="text-xl font-bold text-foreground">{selectedComplaint.address}</h1>
           <p className="text-sm text-muted-foreground mt-0.5">
-            {[
-              selectedComplaint.legacy_complaint_id &&
-                `#${selectedComplaint.legacy_complaint_id}`,
-            ]
+            {[selectedComplaint.legacy_complaint_id && `#${selectedComplaint.legacy_complaint_id}`]
               .filter(Boolean)
               .join(" · ")}
           </p>
@@ -766,16 +686,9 @@ export default function InspectionFormPage({ inspectorName }: Props) {
               });
             }}
           >
-            {Object.values(openSections).every(Boolean)
-              ? "Collapse All"
-              : "Expand All"}
+            {Object.values(openSections).every(Boolean) ? "Collapse All" : "Expand All"}
           </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            className="gap-1.5"
-            onClick={handlePrint}
-          >
+          <Button variant="outline" size="sm" className="gap-1.5" onClick={handlePrint}>
             <Printer className="w-3.5 h-3.5" /> Print
           </Button>
         </div>
@@ -953,9 +866,7 @@ export default function InspectionFormPage({ inspectorName }: Props) {
               type="button"
               title={`Add a ${COMMON_VIOLATION_LABELS[key]} violation to this inspection`}
               onClick={() => {
-                const vType = VIOLATION_TYPES.find(
-                  (v) => `${v.category}||${v.label}` === key,
-                );
+                const vType = VIOLATION_TYPES.find((v) => `${v.category}||${v.label}` === key);
                 if (!vType) return;
                 setForm((prev) =>
                   prev
@@ -1097,11 +1008,7 @@ export default function InspectionFormPage({ inspectorName }: Props) {
             onClick={() => handleSave(true)}
             disabled={saving}
           >
-            {saving ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <Save className="w-4 h-4" />
-            )}{" "}
+            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}{" "}
             Save Draft
           </Button>
           <div className="flex gap-2 w-full sm:w-auto">

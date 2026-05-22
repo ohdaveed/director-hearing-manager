@@ -59,9 +59,7 @@ describe("InspectionFormPage", () => {
     });
     const user = userEvent.setup();
 
-    await waitFor(() =>
-      expect(screen.getByText("123 Main St")).toBeInTheDocument(),
-    );
+    await waitFor(() => expect(screen.getByText("123 Main St")).toBeInTheDocument());
 
     // Select an area
     const areaBtn = screen.getByRole("button", { name: /Basement/i });
@@ -70,9 +68,7 @@ describe("InspectionFormPage", () => {
     // Add a global observation
     const obsInput = screen.getByPlaceholderText(/Add a global observation/i);
     await user.type(obsInput, "Found evidence of rodents in basement");
-    await user.click(
-      screen.getByTitle("Add this observation to the inspection"),
-    );
+    await user.click(screen.getByTitle("Add this observation to the inspection"));
 
     mockFns.saveInspection.mockResolvedValue({ inspection_id: 123 });
 

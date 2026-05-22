@@ -41,9 +41,7 @@ export default function ComplaintsPage() {
   const canCreate = CAN_CREATE_ROLES.includes(activeRole);
   const inspectorId = user?.email || "";
 
-  const [scope, setScope] = useState<"mine" | "all">(
-    showMineToggle ? "mine" : "all",
-  );
+  const [scope, setScope] = useState<"mine" | "all">(showMineToggle ? "mine" : "all");
   const [statusFilter, setStatusFilter] = useState("");
   const [hearingStatusFilter, setHearingStatusFilter] = useState(
     searchParams.get("hearingStatus") ?? "",
@@ -56,16 +54,11 @@ export default function ComplaintsPage() {
 
   const { data: complaints = [], isLoading } = useQuery({
     queryKey: ["complaints", scope, inspectorId],
-    queryFn: () =>
-      complaintService.getAll(
-        scope === "mine" ? { assigned_to: inspectorId } : {},
-      ),
+    queryFn: () => complaintService.getAll(scope === "mine" ? { assigned_to: inspectorId } : {}),
     enabled: !!user,
   });
 
-  const [selectedId, setSelectedId] = useState<string | null>(
-    urlComplaintId || null,
-  );
+  const [selectedId, setSelectedId] = useState<string | null>(urlComplaintId || null);
   const [showDetail, setShowDetail] = useState(!!urlComplaintId);
 
   const updateStatusMutation = useMutation({
@@ -137,14 +130,7 @@ export default function ComplaintsPage() {
     }
 
     return result;
-  }, [
-    complaints,
-    statusFilter,
-    hearingStatusFilter,
-    inspectorFilter,
-    search,
-    dateRange,
-  ]);
+  }, [complaints, statusFilter, hearingStatusFilter, inspectorFilter, search, dateRange]);
 
   const effectiveSelected = complaints.find((c) => c.id === selectedId);
 
@@ -166,9 +152,7 @@ export default function ComplaintsPage() {
                   <ClipboardList className="w-5 h-5 text-primary" />
                 </div>
                 <div>
-                  <h1 className="text-xl font-semibold tracking-tight">
-                    Complaints
-                  </h1>
+                  <h1 className="text-xl font-semibold tracking-tight">Complaints</h1>
                   <p className="text-xs text-muted-foreground mt-0.5">
                     {scope === "mine" ? "Assigned to you" : "System-wide view"}
                   </p>
@@ -257,9 +241,7 @@ export default function ComplaintsPage() {
             ) : filtered.length === 0 ? (
               <div className="h-64 flex flex-col items-center justify-center text-muted-foreground border-2 border-dashed rounded-xl animate-in fade-in zoom-in-95 duration-500">
                 <ClipboardList className="w-12 h-12 mb-4 opacity-10" />
-                <h3 className="text-lg font-medium text-foreground">
-                  No complaints found
-                </h3>
+                <h3 className="text-lg font-medium text-foreground">No complaints found</h3>
                 <p className="text-sm mt-1.5 max-w-xs text-center">
                   {search || statusFilter || inspectorFilter
                     ? "Try adjusting your filters or search terms."
@@ -286,19 +268,13 @@ export default function ComplaintsPage() {
                       key: "assigned_to",
                       header: "Assigned To",
                       render: (v: any) =>
-                        INSPECTORS.find((i) => i.email === v)?.name ||
-                        (v as string),
+                        INSPECTORS.find((i) => i.email === v)?.name || (v as string),
                     },
                     {
                       key: "date_entered",
                       header: "Date Entered",
                       render: (v: any) =>
-                        v
-                          ? format(
-                              new Date((v as string) + "T00:00:00"),
-                              "MMM d, yyyy",
-                            )
-                          : "-",
+                        v ? format(new Date((v as string) + "T00:00:00"), "MMM d, yyyy") : "-",
                     },
                     { key: "hearing_status", header: "Hearing" },
                   ] as any
@@ -316,8 +292,7 @@ export default function ComplaintsPage() {
                         key: "assigned_to",
                         header: "Assigned To",
                         formatter: (v: any) =>
-                          INSPECTORS.find((i) => i.email === v)?.name ||
-                          (v as string),
+                          INSPECTORS.find((i) => i.email === v)?.name || (v as string),
                       },
                       { key: "date_entered", header: "Date Entered" },
                       { key: "hearing_status", header: "Hearing Status" },
@@ -333,11 +308,7 @@ export default function ComplaintsPage() {
         </div>
 
         {/* Detail panel */}
-        <div
-          className={`flex-1 min-w-0 ${
-            showDetail ? "block" : "hidden md:block"
-          }`}
-        >
+        <div className={`flex-1 min-w-0 ${showDetail ? "block" : "hidden md:block"}`}>
           {effectiveSelected ? (
             <div className="h-full flex flex-col">
               <div className="lg:hidden p-4 border-b flex items-center bg-background">
@@ -366,12 +337,9 @@ export default function ComplaintsPage() {
               <div className="p-4 bg-background rounded-full shadow-sm mb-6">
                 <ClipboardList className="w-12 h-12 opacity-10" />
               </div>
-              <h3 className="text-lg font-medium text-foreground">
-                Select a complaint
-              </h3>
+              <h3 className="text-lg font-medium text-foreground">Select a complaint</h3>
               <p className="text-sm mt-1.5 max-w-xs">
-                Click any complaint to view details, inspection history, and
-                documents.
+                Click any complaint to view details, inspection history, and documents.
               </p>
             </div>
           )}
