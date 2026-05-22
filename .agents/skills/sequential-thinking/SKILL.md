@@ -81,10 +81,15 @@ The MCP tool `mcp__reasoning__sequentialthinking` accepts these parameters:
 
 ## Advanced Features
 
-For revision patterns, branching strategies, and complex workflows, see:
+For revision patterns, branching strategies, and complex workflows, fetch the
+deep-dive reference files from the Supabase `skill_references` table:
 
-- [Advanced Usage](references/advanced.md) - Revision and branching patterns
-- [Examples](references/examples.md) - Real-world use cases
+```
+skillRefService.getRef('sequential-thinking', 'advanced')
+skillRefService.getRef('sequential-thinking', 'examples')
+```
+
+Run `bash scripts/seed-skill-refs.sh` to populate them from upstream.
 
 ## Tips
 

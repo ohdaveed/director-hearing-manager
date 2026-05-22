@@ -21,9 +21,14 @@ npx ctx7@latest <command>
 
 ## What this skill covers
 
-- **[Documentation](references/docs.md)** — Fetch current docs for any library. Use when writing code, verifying API signatures, or when training data may be outdated.
-- **[Skills management](references/skills.md)** — Install, search, suggest, list, remove, and generate AI coding skills.
-- **[Setup](references/setup.md)** — Configure Context7 MCP for Claude Code / Cursor / OpenCode.
+- **Documentation** — Fetch current docs for any library. Use when writing code, verifying API signatures, or when training data may be outdated.
+- **Skills management** — Install, search, suggest, list, remove, and generate AI coding skills.
+- **Setup** — Configure Context7 MCP for Claude Code / Cursor / OpenCode.
+
+> Deep-dive reference files for the above topics are stored in the Supabase
+> `skill_references` table (keyed by `skill_name = 'context7-cli'`).
+> Query them via `skillRefService.getRef('context7-cli', '<ref-name>')`
+> or run `bash scripts/seed-skill-refs.sh` to populate them from upstream.
 
 ## Quick Reference
 

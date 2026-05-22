@@ -108,5 +108,7 @@ Do NOT use `apply_migration` to change a local database schema — it writes a m
 
 ## Reference Guides
 
-- **Skill Feedback** → [references/skill-feedback.md](references/skill-feedback.md)
+- **Skill Feedback** → stored in Supabase `skill_references` table.
   **MUST read when** the user reports that this skill gave incorrect guidance or is missing information.
+  Fetch at runtime: `skillRefService.getRef('supabase', 'skill-feedback')`
+  Populate from upstream: `bash scripts/seed-skill-refs.sh`

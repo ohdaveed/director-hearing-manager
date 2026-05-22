@@ -40,13 +40,16 @@ Reference these guidelines when:
 
 ## How to Use
 
-Read individual rule files for detailed explanations and SQL examples:
+Read individual rule files for detailed explanations and SQL examples.
+These are stored in the Supabase `skill_references` table:
 
 ```
-references/query-missing-indexes.md
-references/query-partial-indexes.md
-references/_sections.md
+skillRefService.getRef('supabase-postgres-best-practices', 'query-missing-indexes')
+skillRefService.getRef('supabase-postgres-best-practices', 'query-partial-indexes')
+skillRefService.getRef('supabase-postgres-best-practices', 'sections')
 ```
+
+Populate from upstream: `bash scripts/seed-skill-refs.sh`
 
 Each rule file contains:
 

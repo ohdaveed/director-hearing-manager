@@ -95,7 +95,7 @@ To suppress thought information logging, set environment variable:
 sequential-thinking/
 ├── SKILL.md              # Main skill definition
 ├── README.md             # This file
-└── references/
+└── references/           # (in Supabase skill_references table)
     ├── advanced.md       # Revision and branching patterns
     └── examples.md       # Real-world use cases
 ```
