@@ -35,20 +35,23 @@ const statValueVariants = cva(
   },
 );
 
-const statIconVariants = cva("flex-shrink-0 size-4 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3", {
-  variants: {
-    accent: {
-      red: "text-destructive/50",
-      yellow: "text-warning/50",
-      green: "text-success/50",
-      blue: "text-primary/50",
-      purple: "text-accent-foreground/50",
+const statIconVariants = cva(
+  "flex-shrink-0 size-4 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3",
+  {
+    variants: {
+      accent: {
+        red: "text-destructive/50",
+        yellow: "text-warning/50",
+        green: "text-success/50",
+        blue: "text-primary/50",
+        purple: "text-accent-foreground/50",
+      },
+    },
+    defaultVariants: {
+      accent: undefined,
     },
   },
-  defaultVariants: {
-    accent: undefined,
-  },
-});
+);
 
 export type StatCardAccent = VariantProps<typeof statValueVariants>["accent"];
 
@@ -86,7 +89,11 @@ const StatCard = memo(function StatCard({
       <p className={statValueVariants({ accent })}>
         {typeof value === "number" ? value.toLocaleString() : value}
       </p>
-      {sub && <p className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest">{sub}</p>}
+      {sub && (
+        <p className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest">
+          {sub}
+        </p>
+      )}
     </div>
   );
 

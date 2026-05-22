@@ -144,10 +144,7 @@ export function PacketExhibitList({ exhibits, packet, complaint }: Props) {
         </thead>
         <tbody>
           {exhibits.map((ex: any, idx: number) => (
-            <tr
-              key={ex.id}
-              style={{ borderBottom: "1px solid #ccc", verticalAlign: "top" }}
-            >
+            <tr key={ex.id} style={{ borderBottom: "1px solid #ccc", verticalAlign: "top" }}>
               <td
                 style={{
                   padding: "6px 8px",
@@ -174,9 +171,7 @@ export function PacketExhibitList({ exhibits, packet, complaint }: Props) {
                   {ex.description || ex.caption || ex.exhibit_label || "—"}
                 </p>
               </td>
-              <td
-                style={{ padding: "6px 8px", fontSize: "10pt", color: "#777" }}
-              >
+              <td style={{ padding: "6px 8px", fontSize: "10pt", color: "#777" }}>
                 {/* Page ref populated after packet finalized */}
               </td>
             </tr>
@@ -186,9 +181,8 @@ export function PacketExhibitList({ exhibits, packet, complaint }: Props) {
 
       <div style={{ marginTop: "24px", fontSize: "9pt", color: "#555" }}>
         <p>
-          * Exhibits are labeled sequentially in the order they appear in this
-          packet. Exhibit page references will be populated upon final packet
-          generation.
+          * Exhibits are labeled sequentially in the order they appear in this packet. Exhibit page
+          references will be populated upon final packet generation.
         </p>
       </div>
       <div className="page-number-slot" />

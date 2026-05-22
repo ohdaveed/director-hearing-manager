@@ -104,7 +104,12 @@ export function PrintCheckbox({ checked }: { checked: boolean }) {
 export function ExhibitLabel({ letter, className = "" }: { letter?: string; className?: string }) {
   if (!letter) return null;
   return (
-    <div className={`absolute top-0 right-0 exhibit-label-red ${className}`}>Exhibit {letter}</div>
+    <div
+      className={`absolute top-0 right-0 exhibit-label-red ${className}`}
+      data-testid={`exhibit-label-${letter.toLowerCase()}`}
+    >
+      Exhibit {letter}
+    </div>
   );
 }
 

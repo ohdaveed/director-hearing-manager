@@ -25,11 +25,7 @@ const COMPLAINT_TYPES = [
   "Other",
 ];
 const METHODS = ["Email", "Phone", "In-Person", "311", "Walk-In", "Letter"];
-const PROGRAMS = [
-  "Healthy Housing and Vector Control",
-  "Environmental Health",
-  "Vector Control",
-];
+const PROGRAMS = ["Healthy Housing and Vector Control", "Environmental Health", "Vector Control"];
 const CATEGORIES = [
   "Overgrown Vegetation",
   "Rodents",
@@ -177,18 +173,10 @@ export default function DetailsSection({
             <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
               Assigned Inspector
             </Label>
-            <Select
-              value={assignedTo}
-              onValueChange={setAssignedTo}
-              disabled={!hasLocation}
-            >
+            <Select value={assignedTo} onValueChange={setAssignedTo} disabled={!hasLocation}>
               <SelectTrigger className="text-sm h-9">
                 <SelectValue
-                  placeholder={
-                    hasLocation
-                      ? "Assign inspector..."
-                      : "Select location first..."
-                  }
+                  placeholder={hasLocation ? "Assign inspector..." : "Select location first..."}
                 />
               </SelectTrigger>
               <SelectContent>
@@ -253,9 +241,7 @@ export default function DetailsSection({
                   checked={categories.includes(cat)}
                   onCheckedChange={(checked) =>
                     setCategories(
-                      checked
-                        ? [...categories, cat]
-                        : categories.filter((c) => c !== cat),
+                      checked ? [...categories, cat] : categories.filter((c) => c !== cat),
                     )
                   }
                 />

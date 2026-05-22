@@ -38,7 +38,12 @@ function PhotoPage({
   const dateStr = (photo.uploaded_at || inspection.inspection_date || "").substring(0, 10);
 
   return (
-    <div className="packet-page print-page relative min-h-[10.5in] flex flex-col pt-12 px-8">
+    <div
+      className="packet-page print-page relative min-h-[10.5in] flex flex-col pt-12 px-8"
+      data-testid="packet-photo-page"
+      data-photo-id={photo.id ?? ""}
+      data-exhibit-letter={exhibitLetter ?? ""}
+    >
       <ExhibitLabel letter={exhibitLetter} />
 
       <div className="flex-grow flex items-center justify-center mb-8">

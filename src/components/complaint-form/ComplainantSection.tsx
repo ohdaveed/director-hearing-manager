@@ -6,42 +6,42 @@ import { Label } from "@/components/ui/label";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 
 function FieldError({ message }: { message?: string }) {
-   if (!message) return null;
-   return (
-     <motion.p
-       initial={{ opacity: 0, y: -4 }}
-       animate={{ opacity: 1, y: 0 }}
-       exit={{ opacity: 0 }}
-       className="flex items-center gap-1 text-xs text-destructive mt-1"
-     >
-       {message}
-     </motion.p>
-   );
- }
+  if (!message) return null;
+  return (
+    <motion.p
+      initial={{ opacity: 0, y: -4 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0 }}
+      className="flex items-center gap-1 text-xs text-destructive mt-1"
+    >
+      {message}
+    </motion.p>
+  );
+}
 
 interface Props {
-   hasComplainantInfo: boolean;
-   anonymous: boolean;
-   setAnonymous: (v: boolean) => void;
-   name: string;
-   setName: (v: string) => void;
-   phone: string;
-   setPhone: (v: string) => void;
-   email: string;
-   setEmail: (v: string) => void;
-   address: string;
-   setAddress: (v: string) => void;
-   contactDates: string;
-   setContactDates: (v: string) => void;
-   touched: Record<string, boolean>;
-   formErrors: Record<string, string>;
-   blurField: (field: string) => void;
-   clearError: (field: string) => void;
- }
+  hasComplainantInfo: boolean;
+  anonymous: boolean;
+  setAnonymous: (v: boolean) => void;
+  name: string;
+  setName: (v: string) => void;
+  phone: string;
+  setPhone: (v: string) => void;
+  email: string;
+  setEmail: (v: string) => void;
+  address: string;
+  setAddress: (v: string) => void;
+  contactDates: string;
+  setContactDates: (v: string) => void;
+  touched: Record<string, boolean>;
+  formErrors: Record<string, string>;
+  blurField: (field: string) => void;
+  clearError: (field: string) => void;
+}
 
 function validateEmail(email: string) {
-   return !email || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
- }
+  return !email || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
 
 // ... (FieldError component remains unchanged) ...
 

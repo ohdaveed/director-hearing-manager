@@ -7,11 +7,7 @@ import { complaintService } from "@/services/complaintService";
 import { locationService } from "@/services/locationService";
 import type { ComplaintSummary } from "@/types/complaint";
 import { Button } from "@/components/ui/button";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
@@ -62,15 +58,8 @@ import {
 import ComplaintChronologyPanel from "./ComplaintChronologyPanel";
 import { SectionHeader } from "@/components/ui/section-header";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
-import {
-  ACTIVE_STATUSES,
-  CLOSURE_STATUSES,
-  STATUS_DESCRIPTIONS,
-} from "@/utils/complaintStatuses";
-import {
-  COMPLAINT_STATUS_THEME,
-  INSPECTION_STATUS_THEME,
-} from "@/utils/badgeThemes";
+import { ACTIVE_STATUSES, CLOSURE_STATUSES, STATUS_DESCRIPTIONS } from "@/utils/complaintStatuses";
+import { COMPLAINT_STATUS_THEME, INSPECTION_STATUS_THEME } from "@/utils/badgeThemes";
 import { sanitizeText } from "@/utils/sanitizeText";
 
 const DESC_THRESHOLD = 200;
@@ -80,11 +69,7 @@ export function DescriptionText({ text }: { text: string }) {
   const isLong = text.length > DESC_THRESHOLD;
 
   if (!isLong) {
-    return (
-      <div className="mt-2 text-sm text-muted-foreground leading-relaxed">
-        {text}
-      </div>
-    );
+    return <div className="mt-2 text-sm text-muted-foreground leading-relaxed">{text}</div>;
   }
 
   return (
@@ -113,15 +98,7 @@ type Props = {
   actionsSlot?: React.ReactNode;
 };
 
-function InfoRow({
-  icon,
-  label,
-  value,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value?: string;
-}) {
+function InfoRow({ icon, label, value }: { icon: React.ReactNode; label: string; value?: string }) {
   if (!value) return null;
   return (
     <div className="flex items-start gap-2.5">
@@ -184,9 +161,7 @@ export default function ComplaintDetailView({
       toast.success("Status updated");
     },
     onError: () => {
-      setCurrentStatus(
-        (detail?.status as any) || (complaint.status as any) || "",
-      );
+      setCurrentStatus((detail?.status as any) || (complaint.status as any) || "");
       toast.error("Failed to update status");
     },
   });
@@ -285,12 +260,10 @@ export default function ComplaintDetailView({
     linkLocationMutation.mutate(locationId);
   };
 
-  const hasDraft =
-    detail?.inspections?.some((i: any) => i.status === "Draft") ?? false;
+  const hasDraft = detail?.inspections?.some((i: any) => i.status === "Draft") ?? false;
   const statusBadgeCls =
-    COMPLAINT_STATUS_THEME[
-      currentStatus as keyof typeof COMPLAINT_STATUS_THEME
-    ] ?? "bg-muted text-muted-foreground";
+    COMPLAINT_STATUS_THEME[currentStatus as keyof typeof COMPLAINT_STATUS_THEME] ??
+    "bg-muted text-muted-foreground";
   const canEditStatus = viewMode !== "readonly";
   const canStartInspection = viewMode === "inspector";
 
@@ -363,9 +336,7 @@ export default function ComplaintDetailView({
         {CLOSURE_STATUSES.map((s) => (
           <SelectItem key={s} value={s}>
             <div className="flex items-center gap-1.5">
-              {s === "Closed — Compliant" && (
-                <Lock className="text-muted-foreground" />
-              )}
+              {s === "Closed — Compliant" && <Lock className="text-muted-foreground" />}
               <span className="font-semibold">{s}</span>
             </div>
           </SelectItem>
@@ -383,21 +354,9 @@ export default function ComplaintDetailView({
         {/* Row 1: Complainant & Source */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-4">
           <div className="flex flex-col gap-2.5">
-            <InfoRow
-              icon={<User />}
-              label="Complainant"
-              value={detail?.complainant_name}
-            />
-            <InfoRow
-              icon={<Phone />}
-              label="Phone"
-              value={detail?.complainant_phone}
-            />
-            <InfoRow
-              icon={<Mail />}
-              label="Email"
-              value={detail?.complainant_email}
-            />
+            <InfoRow icon={<User />} label="Complainant" value={detail?.complainant_name} />
+            <InfoRow icon={<Phone />} label="Phone" value={detail?.complainant_phone} />
+            <InfoRow icon={<Mail />} label="Email" value={detail?.complainant_email} />
           </div>
           <div className="flex flex-col gap-2.5">
             <InfoRow
@@ -405,9 +364,7 @@ export default function ComplaintDetailView({
               label="Entered"
               value={
                 detail?.date_entered
-                  ? new Date(
-                      detail.date_entered + "T00:00:00",
-                    ).toLocaleDateString()
+                  ? new Date(detail.date_entered + "T00:00:00").toLocaleDateString()
                   : undefined
               }
             />
@@ -416,9 +373,7 @@ export default function ComplaintDetailView({
               label="Due After"
               value={
                 detail?.reinspection_due_on_after
-                  ? new Date(
-                      detail.reinspection_due_on_after + "T00:00:00",
-                    ).toLocaleDateString()
+                  ? new Date(detail.reinspection_due_on_after + "T00:00:00").toLocaleDateString()
                   : undefined
               }
             />
@@ -427,9 +382,7 @@ export default function ComplaintDetailView({
               label="Last Report"
               value={
                 detail?.date_last_report_sent
-                  ? new Date(
-                      detail.date_last_report_sent + "T00:00:00",
-                    ).toLocaleDateString()
+                  ? new Date(detail.date_last_report_sent + "T00:00:00").toLocaleDateString()
                   : undefined
               }
             />
@@ -470,9 +423,7 @@ export default function ComplaintDetailView({
                   <CheckCircle2 className="size-5" />
                 </div>
                 <div>
-                  <p className="text-sm font-bold text-foreground">
-                    Verified Location Record
-                  </p>
+                  <p className="text-sm font-bold text-foreground">Verified Location Record</p>
                   <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest opacity-70">
                     Master ID: {complaint.legacy_location_id || "Optimistic"}
                   </p>
@@ -557,11 +508,7 @@ export default function ComplaintDetailView({
                 {rpName || rpAddress || rpPhone || rpEmail ? (
                   <>
                     <InfoRow icon={<User />} label="Owner" value={rpName} />
-                    <InfoRow
-                      icon={<Home />}
-                      label="Mailing"
-                      value={rpAddress}
-                    />
+                    <InfoRow icon={<Home />} label="Mailing" value={rpAddress} />
                     <InfoRow icon={<Phone />} label="Phone" value={rpPhone} />
                     <InfoRow icon={<Mail />} label="Email" value={rpEmail} />
                   </>
@@ -705,8 +652,7 @@ export default function ComplaintDetailView({
                   Delete Complaint?
                 </AlertDialogTitle>
                 <AlertDialogDescription className="text-sm font-medium">
-                  This action is irreversible. All associated hearing packet
-                  data will be purged.
+                  This action is irreversible. All associated hearing packet data will be purged.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter className="mt-4">
@@ -718,9 +664,7 @@ export default function ComplaintDetailView({
                   disabled={deleteMutation.isPending}
                   className="bg-destructive text-destructive-foreground hover:bg-destructive/90 font-bold uppercase tracking-widest text-[10px] rounded-xl px-6"
                 >
-                  {deleteMutation.isPending && (
-                    <Loader2 className="animate-spin mr-2" />
-                  )}
+                  {deleteMutation.isPending && <Loader2 className="animate-spin mr-2" />}
                   Confirm Purge
                 </AlertDialogAction>
               </AlertDialogFooter>
@@ -802,9 +746,7 @@ export default function ComplaintDetailView({
       {/* ── CONTENT GRID (7/5 Split) ──────────────────────── */}
       <div className="grid gap-8 lg:grid-cols-12 items-start">
         <div className="flex flex-col gap-8 lg:col-span-7">
-          <ErrorBoundary title="Identity Section Error">
-            {detailsSection}
-          </ErrorBoundary>
+          <ErrorBoundary title="Identity Section Error">{detailsSection}</ErrorBoundary>
 
           <Card className="overflow-hidden shadow-sm border-none bg-muted/20 transition-all duration-300">
             <SectionHeader
@@ -827,9 +769,7 @@ export default function ComplaintDetailView({
                     >
                       <div className="min-w-0">
                         <p className="text-sm font-bold text-foreground group-hover/ins:text-primary transition-colors">
-                          {new Date(
-                            ins.inspection_date + "T00:00:00",
-                          ).toLocaleDateString()}
+                          {new Date(ins.inspection_date + "T00:00:00").toLocaleDateString()}
                         </p>
                         <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-1 opacity-70">
                           {ins.inspection_type} · {ins.inspector}
@@ -875,17 +815,10 @@ export default function ComplaintDetailView({
 
         <div className="flex flex-col gap-8 lg:col-span-5 sticky top-20">
           <ErrorBoundary title="Actions Error">{actionsCard}</ErrorBoundary>
-          <ErrorBoundary title="Party Error">
-            {responsiblePartyContent}
-          </ErrorBoundary>
-          <ErrorBoundary title="Resources Error">
-            {externalResourcesCard}
-          </ErrorBoundary>
+          <ErrorBoundary title="Party Error">{responsiblePartyContent}</ErrorBoundary>
+          <ErrorBoundary title="Resources Error">{externalResourcesCard}</ErrorBoundary>
           <ErrorBoundary title="Chronology Error">
-            <ComplaintChronologyPanel
-              chronology={detail?.chronology ?? []}
-              loading={loading}
-            />
+            <ComplaintChronologyPanel chronology={detail?.chronology ?? []} loading={loading} />
           </ErrorBoundary>
         </div>
       </div>
@@ -901,11 +834,7 @@ export default function ComplaintDetailView({
                 size="icon"
                 className="size-12 rounded-2xl shrink-0 shadow-xl active:scale-90 transition-transform"
               >
-                {hasDraft ? (
-                  <FileEdit className="size-5" />
-                ) : (
-                  <FilePlus className="size-5" />
-                )}
+                {hasDraft ? <FileEdit className="size-5" /> : <FilePlus className="size-5" />}
               </Button>
             )}
           </div>

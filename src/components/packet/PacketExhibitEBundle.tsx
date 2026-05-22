@@ -26,7 +26,7 @@ export function PacketExhibitEBundle({
   serviceLog,
 }: Props) {
   return (
-    <div className="exhibit-e-bundle">
+    <div className="exhibit-e-bundle" data-testid="packet-exhibit-e-bundle">
       {/* 1. Notice of Hearing (The Exhibit E Anchor) */}
       <PacketNoticeOfHearing
         complaint={complaint}

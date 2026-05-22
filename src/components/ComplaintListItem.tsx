@@ -15,19 +15,18 @@ type Complaint = {
   locationRecordId?: string;
 };
 
-const QUICK_ACTION_MAP: Record<string, { label: string; nextStatus: string }> =
-  {
-    New: { label: "Schedule", nextStatus: "Inspection Scheduled" },
-    "Contact Pending": {
-      label: "Schedule",
-      nextStatus: "Inspection Scheduled",
-    },
-    "Re-Inspection Due": {
-      label: "Re-Schedule",
-      nextStatus: "Inspection Scheduled",
-    },
-    "NOV Issued": { label: "Set Re-Insp.", nextStatus: "Re-Inspection Due" },
-  };
+const QUICK_ACTION_MAP: Record<string, { label: string; nextStatus: string }> = {
+  New: { label: "Schedule", nextStatus: "Inspection Scheduled" },
+  "Contact Pending": {
+    label: "Schedule",
+    nextStatus: "Inspection Scheduled",
+  },
+  "Re-Inspection Due": {
+    label: "Re-Schedule",
+    nextStatus: "Inspection Scheduled",
+  },
+  "NOV Issued": { label: "Set Re-Insp.", nextStatus: "Re-Inspection Due" },
+};
 
 type Props = {
   complaint: Complaint;
@@ -118,10 +117,7 @@ const ComplaintListItem = memo(function ComplaintListItem({
             <div className="flex items-center gap-2 flex-wrap min-w-0">
               {c.legacy_complaint_id && (
                 <span className="text-xs font-mono font-medium text-muted-foreground shrink-0">
-                  #
-                  <span className="text-foreground">
-                    {c.legacy_complaint_id}
-                  </span>
+                  #<span className="text-foreground">{c.legacy_complaint_id}</span>
                 </span>
               )}
               {c.date_entered && (

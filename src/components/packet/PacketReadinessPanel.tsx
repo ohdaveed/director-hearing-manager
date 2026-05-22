@@ -38,7 +38,10 @@ function ValidationResultsPanel({
   const hasResults = results.length > 0;
 
   return (
-    <div className="rounded-xl border border-border overflow-hidden">
+    <div
+      className="rounded-xl border border-border overflow-hidden"
+      data-testid="packet-validation-panel"
+    >
       <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-muted/30">
         <div className="flex items-center gap-2">
           <DatabaseZap className="w-4 h-4 text-primary" />
@@ -86,7 +89,11 @@ function ValidationResultsPanel({
             {results.map((result) => {
               const badge = VALIDATION_BADGE[result.status] ?? VALIDATION_BADGE.warning;
               return (
-                <div key={result.rule_slug} className="px-4 py-3 flex items-start gap-3">
+                <div
+                  key={result.rule_slug}
+                  className="px-4 py-3 flex items-start gap-3"
+                  data-testid={`packet-validation-${result.rule_slug}`}
+                >
                   <div className="pt-0.5">
                     {result.status === "pass" ? (
                       <CheckCircle2 className="w-4 h-4 text-success" />
@@ -136,7 +143,10 @@ function GeneratedFilesPanel({ files }: { files: GeneratedPacketFile[] }) {
   const generatedFile = useGeneratedPacketFile();
 
   return (
-    <div className="rounded-xl border border-border overflow-hidden">
+    <div
+      className="rounded-xl border border-border overflow-hidden"
+      data-testid="packet-generated-files"
+    >
       <div className="px-4 py-3 border-b border-border bg-muted/30 flex items-center gap-2">
         <FileDown className="w-4 h-4 text-primary" />
         <div>

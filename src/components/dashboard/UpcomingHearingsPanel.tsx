@@ -34,8 +34,7 @@ export default function UpcomingHearingsPanel({ hearings, today }: Props) {
           <div className="space-y-2">
             {hearings.map((c) => {
               const daysOut = Math.round(
-                (new Date(c.hearing_date! + "T00:00:00").getTime() -
-                  today.getTime()) /
+                (new Date(c.hearing_date! + "T00:00:00").getTime() - today.getTime()) /
                   (1000 * 60 * 60 * 24),
               );
               return (
@@ -50,20 +49,14 @@ export default function UpcomingHearingsPanel({ hearings, today }: Props) {
                   <div
                     className={`text-center w-10 shrink-0 ${daysOut <= 3 ? "text-destructive" : "text-muted-foreground"}`}
                   >
-                    <p className="text-lg font-black tabular-nums leading-none">
-                      {daysOut}
-                    </p>
+                    <p className="text-lg font-black tabular-nums leading-none">{daysOut}</p>
                     <p className="text-[9px] uppercase tracking-wide">days</p>
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-xs font-semibold text-foreground truncate">
-                      {c.address}
-                    </p>
+                    <p className="text-xs font-semibold text-foreground truncate">{c.address}</p>
                     <p className="text-xs text-muted-foreground">
                       {c.legacy_complaint_id && (
-                        <span className="font-mono">
-                          #{c.legacy_complaint_id} ·{" "}
-                        </span>
+                        <span className="font-mono">#{c.legacy_complaint_id} · </span>
                       )}
                       {formatDate(c.hearing_date)}
                     </p>

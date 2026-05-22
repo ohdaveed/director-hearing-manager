@@ -98,8 +98,7 @@ function EntryForm({
     },
   );
   const [summaryError, setSummaryError] = useState<string | undefined>();
-  const set = (k: keyof FormState, v: string) =>
-    setForm((prev) => ({ ...prev, [k]: v }));
+  const set = (k: keyof FormState, v: string) => setForm((prev) => ({ ...prev, [k]: v }));
 
   return (
     <div className="border border-primary/30 rounded-xl p-4 bg-primary/5 space-y-3">
@@ -119,10 +118,7 @@ function EntryForm({
           <Label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide mb-1.5 block">
             Entry Type
           </Label>
-          <Select
-            value={form.entryType}
-            onValueChange={(v) => set("entryType", v)}
-          >
+          <Select value={form.entryType} onValueChange={(v) => set("entryType", v)}>
             <SelectTrigger className="h-8 text-xs">
               <SelectValue />
             </SelectTrigger>
@@ -179,14 +175,12 @@ function EntryForm({
             return (
               <div className="mt-2 rounded-lg border border-border bg-muted/30 p-3 space-y-2">
                 <p className="text-[10px] font-semibold text-destructive flex items-center gap-1.5">
-                  <Shield className="w-3 h-3 flex-shrink-0" /> California state
-                  codes are not accepted
+                  <Shield className="w-3 h-3 flex-shrink-0" /> California state codes are not
+                  accepted
                 </p>
                 <div className="rounded-md border border-border bg-card p-2.5 flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <p className="text-[10px] text-muted-foreground">
-                      Did you mean:
-                    </p>
+                    <p className="text-[10px] text-muted-foreground">Did you mean:</p>
                     <p className="text-xs font-semibold text-foreground mt-0.5 font-mono">
                       {suggestion.code} — {suggestion.label}
                     </p>
@@ -197,10 +191,7 @@ function EntryForm({
                   <button
                     type="button"
                     onClick={() => {
-                      const newSummary = replaceStateCodeWithSfhc(
-                        form.summary,
-                        suggestion.code,
-                      );
+                      const newSummary = replaceStateCodeWithSfhc(form.summary, suggestion.code);
                       set("summary", newSummary);
                       set("citationCode", suggestion.code);
                       setSummaryError(getFieldValidationError(newSummary));
@@ -234,25 +225,17 @@ function EntryForm({
         </div>
         <div className="text-center pb-0.5">
           <p className="text-[10px] text-muted-foreground mb-1">Exhibit</p>
-          <span className="text-lg font-black text-primary leading-none">
-            {assignedLetter}
-          </span>
+          <span className="text-lg font-black text-primary leading-none">{assignedLetter}</span>
         </div>
       </div>
 
       <div className="flex items-center justify-between pt-1 border-t border-border/60">
         <p className="text-[10px] text-muted-foreground italic flex items-center gap-1">
           <Shield className="w-3 h-3 text-primary" />
-          SFHC articles only — California state health codes are blocked by
-          policy
+          SFHC articles only — California state health codes are blocked by policy
         </p>
         <div className="flex gap-2">
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={onCancel}
-            className="h-7 text-xs"
-          >
+          <Button size="sm" variant="outline" onClick={onCancel} className="h-7 text-xs">
             Cancel
           </Button>
           <Button
@@ -273,11 +256,7 @@ function EntryForm({
 }
 
 // ── Main editor component ─────────────────────────────────────────────────────
-export default function ChronologyEditorTab({
-  packetId,
-}: {
-  packetId: string;
-}) {
+export default function ChronologyEditorTab({ packetId }: { packetId: string }) {
   const [entries, setEntries] = useState<Entry[]>([]);
   const [exhibits, setExhibits] = useState<ExhibitType[]>([]);
   const [complaintId, setComplaintId] = useState<string | undefined>();
@@ -429,9 +408,7 @@ export default function ChronologyEditorTab({
     return (
       <div className="p-8 text-center text-muted-foreground">
         <BookOpen className="w-10 h-10 mx-auto mb-3 opacity-20" />
-        <p className="text-sm font-medium">
-          No complaint linked to this packet
-        </p>
+        <p className="text-sm font-medium">No complaint linked to this packet</p>
         <p className="text-xs mt-1">
           A complaint must be linked before the chronology can be managed.
         </p>
@@ -444,10 +421,7 @@ export default function ChronologyEditorTab({
   return (
     <div className="flex flex-col h-full overflow-hidden">
       {/* ── Context header ── */}
-      <ChronologyContextHeader
-        packetMeta={packetMeta}
-        locationMeta={locationMeta}
-      />
+      <ChronologyContextHeader packetMeta={packetMeta} locationMeta={locationMeta} />
 
       {/* ── Split workspace ── */}
       <div className="flex flex-1 min-h-0 overflow-hidden">
@@ -457,9 +431,7 @@ export default function ChronologyEditorTab({
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <BookOpen className="w-4 h-4 text-muted-foreground" />
-              <h3 className="text-sm font-bold text-foreground">
-                Case Chronology
-              </h3>
+              <h3 className="text-sm font-bold text-foreground">Case Chronology</h3>
               {sorted.length > 0 && (
                 <Badge variant="secondary" className="text-[10px] h-4 px-2">
                   {sorted.length} {sorted.length === 1 ? "entry" : "entries"}
@@ -508,9 +480,7 @@ export default function ChronologyEditorTab({
               <CardContent>
                 <BookOpen className="w-8 h-8 mx-auto mb-2 opacity-20" />
                 <p className="text-sm font-medium">No chronology entries yet</p>
-                <p className="text-xs mt-1">
-                  Click "Add Entry" to document this case history.
-                </p>
+                <p className="text-xs mt-1">Click "Add Entry" to document this case history.</p>
               </CardContent>
             </Card>
           )}
@@ -526,15 +496,10 @@ export default function ChronologyEditorTab({
 
                 if (isEditing) {
                   return (
-                    <Card
-                      key={entry.id}
-                      className="p-4 border-primary/20 bg-primary/5"
-                    >
+                    <Card key={entry.id} className="p-4 border-primary/20 bg-primary/5">
                       <EntryForm
                         initial={{
-                          entryDate:
-                            entry.entryDate ??
-                            new Date().toISOString().split("T")[0],
+                          entryDate: entry.entryDate ?? new Date().toISOString().split("T")[0],
                           entryType: entry.entryType ?? "Other",
                           citationCode: entry.citationCode ?? "",
                           summary: entry.summary ?? "",
@@ -591,9 +556,7 @@ export default function ChronologyEditorTab({
                         </p>
 
                         {entry.createdBy && (
-                          <p className="text-[10px] text-muted-foreground">
-                            By: {entry.createdBy}
-                          </p>
+                          <p className="text-[10px] text-muted-foreground">By: {entry.createdBy}</p>
                         )}
                       </div>
 
@@ -650,12 +613,9 @@ export default function ChronologyEditorTab({
             <div className="flex items-start gap-2">
               <Shield className="w-3.5 h-3.5 text-primary flex-shrink-0 mt-0.5" />
               <p className="text-[10px] text-muted-foreground leading-relaxed">
-                <span className="font-semibold text-foreground">
-                  SFHC articles only.
-                </span>{" "}
-                California state health and safety codes are completely blocked
-                by policy — use SFHC articles only (Article 11, Article 11A,
-                Article 2, and other relevant sections).
+                <span className="font-semibold text-foreground">SFHC articles only.</span>{" "}
+                California state health and safety codes are completely blocked by policy — use SFHC
+                articles only (Article 11, Article 11A, Article 2, and other relevant sections).
               </p>
             </div>
           </Card>

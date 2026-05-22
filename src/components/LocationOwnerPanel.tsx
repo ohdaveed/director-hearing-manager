@@ -33,9 +33,7 @@ function VerificationBadge({
     return (
       <div className="flex items-center gap-2 mt-3 p-2.5 rounded-lg bg-destructive/10 border border-destructive/30">
         <AlertCircle className="w-4 h-4 text-destructive flex-shrink-0" />
-        <span className="text-xs text-destructive flex-1">
-          Owner info has never been verified
-        </span>
+        <span className="text-xs text-destructive flex-1">Owner info has never been verified</span>
         <Button
           size="sm"
           variant="outline"
@@ -67,9 +65,7 @@ function VerificationBadge({
       ) : (
         <CheckCircle2 className="w-4 h-4 text-success flex-shrink-0" />
       )}
-      <span
-        className={`text-xs flex-1 ${isStale ? "text-warning" : "text-success"}`}
-      >
+      <span className={`text-xs flex-1 ${isStale ? "text-warning" : "text-success"}`}>
         {isStale
           ? `⚠️ Owner info last verified ${days} days ago (${formatted}) — confirm before finalizing`
           : `Owner info verified ${formatted}`}
@@ -94,11 +90,7 @@ function VerificationBadge({
   );
 }
 
-export default function LocationOwnerPanel({
-  locationRecordId,
-}: {
-  locationRecordId: string;
-}) {
+export default function LocationOwnerPanel({ locationRecordId }: { locationRecordId: string }) {
   const [loc, setLoc] = useState<Location | null>(null);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
@@ -196,10 +188,7 @@ export default function LocationOwnerPanel({
         responsible_party_phone: form.responsiblePartyPhone || null,
         responsible_party_email: form.responsiblePartyEmail || null,
       };
-      const updatedLoc = await locationService.update(
-        locationRecordId,
-        updates,
-      );
+      const updatedLoc = await locationService.update(locationRecordId, updates);
 
       setLoc(updatedLoc);
       setEditing(false);
@@ -262,10 +251,7 @@ export default function LocationOwnerPanel({
           {/* Location ID — number field */}
           <div>
             <label className="text-xs text-muted-foreground">
-              Location ID{" "}
-              <span className="text-muted-foreground font-normal">
-                (1 – 9,999,999)
-              </span>
+              Location ID <span className="text-muted-foreground font-normal">(1 – 9,999,999)</span>
             </label>
             <Input
               type="number"
@@ -302,19 +288,14 @@ export default function LocationOwnerPanel({
             { key: "numberOfRooms", label: "Number of Rooms", type: "number" },
           ].map(({ key, label, type }) => (
             <div key={key}>
-              <label
-                htmlFor={`edit-${key}`}
-                className="text-xs text-muted-foreground"
-              >
+              <label htmlFor={`edit-${key}`} className="text-xs text-muted-foreground">
                 {label}
               </label>
               <Input
                 id={`edit-${key}`}
                 type={type || "text"}
                 value={form[key as keyof typeof form] as any}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, [key]: e.target.value }))
-                }
+                onChange={(e) => setForm((f) => ({ ...f, [key]: e.target.value }))}
                 className="h-8 text-sm mt-0.5"
               />
             </div>
@@ -324,9 +305,7 @@ export default function LocationOwnerPanel({
             <Checkbox
               id="edit-loc-hh"
               checked={form.healthyHousing}
-              onCheckedChange={(checked) =>
-                setForm((f) => ({ ...f, healthyHousing: !!checked }))
-              }
+              onCheckedChange={(checked) => setForm((f) => ({ ...f, healthyHousing: !!checked }))}
             />
             <label
               htmlFor="edit-loc-hh"
@@ -392,11 +371,7 @@ export default function LocationOwnerPanel({
           </div>
 
           <div className="flex items-center gap-2 mt-2">
-            <Checkbox
-              id="loc-hh-view"
-              checked={!!loc.healthy_housing}
-              disabled
-            />
+            <Checkbox id="loc-hh-view" checked={!!loc.healthy_housing} disabled />
             <label
               htmlFor="loc-hh-view"
               className="text-xs font-medium text-muted-foreground uppercase tracking-wide"
@@ -408,9 +383,7 @@ export default function LocationOwnerPanel({
           {/* Phase 3: Building features */}
           {loc.building_features && loc.building_features.length > 0 && (
             <div className="mt-3">
-              <p className="text-xs text-muted-foreground mb-1">
-                Building Features
-              </p>
+              <p className="text-xs text-muted-foreground mb-1">Building Features</p>
               <div className="flex flex-wrap gap-1">
                 {loc.building_features.map((f: string) => (
                   <Badge key={f} variant="secondary" className="text-xs">

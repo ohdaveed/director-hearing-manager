@@ -1,14 +1,6 @@
 import { useState, useEffect } from "react";
 
-import {
-  Loader2,
-  X,
-  Printer,
-  CheckCircle2,
-  XCircle,
-  Clock,
-  AlertTriangle,
-} from "lucide-react";
+import { Loader2, X, Printer, CheckCircle2, XCircle, Clock, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { inspectionService } from "@/services/inspectionService";
 
@@ -25,10 +17,7 @@ const statusBadge = (status?: string) => {
   return "bg-destructive/10 text-destructive";
 };
 
-export default function InspectionDetailPanel({
-  inspectionId,
-  onClose,
-}: Props) {
+export default function InspectionDetailPanel({ inspectionId, onClose }: Props) {
   const [detail, setDetail] = useState<Detail | null>(null);
   const [loading, setLoading] = useState(true);
   const [notes, setNotes] = useState<{
@@ -61,8 +50,7 @@ export default function InspectionDetailPanel({
   if (loading) {
     return (
       <div className="bg-card border border-border rounded-xl shadow-sm p-8 flex items-center justify-center gap-3 text-muted-foreground">
-        <Loader2 className="w-5 h-5 animate-spin" /> Loading inspection
-        details...
+        <Loader2 className="w-5 h-5 animate-spin" /> Loading inspection details...
       </div>
     );
   }
@@ -152,9 +140,7 @@ export default function InspectionDetailPanel({
           {inspection.contactEmail && (
             <Field label="Contact Email" value={inspection.contactEmail} />
           )}
-          {location?.owner_name && (
-            <Field label="Owner" value={location.owner_name} />
-          )}
+          {location?.owner_name && <Field label="Owner" value={location.owner_name} />}
           {location?.facility_type && (
             <Field label="Facility Type" value={location.facility_type} />
           )}
@@ -164,9 +150,7 @@ export default function InspectionDetailPanel({
           {location?.number_of_rooms && (
             <Field label="# Rooms" value={String(location.number_of_rooms)} />
           )}
-          {location?.census_tract && (
-            <Field label="Census Tract" value={location.census_tract} />
-          )}
+          {location?.census_tract && <Field label="Census Tract" value={location.census_tract} />}
           {location?.current_fees != null && (
             <Field
               label="Current Fees"
@@ -189,9 +173,7 @@ export default function InspectionDetailPanel({
                       <span className="w-5 h-5 rounded-full bg-destructive/10 text-destructive text-xs font-bold flex items-center justify-center flex-shrink-0">
                         {i + 1}
                       </span>
-                      <p className="text-sm font-semibold text-foreground">
-                        {v.violation_label}
-                      </p>
+                      <p className="text-sm font-semibold text-foreground">{v.violation_label}</p>
                     </div>
                     <div className="flex items-center gap-1.5 flex-shrink-0">
                       {v.responsible_party && (
@@ -239,9 +221,7 @@ export default function InspectionDetailPanel({
                   key={obs.id}
                   className="border border-border rounded-lg px-3 py-2.5 text-sm text-foreground"
                 >
-                  <span className="text-xs text-muted-foreground mr-2">
-                    {i + 1}.
-                  </span>
+                  <span className="text-xs text-muted-foreground mr-2">{i + 1}.</span>
                   {obs.text}
                 </div>
               ))}

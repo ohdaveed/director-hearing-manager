@@ -1,11 +1,7 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import type { Role } from '@/context/AuthContext';
-import {
-  ChevronDown,
-  FlaskConical,
-  X,
-} from 'lucide-react';
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import type { Role } from "@/context/AuthContext";
+import { ChevronDown, FlaskConical, X } from "lucide-react";
 
 interface NavItem {
   path: string;
@@ -25,7 +21,7 @@ interface NavBarProps {
   signOut: () => Promise<void>;
 }
 
-const ALL_ROLES: Role[] = ['Inspector', 'Admin', 'Program Manager', 'Super Admin'];
+const ALL_ROLES: Role[] = ["Inspector", "Admin", "Program Manager", "Super Admin"];
 
 export function NavBar({
   visibleNav,
@@ -40,22 +36,25 @@ export function NavBar({
   const navigate = useNavigate();
   const [rolePickerOpen, setRolePickerOpen] = useState(false);
 
-  const userInitials = inspectorName
-    .split(' ')
-    .map((n) => n[0])
-    .filter(Boolean)
-    .join('')
-    .toUpperCase() || '?';
+  const displayName = inspectorName?.trim() || "Unknown user";
+
+  const userInitials =
+    displayName
+      .split(" ")
+      .map((n) => n[0])
+      .filter(Boolean)
+      .join("")
+      .toUpperCase() || "?";
 
   const handleSetRole = (role: Role) => {
     setImpersonatedRole(role === realRole ? null : role);
     setRolePickerOpen(false);
-    navigate('/dashboard');
+    navigate("/dashboard");
   };
 
   const handleExitImpersonation = () => {
     setImpersonatedRole(null);
-    navigate('/dashboard');
+    navigate("/dashboard");
   };
 
   return (
@@ -104,8 +103,8 @@ export function NavBar({
               to={item.path}
               className={`flex items-center gap-1.5 shrink-0 h-full px-3.5 text-[13px] font-medium transition-all border-b-2 ${
                 isNavActive(item.path)
-                  ? 'border-primary text-primary'
-                  : 'border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/40'
+                  ? "border-primary text-primary"
+                  : "border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/40"
               }`}
             >
               {item.icon}
@@ -126,7 +125,7 @@ export function NavBar({
             </div>
             <div className="hidden sm:flex flex-col items-end">
               <span className="text-xs font-medium text-foreground leading-none truncate max-w-[140px]">
-                {inspectorName}
+                {displayName}
               </span>
               {realRole && (
                 <span className="text-[10px] text-muted-foreground leading-none mt-0.5">
@@ -143,14 +142,14 @@ export function NavBar({
                 onClick={() => setRolePickerOpen((o) => !o)}
                 className={`flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg border transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
                   impersonatedRole
-                    ? 'bg-primary/10 border-primary/30 text-primary font-semibold'
-                    : 'bg-muted/60 border-border text-muted-foreground hover:text-foreground hover:bg-muted'
+                    ? "bg-primary/10 border-primary/30 text-primary font-semibold"
+                    : "bg-muted/60 border-border text-muted-foreground hover:text-foreground hover:bg-muted"
                 }`}
               >
                 <FlaskConical className="w-3 h-3" />
-                <span className="hidden sm:inline">{impersonatedRole ?? 'Preview'}</span>
+                <span className="hidden sm:inline">{impersonatedRole ?? "Preview"}</span>
                 <ChevronDown
-                  className={`w-3 h-3 transition-transform ${rolePickerOpen ? 'rotate-180' : ''}`}
+                  className={`w-3 h-3 transition-transform ${rolePickerOpen ? "rotate-180" : ""}`}
                 />
               </button>
 
@@ -169,8 +168,8 @@ export function NavBar({
                         onClick={() => handleSetRole(role)}
                         className={`w-full flex items-center justify-between gap-2 px-3 py-2 text-xs text-left transition-colors ${
                           isActive
-                            ? 'text-primary font-semibold bg-primary/5'
-                            : 'text-foreground hover:bg-muted'
+                            ? "text-primary font-semibold bg-primary/5"
+                            : "text-foreground hover:bg-muted"
                         }`}
                       >
                         <span>{role}</span>

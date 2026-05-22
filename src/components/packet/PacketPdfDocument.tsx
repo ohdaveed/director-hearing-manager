@@ -1,11 +1,4 @@
-import {
-  Document,
-  Page,
-  Text,
-  View,
-  StyleSheet,
-  PDFDownloadLink,
-} from "@react-pdf/renderer";
+import { Document, Page, Text, View, StyleSheet, PDFDownloadLink } from "@react-pdf/renderer";
 
 const styles = StyleSheet.create({
   page: {
@@ -77,9 +70,7 @@ export function PacketPdfDocument({ packet }: PacketPdfProps) {
       <Page size="LETTER" style={styles.page}>
         <View style={styles.header}>
           <Text style={styles.title}>Director's Hearing Packet</Text>
-          <Text style={styles.subtitle}>
-            San Francisco Department of Public Health
-          </Text>
+          <Text style={styles.subtitle}>San Francisco Department of Public Health</Text>
           <Text style={styles.subtitle}>Environmental Health Branch</Text>
         </View>
 
@@ -91,9 +82,7 @@ export function PacketPdfDocument({ packet }: PacketPdfProps) {
             </View>
             <View style={styles.col}>
               <Text style={styles.label}>Case Number</Text>
-              <Text style={styles.value}>
-                {packet.legacy_complaint_id || "N/A"}
-              </Text>
+              <Text style={styles.value}>{packet.legacy_complaint_id || "N/A"}</Text>
             </View>
           </View>
 
@@ -113,17 +102,13 @@ export function PacketPdfDocument({ packet }: PacketPdfProps) {
               <Text style={styles.label}>Hearing Date</Text>
               <Text style={styles.value}>
                 {packet.hearing_date
-                  ? new Date(
-                      packet.hearing_date + "T00:00:00",
-                    ).toLocaleDateString()
+                  ? new Date(packet.hearing_date + "T00:00:00").toLocaleDateString()
                   : "Not scheduled"}
               </Text>
             </View>
             <View style={styles.col}>
               <Text style={styles.label}>Assigned To</Text>
-              <Text style={styles.value}>
-                {packet.assigned_to || "Unassigned"}
-              </Text>
+              <Text style={styles.value}>{packet.assigned_to || "Unassigned"}</Text>
             </View>
           </View>
 
@@ -131,9 +116,7 @@ export function PacketPdfDocument({ packet }: PacketPdfProps) {
             <View style={styles.col}>
               <Text style={styles.label}>Created</Text>
               <Text style={styles.value}>
-                {packet.created_at
-                  ? new Date(packet.created_at).toLocaleDateString()
-                  : "N/A"}
+                {packet.created_at ? new Date(packet.created_at).toLocaleDateString() : "N/A"}
               </Text>
             </View>
           </View>
@@ -142,9 +125,8 @@ export function PacketPdfDocument({ packet }: PacketPdfProps) {
         <View style={styles.section}>
           <Text style={styles.label}>Document Notes</Text>
           <Text style={styles.value}>
-            This packet contains all materials for the Director's Hearing
-            proceedings. Please review all exhibits and chronology entries
-            before the hearing date.
+            This packet contains all materials for the Director's Hearing proceedings. Please review
+            all exhibits and chronology entries before the hearing date.
           </Text>
         </View>
       </Page>

@@ -395,8 +395,7 @@ export default function ViolationRow({
                   className="pl-3 border-l-2 border-border/50 space-y-1.5"
                 >
                   <p className="text-[10px] text-muted-foreground italic">
-                    Corrective actions for "
-                    <span className="font-medium not-italic">{label}</span>
+                    Corrective actions for "<span className="font-medium not-italic">{label}</span>
                     ":
                   </p>
                   <div className="flex flex-wrap gap-1.5">
