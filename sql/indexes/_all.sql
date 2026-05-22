@@ -49,6 +49,9 @@ CREATE INDEX IF NOT EXISTS idx_packets_assigned       ON hearing_packets (assign
 CREATE INDEX IF NOT EXISTS idx_packets_hearing_date   ON hearing_packets (hearing_date);
 CREATE INDEX IF NOT EXISTS idx_packets_complaint      ON hearing_packets (legacy_complaint_ref);
 CREATE INDEX IF NOT EXISTS idx_packets_complaint_id   ON hearing_packets (complaint_id);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_packets_unique_active_complaint_id
+  ON hearing_packets (complaint_id)
+  WHERE complaint_id IS NOT NULL AND deleted_at IS NULL;
 CREATE INDEX IF NOT EXISTS idx_packets_type           ON hearing_packets (packet_type);
 
 -- ── Users ──
@@ -110,4 +113,8 @@ CREATE INDEX IF NOT EXISTS idx_hearing_packets_complaint_id_004 ON hearing_packe
 CREATE INDEX IF NOT EXISTS idx_imported_reports_location_id_004 ON imported_reports (location_id);
 CREATE INDEX IF NOT EXISTS idx_imported_reports_linked_inspection_id ON imported_reports (linked_inspection_id);
 CREATE INDEX IF NOT EXISTS idx_inspection_photos_inspection_id_004 ON inspection_photos (inspection_id);
+
+-- ── Skill References ──
+CREATE INDEX IF NOT EXISTS idx_skill_references_skill_name ON skill_references(skill_name);
+CREATE INDEX IF NOT EXISTS idx_skill_references_lookup ON skill_references(skill_name, ref_name);
 

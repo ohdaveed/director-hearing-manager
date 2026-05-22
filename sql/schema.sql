@@ -57,10 +57,12 @@
 -- atlas:import tables/async_tasks.sql
 -- atlas:import tables/compliance_rules.sql
 -- atlas:import tables/sop_embeddings.sql
+-- atlas:import tables/skill_references.sql
 
 -- ── Function Definitions ──
 -- atlas:import functions/update_updated_at_column.sql
 -- atlas:import functions/get_current_user_role.sql
+-- atlas:import functions/validate_hearing_packet.sql
 
 -- ── View Definitions ──
 -- atlas:import views/packet_analysis_tasks.sql

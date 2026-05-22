@@ -1,4 +1,4 @@
-h1:Q6Ls8soGKljfBAKLJrGAqeg+DaRArXOe+/aY7f9Awxk=
+h1:ajkjdcWUhULTPb5BI3gMccSlo3S4eTQ8ix6V4WhoUVM=
 001a_primary_keys_and_timestamps.sql h1:pO9CIAiROPUnNanZy22wG1+qTqoBsg9Zz5upaNNadSQ=
 001b_indexes.sql h1:U0F/fR2hUClDiycL39RM4DlItVony5qEh/N9ySC8Jm4=
 001c_rls_policies.sql h1:2/VLTfKIKI6gotED+aepA0Q9kLYUyxZwv6vvkB1Az7s=
@@ -10,3 +10,6 @@ h1:Q6Ls8soGKljfBAKLJrGAqeg+DaRArXOe+/aY7f9Awxk=
 003a_extend_inspections_schema.sql h1:px5b5KAq/vo7WHJ3OF8houM8eBOITaeGsuKN6SjuZUM=
 003b_sop_compliance_rules.sql h1:yLia6xGrBnUnPKn4KCcUjd3QLWQtlPp64Q6TxiN/KPE=
 004_standardize_fks.sql h1:Ub3eq43RW/laGfbPuigcSTDp+L0Udy5aHYxSJly9FjI=
+005_unique_active_hearing_packet_per_complaint.sql h1:AELXnqogj6tUBZbr7sBwPhOnhzkkRBfvOo5JydcHBR0=
+006_add_validation_function.sql h1:twyxzwDK+nh+CyncNoauR+f4DNUSBSxDgO8oKfV/PDk=
+007_skill_references.sql h1:62BnZFf/cxZP6Hk1gQ0hGcrtvcQ4DoNecBLMz/qqmyo=
