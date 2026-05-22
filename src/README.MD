@@ -1,8 +1,8 @@
-# Zite: Director Hearing Manager
+# Director Hearing Manager
 
 ## Overview
 
-Zite is an enterprise-grade operational tool designed to increase workflows and processes for the San Francisco Department of Public Health (SFDPH) Environmental Health Division. Specifically tailored for the Healthy Housing and Vector Control (HHVC) program, the application streamlines the transition from field inspections to administrative enforcement by automating the compilation, validation, and tracking of Director's Hearing Packets.
+Director Hearing Manager is an enterprise-grade operational tool designed to increase workflows and processes for the San Francisco Department of Public Health (SFDPH) Environmental Health Division. Specifically tailored for the Healthy Housing and Vector Control (HHVC) program, the application streamlines the transition from field inspections to administrative enforcement by automating the compilation, validation, and tracking of Director's Hearing Packets.
 
 ## Core Functions & Workflows
 
@@ -40,11 +40,12 @@ The application features a strict, programmatic validation rules engine designed
 
 While abstracted by the visual builder, the underlying architecture relies on a modern, component-driven web stack:
 
-- **Frontend Framework:** React (utilizing `.tsx` and `.ts` functional components).
-- **Styling:** Tailwind CSS (evidenced by utility classes for responsive grid layouts, sticky positioning, and thematic color variables).
-- **Backend & API:** RESTful API endpoints and server-side TypeScript modules (e.g., `importInspectionHistory`, `reorderChronology.ts`) handling asynchronous data processing and PDF binary scanning.
-- **Database:** Relational schema modeling complex entities including `Complaints`, `Locations`, `HearingPackets`, `Chronology`, `Exhibits`, `Users`, and `Violations`.
-- **AI Integration:** Claude API utilized for advanced document parsing, capable of reading and extracting structured violation data from oversized PDF inspection reports (up to 60MB).
+- **Frontend Framework:** React 18+ utilizing **Vite+** (vp CLI) for an optimized development and build pipeline.
+- **Styling & UI:** **Tailwind CSS v4** (utilizing high-performance utility classes) paired with **Shadcn UI**, **Base UI**, and **Radix UI** for accessible, headless primitives.
+- **Data & Validation:** **TanStack React Query v5** for efficient server-state management and **Zod** for strict type-safe boundary validation across forms and API responses.
+- **Backend & API:** Supabase (PostgreSQL + Auth Helpers) integrated via direct client modules and server-side TypeScript utilities (e.g., `importInspectionHistory.ts`, `chronoService.ts`).
+- **AI Integration:** Anthropic Claude SDK utilized for advanced document parsing, capable of extracting structured violation data from high-volume PDF inspection reports.
+- **Quality Assurance:** **Vitest** + React Testing Library for unit and integration testing with a mandatory coverage target of >80%.
 
 ## UI/UX Design Principles
 
@@ -55,3 +56,26 @@ The interface architecture strictly adheres to the **Laws of UX** (lawsofux.com)
 - **Fitts's Law & Doherty Threshold:** Bulk multi-select ingestion and asynchronous compilation overlays reduce cursor travel and provide immediate visual feedback during heavy processing tasks.
 - **Law of Proximity:** Inspection photos are logically grouped into unified visual containers to maintain timeline clarity.
 - **Jakob's Law:** Navigation aligns with standard enterprise mental models, separating destinations (tabs) from actions (buttons).
+
+### Design System & Typography
+
+Beyond high-level UX laws, the application maintains a specific visual identity to bridge the gap between enterprise software and legal/governmental authority:
+
+- **Typography:** Uses **Noto Sans** (variable) for high-legibility UI text and **Playfair Display** (variable) for serif emphasis on legal headers and document outputs.
+- **Visual Polish:** Employs **Framer Motion** for purposeful layout transitions and **Tailwind Animate** for interactive feedback, ensuring the interface feels responsive and modern.
+- **Accessibility:** Built on headless Radix and Base UI primitives, ensuring that all complex components (selects, dialogs, tabs) remain compliant with screen reader standards.
+
+## Developer Experience & Tooling
+
+To maintain security and developer velocity, the project leverages a specialized set of local tools:
+
+### Secure Secret Management
+We use a template-driven approach for environment variables to keep secrets out of source control:
+- **Injection:** Run `npm run env:inject` to populate your `.env` from secure Proton Pass templates.
+- **Runtime Secrets:** Use `npm run env:run -- vp dev` to run the application with secrets loaded into the shell environment without writing them to disk.
+
+### Advanced Debugging
+The environment is optimized for both human and AI-driven debugging:
+- **Interactive Testing:** UI tests can be run in debug mode with Playwright to inspect locators and state in real-time.
+- **AI-Native Inspection:** Integrated with Chrome DevTools and PostgreSQL MCPs, allowing AI agents to perform real-time data audits and DOM inspections.
+- **Performance:** Development is powered by **Vite+**, providing near-instant HMR (Hot Module Replacement) and optimized build times.

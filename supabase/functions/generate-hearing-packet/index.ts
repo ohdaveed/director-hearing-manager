@@ -121,16 +121,14 @@ Deno.serve(async (req) => {
       .single();
     if (fileError) throw fileError;
 
-    await admin
-      .from("packet_generation_events")
-      .insert({
-        hearing_packet_id: id,
-        complaint_uuid: packetJson?.complaint_uuid ?? caseData.complaint_uuid ?? null,
-        event_type: packetType === "final" ? "final_packet_generated" : "draft_packet_generated",
-        event_status: "success",
-        event_message: `${packetType} hearing packet generated and stored.`,
-        event_data: { fileRecordId: fileRecord.id, storagePath: upload.path },
-      });
+    await admin.from("packet_generation_events").insert({
+      hearing_packet_id: id,
+      complaint_uuid: packetJson?.complaint_uuid ?? caseData.complaint_uuid ?? null,
+      event_type: packetType === "final" ? "final_packet_generated" : "draft_packet_generated",
+      event_status: "success",
+      event_message: `${packetType} hearing packet generated and stored.`,
+      event_data: { fileRecordId: fileRecord.id, storagePath: upload.path },
+    });
     await admin
       .from("hearing_packets")
       .update({
