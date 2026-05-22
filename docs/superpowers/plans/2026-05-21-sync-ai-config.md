@@ -1,0 +1,87 @@
+# Sync AI Configuration Implementation Plan
+
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+
+**Goal:** Sync `ctx7-manifest.json` with core logic and reliability libraries from `package.json` and `AGENTS.md`.
+
+**Architecture:** Surgical update to the JSON manifest to add metadata for Zod, Anthropic, Vitest, and React Router.
+
+**Tech Stack:** JSON, Context7 Manifest Schema.
+
+---
+
+### Task 1: Update `ctx7-manifest.json` with Logic & Reliability Core
+
+**Files:**
+
+- Modify: `director-hearing-manager/ctx7-manifest.json`
+
+- [ ] **Step 1: Update the dependencies in `ctx7-manifest.json`**
+
+Update the file with the following content, merging the new libraries into the existing `dependencies` object:
+
+```json
+{
+  "dependencies": {
+    "react-hook-form": {
+      "libraryId": "/react-hook-form/documentation",
+      "version": "^7.76.0",
+      "reconciliationNotes": "Use with zod resolvers. Validate at boundary."
+    },
+    "@supabase/supabase-js": {
+      "libraryId": "/supabase/supabase-js",
+      "version": "^2.105.4",
+      "reconciliationNotes": "Use explicit join hints in .select(), e.g., .select('*, inspections!location_id(*)'). RLS policies govern access."
+    },
+    "@tanstack/react-query": {
+      "libraryId": "/tanstack/query",
+      "version": "^5.100.10",
+      "reconciliationNotes": "Use for all data fetching. Initialize in src/main.tsx."
+    },
+    "shadcn": {
+      "libraryId": "/shadcn-ui/ui",
+      "version": "^4.7.0",
+      "reconciliationNotes": "Source of Truth is src/components/ui/. Use local primitives."
+    },
+    "@react-pdf/renderer": {
+      "libraryId": "/diegomura/react-pdf",
+      "version": "^4.5.1",
+      "reconciliationNotes": "For print-ready packets. Store in Supabase 'documents' bucket."
+    },
+    "zod": {
+      "libraryId": "/colinhacks/zod",
+      "version": "^3.25.76",
+      "reconciliationNotes": "Use for all schema validation and type inference. Boundary validation is mandatory for API responses and form inputs."
+    },
+    "@anthropic-ai/sdk": {
+      "libraryId": "/anthropic/sdk",
+      "version": "^0.20.9",
+      "reconciliationNotes": "Primary LLM provider for AI services. Implementations reside in src/services/aiService.ts for PDF parsing and violation extraction."
+    },
+    "vitest": {
+      "libraryId": "/vitest-dev/vitest",
+      "version": "^4.1.6",
+      "reconciliationNotes": "Project uses 'vp test' (Vite-plus wrapper). All new code must include tests in *.test.ts files with >80% coverage."
+    },
+    "react-router-dom": {
+      "libraryId": "/remix-run/react-router",
+      "version": "^6.30.3",
+      "reconciliationNotes": "Version 6.x. Navigation logic and role-based guards are centralized in App.tsx. Use the useNavigate hook for programmatic transitions."
+    }
+  }
+}
+```
+
+- [ ] **Step 2: Verify JSON validity**
+
+Run: `node -e "JSON.parse(require('fs').readFileSync('director-hearing-manager/ctx7-manifest.json', 'utf8'))"`
+Expected: No output (exit code 0).
+
+- [ ] **Step 3: Commit the changes**
+
+Run:
+
+```bash
+git add director-hearing-manager/ctx7-manifest.json
+git commit -m "chore: sync ctx7-manifest.json with core logic libraries"
+```

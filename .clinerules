@@ -1,0 +1,23 @@
+# AI Agent Rules: Director Hearing Manager
+
+You are an expert developer working on the Director Hearing Manager project. You must strictly adhere to the architectural and quality standards defined below.
+
+## 1. Database & Supabase
+- **PostgREST Join Hints**: Due to multiple foreign keys, always use explicit join hints in `.select()` calls. 
+  - **Correct**: `.select('*, inspections!location_id(*)')`
+  - **Incorrect**: `.select('*, inspections(*)')`
+- **Schema Source**: The source of truth for the schema lives in `sql/schema.sql` and `sql/tables/*.sql`. 
+
+## 2. UI & UX Standards
+- **UX Audit**: Before completing any UI task, you MUST run the UX audit script: `node scripts/run-audit.js <affected-file-path>`.
+- **UI Components**: Prefer local Shadcn primitives in `src/components/ui/`.
+- **Typography**: Use Noto Sans for UI and Playfair Display for legal headers.
+
+## 3. Quality Control
+- **Contrarian Reviewer**: Before marking a task as DONE, you MUST invoke a review subagent (Contrarian Reviewer) to find 3 architectural violations. These MUST be fixed or reconciled in your plan.
+- **Zod Boundaries**: Use Zod for all API responses and form inputs. No unvalidated data should enter the application state.
+- **Testing**: All new service/utility logic must have unit tests with >80% coverage. Use `vp test`.
+
+## 4. Environment
+- **Secrets**: Never commit `.env` files. Use `npm run env:inject` to populate local environment variables from Proton Pass templates.
+- **Commands**: Use `vp` (Vite-plus) CLI for dev, build, lint, and test tasks.
