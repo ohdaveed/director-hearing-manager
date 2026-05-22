@@ -2,6 +2,12 @@
 
 ## Recently Completed
 
+- **Playwright E2E SOP Coverage:**
+  - Added `playwright.config.ts` and `test:e2e` + `e2e:seed` npm scripts.
+  - Created `scripts/seed-e2e-hearing-packet.cjs` to seed a Program Manager user, complaint, inspection, photo, chronology, service log, and SOP-compliant hearing packet.
+  - Added stable `data-testid` hooks across escalation, packet list/detail, readiness panel, and packet preview sections.
+  - Added `e2e/hearing-packet-sop.spec.ts` covering SOP validation rules, packet sequence, exhibit labels, and photo layout.
+  - Updated Vitest config to exclude `e2e/**` and constrain includes to `src/**/*.{test,spec}.{ts,tsx}`.
 - **Environment Template Workflow:**
   - Added `.env.template.pass` as an alternate Proton Pass template spelling with placeholders for Supabase, Atlas, and AI provider values.
   - Documented Proton Pass template naming and AI/local tooling environment variables in `AGENTS.md`.
@@ -48,6 +54,7 @@
 
 ## Changed Patterns / Gotchas
 
+- **Vitest scope**: `vite.config.ts` now explicitly includes `src/**/*.{test,spec}.{ts,tsx}` and excludes `e2e/**` to prevent Playwright specs from running in `vp test`.
 - **PDF Blobs:** `jsPDF` output should be set to `"blob"` for direct upload to storage.
 - **Supabase Storage:** Ensure `documents` bucket exists and has correct RLS policies for uploads/public access.
 - **Popup Blockers:** `window.open` called after async generation may be blocked; consider direct download or link in toast for future improvement.
@@ -58,6 +65,7 @@
 ## Next Up
 
 - Complete remaining tasks in `conductor/tracks.md`.
+- Run `npm run e2e:seed` + `npm run test:e2e` against a configured Supabase environment.
 - Enhance PDF generation fidelity (consider `@react-pdf/renderer` if tiling cuts become an issue).
 - Refine Hearing Order Editor integration with the final packet storage.
 - Run `atlas migrate diff initial_sum` with a dev database to generate the checksum file.

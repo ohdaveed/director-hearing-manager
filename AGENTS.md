@@ -1,4 +1,4 @@
-# Director Hearing Manager (Zite)
+# Director Hearing Manager
 
 > Enterprise case-management system for SFDPH Environmental Health Division (HHVC program).
 > Automates Director's Hearing Packet compilation for SF Health Code Article 11 enforcement.
@@ -15,7 +15,7 @@
 ## Technology Stack
 
 React 18, TypeScript ^5.9.3 (strict), Vite+ (vp CLI), Tailwind CSS 4.3,
-Radix UI + @base-ui/react, Lucide React, Framer Motion, Supabase (PostgreSQL + Auth Helpers),
+Shadcn UI, Radix UI, @base-ui/react, Lucide React, Framer Motion, Supabase (PostgreSQL + Auth Helpers),
 TanStack React Query 5, Zod, react-hook-form, sonner, Anthropic SDK,
 Vitest + React Testing Library (jsdom, globals: true)
 
@@ -163,6 +163,24 @@ Docs are local at `node_modules/vite-plus/docs` or online at https://viteplus.de
 - Run coverage: `CI=true vp test -- --coverage`
 - Target >80% coverage for new service/utility code
 
+## Debugging
+
+This project supports several debugging workflows depending on the layer being inspected:
+
+### 1. Browser & UI (AI-Driven)
+
+- **Chrome DevTools MCP**: Use the `chrome-devtools-mcp` to inspect DOM state, network requests, and performance from within the AI agent.
+- **Playwright Debugging**: For E2E tests, run `PLAYWRIGHT_HTML_OPEN=never npx playwright test --debug=cli`. This pauses the browser and allows you to attach a `playwright-cli` session for interactive inspection.
+
+### 2. Frontend Logic
+
+- **Vite Dev Server**: Check the terminal output of `vp dev` for HMR logs, TypeScript errors, and environment injection status.
+- **React DevTools**: Standard React DevTools are supported for inspecting component state and the TanStack Query cache.
+
+### 3. Database
+
+- **PostgreSQL MCP**: Use the `postgresql-mcp` to run ad-hoc queries against the Supabase database to verify data integrity during development.
+
 ## Code Review Process
 
 ### Automated Review Mandate (The Contrarian Reviewer)
@@ -183,31 +201,44 @@ Before marking done: tests pass, coverage >80%, lint clean, code style guides fo
 ## Repo Quirks
 
 - `eslint.config.js` exists (flat config format) — there is no `.eslintrc.*`. Note: `--ext` flag is not used with flat config.
-- `prettier` is installed and used by `lint-staged` (configured in `package.json`)
-- `husky` + `lint-staged` pre-commit hooks exist: run `eslint --fix`, `prettier --write`, and `npm run build`
-- Environment vars prefixed `VITE_` (Vite convention); set in `.env` (gitignored), template in `.env.example`
-- `postinstall` script copies `pdf.worker.min.mjs` to `public/`
-- No CI workflows, no Docker
+- `prettier` is installed and used by **Vite-plus staged tasks** (configured in `vite.config.ts`).
+- **Git Hooks**: Pre-commit validation is handled by `vp commit` (or your IDE's integration with Vite-plus). It runs `eslint --fix`, `prettier --write`, and type-checking on staged files.
+- Environment vars prefixed `VITE_` (Vite convention); set in `.env` (gitignored), template in `.env.example`.
+- `postinstall` script copies `pdf.worker.min.mjs` to `public/` and syncs AI skills.
+- No CI workflows, no Docker.
 
-## Environment Variables
+## Environment Variables & Secrets Management
 
-Runtime (Vite-prefixed, set in `.env` / `.env.local`):
+This project uses **Proton Pass** templates and `pass-cli` to securely manage secrets. Never commit `.env` files with real secrets.
 
-- `VITE_SUPABASE_URL`
-- `VITE_SUPABASE_ANON_KEY`
-- `VITE_ANTHROPIC_API_KEY` — used by `aiService` and browser-side model fallback logic.
-- `VITE_OPENAI_API_KEY` — used by `modelSelector` for OpenAI fallback logic.
+### 1. Secret Injection (Recommended)
 
-Local tooling / non-Vite values:
+We use a template-based injection system to populate your local `.env`:
 
-- `ATLAS_DATABASE_URL` — target database URL for Atlas schema commands.
-- `GEMINI_API_KEY` — used by local AI audit scripts.
+1. Copy `.env.template.pass` to `.env.pass.template` (local only, gitignored).
+2. Ensure you have the `pass-cli` installed and authenticated.
+3. Run `npm run env:inject` to fetch secrets from Proton Pass and write them to `.env`.
+4. Alternatively, use `npm run env:run -- vp dev` to run a command with secrets loaded into the environment without writing to disk.
+
+### 2. Available Variables
+
+Runtime (Vite-prefixed, set in `.env`):
+
+- `VITE_SUPABASE_URL`: Supabase project URL.
+- `VITE_SUPABASE_ANON_KEY`: Supabase anonymous key.
+- `VITE_ANTHROPIC_API_KEY`: Primary LLM for AI services.
+- `VITE_OPENAI_API_KEY`: Fallback LLM for model selection logic.
+
+Local Tooling / Non-Vite:
+
+- `DATABASE_URL`: Direct Postgres connection string (used by `db.js`).
+- `ATLAS_DATABASE_URL`: Used for Atlas schema management.
+- `GEMINI_API_KEY`: Used by local AI audit scripts.
 
 Templates:
 
-- `.env.example` documents manual `.env` values.
-- `.env.pass.template.example` is the committed Proton Pass example for the local `scripts/populate-env.cjs` workflow.
-- `.env.template.pass` is an alternate Proton Pass template spelling for tooling that expects suffix-based pass templates; copy it to `.env.pass.template` before running `npm run env:inject`.
+- `.env.example`: Reference for manual setup.
+- `.env.pass.template.example`: Reference for pass-cli template structure.
 
 ## Skills & MCP Servers
 
@@ -243,12 +274,15 @@ gotchas, and breaking changes. Updated at the end of every work session.
 
 ### Tier 3 — claude-mem (Cross-Session Memory)
 
-Persistent observations across Claude Code sessions. See `.sisyphus/progress/CLAUDE-MEM.md`
-for the recording guide.
+Persistent observations across sessions. A PostToolUse hook
+(`.claude/hooks/post-response/memento-capture.sh`) logs file changes into a buffer
+after each response (Claude Code). For OpenCode, agents use `scripts/memento.sh`
+directly. See `.sisyphus/progress/CLAUDE-MEM.md` for the full workflow.
 
 **Note on Tools**:
 
-- **Claude Code**: Use `observation_add` to persist decisions, patterns, and gotchas.
+- **Claude Code / OpenCode**: Use `observation_add` + `observation_context` for
+  cross-session memory (tools provided by the oh-my-openagent plugin).
 - **Gemini CLI**: Use `replace` or `write_file` to record observations directly into
   `.sisyphus/progress/current-status.md` (Tier 2) or project documentation.
   There is no `observation_add` tool in Gemini CLI.
@@ -260,25 +294,33 @@ to see recent changes. Commit messages follow conventional commits format.
 
 ### Session Workflow
 
+**MANDATORY: claude-mem hooks at every session boundary.**
+See `.sisyphus/progress/CLAUDE-MEM.md` for details and usage.
+
 **Start of AI session:**
 
 1. Read `.sisyphus/progress/current-status.md` — understand current state
 2. Read `AGENTS.md` — refresh project context
-3. Run `git log --oneline -20` — see recent changes
-4. Run `vp install` if new dependencies may have been added
-5. Begin work
+3. **claude-mem context load** (MANDATORY):
+   - Call `observation_context(query="this project", limit=5)`
+   - Run `bash scripts/memento.sh context 7` for git context fallback
+4. Run `git log --oneline -20` — see recent changes
+5. Run `vp install` if new dependencies may have been added
+6. Begin work
 
 **End of AI session:**
 
-1. Update `.sisyphus/progress/current-status.md`:
+1. **claude-mem capture** (MANDATORY):
+   - Run `bash scripts/memento.sh flush` to read the hook buffer
+   - Call `observation_add` with a structured observation of what was done
+   - See `.sisyphus/progress/CLAUDE-MEM.md` for format and kinds
+2. Update `.sisyphus/progress/current-status.md`:
    - Move completed items to "Recently Completed"
    - Update "In Progress" with current state
    - Add any "Key Decisions Made"
    - Add any "Changed Patterns / Gotchas"
    - Add any "Breaking Changes / Areas of Caution"
    - Set "Next Up" for the next session
-2. If using Claude Code: record key decisions as claude-mem observations
-   (see `.sisyphus/progress/CLAUDE-MEM.md` for format)
 3. Commit changes with meaningful messages (conventional commits format)
 4. Add git notes for complex changes (see `conductor/workflow.md` for format)
 
