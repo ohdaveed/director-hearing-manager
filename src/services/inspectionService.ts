@@ -46,9 +46,7 @@ export const inspectionService = {
 
   async getById(
     id: string,
-  ): Promise<
-    Inspection & { violations: Violation[]; inspection_photos: Photo[] }
-  > {
+  ): Promise<Inspection & { violations: Violation[]; inspection_photos: Photo[] }> {
     const { data, error } = await supabase
       .from("inspections")
       .select(
@@ -66,13 +64,7 @@ export const inspectionService = {
   },
 
   async save(inspection: any): Promise<Inspection> {
-    const {
-      violations,
-      photos,
-      isDraft: _isDraft,
-      summary,
-      ...rest
-    } = inspection;
+    const { violations, photos, isDraft: _isDraft, summary, ...rest } = inspection;
 
     // Transform fields to match database schema
     const inspectionData: InspectionInsert = {

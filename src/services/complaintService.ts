@@ -5,6 +5,34 @@ type Complaint = Database["public"]["Tables"]["complaints"]["Row"];
 type ComplaintInsert = Database["public"]["Tables"]["complaints"]["Insert"];
 type ComplaintUpdate = Database["public"]["Tables"]["complaints"]["Update"];
 
+export type EscalationQueueComplaint = Pick<
+  Complaint,
+  | "id"
+  | "legacy_complaint_id"
+  | "address"
+  | "status"
+  | "description"
+  | "assigned_to"
+  | "date_entered"
+  | "hearing_status"
+  | "hearing_date"
+  | "legacy_location_id"
+  | "category"
+  | "reinspection_due_on_after"
+  | "deleted_at"
+> & {
+  hearing_packets?: Array<{
+    id: string;
+    hearing_date: string | null;
+    packet_status: string | null;
+    assigned_to: string | null;
+    case_number: string | null;
+    program_code: string | null;
+    packet_type: string | null;
+    deleted_at: string | null;
+  }>;
+};
+
 /**
  * Column selection constants to avoid SELECT * anti-pattern.
  * Centralize here so changes propagate everywhere.
@@ -13,6 +41,14 @@ export const COMPLAINT_LIST_COLUMNS = `
   id, legacy_complaint_id, address, status, description, assigned_to,
   date_entered, hearing_status, hearing_date, legacy_location_id,
   category, reinspection_due_on_after, deleted_at
+`;
+
+export const COMPLAINT_ESCALATION_COLUMNS = `
+  ${COMPLAINT_LIST_COLUMNS},
+  hearing_packets!complaint_id (
+    id, hearing_date, packet_status, assigned_to, case_number,
+    program_code, packet_type, deleted_at
+  )
 `;
 
 export const COMPLAINT_FULL_COLUMNS = `
@@ -75,6 +111,19 @@ export const complaintService = {
     const { data, error } = await query;
     if (error) throw error;
     return data as Complaint[];
+  },
+
+  async getEscalationQueue(): Promise<EscalationQueueComplaint[]> {
+    const { data, error } = await supabase
+      .from("complaints")
+      .select(COMPLAINT_ESCALATION_COLUMNS)
+      .is("deleted_at", null)
+      .order("date_entered", { ascending: false });
+
+    if (error) throw error;
+    // Supabase's generated table row type cannot express embedded PostgREST
+    // relation payloads, so this boundary narrows the explicit select above.
+    return data as unknown as EscalationQueueComplaint[];
   },
 
   async getById(id: string): Promise<any> {

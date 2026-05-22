@@ -13,10 +13,7 @@ export const PACKET_TRANSITIONS: Record<PacketStatus, PacketStatus[]> = {
   Submitted: [],
 };
 
-export function canTransitionPacket(
-  fromStatus: PacketStatus,
-  toStatus: PacketStatus,
-) {
+export function canTransitionPacket(fromStatus: PacketStatus, toStatus: PacketStatus) {
   return PACKET_TRANSITIONS[fromStatus]?.includes(toStatus) ?? false;
 }
 
@@ -30,10 +27,7 @@ function getEventType(status: PacketStatus) {
   return `packet_status_${status.toLowerCase().replaceAll(" ", "_")}`;
 }
 
-function appendStatusHistory(
-  history: StatusHistoryEntry[] | undefined,
-  entry: StatusHistoryEntry,
-) {
+function appendStatusHistory(history: StatusHistoryEntry[] | undefined, entry: StatusHistoryEntry) {
   return [...(history ?? []), entry];
 }
 
@@ -60,10 +54,7 @@ function buildStatusHistoryEntry({
   };
 }
 
-function statusTimestampUpdates(
-  toStatus: PacketStatus,
-  updates: Record<string, unknown>,
-) {
+function statusTimestampUpdates(toStatus: PacketStatus, updates: Record<string, unknown>) {
   const nextUpdates: Record<string, unknown> = {};
   if (toStatus === "Approved" && !("approved_at" in updates)) {
     nextUpdates.approved_at = new Date().toISOString();
@@ -97,17 +88,14 @@ export function usePacketWorkflow({
   };
 
   const updatePacketMutation = useMutation({
-    mutationFn: (updates: Record<string, unknown>) =>
-      packetService.update(packetId, updates),
+    mutationFn: (updates: Record<string, unknown>) => packetService.update(packetId, updates),
     onSuccess: async () => {
       await invalidatePacketQueries();
       toast.success("Packet updated");
     },
     onError: (error) => {
       console.error(error);
-      toast.error(
-        error instanceof Error ? error.message : "Failed to update packet",
-      );
+      toast.error(error instanceof Error ? error.message : "Failed to update packet");
     },
   });
 
@@ -156,11 +144,7 @@ export function usePacketWorkflow({
     },
     onError: (error) => {
       console.error(error);
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : "Failed to update packet workflow",
-      );
+      toast.error(error instanceof Error ? error.message : "Failed to update packet workflow");
     },
   });
 
@@ -262,8 +246,7 @@ export function usePacketWorkflow({
   };
 
   return {
-    canTransition: (toStatus: PacketStatus) =>
-      canTransitionPacket(currentStatus, toStatus),
+    canTransition: (toStatus: PacketStatus) => canTransitionPacket(currentStatus, toStatus),
     isUpdating: updatePacketMutation.isPending || transitionMutation.isPending,
     isRefreshing: refreshSnapshotMutation.isPending,
     savePacket,

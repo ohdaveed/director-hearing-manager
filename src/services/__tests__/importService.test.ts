@@ -63,22 +63,16 @@ describe("importService", () => {
     vi.clearAllMocks();
   });
 
-  it("should import inspection history and call AI extraction", async () => {
+  it("should import inspection history without AI extraction", async () => {
     const packetId = "packet_123";
     const inspectionIds = ["insp_1"];
 
     // Mock packet fetch
     vi.mocked((supabase as any).single).mockResolvedValueOnce({
-      data: { complaint: "complaint_1" },
-      error: null,
-    } as any);
-    // Mock inspection fetch
-    vi.mocked((supabase as any).single).mockResolvedValueOnce({
       data: {
-        inspection_id: "insp_1",
-        inspection_date: "2026-04-15",
-        inspector: "J. Smith",
-        notes: "Rodent issues",
+        id: packetId,
+        complaint_id: "complaint_1",
+        legacy_complaint_ref: "legacy_complaint_1",
       },
       error: null,
     } as any);
@@ -104,12 +98,27 @@ describe("importService", () => {
     expect(result.chronologyEntriesCreated).toBe(1);
     expect(result.exhibitsCreated).toBe(1);
     expect(aiService.extractViolations).not.toHaveBeenCalled();
-    expect((supabase as any).insert).toHaveBeenCalledWith(
+    expect((supabase as any).insert).toHaveBeenNthCalledWith(
+      1,
       expect.arrayContaining([
         expect.objectContaining({
-          complaint: "complaint_1",
+          complaint_id: "complaint_1",
+          legacy_complaint_ref: "legacy_complaint_1",
+          legacy_inspection_ref: "insp_1",
           entry_type: "Inspection",
           summary: expect.stringContaining("J. Smith"),
+        }),
+      ]),
+    );
+    expect((supabase as any).insert).toHaveBeenNthCalledWith(
+      2,
+      expect.arrayContaining([
+        expect.objectContaining({
+          complaint_id: "complaint_1",
+          legacy_complaint_ref: "legacy_complaint_1",
+          legacy_inspection_ref: "insp_1",
+          source_inspection_id: "insp_1",
+          exhibit_type: "Inspection Report",
         }),
       ]),
     );

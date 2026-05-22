@@ -1,3 +1,10 @@
+import type { 
+  EnforcementFlags, 
+  StatusHistoryEntry, 
+  ChecklistData as ChecklistCompletion,
+  PacketValidationResult as ZodPacketValidationResult 
+} from "@/schemas/packetSchema";
+
 /**
  * Domain types for Hearing Packets.
  */
@@ -7,13 +14,7 @@ import type { ComplaintSummary } from "./complaint";
 
 export type JsonRecord = Record<string, unknown>;
 
-export interface PacketValidationResult {
-  rule_slug: string;
-  status: "pass" | "warning" | "fail" | string;
-  severity?: "critical" | "major" | "minor" | string;
-  message?: string;
-  [key: string]: unknown;
-}
+export interface PacketValidationResult extends ZodPacketValidationResult {}
 
 /**
  * Basic packet data from hearing_packets table plus denormalized complaint data.
@@ -109,21 +110,3 @@ export type PacketWithRelations = PacketFull & {
     status: string;
   }>;
 };
-
-export interface EnforcementFlags {
-  nuisanceAbatement: boolean;
-  costRecovery: boolean;
-  appealHealthPermit: boolean;
-  appealNonPermitted: boolean;
-}
-
-export interface StatusHistoryEntry {
-  timestamp: string;
-  userName?: string;
-  fromStatus?: string;
-  toStatus?: string;
-  action?: string;
-  notes?: string;
-}
-
-export type ChecklistCompletion = Record<number, boolean>;

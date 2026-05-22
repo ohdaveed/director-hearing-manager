@@ -5,13 +5,7 @@
  * It is manually maintained to ensure parity between the database and the frontend.
  */
 
-export type Json =
-  | string
-  | number
-  | boolean
-  | null
-  | { [key: string]: Json | undefined }
-  | Json[];
+export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
 export interface Database {
   public: {
@@ -20,12 +14,7 @@ export interface Database {
         Row: {
           id: string;
           photo_url: string | null;
-          photo_type:
-            | "Violation"
-            | "Abatement"
-            | "Memo of Visit"
-            | "General"
-            | null;
+          photo_type: "Violation" | "Abatement" | "Memo of Visit" | "General" | null;
           caption: string | null;
           violation_label: string | null;
           complaint_id: string | null;
@@ -43,12 +32,7 @@ export interface Database {
         Insert: {
           id?: string;
           photo_url?: string | null;
-          photo_type?:
-            | "Violation"
-            | "Abatement"
-            | "Memo of Visit"
-            | "General"
-            | null;
+          photo_type?: "Violation" | "Abatement" | "Memo of Visit" | "General" | null;
           caption?: string | null;
           violation_label?: string | null;
           complaint_id?: string | null;
@@ -66,12 +50,7 @@ export interface Database {
         Update: {
           id?: string;
           photo_url?: string | null;
-          photo_type?:
-            | "Violation"
-            | "Abatement"
-            | "Memo of Visit"
-            | "General"
-            | null;
+          photo_type?: "Violation" | "Abatement" | "Memo of Visit" | "General" | null;
           caption?: string | null;
           violation_label?: string | null;
           complaint_id?: string | null;
@@ -140,14 +119,7 @@ export interface Database {
           unit_number: string | null;
           complaint_type: string | null;
           complaint_subtype: string | null;
-          method_received:
-            | "Email"
-            | "Phone"
-            | "In-Person"
-            | "311"
-            | "Walk-In"
-            | "Letter"
-            | null;
+          method_received: "Email" | "Phone" | "In-Person" | "311" | "Walk-In" | "Letter" | null;
           assigned_program:
             | "Healthy Housing and Vector Control"
             | "Environmental Health"
@@ -223,14 +195,7 @@ export interface Database {
           unit_number?: string | null;
           complaint_type?: string | null;
           complaint_subtype?: string | null;
-          method_received?:
-            | "Email"
-            | "Phone"
-            | "In-Person"
-            | "311"
-            | "Walk-In"
-            | "Letter"
-            | null;
+          method_received?: "Email" | "Phone" | "In-Person" | "311" | "Walk-In" | "Letter" | null;
           assigned_program?:
             | "Healthy Housing and Vector Control"
             | "Environmental Health"
@@ -306,14 +271,7 @@ export interface Database {
           unit_number?: string | null;
           complaint_type?: string | null;
           complaint_subtype?: string | null;
-          method_received?:
-            | "Email"
-            | "Phone"
-            | "In-Person"
-            | "311"
-            | "Walk-In"
-            | "Letter"
-            | null;
+          method_received?: "Email" | "Phone" | "In-Person" | "311" | "Walk-In" | "Letter" | null;
           assigned_program?:
             | "Healthy Housing and Vector Control"
             | "Environmental Health"
@@ -748,12 +706,7 @@ export interface Database {
           email: string | null;
           first_name: string | null;
           last_name: string | null;
-          role:
-            | "Admin"
-            | "Inspector"
-            | "Program Manager"
-            | "Super Admin"
-            | null;
+          role: "Admin" | "Inspector" | "Program Manager" | "Super Admin" | null;
           last_login: string | null;
           signature_text: string | null;
           signature_style:
@@ -771,12 +724,7 @@ export interface Database {
           email?: string | null;
           first_name?: string | null;
           last_name?: string | null;
-          role?:
-            | "Admin"
-            | "Inspector"
-            | "Program Manager"
-            | "Super Admin"
-            | null;
+          role?: "Admin" | "Inspector" | "Program Manager" | "Super Admin" | null;
           last_login?: string | null;
           signature_text?: string | null;
           signature_style?:
@@ -794,12 +742,7 @@ export interface Database {
           email?: string | null;
           first_name?: string | null;
           last_name?: string | null;
-          role?:
-            | "Admin"
-            | "Inspector"
-            | "Program Manager"
-            | "Super Admin"
-            | null;
+          role?: "Admin" | "Inspector" | "Program Manager" | "Super Admin" | null;
           last_login?: string | null;
           signature_text?: string | null;
           signature_style?:
@@ -821,11 +764,7 @@ export interface Database {
       [_ in never]: never;
     };
     Enums: {
-      inspection_photos_photo_type_enum:
-        | "Violation"
-        | "Abatement"
-        | "Memo of Visit"
-        | "General";
+      inspection_photos_photo_type_enum: "Violation" | "Abatement" | "Memo of Visit" | "General";
       complaints_status_enum:
         | "New"
         | "Contact Pending"
@@ -893,11 +832,7 @@ export interface Database {
         | "Hearing Referral"
         | "Other";
       chronology_visibility_enum: "Public" | "Internal";
-      users_role_enum:
-        | "Admin"
-        | "Inspector"
-        | "Program Manager"
-        | "Super Admin";
+      users_role_enum: "Admin" | "Inspector" | "Program Manager" | "Super Admin";
       users_signature_style_enum:
         | "Style 1 — Classic"
         | "Style 2 — Flowing"

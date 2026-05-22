@@ -5,6 +5,7 @@ import {
   buildStandardsPromptBlock,
 } from "@/utils/directorsRulesStandards";
 import type { ComplianceResult } from "@/types/compliance";
+import { aiViolationListSchema, complianceResultSchema } from "@/schemas/aiSchema";
 
 const anthropic = new Anthropic({
   apiKey: import.meta.env.VITE_ANTHROPIC_API_KEY || "mock_key",
@@ -45,11 +46,14 @@ Return a JSON array of objects:
         if (jsonMatch) {
           const rawViolations = JSON.parse(jsonMatch[0]);
 
+          // Validate with Zod at the boundary
+          const parsedViolations = aiViolationListSchema.parse(rawViolations);
+
           // Filter for valid Article 11 codes only
-          const validViolations = rawViolations.filter((v: any) => isValidArticle11Code(v.code));
+          const validViolations = parsedViolations.filter((v) => isValidArticle11Code(v.code));
 
           // Post-process to add standards
-          return validViolations.map((v: any) => {
+          return validViolations.map((v) => {
             const standards = getStandardsForViolationCode(v.code);
             const standardsPrompt = buildStandardsPromptBlock(standards);
             return {
@@ -59,7 +63,7 @@ Return a JSON array of objects:
           });
         }
       } catch (e) {
-        console.error("Failed to parse AI response", e);
+        console.error("Failed to parse or validate AI response", e);
       }
     }
 
@@ -128,8 +132,9 @@ Be thorough - check every required section and element.
       if (content.type === "text") {
         const jsonMatch = content.text.match(/\{[\s\S]*\}/);
         if (jsonMatch) {
-          const result = JSON.parse(jsonMatch[0]) as ComplianceResult;
-          return result;
+          const rawResult = JSON.parse(jsonMatch[0]);
+          // Validate with Zod at the boundary
+          return complianceResultSchema.parse(rawResult) as ComplianceResult;
         }
       }
     } catch (error) {

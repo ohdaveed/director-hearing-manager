@@ -1,6 +1,14 @@
+import { z } from "zod";
 import { supabase } from "@/lib/supabase";
 import type { ComplianceResult } from "@/types/compliance";
 import type { PacketData } from "./packetMapperService";
+import {
+  checklistSchema,
+  enforcementFlagsSchema,
+  statusHistoryEntrySchema,
+  packetValidationResultSchema,
+  packetSnapshotSchema,
+} from "@/schemas/packetSchema";
 
 /** Column selections to avoid SELECT * */
 export const PACKET_LIST_COLUMNS = `
@@ -83,51 +91,51 @@ export interface GenerateHearingPacketResult {
   validationResults: PacketValidationResult[];
 }
 
-export interface GeneratedFileUrlResult {
-  signedUrl: string;
-  file: Pick<
-    GeneratedPacketFile,
-    "id" | "file_path" | "file_name" | "metadata"
-  >;
+export interface CreatePacketOptions {
+  hearingDate?: string | null;
+  assignedTo?: string | null;
+  caseNumber?: string | null;
 }
 
-function parseJsonField<T>(value: unknown, fallback: T): T {
+export interface GeneratedFileUrlResult {
+  signedUrl: string;
+  file: Pick<GeneratedPacketFile, "id" | "file_path" | "file_name" | "metadata">;
+}
+
+/**
+ * Validates and parses a JSON field with Zod, falling back to a default value on error.
+ */
+function safeParseJson<T>(schema: z.ZodSchema<T>, value: unknown, fallback: T): T {
   if (value === null || value === undefined || value === "") return fallback;
+  
+  let jsonValue = value;
   if (typeof value === "string") {
     try {
-      return JSON.parse(value) as T;
+      jsonValue = JSON.parse(value);
     } catch {
       return fallback;
     }
   }
-  return value as T;
+
+  const result = schema.safeParse(jsonValue);
+  return result.success ? result.data : fallback;
 }
 
 function normalizePacketRow<T extends Record<string, any>>(packet: T): T {
   return {
     ...packet,
-    checklist_json: parseJsonField(
-      packet.checklist_json ?? packet.checklist_data,
-      {},
-    ),
-    enforcement_json: parseJsonField(
-      packet.enforcement_json ?? packet.enforcement_flags,
-      {},
-    ),
-    status_history_json: parseJsonField(
-      packet.status_history_json ?? packet.status_history,
-      [],
-    ),
-    selected_report_ids_json: parseJsonField(
-      packet.selected_report_ids_json ?? packet.selected_report_ids,
-      [],
-    ),
-    selected_photo_ids_json: parseJsonField(
-      packet.selected_photo_ids_json ?? packet.selected_photo_ids,
-      [],
-    ),
-    packet_snapshot_json: parseJsonField(packet.packet_snapshot_json, {}),
-    validation_results_json: parseJsonField(packet.validation_results_json, []),
+    checklist_json: safeParseJson(checklistSchema, packet.checklist_json ?? packet.checklist_data, {}),
+    enforcement_json: safeParseJson(enforcementFlagsSchema, packet.enforcement_json ?? packet.enforcement_flags, {
+      nuisanceAbatement: false,
+      costRecovery: false,
+      appealHealthPermit: false,
+      appealNonPermitted: false,
+    }),
+    status_history_json: safeParseJson(z.array(statusHistoryEntrySchema), packet.status_history_json ?? packet.status_history, []),
+    selected_report_ids_json: safeParseJson(z.array(z.string()), packet.selected_report_ids_json ?? packet.selected_report_ids, []),
+    selected_photo_ids_json: safeParseJson(z.array(z.string()), packet.selected_photo_ids_json ?? packet.selected_photo_ids, []),
+    packet_snapshot_json: safeParseJson(packetSnapshotSchema, packet.packet_snapshot_json, {}),
+    validation_results_json: safeParseJson(z.array(packetValidationResultSchema), packet.validation_results_json, []),
   };
 }
 
@@ -146,13 +154,18 @@ function toLegacyCompatibleUpdates(updates: Record<string, any>) {
   }
 
   if ("checklist_data" in next && !("checklist_json" in next)) {
-    next.checklist_json = parseJsonField(next.checklist_data, {});
+    next.checklist_json = safeParseJson(checklistSchema, next.checklist_data, {});
   }
   if ("enforcement_flags" in next && !("enforcement_json" in next)) {
-    next.enforcement_json = parseJsonField(next.enforcement_flags, {});
+    next.enforcement_json = safeParseJson(enforcementFlagsSchema, next.enforcement_flags, {
+      nuisanceAbatement: false,
+      costRecovery: false,
+      appealHealthPermit: false,
+      appealNonPermitted: false,
+    });
   }
   if ("status_history" in next && !("status_history_json" in next)) {
-    next.status_history_json = parseJsonField(next.status_history, []);
+    next.status_history_json = safeParseJson(z.array(statusHistoryEntrySchema), next.status_history, []);
   }
 
   next.updated_at = new Date().toISOString();
@@ -160,9 +173,7 @@ function toLegacyCompatibleUpdates(updates: Record<string, any>) {
 }
 
 export const packetService = {
-  async getAll(
-    filters: { statusFilter?: string; assignedToFilter?: string } = {},
-  ) {
+  async getAll(filters: { statusFilter?: string; assignedToFilter?: string } = {}) {
     let query = supabase
       .from("hearing_packets")
       .select(
@@ -219,7 +230,7 @@ export const packetService = {
               regulatory_reference_id
             ),
             inspection_photos!inspection_id (
-              id, photo_url, photo_type, caption, violation_label,
+              id, photo_url, uploaded_at, photo_type, caption, violation_label,
               photo_taken_at, display_address, exhibit_label,
               packet_include, packet_sort_order, deleted_at
             )
@@ -241,17 +252,40 @@ export const packetService = {
 
     const packet = normalizePacketRow(data as any);
     const complaint = (data as any).complaint;
+    const inspections = complaint?.inspections || [];
+    const allPhotos = inspections.flatMap((inspection: any) =>
+      (inspection.inspection_photos ?? []).map((photo: any) => ({
+        ...photo,
+        inspection_date: inspection.inspection_date,
+        inspector: inspection.inspector,
+      })),
+    );
     return {
       packet,
       complaint,
       location: complaint?.locations,
-      inspections: complaint?.inspections || [],
+      inspections,
       chronology: complaint?.chronology || [],
       serviceLog: complaint?.service_log || [],
+      allPhotos,
+      exhibits: [],
+      importedReports: [],
     };
   },
 
-  async create(complaintId: string) {
+  async create(complaintId: string, options: CreatePacketOptions = {}) {
+    const { data: existingPacket, error: existingError } = await supabase
+      .from("hearing_packets")
+      .select(PACKET_LIST_COLUMNS)
+      .eq("complaint_id", complaintId)
+      .is("deleted_at", null)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (existingError) throw existingError;
+    if (existingPacket) return normalizePacketRow(existingPacket as any);
+
     const { data, error } = await supabase
       .from("hearing_packets")
       .insert([
@@ -259,6 +293,10 @@ export const packetService = {
           legacy_complaint_ref: complaintId,
           complaint_id: complaintId,
           packet_status: "Not Started",
+          packet_type: "Draft",
+          hearing_date: options.hearingDate || null,
+          assigned_to: options.assignedTo || null,
+          case_number: options.caseNumber || null,
         },
       ])
       .select(PACKET_LIST_COLUMNS)
@@ -297,12 +335,9 @@ export const packetService = {
   },
 
   async refreshSnapshot(packetId: string) {
-    const { data, error } = await supabase.rpc(
-      "refresh_hearing_packet_snapshot",
-      {
-        p_hearing_packet_id: packetId,
-      },
-    );
+    const { data, error } = await supabase.rpc("refresh_hearing_packet_snapshot", {
+      p_hearing_packet_id: packetId,
+    });
     if (error) throw error;
     return data;
   },
@@ -311,23 +346,17 @@ export const packetService = {
     packetId: string,
     packetType: "draft" | "final" = "draft",
   ): Promise<GenerateHearingPacketResult> {
-    const { data, error } = await supabase.functions.invoke(
-      "generate-hearing-packet",
-      {
-        body: { packetId, packetType },
-      },
-    );
+    const { data, error } = await supabase.functions.invoke("generate-hearing-packet", {
+      body: { packetId, packetType },
+    });
     if (error) throw error;
     return data as GenerateHearingPacketResult;
   },
 
   async getGeneratedFileUrl(fileId: string): Promise<GeneratedFileUrlResult> {
-    const { data, error } = await supabase.functions.invoke(
-      "get-hearing-packet-file-url",
-      {
-        body: { fileId },
-      },
-    );
+    const { data, error } = await supabase.functions.invoke("get-hearing-packet-file-url", {
+      body: { fileId },
+    });
     if (error) throw error;
     return data as GeneratedFileUrlResult;
   },

@@ -1,8 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
-import {
-  getAnalysisStatus,
-  type TaskStatus,
-} from "@/services/packetAnalysisService";
+import { getAnalysisStatus, type TaskStatus } from "@/services/packetAnalysisService";
 import type { ComplianceResult } from "@/types/compliance";
 
 interface UsePacketReviewStatusReturn {
@@ -16,9 +13,7 @@ interface UsePacketReviewStatusReturn {
 const INITIAL_INTERVAL = 1500; // 1.5 seconds (Doherty Threshold)
 const MAX_INTERVAL = 30000; // 30 seconds max
 
-export function usePacketReviewStatus(
-  taskId: string | null,
-): UsePacketReviewStatusReturn {
+export function usePacketReviewStatus(taskId: string | null): UsePacketReviewStatusReturn {
   const [status, setStatus] = useState<TaskStatus>("idle");
   const [progress, setProgress] = useState(0);
   const [result, setResult] = useState<ComplianceResult | undefined>();

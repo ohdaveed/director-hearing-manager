@@ -2,6 +2,7 @@ import { supabase } from "@/lib/supabase";
 import { aiService } from "./aiService";
 import { pdfService } from "./pdfService";
 import { wordService } from "./wordService";
+import { aiViolationListSchema } from "@/schemas/aiSchema";
 
 /** Column selections to avoid SELECT * */
 const PACKET_COMPLAINT_COLUMNS = "id, legacy_complaint_ref, complaint_id";
@@ -13,13 +14,7 @@ const CHRONO_RELATED_COLUMNS =
   "id, legacy_inspection_ref, legacy_complaint_ref, complaint_id, deleted_at";
 
 export const importService = {
-  async importDraftPacket({
-    packetId,
-    file,
-  }: {
-    packetId: string;
-    file: File;
-  }) {
+  async importDraftPacket({ packetId, file }: { packetId: string; file: File }) {
     let text = "";
     if (file.name.toLowerCase().endsWith(".pdf")) {
       text = await pdfService.extractText(file);
@@ -29,7 +24,9 @@ export const importService = {
       throw new Error("Unsupported file format");
     }
 
-    const extractedViolations = await aiService.extractViolations(text);
+    const rawViolations = await aiService.extractViolations(text);
+    // Validate with Zod at the boundary
+    const extractedViolations = aiViolationListSchema.parse(rawViolations);
 
     const { data: packet } = await supabase
       .from("hearing_packets")
@@ -90,9 +87,7 @@ export const importService = {
       .is("deleted_at", null);
 
     const importedIds = new Set(
-      (existingChrono ?? [])
-        .map((c) => (c as any).legacy_inspection_ref)
-        .filter(Boolean),
+      (existingChrono ?? []).map((c) => (c as any).legacy_inspection_ref).filter(Boolean),
     );
 
     return {
@@ -169,9 +164,7 @@ export const importService = {
       exhibit_date: insp.inspection_date,
     }));
 
-    const { error: exhibitBatchError } = await supabase
-      .from("exhibits")
-      .insert(exhibitEntries);
+    const { error: exhibitBatchError } = await supabase.from("exhibits").insert(exhibitEntries);
 
     if (exhibitBatchError) throw exhibitBatchError;
 
