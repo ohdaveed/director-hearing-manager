@@ -127,10 +127,7 @@
             { "name": "idx_auth_code", "parts": [{ "column": "auth_code" }] },
             {
               "name": "idx_user_id_auth_method",
-              "parts": [
-                { "column": "user_id" },
-                { "column": "authentication_method" }
-              ]
+              "parts": [{ "column": "user_id" }, { "column": "authentication_method" }]
             }
           ],
           "primary_key": { "parts": [{ "column": "id" }] },
@@ -224,10 +221,7 @@
             {
               "name": "mfa_amr_claims_session_id_authentication_method_pkey",
               "unique": true,
-              "parts": [
-                { "column": "session_id" },
-                { "column": "authentication_method" }
-              ]
+              "parts": [{ "column": "session_id" }, { "column": "authentication_method" }]
             }
           ],
           "primary_key": { "parts": [{ "column": "id" }] },
@@ -470,10 +464,7 @@
             },
             {
               "name": "oauth_consents_user_order_idx",
-              "parts": [
-                { "column": "user_id" },
-                { "desc": true, "column": "granted_at" }
-              ]
+              "parts": [{ "column": "user_id" }, { "desc": true, "column": "granted_at" }]
             }
           ],
           "primary_key": { "parts": [{ "column": "id" }] },
@@ -995,9 +986,7 @@
             },
             {
               "name": "idx_users_name",
-              "parts": [
-                { "expr": "((raw_user_meta_data -\u003e\u003e 'name'::text))" }
-              ]
+              "parts": [{ "expr": "((raw_user_meta_data -\u003e\u003e 'name'::text))" }]
             },
             {
               "name": "reauthentication_token_idx",
@@ -1016,10 +1005,7 @@
             },
             {
               "name": "users_instance_id_email_idx",
-              "parts": [
-                { "column": "instance_id" },
-                { "expr": "lower((email)::text)" }
-              ]
+              "parts": [{ "column": "instance_id" }, { "expr": "lower((email)::text)" }]
             },
             {
               "name": "users_instance_id_idx",
@@ -1310,10 +1296,7 @@
           "indexes": [
             {
               "name": "idx_complaints_assigned_date",
-              "parts": [
-                { "column": "assigned_to" },
-                { "desc": true, "column": "date_entered" }
-              ]
+              "parts": [{ "column": "assigned_to" }, { "desc": true, "column": "date_entered" }]
             },
             {
               "name": "idx_complaints_assigned_program",
@@ -1550,10 +1533,7 @@
             },
             {
               "name": "idx_generated_packet_files_final",
-              "parts": [
-                { "column": "hearing_packet_id" },
-                { "column": "is_final" }
-              ]
+              "parts": [{ "column": "hearing_packet_id" }, { "column": "is_final" }]
             },
             {
               "name": "idx_generated_packet_files_packet",
@@ -2165,10 +2145,7 @@
             },
             {
               "name": "idx_owner_documents_complaint_uuid",
-              "parts": [
-                { "column": "complaint_uuid" },
-                { "column": "submission_date" }
-              ]
+              "parts": [{ "column": "complaint_uuid" }, { "column": "submission_date" }]
             }
           ],
           "primary_key": { "parts": [{ "column": "id" }] },
@@ -2196,17 +2173,11 @@
           "indexes": [
             {
               "name": "idx_packet_generation_events_complaint",
-              "parts": [
-                { "column": "complaint_uuid" },
-                { "desc": true, "column": "created_at" }
-              ]
+              "parts": [{ "column": "complaint_uuid" }, { "desc": true, "column": "created_at" }]
             },
             {
               "name": "idx_packet_generation_events_packet",
-              "parts": [
-                { "column": "hearing_packet_id" },
-                { "desc": true, "column": "created_at" }
-              ]
+              "parts": [{ "column": "hearing_packet_id" }, { "desc": true, "column": "created_at" }]
             }
           ],
           "primary_key": { "parts": [{ "column": "id" }] },
@@ -2304,10 +2275,7 @@
             {
               "name": "pdf_field_map_template_name_pdf_field_name_key",
               "unique": true,
-              "parts": [
-                { "column": "template_name" },
-                { "column": "pdf_field_name" }
-              ]
+              "parts": [{ "column": "template_name" }, { "column": "pdf_field_name" }]
             }
           ],
           "primary_key": { "parts": [{ "column": "id" }] }
@@ -2640,10 +2608,7 @@
           "indexes": [
             {
               "name": "messages_inserted_at_topic_index",
-              "parts": [
-                { "desc": true, "column": "inserted_at" },
-                { "column": "topic" }
-              ]
+              "parts": [{ "desc": true, "column": "inserted_at" }, { "column": "topic" }]
             }
           ],
           "primary_key": {
@@ -2725,9 +2690,7 @@
             { "name": "owner_id", "type": "text", "null": true },
             { "name": "type", "type": "storage.buckettype" }
           ],
-          "indexes": [
-            { "name": "bname", "unique": true, "parts": [{ "column": "name" }] }
-          ],
+          "indexes": [{ "name": "bname", "unique": true, "parts": [{ "column": "name" }] }],
           "primary_key": { "parts": [{ "column": "id" }] }
         },
         {
@@ -2860,11 +2823,7 @@
           "indexes": [
             {
               "name": "idx_multipart_uploads_list",
-              "parts": [
-                { "column": "bucket_id" },
-                { "column": "key" },
-                { "column": "created_at" }
-              ]
+              "parts": [{ "column": "bucket_id" }, { "column": "key" }, { "column": "created_at" }]
             }
           ],
           "primary_key": { "parts": [{ "column": "id" }] },
@@ -2953,10 +2912,7 @@
           "indexes": [
             {
               "name": "supabase_functions_hooks_h_table_id_h_name_idx",
-              "parts": [
-                { "column": "hook_table_id" },
-                { "column": "hook_name" }
-              ]
+              "parts": [{ "column": "hook_table_id" }, { "column": "hook_name" }]
             },
             {
               "name": "supabase_functions_hooks_request_id_idx",

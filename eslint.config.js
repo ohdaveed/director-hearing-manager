@@ -30,6 +30,12 @@ export default tseslint.config(
         tsconfigRootDir: import.meta.dirname,
       },
     },
+    plugins: {
+      react,
+      "react-hooks": reactHooks,
+      "react-refresh": reactRefresh,
+      boundaries: boundaries,
+    },
     settings: {
       "boundaries/elements": [
         {
@@ -60,33 +66,26 @@ export default tseslint.config(
       ],
       "boundaries/ignore": ["**/*.test.ts", "**/*.test.tsx"],
     },
-    plugins: {
-      react,
-      "react-hooks": reactHooks,
-      "react-refresh": reactRefresh,
-      boundaries: boundaries,
-    },
     rules: {
       ...reactHooks.configs.recommended.rules,
-      "react-refresh/only-export-components": [
-        "warn",
-        { allowConstantExport: true },
-      ],
-      // Boundaries rules
-      "boundaries/element-types": [
+      "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
+      // Boundaries rules (v6 syntax)
+      "boundaries/no-unknown-files": "error",
+      "boundaries/dependencies": [
         "error",
         {
           default: "allow",
           rules: [
             {
-              from: ["ui"],
-              disallow: ["component", "page"],
-              message: "UI primitives should not depend on composite components or pages",
+              from: { type: "ui" },
+              disallow: [{ to: { type: "component" } }, { to: { type: "page" } }],
+              message:
+                "UI primitives should not depend on composite components or pages ({{from.type}} -> {{to.type}})",
             },
             {
-              from: ["component"],
-              disallow: ["page"],
-              message: "Components should not depend on pages",
+              from: { type: "component" },
+              disallow: [{ to: { type: "page" } }],
+              message: "Components should not depend on pages ({{from.type}} -> {{to.type}})",
             },
           ],
         },
@@ -120,5 +119,5 @@ export default tseslint.config(
       "no-var": "error",
       "@typescript-eslint/no-explicit-any": "warn",
     },
-  }
+  },
 );

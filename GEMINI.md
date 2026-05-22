@@ -1,4 +1,4 @@
-# GEMINI.md - Project Context: Zite
+# GEMINI.md - Project Context: Director Hearing Manager
 
 > **Source of truth**: See `AGENTS.md` for project commands, architecture, conventions,
 > database, and quality gates.
@@ -13,4 +13,4 @@
 
 ### Project at a Glance
 
-**Zite** is an enterprise-grade operational tool designed for the **San Francisco Department of Public Health (SFDPH)** Environmental Health Division (HHVC program). It automates the transition from field inspections to administrative enforcement by managing the compilation, validation, and tracking of **Director's Hearing Packets**.
+**Director Hearing Manager** is an enterprise-grade operational tool designed for the **San Francisco Department of Public Health (SFDPH)** Environmental Health Division (HHVC program). It automates the transition from field inspections to administrative enforcement by managing the compilation, validation, and tracking of **Director's Hearing Packets**.

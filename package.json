@@ -8,9 +8,12 @@
     "build": "tsc && vp build",
     "lint": "eslint . --report-unused-disable-directives --max-warnings 0",
     "test": "vp test",
+    "test:e2e": "playwright test",
+    "e2e:seed": "node scripts/seed-e2e-hearing-packet.cjs",
+    "test:coverage": "vp test --coverage",
     "preview": "vp preview",
-    "prepare": "vp config && husky && npm run prepare-env",
-    "prepare-env": "node scripts/populate-env.cjs",
+    "prepare": "vp config && vp config && npm run prepare-env",
+    "prepare-env": "ALLOW_EXISTING_ENV=1 node scripts/populate-env.cjs",
     "env:inject": "node scripts/populate-env.cjs",
     "env:run": "pass-cli run --env-file .env.pass.template --",
     "sync:pdf-worker": "cp node_modules/pdfjs-dist/build/pdf.worker.min.mjs public/pdf.worker.min.mjs",
@@ -97,9 +100,7 @@
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.2",
     "globals": "^17.6.0",
-    "husky": "^9.1.7",
     "jsdom": "^29.1.1",
-    "lint-staged": "^17.0.5",
     "markdownlint-cli2": "^0.22.1",
     "markdownlint-rule-helpers": "^0.30.0",
     "postcss": "^8.5.14",
@@ -118,8 +119,5 @@
     "vite": "npm:@voidzero-dev/vite-plus-core@latest",
     "vitest": "npm:@voidzero-dev/vite-plus-test@latest"
   },
-  "packageManager": "npm@11.14.1",
-  "lint-staged": {
-    "src/**/*.{ts,tsx}": "eslint --fix"
-  }
+  "packageManager": "npm@11.14.1"
 }
