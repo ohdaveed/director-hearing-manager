@@ -1,8 +1,8 @@
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
 
-const srcDir = path.resolve(__dirname, '../.agents/skills');
-const destDir = path.resolve(__dirname, '../.claude/skills');
+const srcDir = path.resolve(__dirname, "../.agents/skills");
+const destDir = path.resolve(__dirname, "../.claude/skills");
 
 function syncSkills() {
   try {
@@ -19,9 +19,9 @@ function syncSkills() {
     }
 
     fs.cpSync(srcDir, destDir, { recursive: true });
-    console.log('Successfully synced skills.');
+    console.log("Successfully synced skills.");
   } catch (error) {
-    console.error('Error syncing skills:', error);
+    console.error("Error syncing skills:", error);
     process.exit(1);
   }
 }

@@ -19,7 +19,11 @@ module.exports = {
     const hasContext7 = /Context7/i.test(content);
 
     if (!hasReconcile && !hasContext7) {
-      addError(onError, 1, "Mandatory Context7 reconciliation phase is missing in plan. Expected 'Research & Reconcile' or 'Context7' keywords.");
+      addError(
+        onError,
+        1,
+        "Mandatory Context7 reconciliation phase is missing in plan. Expected 'Research & Reconcile' or 'Context7' keywords.",
+      );
     }
-  }
+  },
 };

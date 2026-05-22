@@ -1,9 +1,9 @@
-require('dotenv').config();
-const fs = require('fs');
-const { GoogleGenerativeAI } = require('@google/generative-ai');
+require("dotenv").config();
+const fs = require("fs");
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 // Place your audit instructions here
 const UX_INSTRUCTION_SET = `
@@ -21,14 +21,14 @@ Output requirements:
 
 async function runAudit(filePath) {
   try {
-    const code = fs.readFileSync(filePath, 'utf8');
+    const code = fs.readFileSync(filePath, "utf8");
     const prompt = `### INSTRUCTIONS: ${UX_INSTRUCTION_SET} \n\n ### CODE: ${code}`;
 
     const result = await model.generateContent(prompt);
     console.log(`\n--- AUDIT: ${filePath} ---\n`);
     console.log(result.response.text());
   } catch (err) {
-    console.error('Audit failed:', err);
+    console.error("Audit failed:", err);
   }
 }
 
