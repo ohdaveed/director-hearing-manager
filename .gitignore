@@ -35,6 +35,7 @@ out
 
 # Testing
 coverage
+test-results/
 
 # Generated assets
 public/pdf.worker.min.mjs
